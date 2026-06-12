@@ -114,6 +114,7 @@ nav.vesti-header {
 .header-page-btn:hover::after, .header-page-btn.active::after {
   transform: scaleX(1);
 }
+/* Remplacer la règle .header-icon-btn */
 .header-icon-btn {
   width: 44px;
   height: 44px;
@@ -122,14 +123,21 @@ nav.vesti-header {
   border: 1px solid var(--border);
   box-shadow: 0 8px 22px rgba(26,20,16,0.07);
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  transition: all 0.25s ease;
+  line-height: 1;            /* ← aligne verticalement l'emoji */
   text-decoration: none;
   color: var(--ink);
+  transition: all 0.25s ease;
 }
+
+/* Option : ajuster la hauteur de ligne du conteneur parent */
+.vesti-header {
+  line-height: 1;            /* évite les décalages dus à la hauteur de ligne par défaut */
+}
+
 .header-icon-btn:hover {
   transform: translateY(-2px);
   color: var(--rust-logo);

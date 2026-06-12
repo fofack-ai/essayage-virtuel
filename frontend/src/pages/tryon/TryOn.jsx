@@ -84,12 +84,12 @@ export default function TryOn() {
                   background: step >= s.n ? `linear-gradient(135deg, ${T.red}, ${T.redDark})` : T.blueLight,
                   color: step >= s.n ? '#fff' : T.blueDark,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '13px', fontWeight: 700, transition: 'all .3s ease',
+                  fontSize: '13px', fontWeight: 700,
                   boxShadow: step >= s.n ? '0 8px 20px rgba(192,57,43,0.20)' : 'none',
                 }}>{s.n}</div>
                 <span style={{ fontSize: '13px', fontWeight: step === s.n ? 600 : 400, color: step >= s.n ? T.ink : T.muted }}>{s.label}</span>
               </div>
-              {i < 2 && <div style={{ height: '2px', width: '48px', background: step > s.n ? `linear-gradient(90deg, ${T.red}, ${T.blueDark})` : T.border, borderRadius: '2px', transition: 'background .3s' }} />}
+              {i < 2 && <div style={{ height: '2px', width: '48px', background: step > s.n ? `linear-gradient(90deg, ${T.red}, ${T.blueDark})` : T.border, borderRadius: '2px' }} />}
             </React.Fragment>
           ))}
         </div>
@@ -97,7 +97,7 @@ export default function TryOn() {
 
       <div style={{ padding: '48px 80px 80px' }}>
 
-        {/* STEP 1 */}
+        {/* STEP 1 : UPLOAD + CONSEILS */}
         {step === 1 && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'start' }}>
             <div>
@@ -111,7 +111,7 @@ export default function TryOn() {
                   minHeight: '380px', display: 'flex', flexDirection: 'column',
                   alignItems: 'center', justifyContent: 'center',
                   cursor: photo ? 'default' : 'pointer',
-                  position: 'relative', overflow: 'hidden', transition: 'all .3s ease',
+                  position: 'relative', overflow: 'hidden',
                 }}
               >
                 {photoPreview ? (
@@ -152,19 +152,14 @@ export default function TryOn() {
                   color: '#fff', border: 'none', borderRadius: '12px',
                   padding: '18px', fontSize: '14px', fontWeight: 500,
                   letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
-                  boxShadow: '0 14px 28px rgba(192,57,43,0.18)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-                  transition: 'all .25s ease',
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.background = `linear-gradient(135deg, ${T.blueDark}, ${T.blueNavy})`; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = `linear-gradient(135deg, ${T.red}, ${T.redDark})`; }}
-                >
+                }}>
                   Lancer l'analyse IA →
                 </button>
               )}
             </div>
 
-            {/* Conseils */}
+            {/* Conseils pour une bonne photo */}
             <div>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 400, marginBottom: '24px' }}>Conseils pour une bonne photo</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -209,7 +204,7 @@ export default function TryOn() {
           </div>
         )}
 
-        {/* STEP 2 */}
+        {/* STEP 2 : ANALYSE */}
         {step === 2 && (
           <div style={{ maxWidth: '560px', margin: '0 auto', textAlign: 'center', padding: '40px 0' }}>
             <div style={{
@@ -222,7 +217,7 @@ export default function TryOn() {
                 <path d="M12 2a10 10 0 1 0 10 10"/>
               </svg>
             </div>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 300, marginBottom: '12px' }}>Analyse en cours…</h2>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 300 }}>Analyse en cours…</h2>
             <p style={{ color: T.muted, marginBottom: '40px' }}>Notre IA analyse votre morphologie</p>
             <div style={{ background: T.blueLight, borderRadius: '100px', height: '8px', marginBottom: '12px', overflow: 'hidden' }}>
               <div style={{
@@ -239,12 +234,11 @@ export default function TryOn() {
                   padding: '14px 18px', borderRadius: '12px',
                   background: s.done ? T.blueLight : T.white,
                   border: `1px solid ${s.done ? 'rgba(53,92,134,0.30)' : T.border}`,
-                  transition: 'all .3s ease',
                 }}>
                   <div style={{
                     width: '22px', height: '22px', borderRadius: '50%',
                     background: s.done ? `linear-gradient(135deg, ${T.red}, ${T.redDark})` : 'rgba(26,26,26,0.1)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     {s.done && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
                   </div>
@@ -256,10 +250,10 @@ export default function TryOn() {
           </div>
         )}
 
-        {/* STEP 3 */}
+        {/* STEP 3 : RÉSULTATS AVEC PANNEAU LATéral COMPLET (conforme image) */}
         {step === 3 && (
           <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '48px', alignItems: 'start' }}>
-            {/* Gauche */}
+            {/* Colonne gauche : photo + mensurations */}
             <div>
               <div style={{ borderRadius: '18px', overflow: 'hidden', position: 'relative', marginBottom: '24px' }}>
                 {photoPreview
@@ -276,7 +270,7 @@ export default function TryOn() {
                 </div>
               </div>
 
-              <div style={{ background: T.white, borderRadius: '16px', border: `1px solid ${T.border}`, padding: '24px', boxShadow: '0 12px 34px rgba(26,26,26,0.075)' }}>
+              <div style={{ background: T.white, borderRadius: '16px', border: `1px solid ${T.border}`, padding: '24px' }}>
                 <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '20px', fontWeight: 400, marginBottom: '20px' }}>Mensurations détectées</h3>
                 {[
                   { label: 'Épaules', val: '42', key: 'shoulders' },
@@ -311,78 +305,80 @@ export default function TryOn() {
               }}>← Nouvelle photo</button>
             </div>
 
-            {/* Droite */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '28px' }}>
-                <div>
-                  <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '32px', fontWeight: 300 }}>Recommandations IA</h2>
-                  <p style={{ color: T.muted, fontSize: '13px', marginTop: '6px' }}>
-                    Taille recommandée : <strong style={{ color: T.ink }}>M</strong> — 4 produits compatibles
-                  </p>
-                </div>
-                <select value={selectedSize} onChange={e => setSelectedSize(e.target.value)} style={{
-                  padding: '10px 16px', borderRadius: '10px', border: `1px solid ${T.border}`,
-                  fontSize: '13px', background: T.white, cursor: 'pointer',
-                }}>
-                  {['XS','S','M','L','XL'].map(s => <option key={s}>{s}</option>)}
-                </select>
-              </div>
+            {/* Panneau latéral droit (exactement comme sur l'image) */}
+            <div style={{ background: T.white, borderRadius: '24px', border: `1px solid ${T.border}`, overflow: 'hidden' }}>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px' }}>
-                {scores.map((item, i) => (
-                  <div key={i} onClick={() => setSelectedProduct(item.product)} style={{
-                    borderRadius: '16px', overflow: 'hidden', background: T.white,
-                    border: `2px solid ${selectedProduct.id === item.product.id ? T.red : T.border}`,
-                    cursor: 'pointer', transition: 'all .25s ease',
-                    boxShadow: selectedProduct.id === item.product.id ? '0 12px 34px rgba(192,57,43,0.15)' : '0 12px 34px rgba(26,26,26,0.075)',
-                  }}>
-                    <div style={{ position: 'relative', height: '200px' }}>
-                      <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${item.img})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
-                      <div style={{
-                        position: 'absolute', top: '10px', right: '10px',
-                        background: item.score >= 90 ? T.red : T.blueDark,
-                        color: '#fff', fontSize: '12px', fontWeight: 700,
-                        padding: '4px 10px', borderRadius: '100px',
-                      }}>{item.score}%</div>
-                    </div>
-                    <div style={{ padding: '14px 16px' }}>
-                      <div style={{ fontSize: '11px', color: T.blueDark, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '3px', fontWeight: 500 }}>{item.product.brand}</div>
-                      <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>{item.product.name}</div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '14px', fontWeight: 600 }}>{item.product.price.toLocaleString()} FCFA</span>
-                        <Link to={`/product/${item.product.id}`} onClick={e => e.stopPropagation()} style={{ fontSize: '11px', color: T.red, textDecoration: 'none', fontWeight: 600 }}>Voir →</Link>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {selectedProduct && (
-                <div style={{
-                  background: 'linear-gradient(180deg, #1A1A1A 0%, #26384D 100%)',
-                  borderRadius: '18px', padding: '28px 32px',
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                }}>
+              {/* ARTICLE SÉLECTIONNÉ */}
+              <div style={{ padding: '24px', borderBottom: `1px solid ${T.border}` }}>
+                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>Article sélectionné</div>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                  <div style={{
+                    width: '60px', height: '75px', borderRadius: '12px',
+                    background: `linear-gradient(145deg, #F8F9FB, #E9EFF6)`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px'
+                  }}>👗</div>
                   <div>
-                    <div style={{ color: 'rgba(249,249,249,0.6)', fontSize: '12px', marginBottom: '6px' }}>Produit sélectionné</div>
-                    <div style={{ color: T.cream, fontWeight: 500, fontSize: '16px', marginBottom: '4px' }}>{selectedProduct.name}</div>
-                    <div style={{ color: T.blueLight, fontSize: '13px' }}>Taille {selectedSize} · {selectedProduct.price.toLocaleString()} FCFA</div>
-                  </div>
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <Link to={`/product/${selectedProduct.id}`} style={{
-                      background: 'rgba(249,249,249,0.12)', color: T.cream,
-                      border: '1px solid rgba(249,249,249,0.22)', borderRadius: '10px',
-                      padding: '12px 20px', fontSize: '13px', textDecoration: 'none', fontWeight: 500,
-                    }}>Voir la fiche</Link>
-                    <button style={{
-                      background: `linear-gradient(135deg, ${T.red}, ${T.redDark})`,
-                      color: '#fff', border: 'none', borderRadius: '10px',
-                      padding: '12px 20px', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
-                      boxShadow: '0 8px 20px rgba(192,57,43,0.25)',
-                    }}>Ajouter au panier</button>
+                    <div style={{ fontSize: '15px', fontWeight: 500, marginBottom: '2px' }}>Robe Évasée Florale</div>
+                    <div style={{ fontSize: '12px', color: T.muted }}>Collection Printemps 2025</div>
+                    <div style={{ fontSize: '18px', fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, marginTop: '4px' }}>15 000 FCFA</div>
                   </div>
                 </div>
-              )}
+              </div>
+
+              {/* TAILLE (boutons) */}
+              <div style={{ padding: '24px', borderBottom: `1px solid ${T.border}` }}>
+                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>Taille</div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {['XS','S','M','L','XL'].map(s => (
+                    <button key={s} onClick={() => setSelectedSize(s)} style={{
+                      padding: '8px 16px', borderRadius: '100px', border: `1.5px solid ${selectedSize === s ? T.blueDark : T.border}`,
+                      background: selectedSize === s ? T.blueDark : 'transparent',
+                      color: selectedSize === s ? '#fff' : T.ink,
+                      fontSize: '12px', fontWeight: 500, cursor: 'pointer',
+                    }}>{s}</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* SCORE DE COMPATIBILITÉ IA */}
+              <div style={{ padding: '24px', borderBottom: `1px solid ${T.border}` }}>
+                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>Score de compatibilité IA</div>
+                <div style={{ background: `linear-gradient(135deg, ${T.blueDark}, ${T.ink})`, borderRadius: '18px', padding: '20px', color: '#fff' }}>
+                  <div style={{ fontSize: '12px', opacity: 0.7, marginBottom: '4px' }}>Correspondance morphologique</div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: 300, lineHeight: 1 }}>94%</div>
+                  <div style={{ fontSize: '12px', opacity: 0.7, marginTop: '4px' }}>Excellente compatibilité</div>
+                  <div style={{ height: '4px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px', marginTop: '12px', overflow: 'hidden' }}>
+                    <div style={{ width: '94%', height: '100%', background: `linear-gradient(90deg, ${T.red}, ${T.blue})`, borderRadius: '2px' }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* RECOMMANDATIONS IA */}
+              <div style={{ padding: '24px', borderBottom: `1px solid ${T.border}` }}>
+                <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>Recommandations IA</div>
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                  <li style={{ fontSize: '13px', color: T.muted, marginBottom: '10px', display: 'flex', gap: '8px' }}><span style={{ color: T.red }}>→</span> Convient parfaitement à votre morphologie</li>
+                  <li style={{ fontSize: '13px', color: T.muted, marginBottom: '10px', display: 'flex', gap: '8px' }}><span style={{ color: T.red }}>→</span> Taille M recommandée selon vos mesures</li>
+                  <li style={{ fontSize: '13px', color: T.muted, marginBottom: '10px', display: 'flex', gap: '8px' }}><span style={{ color: T.red }}>→</span> La couleur or valorise votre teint</li>
+                  <li style={{ fontSize: '13px', color: T.muted, marginBottom: '10px', display: 'flex', gap: '8px' }}><span style={{ color: T.red }}>→</span> Accessoirisez avec une ceinture fine</li>
+                </ul>
+              </div>
+
+              {/* BOUTON AJOUTER AU PANIER */}
+              <div style={{ padding: '24px' }}>
+                <button style={{
+                  width: '100%', padding: '18px', borderRadius: '12px',
+                  background: `linear-gradient(135deg, ${T.red}, ${T.redDark})`,
+                  color: '#fff', border: 'none', fontSize: '13px', fontWeight: 600,
+                  letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'none'}
+                >
+                  Ajouter au panier — 15 000 FCFA
+                </button>
+              </div>
             </div>
           </div>
         )}
