@@ -15,17 +15,32 @@ export default function TryOn() {
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
-  const simulate = () => {
-    setStarted(true);
-    setStatus('Détection du corps…');
-    setTimeout(() => {
-      setStatus('Analyse morphologie…');
+const simulate = () => {
+  setStarted(true);
+  setStatus('Détection du corps…');
+  
+  const steps = [
+    { text: 'Analyse morphologie…', delay: 800 },
+    { text: 'Ajustement du vêtement…', delay: 1000 },
+    { text: 'Essayage prêt ✓', delay: 800 }
+  ];
+  
+  let step = 0;
+  function nextStep() {
+    if (step < steps.length) {
+      setStatus(steps[step].text);
       setTimeout(() => {
-        setStatus('Essayage prêt ✓');
-        setScore(94);
-      }, 1200);
-    }, 1600);
-  };
+        step++;
+        nextStep();
+      }, steps[step].delay);
+    } else {
+      setScore(94);
+      setStatus('Essayage prêt ✓');
+    }
+  }
+  
+  setTimeout(() => nextStep(), 600);
+};
 
   const handleAdd = () => {
     addToCart({ id: 1, name: 'Robe Évasée Florale', brand: 'Collection Printemps', price: 15000, emoji: '👗', size, color, qty: 1 });
