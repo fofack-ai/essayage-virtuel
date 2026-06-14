@@ -1,21 +1,59 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { getProductById, productImages } from '../../services/productService';
+
+const ALL_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+const VIEW_ICONS = ['📷', '🔍', '📐', '✨'];
+
+const COLOR_NAMES = {
+  '#c9a96e': 'Or Sable',
+  '#c4573a': 'Terracotta',
+  '#2d2420': 'Noir Ébène',
+  '#7a8c6e': 'Vert Sauge',
+  '#f5f0e8': 'Blanc Ivoire',
+  '#1a1410': 'Noir Profond',
+};
 
 export default function ProductDetail() {
-  const [activeThumb, setActiveThumb] = useState(0);
-  const [selectedColor, setSelectedColor] = useState('#c9a96e');
-  const [selectedSize, setSelectedSize] = useState('M');
-  const [added, setAdded] = useState(false);
-  const { addToCart } = useCart();
+  const { id } = useParams();
   const navigate = useNavigate();
+  const { addItem } = useCart();
+  const product = getProductById(id);
 
-  const colors = ['#c9a96e','#c4573a','#2d2420','#7a8c6e','#f5f0e8'];
-  const sizes = ['XS','S','M','L','XL','XXL'];
-  const unavailable = ['XS','XXL'];
+  const [activeThumb, setActiveThumb] = useState(0);
+  const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] || '#c9a96e');
+  const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || 'M');
+  const [added, setAdded] = useState(false);
+
+  if (!product) {
+    return (
+      <div style={{ paddingTop: 140, paddingBottom: 80, textAlign: 'center' }}>
+        <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontWeight: 300, fontSize: 32, marginBottom: 12 }}>
+          Produit introuvable
+        </h2>
+        <p style={{ color: '#6A6F78', marginBottom: 24 }}>
+          Ce produit n'existe pas ou n'est plus disponible.
+        </p>
+        <Link to="/catalogue" className="btn-outline">Retour au catalogue</Link>
+      </div>
+    );
+  }
+
+  const productImg = productImages[(product.id - 1) % productImages.length];
+  const sizesToShow = product.sizes.length > 1 ? ALL_SIZES : product.sizes;
 
   const handleAdd = () => {
-    addToCart({ id:1, name:'Robe Évasée Florale', brand:'Collection Printemps', price:15000, emoji:'👗', size:selectedSize, color:selectedColor, qty:1 });
+    addItem({
+      id: product.id,
+      name: product.name,
+      brand: product.brand,
+      price: product.price,
+      emoji: product.emoji,
+      size: selectedSize,
+      color: selectedColor,
+      qty: 1,
+    });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -28,7 +66,7 @@ export default function ProductDetail() {
         <span>›</span>
         <Link to="/catalogue" style={{ color:'#355C86', textDecoration:'none' }}>Catalogue</Link>
         <span>›</span>
-        <span>Robe Évasée Florale</span>
+        <span>{product.name}</span>
       </div>
 
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', minHeight:'calc(100vh - 104px)' }}>
@@ -41,9 +79,13 @@ export default function ProductDetail() {
         }}>
           <div style={{
             flex:1, display:'flex', alignItems:'center', justifyContent:'center',
-            fontSize:180, opacity:.2, position:'relative',
+            position:'relative', overflow:'hidden',
           }}>
-            {['👗','🔍','📐','✨'][activeThumb]}
+            {activeThumb === 0 ? (
+              <img src={productImg} alt={product.name} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+            ) : (
+              <span style={{ fontSize:180, opacity:.2 }}>{VIEW_ICONS[activeThumb]}</span>
+            )}
             <div style={{
               position:'absolute', top:24, right:24,
               background:'#1A1A1A', color:'#F9F9F9',
@@ -53,16 +95,23 @@ export default function ProductDetail() {
             }}>✨ Vue 3D disponible</div>
           </div>
           <div style={{ display:'flex', gap:8, padding:'16px 24px', borderTop:'1px solid rgba(26,26,26,.105)' }}>
-            {['👗','🔍','📐','✨'].map((e,i) => (
-              <div key={i} onClick={() => setActiveThumb(i)} style={{
-                width:72, height:90, borderRadius:10,
-                background:'rgba(26,20,16,.08)', cursor:'pointer',
-                display:'flex', alignItems:'center', justifyContent:'center',
-                fontSize:28,
-                opacity: activeThumb === i ? 1 : 0.4,
-                border:`2px solid ${activeThumb === i ? '#1A1A1A' : 'transparent'}`,
-                transition:'all .2s',
-              }}>{e}</div>
+            {VIEW_ICONS.map((icon, i) => (
+              <button
+                type="button"
+                key={i}
+                onClick={() => setActiveThumb(i)}
+                aria-label={`Vue ${i + 1}`}
+                style={{
+                  width:72, height:90, borderRadius:10, padding:0,
+                  background: i === 0 ? `url(${productImg}) center/cover` : 'rgba(26,20,16,.08)',
+                  cursor:'pointer',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  fontSize:28,
+                  border:`2px solid ${activeThumb === i ? '#1A1A1A' : 'transparent'}`,
+                  opacity: activeThumb === i ? 1 : 0.4,
+                  transition:'all .2s',
+                }}
+              >{i !== 0 && icon}</button>
             ))}
           </div>
         </div>
@@ -70,39 +119,53 @@ export default function ProductDetail() {
         {/* Formulaire */}
         <div style={{ padding:'64px 56px', overflowY:'auto' }}>
           <div style={{ fontSize:11, letterSpacing:2, textTransform:'uppercase', color:'#355C86', marginBottom:8 }}>
-            Collection Printemps 2025
+            {product.brand}
           </div>
           <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:44, fontWeight:300, lineHeight:1.1, marginBottom:12 }}>
-            Robe Évasée<br/>Florale
+            {product.name}
           </h1>
           <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:24 }}>
             <span style={{ color:'#355C86', fontSize:14, letterSpacing:2 }}>★★★★★</span>
-            <span style={{ fontSize:13, color:'#6A6F78' }}>4.8 · 127 avis</span>
+            <span style={{ fontSize:13, color:'#6A6F78' }}>{product.rating} · {product.reviews} avis</span>
           </div>
 
           <div style={{ marginBottom:32 }}>
             <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:36, fontWeight:600 }}>
-              <span style={{ fontSize:18, color:'#6A6F78', textDecoration:'line-through', marginRight:10 }}>18 000</span>
-              15 000 <small style={{ fontSize:16, fontWeight:300 }}>FCFA</small>
+              {product.old && (
+                <span style={{ fontSize:18, color:'#6A6F78', textDecoration:'line-through', marginRight:10 }}>
+                  {product.old.toLocaleString()}
+                </span>
+              )}
+              {product.price.toLocaleString()} <small style={{ fontSize:16, fontWeight:300 }}>FCFA</small>
             </div>
-            <span style={{ fontSize:12, background:'rgba(184,50,40,.10)', color:'#B83228', padding:'3px 10px', borderRadius:100, fontWeight:600 }}>
-              Économisez 3 000 FCFA
-            </span>
+            {product.old && (
+              <span style={{ fontSize:12, background:'rgba(184,50,40,.10)', color:'#B83228', padding:'3px 10px', borderRadius:100, fontWeight:600 }}>
+                Économisez {(product.old - product.price).toLocaleString()} FCFA
+              </span>
+            )}
           </div>
 
           {/* Couleur */}
           <div style={{ marginBottom:28 }}>
             <div style={{ fontSize:12, fontWeight:500, letterSpacing:'1.5px', textTransform:'uppercase', color:'#6A6F78', marginBottom:12, display:'flex', justifyContent:'space-between' }}>
-              Couleur <span style={{ color:'#355C86', textTransform:'none', letterSpacing:0 }}>Or Sable sélectionné</span>
+              Couleur <span style={{ color:'#355C86', textTransform:'none', letterSpacing:0 }}>
+                {COLOR_NAMES[selectedColor] || ''}
+              </span>
             </div>
             <div style={{ display:'flex', gap:8 }}>
-              {colors.map(c => (
-                <div key={c} onClick={() => setSelectedColor(c)} style={{
-                  width:36, height:36, borderRadius:'50%', background:c,
-                  cursor:'pointer', border:c==='#f5f0e8'?'1.5px solid #ddd':'3px solid transparent',
-                  outline: selectedColor===c ? '2px solid #B83228' : '2px solid transparent',
-                  outlineOffset:3, transition:'all .2s',
-                }} />
+              {product.colors.map(c => (
+                <button
+                  type="button"
+                  key={c}
+                  onClick={() => setSelectedColor(c)}
+                  aria-label={COLOR_NAMES[c] || c}
+                  style={{
+                    width:36, height:36, borderRadius:'50%', background:c, padding:0,
+                    cursor:'pointer', border:c==='#f5f0e8' ? '1.5px solid #ddd' : '3px solid transparent',
+                    outline: selectedColor===c ? '2px solid #B83228' : '2px solid transparent',
+                    outlineOffset:3, transition:'all .2s',
+                  }}
+                />
               ))}
             </div>
           </div>
@@ -110,21 +173,21 @@ export default function ProductDetail() {
           {/* Taille */}
           <div style={{ marginBottom:28 }}>
             <div style={{ fontSize:12, fontWeight:500, letterSpacing:'1.5px', textTransform:'uppercase', color:'#6A6F78', marginBottom:12, display:'flex', justifyContent:'space-between' }}>
-              Taille <span style={{ color:'#355C86', textTransform:'none', letterSpacing:0, cursor:'pointer' }}>Guide des tailles →</span>
+              Taille <Link to="/size-guide" style={{ color:'#355C86', textTransform:'none', letterSpacing:0, textDecoration:'none' }}>Guide des tailles →</Link>
             </div>
             <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-              {sizes.map(s => {
-                const na = unavailable.includes(s);
+              {sizesToShow.map(s => {
+                const available = product.sizes.includes(s);
                 const on = selectedSize === s;
                 return (
-                  <button key={s} onClick={() => !na && setSelectedSize(s)} style={{
+                  <button type="button" key={s} disabled={!available} onClick={() => available && setSelectedSize(s)} style={{
                     width:52, height:52, borderRadius:10,
                     border:`1.5px solid ${on ? '#1A1A1A' : 'rgba(26,26,26,.11)'}`,
                     background: on ? '#1A1A1A' : '#fff',
-                    color: on ? '#F9F9F9' : na ? '#ccc' : '#1A1A1A',
-                    fontSize:14, fontWeight:500, cursor:na?'not-allowed':'pointer',
-                    opacity: na ? 0.4 : 1, transition:'all .2s',
-                    textDecoration: na ? 'line-through' : 'none',
+                    color: on ? '#F9F9F9' : !available ? '#ccc' : '#1A1A1A',
+                    fontSize:14, fontWeight:500, cursor: available ? 'pointer' : 'not-allowed',
+                    opacity: available ? 1 : 0.4, transition:'all .2s',
+                    textDecoration: available ? 'none' : 'line-through',
                   }}>{s}</button>
                 );
               })}
@@ -132,7 +195,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Boutons */}
-          <button onClick={() => navigate('/cabine')} style={{
+          <button type="button" onClick={() => navigate('/tryon')} style={{
             width:'100%', padding:18, borderRadius:10,
             background:'linear-gradient(135deg,#355C86,#26384D)',
             color:'#F9F9F9', border:'none', cursor:'pointer',
@@ -143,7 +206,7 @@ export default function ProductDetail() {
             <span style={{ fontSize:18 }}>✨</span> Essayer Virtuellement
           </button>
 
-          <button onClick={handleAdd} style={{
+          <button type="button" onClick={handleAdd} style={{
             width:'100%', padding:18, borderRadius:10,
             background: added ? '#06D6A0' : 'transparent',
             color: added ? '#fff' : 'var(--ink)',
