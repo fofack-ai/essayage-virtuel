@@ -43,20 +43,23 @@ export default function ProductDetail() {
   const productImg = productImages[(product.id - 1) % productImages.length];
   const sizesToShow = product.sizes.length > 1 ? ALL_SIZES : product.sizes;
 
-  const handleAdd = () => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      brand: product.brand,
-      price: product.price,
-      emoji: product.emoji,
-      size: selectedSize,
-      color: selectedColor,
-      qty: 1,
-    });
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
-  };
+const handleAdd = () => {
+  addItem({
+    id: product.id,
+    name: product.name,
+    brand: product.brand,
+    category: product.category,
+    price: product.price,
+    emoji: product.emoji,
+    image: productImg,
+    size: selectedSize,
+    color: selectedColor,
+    qty: 1,
+  });
+
+  setAdded(true);
+  setTimeout(() => setAdded(false), 2000);
+};
 
   return (
     <div style={{ paddingTop: 64 }}>

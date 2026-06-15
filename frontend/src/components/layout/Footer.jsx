@@ -35,14 +35,14 @@ export default function Footer() {
         <div>
           <div className="footer-col-title">Contact</div>
           <ul className="footer-links">
-            <li><a href="mailto:cfpd-isgd@edu.cm">cfpd-isgd@edu.cm</a></li>
+            <li><a href="https://cfpd-isgd.com/">CFPD</a></li>
             <li><a href="tel:+2376XXXXXXX">+237 6XX XXX XXX</a></li>
             <li>Douala, Cameroun</li>
           </ul>
         </div>
       </div>
       <div className="footer-bottom">
-        <span>© 2025 TryOn — Application de mode africaine et cabine d’essayage virtuelle. Tous droits réservés.</span>
+        <span>© 2026 TryOn — Application de mode africaine et cabine d’essayage virtuelle. Tous droits réservés.</span>
         <span>Politique de confidentialité · CGV</span>
       </div>
     </footer>

@@ -24,9 +24,6 @@ export default function Navbar() {
         <Link to="/catalogue" className={`header-page-btn ${isActive('/catalogue') ? 'active' : ''}`}>
           Catalogue
         </Link>
-        <Link to="/tryon" className={`header-page-btn ${isActive('/tryon') ? 'active' : ''}`}>
-          Essayage
-        </Link>
       </div>
 
       <div className="nav-icons header-actions">

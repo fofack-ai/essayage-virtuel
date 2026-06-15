@@ -66,19 +66,24 @@ export default function TryOn() {
     { product: products[4], score: 87, img: productImages[4] },
   ];
 
-  const handleAddToCart = () => {
-    addItem({
-      id: selectedProduct.id,
-      name: selectedProduct.name,
-      brand: selectedProduct.brand,
-      price: selectedProduct.price,
-      emoji: selectedProduct.emoji,
-      size: selectedSize,
-      color: 'Standard',
-      qty: 1,
-    });
-    alert('Ajouté au panier !');
-  };
+const handleAddToCart = () => {
+  const productImg = productImages[(selectedProduct.id - 1) % productImages.length];
+
+  addItem({
+    id: selectedProduct.id,
+    name: selectedProduct.name,
+    brand: selectedProduct.brand,
+    category: selectedProduct.category,
+    price: selectedProduct.price,
+    emoji: selectedProduct.emoji,
+    image: productImg,
+    size: selectedSize,
+    color: "Standard",
+    qty: 1,
+  });
+
+  alert("Ajouté au panier !");
+};
 
   const resetAll = () => {
     setStep(1);

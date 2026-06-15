@@ -6,6 +6,11 @@ import Home from './pages/Home';
 import ProductDetail from './pages/product/ProductDetail';
 import TryOn from './pages/tryon/TryOn';
 import Checkout from './pages/checkout/Checkout';
+import Auth from './pages/auth/Auth';
+import Shop from "./pages/shop/Shop";
+import Cart from "./pages/cart/Cart";
+import Orders from './pages/account/Orders';
+import Dashboard from "./pages/admin/Dashboard";
 import './index.css';
 
 function App() {
@@ -16,13 +21,14 @@ function App() {
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/catalogue" element={<div>Catalogue (à implémenter par binôme)</div>} />
+            <Route path="/catalogue" element={<Shop />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/tryon" element={<TryOn />} />
             <Route path="/checkout" element={<Checkout />} />
-            <Route path="/cart" element={<div>Panier (à implémenter)</div>} />
-            <Route path="/auth" element={<div>Authentification (à implémenter)</div>} />
-            <Route path="/admin" element={<div>Admin (à implémenter)</div>} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/admin" element={<Dashboard />} />
             <Route path="/size-guide" element={<div>Guide des tailles (à implémenter)</div>} />
             <Route path="/shipping" element={<div>Livraison (à implémenter)</div>} />
             <Route path="/returns" element={<div>Retours (à implémenter)</div>} />
