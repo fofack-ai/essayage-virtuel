@@ -45,8 +45,32 @@ async function createUser(data) {
   return result.insertId;
 }
 
+async function saveOtp(userId, otpCode, otpExpiresAt) {
+  await db.query(
+    `
+    UPDATE users
+    SET otpCode = ?, otpExpiresAt = ?
+    WHERE id = ?
+    `,
+    [otpCode, otpExpiresAt, userId]
+  );
+}
+
+async function clearOtp(userId) {
+  await db.query(
+    `
+    UPDATE users
+    SET otpCode = NULL, otpExpiresAt = NULL
+    WHERE id = ?
+    `,
+    [userId]
+  );
+}
+
 module.exports = {
   findByEmail,
   findById,
   createUser,
+  saveOtp,
+  clearOtp,
 };

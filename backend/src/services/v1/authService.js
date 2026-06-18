@@ -1,6 +1,11 @@
 const userModel = require("../../models/v1/userModel");
 const { hashPassword, comparePassword } = require("../../utils/crypto");
 const { generateToken } = require("../../utils/jwt");
+const { sendOtpEmail } = require("./emailService");
+
+function generateOtp() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 async function register(data) {
   if (!data.firstName || !data.lastName || !data.email || !data.password) {
@@ -47,13 +52,68 @@ async function login(email, password) {
     throw new Error("Email ou mot de passe incorrect");
   }
 
+  if (user.role === "admin") {
+    const otp = generateOtp();
+    const hashedOtp = await hashPassword(otp);
+
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await userModel.saveOtp(user.id, hashedOtp, expiresAt);
+    await sendOtpEmail(user.email, otp);
+
+    return {
+      requiresOtp: true,
+      message: "Code OTP envoyé par email",
+      userId: user.id,
+    };
+  }
+
   const token = generateToken(user);
 
   delete user.password;
+  delete user.otpCode;
+  delete user.otpExpiresAt;
 
   return {
     token,
     user,
+  };
+}
+
+async function verifyOtp(email, otp) {
+  if (!email || !otp) {
+    throw new Error("Email et code OTP obligatoires");
+  }
+
+  const user = await userModel.findByEmail(email);
+
+  if (!user || user.role !== "admin") {
+    throw new Error("Utilisateur admin introuvable");
+  }
+
+  if (!user.otpCode || !user.otpExpiresAt) {
+    throw new Error("Aucun code OTP actif");
+  }
+
+  if (new Date(user.otpExpiresAt) < new Date()) {
+    await userModel.clearOtp(user.id);
+    throw new Error("Code OTP expiré");
+  }
+
+  const validOtp = await comparePassword(otp, user.otpCode);
+
+  if (!validOtp) {
+    throw new Error("Code OTP incorrect");
+  }
+
+  await userModel.clearOtp(user.id);
+
+  const cleanUser = await userModel.findById(user.id);
+  const token = generateToken(cleanUser);
+
+  return {
+    token,
+    user: cleanUser,
   };
 }
 
@@ -70,5 +130,6 @@ async function getProfile(userId) {
 module.exports = {
   register,
   login,
+  verifyOtp,
   getProfile,
 };
