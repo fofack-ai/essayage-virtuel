@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 const authRoutes = require("./auth");
+const cartRoutes = require("./cart");
 
 router.get("/", (req, res) => {
   res.json({
@@ -11,9 +12,7 @@ router.get("/", (req, res) => {
   });
 });
 
-router.use(
-  "/auth",
-  authRoutes
-);
+router.use("/auth", authRoutes);
+router.use("/cart", cartRoutes);
 
 module.exports = router;
