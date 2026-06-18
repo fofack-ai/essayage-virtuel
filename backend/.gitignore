@@ -1,0 +1,12 @@
+node_modules/
+.env
+
+uploads/products/*
+uploads/users/*
+uploads/tryons/*
+
+!uploads/products/.gitkeep
+!uploads/users/.gitkeep
+!uploads/tryons/.gitkeep
+
+npm-debug.log*
