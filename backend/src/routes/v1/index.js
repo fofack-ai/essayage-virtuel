@@ -6,6 +6,9 @@ const authRoutes = require("./auth");
 const cartRoutes = require("./cart");
 const orderRoutes = require("./order");
 const adminRoutes = require("./admin");
+const productRoutes = require("./product");
+const categoryRoutes = require("./category");
+const tryonRoutes = require("./tryon");
 
 router.get("/", (req, res) => {
   res.json({
@@ -18,5 +21,8 @@ router.use("/auth", authRoutes);
 router.use("/cart", cartRoutes);
 router.use("/orders", orderRoutes);
 router.use("/admin", adminRoutes);
+router.use("/products", productRoutes);
+router.use("/categories", categoryRoutes);
+router.use("/tryons", tryonRoutes);
 
 module.exports = router;

@@ -11,7 +11,7 @@ async function findActiveCartByUserId(userId) {
 
 async function createCart(userId) {
   const [result] = await db.query(
-    "INSERT INTO carts (userId) VALUES (?)",
+    "INSERT INTO carts (userId, status) VALUES (?, 'active')",
     [userId]
   );
 
@@ -58,23 +58,17 @@ async function addItem(data) {
 
 async function updateItemQuantity(itemId, quantity) {
   await db.query(
-    "UPDATE cart_items SET quantity = ? WHERE id = ?",
+    "UPDATE cart_items SET quantity = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?",
     [quantity, itemId]
   );
 }
 
-async function removeItem(itemId, cartId) {
-  await db.query(
-    "DELETE FROM cart_items WHERE id = ? AND cartId = ?",
-    [itemId, cartId]
-  );
+async function removeItem(cartItemId) {
+  await db.query('DELETE FROM cart_items WHERE id = ?', [cartItemId]);
 }
 
 async function clearCart(cartId) {
-  await db.query(
-    "DELETE FROM cart_items WHERE cartId = ?",
-    [cartId]
-  );
+  await db.query('DELETE FROM cart_items WHERE cartId = ?', [cartId]);
 }
 
 async function getCartItems(cartId) {

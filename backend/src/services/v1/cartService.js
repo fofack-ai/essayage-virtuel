@@ -1,4 +1,5 @@
 const cartModel = require("../../models/v1/cartModel");
+const db = require("../../config/database");
 
 async function getOrCreateCart(userId) {
   let cart = await cartModel.findActiveCartByUserId(userId);
@@ -13,6 +14,23 @@ async function getOrCreateCart(userId) {
   }
 
   return cart;
+}
+
+async function getProductDetails(productId) {
+  try {
+    const [rows] = await db.query(
+      "SELECT id, name, image, price FROM products WHERE id = ? AND status = 'active'",
+      [productId]
+    );
+
+    if (rows.length === 0) {
+      throw new Error("Produit non trouvé ou inactive");
+    }
+
+    return rows[0];
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function getCart(userId) {
@@ -38,36 +56,47 @@ async function getCart(userId) {
 }
 
 async function addToCart(userId, data) {
-  const cart = await getOrCreateCart(userId);
-
-  if (!data.productName || !data.price) {
-    throw new Error("Nom du produit et prix obligatoires");
+  // Validate required fields
+  if (!data.productId) {
+    throw new Error("ID du produit requis");
   }
 
-  const quantity = Number(data.quantity || 1);
+  // Validate quantity if provided
+  const quantity = data.quantity !== undefined ? Number(data.quantity) : 1;
+  if (isNaN(quantity) || quantity <= 0) {
+    throw new Error("La quantité doit être un nombre positif");
+  }
 
+  // Get product details from database
+  const product = await getProductDetails(data.productId);
+
+  const cart = await getOrCreateCart(userId);
+
+  // Check if item already exists in cart with same specifications
   const existingItem = await cartModel.findItem(
     cart.id,
-    data.productId || null,
+    product.id,
     data.size || null,
     data.color || null
   );
 
   if (existingItem) {
+    // If exists, update quantity only (keep original product details)
     await cartModel.updateItemQuantity(
       existingItem.id,
       existingItem.quantity + quantity
     );
   } else {
+    // If doesn't exist, add new item with product details from database
     await cartModel.addItem({
       cartId: cart.id,
-      productId: data.productId || null,
-      productName: data.productName,
-      productImage: data.productImage || null,
+      productId: product.id,
+      productName: product.name,
+      productImage: product.image || null,
       size: data.size || null,
       color: data.color || null,
       quantity,
-      price: data.price,
+      price: product.price,
     });
   }
 
