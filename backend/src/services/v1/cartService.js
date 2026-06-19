@@ -17,20 +17,29 @@ async function getOrCreateCart(userId) {
 }
 
 async function getProductDetails(productId) {
-  try {
-    const [rows] = await db.query(
-      "SELECT id, name, image, price FROM products WHERE id = ? AND status = 'active'",
-      [productId]
-    );
+  const [rows] = await db.query(
+    `
+    SELECT
+      p.id,
+      p.name,
+      p.price,
+      pi.imageUrl AS image
+    FROM products p
+    LEFT JOIN product_images pi
+      ON pi.productId = p.id
+      AND pi.isMain = 1
+    WHERE p.id = ?
+      AND p.status = 'active'
+    LIMIT 1
+    `,
+    [productId]
+  );
 
-    if (rows.length === 0) {
-      throw new Error("Produit non trouvé ou inactive");
-    }
-
-    return rows[0];
-  } catch (error) {
-    throw error;
+  if (rows.length === 0) {
+    throw new Error("Produit non trouvé ou inactif");
   }
+
+  return rows[0];
 }
 
 async function getCart(userId) {

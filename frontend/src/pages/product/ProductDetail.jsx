@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useCart } from '../../context/CartContext';
-import { getProductById, productImages } from '../../services/productService';
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
+import { api } from "../../services/api";
 
 const ALL_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const VIEW_ICONS = ['📷', '🔍', '📐', '✨'];
@@ -19,12 +19,60 @@ export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
-  const product = getProductById(id);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [activeThumb, setActiveThumb] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] || '#c9a96e');
-  const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || 'M');
+  const [selectedColor, setSelectedColor] = useState("#1a1410");
+  const [selectedSize, setSelectedSize] = useState("M");
   const [added, setAdded] = useState(false);
+
+  useEffect(() => {
+    async function loadProduct() {
+      try {
+        const response = await api.get(`/products/${id}`);
+        const p = response.data;
+
+const formattedProduct = {
+  id: p.id,
+  name: p.name,
+  brand: p.brand || "TryOn",
+  category: p.categoryName || p.category || "Catalogue",
+  price: Number(p.price),
+  description: p.description,
+  colors: p.color ? [p.color] : ["#1a1410"],
+  sizes: p.sizes?.length
+    ? p.sizes.map((s) => s.label || s.size || s)
+    : ["S", "M", "L", "XL"],
+  image:
+    p.image ||
+    p.imageUrl ||
+    p.mainImage ||
+    p.images?.[0]?.imageUrl ||
+    "/product-placeholder.jpg",
+  rating: 4.8,
+  reviews: 12,
+};
+
+setProduct(formattedProduct);
+setSelectedColor(formattedProduct.colors[0]);
+setSelectedSize(formattedProduct.sizes[0]);
+        
+
+      } catch (error) {
+        console.error("Erreur produit :", error.message);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProduct();
+  }, [id]);
+
+  if (loading) {
+    return <div style={{ paddingTop: 140, textAlign: "center" }}>Chargement...</div>;
+  }
 
   if (!product) {
     return (
@@ -40,26 +88,29 @@ export default function ProductDetail() {
     );
   }
 
-  const productImg = productImages[(product.id - 1) % productImages.length];
+  const productImg = product?.image || "/product-placeholder.jpg";
   const sizesToShow = product.sizes.length > 1 ? ALL_SIZES : product.sizes;
 
-const handleAdd = () => {
-  addItem({
-    id: product.id,
-    name: product.name,
-    brand: product.brand,
-    category: product.category,
-    price: product.price,
-    emoji: product.emoji,
-    image: productImg,
-    size: selectedSize,
-    color: selectedColor,
-    qty: 1,
-  });
+  const handleAdd = async () => {
+    try {
+      await addItem({
+        id: product.id,
+        name: product.name,
+        brand: product.brand,
+        category: product.category,
+        price: product.price,
+        image: productImg,
+        size: selectedSize,
+        color: selectedColor,
+        qty: 1,
+      });
 
-  setAdded(true);
-  setTimeout(() => setAdded(false), 2000);
-};
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } catch (error) {
+      alert(error.message || "Impossible d'ajouter au panier");
+    }
+  };
 
   return (
     <div style={{ paddingTop: 64 }}>

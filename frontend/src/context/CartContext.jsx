@@ -1,43 +1,163 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+import { api } from "../services/api";
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [count, setCount] = useState(0);
+  const [loadingCart, setLoadingCart] = useState(false);
 
-  const addItem = (product) => {
-    setItems(prev => {
-      const existing = prev.find(i => i.id === product.id && i.size === product.size && i.color === product.color);
-      if (existing) {
-        return prev.map(i =>
-          i.id === product.id && i.size === product.size && i.color === product.color
-            ? { ...i, qty: i.qty + 1 }
-            : i
-        );
+  const normalizeItems = (backendItems = []) => {
+    return backendItems.map((item) => ({
+      id: item.id,
+      cartItemId: item.id,
+      productId: item.productId,
+      name: item.productName,
+      image: item.productImage,
+      size: item.size,
+      color: item.color,
+      qty: item.quantity,
+      price: item.price,
+      subtotal: item.subtotal,
+    }));
+  };
+
+  const loadCart = async () => {
+    const token = sessionStorage.getItem("tryon_token");
+
+    if (!token) {
+      setItems([]);
+      setTotal(0);
+      setCount(0);
+      return;
+    }
+
+    try {
+      setLoadingCart(true);
+
+      const response = await api.get("/cart");
+
+      setItems(normalizeItems(response.data.items));
+      setTotal(response.data.total);
+      setCount(response.data.count);
+    } catch (error) {
+        console.error("Erreur chargement panier :", error.message);
+
+        if (
+          error.message.includes("Token") ||
+          error.message.includes("invalide") ||
+          error.message.includes("manquant")
+        ) {
+          sessionStorage.removeItem("tryon_token");
+          sessionStorage.removeItem("tryon_user");
+          setItems([]);
+          setTotal(0);
+          setCount(0);
+        }
+      } finally {
+        setLoadingCart(false);
       }
-      return [...prev, { ...product, qty: 1 }];
-    });
+    };
+
+  useEffect(() => {
+    loadCart();
+  }, []);
+
+  const addItem = async (product) => {
+    const token = sessionStorage.getItem("tryon_token");
+
+    if (!token) {
+      alert("Veuillez vous connecter pour ajouter un produit au panier.");
+      window.location.href = "/auth";
+      return;
+    }
+
+    const payload = {
+      productId: product.id || product.productId || null,
+      productName: product.name,
+      productImage: product.image || product.productImage || null,
+      size: product.size || null,
+      color: product.color || null,
+      quantity: product.qty || 1,
+      price: product.price,
+    };
+
+    const response = await api.post("/cart/add", payload);
+
+    setItems(normalizeItems(response.data.items));
+    setTotal(response.data.total);
+    setCount(response.data.count);
   };
 
-  const removeItem = (id, size, color) =>
-    setItems(prev => prev.filter(i => !(i.id === id && i.size === size && i.color === color)));
-
-  const updateQty = (id, size, color, qty) => {
-    if (qty <= 0) return removeItem(id, size, color);
-    setItems(prev =>
-      prev.map(i =>
-        i.id === id && i.size === size && i.color === color ? { ...i, qty } : i
-      )
+  const updateQty = async (id, size, color, qty) => {
+    const item = items.find(
+      (i) =>
+        i.id === id ||
+        (i.productId === id && i.size === size && i.color === color)
     );
+
+    if (!item) return;
+
+    const response = await api.put(
+      `/cart/update/${item.cartItemId}`,
+      {
+        quantity: qty,
+      }
+    );
+
+    setItems(normalizeItems(response.data.items));
+    setTotal(response.data.total);
+    setCount(response.data.count);
   };
 
-  const clearCart = () => setItems([]);
+  const removeItem = async (id, size, color) => {
+    const item = items.find(
+      (i) =>
+        i.id === id ||
+        (i.productId === id && i.size === size && i.color === color)
+    );
 
-  const total = items.reduce((sum, i) => sum + i.price * i.qty, 0);
-  const count = items.reduce((sum, i) => sum + i.qty, 0);
+    if (!item) return;
+
+    const response = await api.delete(
+      `/cart/remove/${item.cartItemId}`
+    );
+
+    setItems(normalizeItems(response.data.items));
+    setTotal(response.data.total);
+    setCount(response.data.count);
+  };
+
+  const clearCart = async () => {
+    const response = await api.delete("/cart/clear");
+
+    setItems(normalizeItems(response.data.items));
+    setTotal(response.data.total);
+    setCount(response.data.count);
+  };
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQty, clearCart, total, count }}>
+    <CartContext.Provider
+      value={{
+        items,
+        addItem,
+        removeItem,
+        updateQty,
+        clearCart,
+        loadCart,
+        total,
+        count,
+        loadingCart,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

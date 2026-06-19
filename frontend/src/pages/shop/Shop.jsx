@@ -1,26 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { api } from "../../services/api";
 import ProductCard from "../../components/shop/ProductCard";
 import FilterSidebar from "../../components/shop/FilterSidebar";
 import SearchBar from "../../components/shop/SearchBar";
-
-const PRODUCTS = [
-  { id: 1, tag: "Nouveau", category: "Femme", name: "Robe Wax Royale", price: 9800, image: "/auth-forgot.jpg" },
-  { id: 2, tag: "Nouveau", category: "Homme", name: "Chemise Bogolan", price: 8500, image: "/product-2.jpg" },
-  { id: 3, tag: "Nouveau", category: "Femme", name: "Ensemble Ankara Chic", price: 14900, image: "/product-3.jpg" },
-  { id: 4, tag: "Nouveau", category: "Homme", name: "Boubou Traditionnel", price: 16000, image: "/product-4.jpg" },
-  { id: 5, tag: "Nouveau", category: "Femme", name: "Robe Longue Imprimée", price: 11500, image: "/product-5.jpg" },
-  { id: 6, tag: "Nouveau", category: "Homme", name: "Chemise Manches Longues", price: 9200, image: "/product-6.jpg" },
-  { id: 7, tag: "Nouveau", category: "Femme", name: "Jupe Wax Moderne", price: 7500, image: "/product-7.jpg" },
-  { id: 8, tag: "Nouveau", category: "Homme", name: "Pantalon Chino Africain", price: 8900, image: "/product-8.jpg" },
-  { id: 9, tag: "Nouveau", category: "Femme", name: "Top Péplum Wax", price: 6500, image: "/product-9.jpg" },
-  { id: 10, tag: "Nouveau", category: "Homme", name: "Veste Kente Élégante", price: 18700, image: "/product-10.jpg" },
-  { id: 11, tag: "Nouveau", category: "Femme", name: "Combinaison Imprimée", price: 13200, image: "/product-11.jpg" },
-  { id: 12, tag: "Nouveau", category: "Homme", name: "T-shirt Design Africain", price: 4900, image: "/product-12.jpg" },
-  { id: 13, tag: "Nouveau", category: "Femme", name: "Robe Courte Wax", price: 8300, image: "/product-13.jpg" },
-  { id: 14, tag: "Nouveau", category: "Homme", name: "Ensemble 2 Pièces", price: 17800, image: "/product-14.jpg" },
-  { id: 15, tag: "Nouveau", category: "Accessoires", name: "Sac à Main Wax", price: 5600, image: "/product-15.jpg" },
-  { id: 16, tag: "Nouveau", category: "Accessoires", name: "Chapeau Africain", price: 3800, image: "/product-16.jpg" },
-];
 
 const FILTERS = ["Tous", "Femme", "Homme", "Robes", "Chemises", "Pantalons", "Vestes", "Accessoires"];
 const PER_PAGE = 8;
@@ -30,9 +12,42 @@ export default function Shop() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("popularite");
   const [page, setPage] = useState(1);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const response = await api.get("/products");
+
+        const formatted = response.data.map((p) => ({
+          id: p.id,
+          tag: "Nouveau",
+          category: p.categoryName || p.category || "Catalogue",
+          name: p.name,
+          brand: p.brand,
+          price: Number(p.price),
+          image:
+            p.image ||
+            p.imageUrl ||
+            p.mainImage ||
+            p.images?.[0]?.imageUrl ||
+            "/product-placeholder.jpg",
+        }));
+
+        setProducts(formatted);
+      } catch (error) {
+        console.error("Erreur chargement produits :", error.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProducts();
+  }, []);
 
   const filteredProducts = useMemo(() => {
-    let list = [...PRODUCTS];
+    let list = [...products];
 
     if (filter !== "Tous") {
       list = list.filter((p) =>
@@ -50,7 +65,7 @@ export default function Shop() {
     if (sort === "price-desc") list.sort((a, b) => b.price - a.price);
 
     return list;
-  }, [filter, search, sort]);
+  }, [filter, search, sort, products]);
 
   const totalPages = Math.ceil(filteredProducts.length / PER_PAGE);
   const start = (page - 1) * PER_PAGE;
@@ -94,6 +109,10 @@ export default function Shop() {
         </div>
 
         <FilterSidebar filters={FILTERS} activeFilter={filter} onChangeFilter={changeFilter} />
+        {loading && <p>Chargement des produits...</p>}
+        {!loading && visibleProducts.length === 0 && (
+          <p>Aucun produit disponible pour le moment.</p>
+        )}
 
         <div className="products-grid">
           {visibleProducts.map((product) => (

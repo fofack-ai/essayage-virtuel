@@ -10,7 +10,7 @@ const PAYMENT = [
 ];
 
 export default function Checkout() {
-  const { cartItems = [], clearCart } = useCart();
+  const { items: cartItems = [], clearCart } = useCart();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [pay, setPay]   = useState('orange');

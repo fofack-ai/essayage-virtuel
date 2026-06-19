@@ -9,8 +9,8 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("tryon_user");
-    const savedToken = localStorage.getItem("tryon_token");
+    const savedUser = sessionStorage.getItem("tryon_user");
+    const savedToken = sessionStorage.getItem("tryon_token");
 
     if (savedUser && savedToken) {
       setUser(JSON.parse(savedUser));
@@ -20,8 +20,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const saveSession = (data) => {
-    localStorage.setItem("tryon_token", data.token);
-    localStorage.setItem("tryon_user", JSON.stringify(data.user));
+    sessionStorage.setItem("tryon_token", data.token);
+    sessionStorage.setItem("tryon_user", JSON.stringify(data.user));
     setUser(data.user);
   };
 
@@ -69,8 +69,8 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.removeItem("tryon_token");
-    localStorage.removeItem("tryon_user");
+    sessionStorage.removeItem("tryon_token");
+    sessionStorage.removeItem("tryon_user");
     setUser(null);
     setPendingOtp(null);
   };

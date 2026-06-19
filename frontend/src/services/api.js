@@ -1,7 +1,7 @@
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api/v1";
 
 export async function apiRequest(endpoint, options = {}) {
-  const token = localStorage.getItem("tryon_token");
+  const token = sessionStorage.getItem("tryon_token");
 
   const headers = {
     "Content-Type": "application/json",
