@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { api } from "../../services/api";
 
 const DATA = {
   login: {
@@ -23,15 +25,32 @@ const DATA = {
     end: "en toute sécurité.",
     tags: ["Email sécurisé", "Nouveau mot de passe", "Retour rapide", "Compte protégé"],
   },
+  reset: {
+  image: "/auth-reset.jpg",
+  title: "Choisissez un nouveau",
+  red: "mot de passe",
+  end: "pour sécuriser votre compte.",
+  tags: [
+    "Lien sécurisé",
+    "Nouveau mot de passe",
+    "Protection renforcée",
+    "Accès restauré"
+  ],
+},
 };
 
 export default function Auth() {
-  const { login, register } = useAuth();
+  const { token } = useParams();
+  const { login, register, verifyOtp, pendingOtp } = useAuth();
+
   const [screen, setScreen] = useState("login");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
+  const [loginForm, setLoginForm] = useState({
+    email: "",
+    password: "",
+  });
 
   const [registerForm, setRegisterForm] = useState({
     firstName: "",
@@ -43,6 +62,18 @@ export default function Auth() {
   });
 
   const [forgotEmail, setForgotEmail] = useState("");
+  const [otp, setOtp] = useState("");
+
+  const [resetToken, setResetToken] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+
+  useEffect(() => {
+    if (token) {
+      setResetToken(token);
+      setScreen("reset");
+    }
+  }, [token]);
 
   const active = DATA[screen];
 
@@ -52,30 +83,115 @@ export default function Auth() {
     setMessage("");
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+
     try {
-      login(loginForm.email, loginForm.password);
+      setError("");
+      setMessage("");
+
+      const result = await login(
+        loginForm.email,
+        loginForm.password
+      );
+
+      if (result?.requiresOtp) {
+        setMessage(
+          "Un code OTP a été envoyé. Vérifiez votre email ou le terminal backend."
+        );
+        return;
+      }
+
       window.location.href = "/";
     } catch (err) {
       setError(err.message);
     }
   };
 
-  const handleRegister = (e) => {
+  const handleVerifyOtp = async (e) => {
     e.preventDefault();
+
     try {
-      register(registerForm);
+      setError("");
+      setMessage("");
+
+      await verifyOtp(
+        pendingOtp.email,
+        otp
+      );
+
+      window.location.href = "/admin";
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    try {
+      setError("");
+      setMessage("");
+
+      if (registerForm.password !== registerForm.confirmPassword) {
+        setError("Les mots de passe ne correspondent pas.");
+        return;
+      }
+
+      await register(registerForm);
+
       window.location.href = "/";
     } catch (err) {
       setError(err.message);
     }
   };
 
-  const handleForgot = (e) => {
+  const handleForgot = async (e) => {
     e.preventDefault();
-    setError("");
-    setMessage("Un lien de réinitialisation a été envoyé à votre email.");
+
+    try {
+      setError("");
+      setMessage("");
+
+      await api.post("/auth/forgot-password", {
+        email: forgotEmail,
+      });
+
+      setMessage(
+        "Un lien de réinitialisation a été envoyé à votre adresse email."
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+
+    try {
+      setError("");
+      setMessage("");
+
+      if (newPassword !== confirmNewPassword) {
+        setError("Les mots de passe ne correspondent pas.");
+        return;
+      }
+
+      await api.post("/auth/reset-password", {
+        token: resetToken,
+        newPassword,
+      });
+
+      setMessage(
+        "Mot de passe réinitialisé avec succès."
+      );
+
+      setTimeout(() => {
+        changeScreen("login");
+      }, 2000);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -88,15 +204,30 @@ export default function Auth() {
       >
         <div style={leftContentStyle}>
           <h1 style={leftTitleStyle}>
-            {active.title}
-            <br />
-            <span style={redWordStyle}>{active.red}</span>
-            <br />
-            {active.end}
+            {pendingOtp && screen === "login" ? (
+              <>
+                Vérifiez votre
+                <br />
+                <span style={redWordStyle}>identité</span>
+                <br />
+                administrateur.
+              </>
+            ) : (
+              <>
+                {active.title}
+                <br />
+                <span style={redWordStyle}>{active.red}</span>
+                <br />
+                {active.end}
+              </>
+            )}
           </h1>
 
           <div style={tagsBoxStyle}>
-            {active.tags.map((tag) => (
+            {(pendingOtp && screen === "login"
+              ? ["Sécurité renforcée", "Code OTP", "Accès administrateur", "Compte protégé"]
+              : active.tags
+            ).map((tag) => (
               <span key={tag} style={tagStyle}>
                 {tag}
               </span>
@@ -134,45 +265,96 @@ export default function Auth() {
 
           {screen === "login" && (
             <>
-              <h2 style={titleStyle}>Bon retour 👋</h2>
+              <h2 style={titleStyle}>
+                {pendingOtp ? "Vérification OTP" : "Bon retour"}
+              </h2>
+
               <p style={descStyle}>
-                Accédez à votre espace personnel et retrouvez vos essayages.
+                {pendingOtp
+                  ? "Entrez le code de vérification reçu pour accéder à votre espace administrateur."
+                  : "Accédez à votre espace personnel et retrouvez vos essayages."}
               </p>
 
-              <form onSubmit={handleLogin}>
-                <Input
-                  label="Email"
-                  type="email"
-                  placeholder="vous@exemple.cm"
-                  value={loginForm.email}
-                  onChange={(v) => setLoginForm({ ...loginForm, email: v })}
-                />
+              {pendingOtp ? (
+                <form onSubmit={handleVerifyOtp}>
+                  <Input
+                    icon="🔢"
+                    label="Code OTP"
+                    placeholder="Ex : 123456"
+                    value={otp}
+                    onChange={setOtp}
+                  />
 
-                <Input
-                  label="Mot de passe"
-                  type="password"
-                  placeholder="••••••••"
-                  value={loginForm.password}
-                  onChange={(v) => setLoginForm({ ...loginForm, password: v })}
-                />
+                  <HoverButton type="submit">
+                    Vérifier le code
+                  </HoverButton>
 
-                <div style={{ textAlign: "right", marginBottom: 20 }}>
-                  <button
-                    type="button"
-                    onClick={() => changeScreen("forgot")}
-                    style={linkButtonStyle}
-                  >
-                    Mot de passe oublié ?
-                  </button>
-                </div>
+                  <p style={{ textAlign: "center", marginTop: 18 }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOtp("");
+                        setMessage("");
+                        setError("");
+                      }}
+                      style={inlineButtonStyle}
+                    >
+                      Je vais vérifier le terminal backend
+                    </button>
+                  </p>
+                </form>
+              ) : (
+                <>
+                  <form onSubmit={handleLogin}>
+                    <Input
+                      icon="✉️"
+                      label="Email"
+                      type="email"
+                      placeholder="vous@exemple.cm"
+                      value={loginForm.email}
+                      onChange={(v) =>
+                        setLoginForm({
+                          ...loginForm,
+                          email: v,
+                        })
+                      }
+                    />
 
-                <HoverButton type="submit">Se connecter</HoverButton>
-              </form>
+                    <Input
+                      icon="🔐"
+                      label="Mot de passe"
+                      type="password"
+                      placeholder="••••••••"
+                      value={loginForm.password}
+                      onChange={(v) =>
+                        setLoginForm({
+                          ...loginForm,
+                          password: v,
+                        })
+                      }
+                    />
 
-              <div style={separatorStyle}>ou continuer avec</div>
+                    <div style={{ textAlign: "right", marginBottom: 20 }}>
+                      <button
+                        type="button"
+                        onClick={() => changeScreen("forgot")}
+                        style={linkButtonStyle}
+                      >
+                        Mot de passe oublié ?
+                      </button>
+                    </div>
 
-              <SocialButton>🌐 Continuer avec Google</SocialButton>
-              <SocialButton>📘 Continuer avec Facebook</SocialButton>
+                    <HoverButton type="submit">
+                      Se connecter
+                    </HoverButton>
+                  </form>
+
+                  <div style={separatorStyle}>ou continuer avec</div>
+
+                  <SocialButton>🌐 Continuer avec Google</SocialButton>
+                  <SocialButton>📘 Continuer avec Facebook</SocialButton>
+                </>
+              )}
             </>
           )}
 
@@ -184,66 +366,92 @@ export default function Auth() {
               </p>
 
               <form onSubmit={handleRegister}>
-                <div style={gridStyle}>
+                <div style={registerNameGridStyle}>
                   <Input
+                    icon="👤"
                     label="Prénom"
                     placeholder="Miranda"
                     value={registerForm.firstName}
                     onChange={(v) =>
-                      setRegisterForm({ ...registerForm, firstName: v })
+                      setRegisterForm({
+                        ...registerForm,
+                        firstName: v,
+                      })
                     }
                   />
 
                   <Input
+                    icon="👤"
                     label="Nom"
                     placeholder="Eko"
                     value={registerForm.lastName}
                     onChange={(v) =>
-                      setRegisterForm({ ...registerForm, lastName: v })
+                      setRegisterForm({
+                        ...registerForm,
+                        lastName: v,
+                      })
                     }
                   />
                 </div>
 
                 <Input
+                  icon="✉️"
                   label="Email"
                   type="email"
                   placeholder="vous@exemple.cm"
                   value={registerForm.email}
                   onChange={(v) =>
-                    setRegisterForm({ ...registerForm, email: v })
+                    setRegisterForm({
+                      ...registerForm,
+                      email: v,
+                    })
                   }
                 />
 
                 <Input
+                  icon="📱"
                   label="Téléphone"
                   placeholder="+237 6XX XXX XXX"
                   value={registerForm.phone}
                   onChange={(v) =>
-                    setRegisterForm({ ...registerForm, phone: v })
+                    setRegisterForm({
+                      ...registerForm,
+                      phone: v,
+                    })
                   }
                 />
 
                 <Input
+                  icon="🔒"
                   label="Mot de passe"
                   type="password"
                   placeholder="Minimum 6 caractères"
                   value={registerForm.password}
                   onChange={(v) =>
-                    setRegisterForm({ ...registerForm, password: v })
+                    setRegisterForm({
+                      ...registerForm,
+                      password: v,
+                    })
                   }
                 />
 
                 <Input
+                  icon="🔐"
                   label="Confirmer"
                   type="password"
                   placeholder="Répétez le mot de passe"
                   value={registerForm.confirmPassword}
                   onChange={(v) =>
-                    setRegisterForm({ ...registerForm, confirmPassword: v })
+                    setRegisterForm({
+                      ...registerForm,
+                      confirmPassword: v,
+                    })
                   }
                 />
 
-                <HoverButton type="submit">Créer mon compte</HoverButton>
+                <HoverButton type="submit">
+                  Créer mon compte
+                </HoverButton>
               </form>
             </>
           )}
@@ -258,6 +466,7 @@ export default function Auth() {
 
               <form onSubmit={handleForgot}>
                 <Input
+                  icon="✉️"
                   label="Email"
                   type="email"
                   placeholder="vous@exemple.cm"
@@ -281,33 +490,100 @@ export default function Auth() {
               </p>
             </>
           )}
+
+          {screen === "reset" && (
+            <>
+              <h2 style={titleStyle}>
+                Nouveau mot de passe
+              </h2>
+
+              <p style={descStyle}>
+                Entrez le token reçu par email puis choisissez
+                votre nouveau mot de passe.
+              </p>
+
+              <form onSubmit={handleResetPassword}>
+                <Input
+                  icon="🔒"
+                  label="Nouveau mot de passe"
+                  type="password"
+                  placeholder="********"
+                  value={newPassword}
+                  onChange={setNewPassword}
+                />
+
+                <Input
+                  icon="🔐"
+                  label="Confirmer"
+                  type="password"
+                  placeholder="********"
+                  value={confirmNewPassword}
+                  onChange={setConfirmNewPassword}
+                />
+
+                <HoverButton type="submit">
+                  Réinitialiser
+                </HoverButton>
+              </form>
+
+              <p style={{ textAlign: "center", marginTop: 22 }}>
+                <button
+                  type="button"
+                  onClick={() => changeScreen("login")}
+                  style={inlineButtonStyle}
+                >
+                  ← Retour à la connexion
+                </button>
+              </p>
+            </>
+          )}
         </div>
       </section>
     </div>
   );
 }
 
-function Input({ label, type = "text", placeholder, value, onChange }) {
+function Input({ label, type = "text", placeholder, value, onChange, icon }) {
   const [focused, setFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const isPassword = type === "password";
+  const inputType = isPassword && showPassword ? "text" : type;
 
   return (
     <div style={{ marginBottom: 16 }}>
       <label style={labelStyle}>{label}</label>
 
-      <input
-        required
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        onChange={(e) => onChange(e.target.value)}
+      <div
         style={{
-          ...inputStyle,
+          ...inputWrapperStyle,
           borderColor: focused ? "#E30613" : "#dfe5ec",
           boxShadow: focused ? "0 0 0 4px rgba(227,6,19,.12)" : "none",
         }}
-      />
+      >
+        <span style={inputIconStyle}>{icon}</span>
+
+        <input
+          required
+          type={inputType}
+          placeholder={placeholder}
+          value={value}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          onChange={(e) => onChange(e.target.value)}
+          style={inputStyle}
+        />
+
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            style={eyeButtonStyle}
+          >
+            {showPassword ? "🙈" : "👁️"}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -454,6 +730,14 @@ const tabsStyle = {
   marginBottom: 30,
 };
 
+const registerNameGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+  gap: 16,
+  alignItems: "start",
+  width: "100%",
+};
+
 const tabStyle = (active) => ({
   border: 0,
   borderRadius: 17,
@@ -492,14 +776,37 @@ const labelStyle = {
   textTransform: "uppercase",
 };
 
-const inputStyle = {
+const inputWrapperStyle = {
   width: "100%",
-  padding: "14px 18px",
+  display: "flex",
+  alignItems: "center",
+  gap: 12,
+  padding: "0 16px",
   borderRadius: 15,
   border: "1.5px solid #dfe5ec",
+  background: "#fff",
+  transition: "all .25s ease",
+};
+
+const inputIconStyle = {
+  fontSize: 20,
+  opacity: 0.65,
+};
+
+const inputStyle = {
+  flex: 1,
+  padding: "14px 0",
+  border: "none",
   fontSize: 15,
   outline: "none",
-  transition: "all .25s ease",
+  background: "transparent",
+};
+
+const eyeButtonStyle = {
+  border: "none",
+  background: "transparent",
+  cursor: "pointer",
+  fontSize: 18,
 };
 
 const gridStyle = {

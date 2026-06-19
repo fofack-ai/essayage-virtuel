@@ -67,10 +67,61 @@ async function clearOtp(userId) {
   );
 }
 
+async function saveResetToken(userId, resetToken, resetTokenExpiresAt) {
+  await db.query(
+    `
+    UPDATE users
+    SET resetToken = ?, resetTokenExpiresAt = ?
+    WHERE id = ?
+    `,
+    [resetToken, resetTokenExpiresAt, userId]
+  );
+}
+
+async function findByResetToken(resetToken) {
+  const [rows] = await db.query(
+    `
+    SELECT *
+    FROM users
+    WHERE resetToken = ?
+    LIMIT 1
+    `,
+    [resetToken]
+  );
+
+  return rows[0];
+}
+
+async function updatePassword(userId, hashedPassword) {
+  await db.query(
+    `
+    UPDATE users
+    SET password = ?
+    WHERE id = ?
+    `,
+    [hashedPassword, userId]
+  );
+}
+
+async function clearResetToken(userId) {
+  await db.query(
+    `
+    UPDATE users
+    SET resetToken = NULL, resetTokenExpiresAt = NULL
+    WHERE id = ?
+    `,
+    [userId]
+  );
+}
+
 module.exports = {
   findByEmail,
   findById,
   createUser,
   saveOtp,
   clearOtp,
+  saveResetToken,
+  findByResetToken,
+  updatePassword,
+  clearResetToken,
 };

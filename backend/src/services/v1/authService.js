@@ -2,6 +2,8 @@ const userModel = require("../../models/v1/userModel");
 const { hashPassword, comparePassword } = require("../../utils/crypto");
 const { generateToken } = require("../../utils/jwt");
 const { sendOtpEmail } = require("./emailService");
+const crypto = require("crypto");
+const { sendResetPasswordEmail } = require("./emailService");
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -127,9 +129,71 @@ async function getProfile(userId) {
   return user;
 }
 
+async function forgotPassword(email) {
+  if (!email) {
+    throw new Error("Email obligatoire");
+  }
+
+  const user = await userModel.findByEmail(email);
+
+  if (!user) {
+    return {
+      message: "Si cet email existe, un lien de réinitialisation a été envoyé",
+    };
+  }
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+  await userModel.saveResetToken(
+    user.id,
+    resetToken,
+    expiresAt
+  );
+
+  const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+  await sendResetPasswordEmail(
+    user.email,
+    resetLink
+  );
+
+  return {
+    message: "Si cet email existe, un lien de réinitialisation a été envoyé",
+  };
+}
+
+async function resetPassword(token, newPassword) {
+  if (!token || !newPassword) {
+    throw new Error("Token et nouveau mot de passe obligatoires");
+  }
+
+  const user = await userModel.findByResetToken(token);
+
+  if (!user) {
+    throw new Error("Lien de réinitialisation invalide");
+  }
+
+  if (new Date(user.resetTokenExpiresAt) < new Date()) {
+    await userModel.clearResetToken(user.id);
+    throw new Error("Lien de réinitialisation expiré");
+  }
+
+  const hashedPassword = await hashPassword(newPassword);
+
+  await userModel.updatePassword(user.id, hashedPassword);
+  await userModel.clearResetToken(user.id);
+
+  return {
+    message: "Mot de passe réinitialisé avec succès",
+  };
+}
+
 module.exports = {
   register,
   login,
   verifyOtp,
   getProfile,
+  forgotPassword,
+  resetPassword,
 };

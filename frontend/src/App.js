@@ -27,6 +27,7 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password/:token" element={<Auth />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/admin" element={<Dashboard />} />
             <Route path="/size-guide" element={<div>Guide des tailles (à implémenter)</div>} />
