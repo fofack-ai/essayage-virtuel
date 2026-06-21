@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
-import { getProductById } from "../../services/productService";
+import { api, getImageUrl } from "../../services/api";
 
 const ALL_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const VIEW_ICONS = ['📷', '🔍', '📐', '✨'];
@@ -20,72 +20,54 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(false); // Using mock data - synchronous loading
+const [loading, setLoading] = useState(true);
 
   const [activeThumb, setActiveThumb] = useState(0);
   const [selectedColor, setSelectedColor] = useState("#1a1410");
   const [selectedSize, setSelectedSize] = useState("M");
   const [added, setAdded] = useState(false);
 
-  useEffect(() => {
-    async function loadProduct() {
-      try {
-        // const response = await api.get(`/products/${id}`); // DISABLED: Using mock data
-        const productData = getProductById(id);
-        if (!productData) {
-          setProduct(null);
-          return;
-        }
-        // Transform mock data to match expected API shape
-        const p = {
-          ...productData,
-          description: productData.description || "Description not available",
-          color: productData.colors && productData.colors.length > 0
-            ? productData.colors[0]
-            : "#1a1410",
-          image: `/product-${productData.id}.jpg`,
-          imageUrl: `/product-${productData.id}-alt.jpg`,
-          mainImage: `/product-${productData.id}-main.jpg`,
-          images: [{ imageUrl: `/product-${productData.id}-gallery.jpg` }]
-        };
-        // const p = response.data; // DISABLED: Using mock data instead
+useEffect(() => {
+  async function loadProduct() {
+    try {
+      setLoading(true);
+      const response = await api.get(`/products/${id}`);
+      const p = response.data;
 
-const formattedProduct = {
-  id: p.id,
-  name: p.name,
-  brand: p.brand || "TryOn",
-  category: p.categoryName || p.category || "Catalogue",
-  price: Number(p.price),
-  description: p.description,
-  colors: p.color ? [p.color] : ["#1a1410"],
-  sizes: p.sizes?.length
-    ? p.sizes.map((s) => s.label || s.size || s)
-    : ["S", "M", "L", "XL"],
-  image:
-    p.image ||
-    p.imageUrl ||
-    p.mainImage ||
-    p.images?.[0]?.imageUrl ||
-    "/product-placeholder.jpg",
-  rating: 4.8,
-  reviews: 12,
-};
-
-setProduct(formattedProduct);
-setSelectedColor(formattedProduct.colors[0]);
-setSelectedSize(formattedProduct.sizes[0]);
-        
-
-      } catch (error) {
-        console.error("Erreur produit :", error.message);
+      if (!p) {
         setProduct(null);
-      } finally {
-        setLoading(false);
+        return;
       }
-    }
 
-    loadProduct();
-  }, [id]);
+      const formattedProduct = {
+        id: p.id,
+        name: p.name,
+        brand: p.brand || "TryOn",
+        category: p.categoryName || p.category || "Catalogue",
+        price: Number(p.price),
+        description: p.description || "Description non disponible",
+        colors: p.color ? [p.color] : ["#1a1410"],
+        sizes: p.sizes?.length
+          ? p.sizes.map((s) => s.label || s.size || s)
+          : ["S", "M", "L", "XL"],
+        image: getImageUrl(p.image || p.imageUrl || p.mainImage || p.images?.[0]?.imageUrl),
+        rating: 4.8,
+        reviews: 12,
+      };
+
+      setProduct(formattedProduct);
+      setSelectedColor(formattedProduct.colors[0]);
+      setSelectedSize(formattedProduct.sizes[0]);
+    } catch (error) {
+      console.error("Erreur produit :", error.message);
+      setProduct(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  loadProduct();
+}, [id]);
 
   if (loading) {
     return <div style={{ paddingTop: 140, textAlign: "center" }}>Chargement...</div>;

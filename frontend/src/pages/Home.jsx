@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../services/api';
+import { api, getImageUrl } from '../services/api';
 
 /* ── Design tokens ── */
 const T = {
@@ -333,7 +333,7 @@ export default function Home() {
           price: parseFloat(p.price) || 0,
           tag: p.stock > 0 ? 'Nouveau' : 'Rupture',
           colors: p.color ? [p.color] : ['#1a1410'],
-          image: p.image || '/product-placeholder.jpg',
+          image: getImageUrl(p.image),
         }));
 
         const catList = categoriesRes.data || [];

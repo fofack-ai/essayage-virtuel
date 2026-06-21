@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { api } from "../../services/api";
+import { api, getImageUrl } from "../../services/api";
 import ProductCard from "../../components/shop/ProductCard";
 import FilterSidebar from "../../components/shop/FilterSidebar";
 import SearchBar from "../../components/shop/SearchBar";
@@ -27,12 +27,7 @@ export default function Shop() {
           name: p.name,
           brand: p.brand,
           price: Number(p.price),
-          image:
-            p.image ||
-            p.imageUrl ||
-            p.mainImage ||
-            p.images?.[0]?.imageUrl ||
-            "/product-placeholder.jpg",
+          image: getImageUrl(p.image || p.imageUrl || p.mainImage || p.images?.[0]?.imageUrl),
         }));
 
         setProducts(formatted);
