@@ -106,9 +106,9 @@ def run_catvton(person_path, garment_path, output_path):
     result = client.predict(
         person_image=person_editor,
         cloth_image=handle_file(str(garment_path)),
-        num_inference_steps=30,
-        guidance_scale=2.5,
-        seed=42,
+        num_inference_steps=50,
+        guidance_scale=3.5,
+        seed=1234,
         api_name="/submit_function_p2p",
     )
 
