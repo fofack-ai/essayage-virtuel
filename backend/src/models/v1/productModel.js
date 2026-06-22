@@ -43,22 +43,6 @@ async function findAll(filters = {}) {
   return rows;
 }
 
-async function findById(id) {
-  const [rows] = await db.query(
-    `
-    SELECT
-      p.*,
-      c.name as categoryName,
-      c.slug as categorySlug
-    FROM products p
-    LEFT JOIN categories c ON p.categoryId = c.id
-    WHERE p.id = ? AND p.status = 'active'
-    `,
-    [id]
-  );
-  return rows[0];
-}
-
 async function findFeatured(limit = 8) {
   const [rows] = await db.query(
     `
