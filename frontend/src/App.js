@@ -14,10 +14,14 @@ import Dashboard from "./pages/admin/Dashboard";
 import './index.css';
 
 function App() {
+  // Utilisation d'un état pour détecter si on est sur la page admin
+  const isAdminPage = window.location.pathname === '/admin';
+
   return (
     <Router>
       <div className="min-h-screen flex flex-col">
-        <Navbar />
+        {/* Navbar : cachée uniquement sur la page admin */}
+        {!isAdminPage && <Navbar />}
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -36,7 +40,8 @@ function App() {
             <Route path="*" element={<div style={{ paddingTop: 120, textAlign: 'center' }}>Page introuvable</div>} />
           </Routes>
         </main>
-        <Footer />
+        {/* Footer : caché uniquement sur la page admin */}
+        {!isAdminPage && <Footer />}
       </div>
     </Router>
   );
