@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
-import { api } from "../../services/api";
+import { api, getImageUrl } from "../../services/api";
 
 const ALL_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const VIEW_ICONS = ['📷', '🔍', '📐', '✨'];
@@ -20,55 +20,54 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+const [loading, setLoading] = useState(true);
 
   const [activeThumb, setActiveThumb] = useState(0);
   const [selectedColor, setSelectedColor] = useState("#1a1410");
   const [selectedSize, setSelectedSize] = useState("M");
   const [added, setAdded] = useState(false);
 
-  useEffect(() => {
-    async function loadProduct() {
-      try {
-        const response = await api.get(`/products/${id}`);
-        const p = response.data;
+useEffect(() => {
+  async function loadProduct() {
+    try {
+      setLoading(true);
+      const response = await api.get(`/products/${id}`);
+      const p = response.data;
 
-const formattedProduct = {
-  id: p.id,
-  name: p.name,
-  brand: p.brand || "TryOn",
-  category: p.categoryName || p.category || "Catalogue",
-  price: Number(p.price),
-  description: p.description,
-  colors: p.color ? [p.color] : ["#1a1410"],
-  sizes: p.sizes?.length
-    ? p.sizes.map((s) => s.label || s.size || s)
-    : ["S", "M", "L", "XL"],
-  image:
-    p.image ||
-    p.imageUrl ||
-    p.mainImage ||
-    p.images?.[0]?.imageUrl ||
-    "/product-placeholder.jpg",
-  rating: 4.8,
-  reviews: 12,
-};
-
-setProduct(formattedProduct);
-setSelectedColor(formattedProduct.colors[0]);
-setSelectedSize(formattedProduct.sizes[0]);
-        
-
-      } catch (error) {
-        console.error("Erreur produit :", error.message);
+      if (!p) {
         setProduct(null);
-      } finally {
-        setLoading(false);
+        return;
       }
-    }
 
-    loadProduct();
-  }, [id]);
+      const formattedProduct = {
+        id: p.id,
+        name: p.name,
+        brand: p.brand || "TryOn",
+        category: p.categoryName || p.category || "Catalogue",
+        price: Number(p.price),
+        description: p.description || "Description non disponible",
+        colors: p.color ? [p.color] : ["#1a1410"],
+        sizes: p.sizes?.length
+          ? p.sizes.map((s) => s.label || s.size || s)
+          : ["S", "M", "L", "XL"],
+        image: getImageUrl(p.image || p.imageUrl || p.mainImage || p.images?.[0]?.imageUrl),
+        rating: 4.8,
+        reviews: 12,
+      };
+
+      setProduct(formattedProduct);
+      setSelectedColor(formattedProduct.colors[0]);
+      setSelectedSize(formattedProduct.sizes[0]);
+    } catch (error) {
+      console.error("Erreur produit :", error.message);
+      setProduct(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  loadProduct();
+}, [id]);
 
   if (loading) {
     return <div style={{ paddingTop: 140, textAlign: "center" }}>Chargement...</div>;
@@ -249,7 +248,7 @@ setSelectedSize(formattedProduct.sizes[0]);
           </div>
 
           {/* Boutons */}
-          <button type="button" onClick={() => navigate('/tryon')} style={{
+          <button type="button" onClick={() => navigate(`/tryon?productId=${product.id}`)} style={{
             width:'100%', padding:18, borderRadius:10,
             background:'linear-gradient(135deg,#355C86,#26384D)',
             color:'#F9F9F9', border:'none', cursor:'pointer',

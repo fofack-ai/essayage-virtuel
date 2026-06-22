@@ -1,4 +1,11 @@
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api/v1";
+const FILES_BASE_URL = BASE_URL.replace(/\/api(\/v1)?\/?$/, "");
+
+export function getImageUrl(path) {
+  if (!path) return "/product-placeholder.jpg";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${FILES_BASE_URL}${path}`;
+}
 
 export async function apiRequest(endpoint, options = {}) {
   const token = sessionStorage.getItem("tryon_token");

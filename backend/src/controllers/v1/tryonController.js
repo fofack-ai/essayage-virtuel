@@ -1,4 +1,9 @@
 const tryonService = require("../../services/v1/tryonService");
+const aiTryonService = require('../../services/v1/aiTryonService');
+const tryonModel     = require('../../models/v1/tryonModel');
+const productModel   = require('../../models/v1/productModel');
+const path           = require('path');
+const fs             = require('fs');
 
 async function getTryons(req, res) {
   try {
@@ -299,6 +304,110 @@ async function uploadTryonPhoto(req, res) {
   }
 }
 
+
+/**
+ * POST /api/v1/tryons/ai-generate
+ * Reçoit la photo utilisateur (multipart) + productId, renvoie l'image générée par l'IA.
+ */
+async function aiGenerateTryon(req, res) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Photo utilisateur requise (champ: tryonPhoto)' });
+    }
+
+    const productId = req.body.productId ? parseInt(req.body.productId) : null;
+    if (!productId) {
+      return res.status(400).json({ success: false, message: 'productId requis' });
+    }
+
+    const product = await productModel.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Produit non trouvé' });
+    }
+
+    // ✅ FIX : le SQL retourne "AS image" — fallback sur getImages() si null
+    let imageField = product.image || product.image_url || product.imageUrl;
+
+    if (!imageField) {
+      const images = await productModel.getImages(productId);
+      const mainImg = images.find(img => img.isMain === 1 || img.isMain === true) || images[0];
+      imageField = mainImg?.imageUrl || null;
+    }
+
+    if (!imageField) {
+      return res.status(400).json({
+        success: false,
+        message: `Aucune image trouvée pour "${product.name}". Ajoutez-en une via l'admin.`
+      });
+    }
+
+    const productImageFilename = path.basename(imageField);
+    const productImagePath = path.join('./uploads/products', productImageFilename);
+
+    if (!fs.existsSync(productImagePath)) {
+      const available = fs.existsSync('./uploads/products')
+        ? fs.readdirSync('./uploads/products').join(', ')
+        : 'dossier introuvable';
+      return res.status(400).json({
+        success: false,
+        message: `Fichier "${productImageFilename}" absent sur le serveur. Disponibles : ${available}`
+      });
+    }
+
+    const userPhotoPath = req.file.path;
+
+    console.log(`[aiGenerateTryon] userId=${req.user?.id} productId=${productId} image=${productImagePath}`);
+
+    const aiResult = await aiTryonService.generateVirtualTryon(
+      userPhotoPath,
+      productImagePath,
+      { name: product.name, description: product.description }
+    );
+
+    let tryon = null;
+    if (req.user?.id) {
+      const tryonData = {
+        userId:          req.user.id,
+        productId,
+        userPhoto:       `/uploads/tryons/${path.basename(userPhotoPath)}`,
+        resultImage:     aiResult.servedPath,
+        score:           req.body.score ? parseInt(req.body.score) : null,
+        recommendedSize: req.body.recommendedSize || null,
+        notes:           `IA (${aiResult.strategy}) — ${new Date().toLocaleDateString('fr-FR')}`,
+        isLatest:        true,
+      };
+      try {
+        const tryonId = await tryonModel.createTryon(tryonData);
+        tryon = await tryonModel.findById(tryonId);
+      } catch (dbErr) {
+        console.warn('[aiGenerateTryon] Sauvegarde DB non bloquante :', dbErr.message);
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Essayage IA généré avec succès',
+      data: {
+        resultImageUrl: aiResult.servedPath,
+        strategy:       aiResult.strategy,
+        generatedAt:    aiResult.generatedAt,
+        personDesc:     aiResult.personDesc,
+        garmentDesc:    aiResult.garmentDesc,
+        tryon,
+      }
+    });
+
+  } catch (error) {
+    console.error('[aiGenerateTryon] Erreur :', error.message);
+    if (error.message.includes('OPENAI_API_KEY') || error.message.includes('REPLICATE_API')) {
+      return res.status(503).json({ success: false, message: 'Clé API manquante : ' + error.message });
+    }
+    if (error.message.includes('content_policy') || error.message.includes('safety')) {
+      return res.status(422).json({ success: false, message: 'Photo refusée par OpenAI. Essayez avec une autre.' });
+    }
+    return res.status(500).json({ success: false, message: 'Erreur génération IA : ' + error.message });
+  }
+}
 module.exports = {
   getTryons,
   getTryon,
@@ -307,5 +416,6 @@ module.exports = {
   updateTryon,
   deleteTryon,
   getTryonStats,
-  uploadTryonPhoto
+  uploadTryonPhoto,
+  aiGenerateTryon,
 };

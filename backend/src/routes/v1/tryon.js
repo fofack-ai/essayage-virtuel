@@ -50,4 +50,14 @@ router.post(
   tryonController.uploadTryonPhoto
 );
 
+
+// Route génération IA
+// multipart/form-data : champ "tryonPhoto" (image) + body "productId"
+router.post(
+  '/ai-generate',
+  auth,
+  uploadMiddleware.uploadSingle('tryonPhoto'),
+  tryonController.aiGenerateTryon
+);
+
 module.exports = router;
