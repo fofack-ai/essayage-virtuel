@@ -10,6 +10,7 @@ import Auth from './pages/auth/Auth';
 import Shop from "./pages/shop/Shop";
 import Cart from "./pages/cart/Cart";
 import Orders from './pages/account/Orders';
+import Profile from './pages/account/Profile'; // Add this line
 import Dashboard from "./pages/admin/Dashboard";
 import './index.css';
 
@@ -33,6 +34,7 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password/:token" element={<Auth />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/admin" element={<Dashboard />} />
             <Route path="/size-guide" element={<div>Guide des tailles (à implémenter)</div>} />
             <Route path="/shipping" element={<div>Livraison (à implémenter)</div>} />
@@ -40,7 +42,7 @@ function App() {
             <Route path="*" element={<div style={{ paddingTop: 120, textAlign: 'center' }}>Page introuvable</div>} />
           </Routes>
         </main>
-        {/* Footer : caché uniquement sur la page admin */}
+        {/* Footer : cachée uniquement sur la page admin */}
         {!isAdminPage && <Footer />}
       </div>
     </Router>
