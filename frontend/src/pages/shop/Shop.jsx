@@ -23,7 +23,7 @@ export default function Shop() {
         const formatted = response.data.map((p) => ({
           id: p.id,
           tag: "Nouveau",
-          category: p.categoryName || p.category || "Catalogue",
+          category: p.target || p.categoryName || p.category || "Catalogue",
           name: p.name,
           brand: p.brand,
           price: Number(p.price),

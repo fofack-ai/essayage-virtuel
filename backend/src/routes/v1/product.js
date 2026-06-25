@@ -46,7 +46,7 @@ router.delete(
 router.post(
   "/:id/images",
   auth,
-  uploadMiddleware.uploadSingle("image"),
+  uploadMiddleware.uploadProductImage,
   productController.addProductImage
 );
 

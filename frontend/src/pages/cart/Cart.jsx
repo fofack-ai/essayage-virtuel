@@ -46,6 +46,9 @@ export default function Cart() {
                     <div className="item-meta">
                       <span>Taille : {item.size || "Unique"}</span>
                       <span>Couleur : {item.color || "Standard"}</span>
+                      <p>
+                        Stock disponible : {item.sizeStock || "non précisé"}
+                      </p>
                     </div>
 
                     <div className="item-price">
@@ -56,17 +59,31 @@ export default function Cart() {
                   <div className="item-actions">
                     <div className="qty">
                       <button
-                        onClick={() =>
-                          updateQty(item.id, item.size, item.color, item.qty - 1)
-                        }
+                        onClick={() => {
+                          if (item.qty <= 1) {
+                            removeItem(item.id, item.size, item.color);
+                            return;
+                          }
+
+                          updateQty(item.id, item.size, item.color, item.qty - 1);
+                        }}
                       >
                         −
                       </button>
+
                       <span>{item.qty}</span>
+
                       <button
-                        onClick={() =>
-                          updateQty(item.id, item.size, item.color, item.qty + 1)
-                        }
+                        onClick={() => {
+                          if (item.sizeStock && item.qty >= item.sizeStock) {
+                            alert(
+                              `Ce produit en taille ${item.size} n'est disponible qu'en ${item.sizeStock} exemplaire(s) en stock.`
+                            );
+                            return;
+                          }
+
+                          updateQty(item.id, item.size, item.color, item.qty + 1);
+                        }}
                       >
                         +
                       </button>

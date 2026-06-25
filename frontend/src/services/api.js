@@ -8,7 +8,9 @@ export function getImageUrl(path) {
 }
 
 export async function apiRequest(endpoint, options = {}) {
-  const token = sessionStorage.getItem("tryon_token");
+  const token =
+  sessionStorage.getItem("tryon_token") ||
+  localStorage.getItem("tryon_token");
 
   const headers = {
     "Content-Type": "application/json",
@@ -52,6 +54,32 @@ export const api = {
     apiRequest(endpoint, {
       method: "DELETE",
     }),
+
+  upload: (endpoint, formData) => {
+    const token =
+      sessionStorage.getItem("tryon_token") ||
+      localStorage.getItem("tryon_token");
+
+    const headers = {};
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    return fetch(`${BASE_URL}${endpoint}`, {
+      method: "POST",
+      headers,
+      body: formData,
+    }).then(async (res) => {
+      const data = await res.json();
+
+      if (!res.ok || data.success === false) {
+        throw new Error(data.message || "Erreur API");
+      }
+
+      return data;
+    });
+  },
 };
 
 export default api;

@@ -1,6 +1,7 @@
 const db = require("../../config/database");
 const cartModel = require("../../models/v1/cartModel");
 const orderModel = require("../../models/v1/orderModel");
+const productModel = require("../../models/v1/productModel");
 
 function generateOrderNumber() {
   const date = Date.now().toString().slice(-6);
@@ -45,6 +46,7 @@ async function createOrderFromCart(userId, data) {
     });
 
     for (const item of items) {
+
       await orderModel.createOrderItem(connection, {
         orderId,
         productId: item.productId,
@@ -56,6 +58,15 @@ async function createOrderFromCart(userId, data) {
         price: item.price,
         subtotal: item.subtotal,
       });
+
+      if (item.size) {
+        await productModel.decreaseSizeStock(
+          item.productId,
+          item.size,
+          item.quantity,
+          connection
+        );
+      }
     }
 
     await orderModel.markCartAsConverted(connection, cart.id);

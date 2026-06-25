@@ -48,7 +48,7 @@ async function createProduct(productData) {
     throw new Error("Le stock ne peut pas être négatif");
   }
 
-  const productId = await productModel.createProduct(productData);
+  const productId = await productModel.create(productData);
   return await productModel.findById(productId);
 }
 
@@ -69,7 +69,7 @@ async function updateProduct(id, productData) {
     throw new Error("Le stock ne peut pas être négatif");
   }
 
-  const success = await productModel.updateProduct(id, productData);
+  const success = await productModel.update(id, productData);
   if (!success) {
     throw new Error("Échec de la mise à jour du produit");
   }
@@ -84,7 +84,7 @@ async function deleteProduct(id) {
     throw new Error("Produit non trouvé");
   }
 
-  const success = await productModel.removeProduct(id);
+  const success = await productModel.remove(id);
   if (!success) {
     throw new Error("Échec de la suppression du produit");
   }

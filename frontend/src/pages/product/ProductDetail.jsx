@@ -48,8 +48,12 @@ useEffect(() => {
         description: p.description || "Description non disponible",
         colors: p.color ? [p.color] : ["#1a1410"],
         sizes: p.sizes?.length
-          ? p.sizes.map((s) => s.label || s.size || s)
-          : ["S", "M", "L", "XL"],
+          ? p.sizes.map((s) => ({
+              id: s.sizeId || s.id,
+              label: s.sizeLabel || s.label || s.size,
+              stock: Number(s.stock || 0),
+            }))
+          : [],
         image: getImageUrl(p.image || p.imageUrl || p.mainImage || p.images?.[0]?.imageUrl),
         rating: 4.8,
         reviews: 12,
@@ -88,10 +92,27 @@ useEffect(() => {
   }
 
   const productImg = product?.image || "/product-placeholder.jpg";
-  const sizesToShow = product.sizes.length > 1 ? ALL_SIZES : product.sizes;
+  const availableSizes = product.sizes.filter((s) => s.stock > 0);
+  const sizesToShow = ALL_SIZES;
 
   const handleAdd = async () => {
+    const selectedSizeInfo = product.sizes.find((s) => s.label === selectedSize);
+
+    if (!selectedSizeInfo || selectedSizeInfo.stock <= 0) {
+      alert("Veuillez choisir une taille disponible.");
+      return;
+    }
+
     try {
+      const selectedSizeInfo = product.sizes.find(
+        (s) => s.label === selectedSize
+      );
+
+      if (!selectedSizeInfo || selectedSizeInfo.stock <= 0) {
+        alert("Veuillez choisir une taille disponible.");
+        return;
+      }
+
       await addItem({
         id: product.id,
         name: product.name,
@@ -100,6 +121,7 @@ useEffect(() => {
         price: product.price,
         image: productImg,
         size: selectedSize,
+        sizeStock: selectedSizeInfo.stock,
         color: selectedColor,
         qty: 1,
       });
@@ -230,7 +252,8 @@ useEffect(() => {
             </div>
             <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
               {sizesToShow.map(s => {
-                const available = product.sizes.includes(s);
+                const sizeInfo = product.sizes.find((size) => size.label === s);
+                const available = Boolean(sizeInfo && sizeInfo.stock > 0);
                 const on = selectedSize === s;
                 return (
                   <button type="button" key={s} disabled={!available} onClick={() => available && setSelectedSize(s)} style={{
@@ -241,7 +264,23 @@ useEffect(() => {
                     fontSize:14, fontWeight:500, cursor: available ? 'pointer' : 'not-allowed',
                     opacity: available ? 1 : 0.4, transition:'all .2s',
                     textDecoration: available ? 'none' : 'line-through',
-                  }}>{s}</button>
+                  }}>
+                    <>
+                      {s}
+                      {sizeInfo && (
+                        <small
+                          style={{
+                            display: "block",
+                            fontSize: 9,
+                            marginTop: 2,
+                            opacity: 0.75,
+                          }}
+                        >
+                          {sizeInfo.stock}
+                        </small>
+                      )}
+                    </>
+                  </button>
                 );
               })}
             </div>
