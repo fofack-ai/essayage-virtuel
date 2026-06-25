@@ -159,6 +159,13 @@ nav.vesti-header {
   justify-content: center;
 }
 
+/* Align icons in navbar */
+.nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 /* ─── FOOTER ─── */
 footer {
   background: linear-gradient(180deg, #1A1A1A 0%, #26384D 100%);
@@ -289,4 +296,66 @@ footer {
   .page {
     padding-top: 126px;
   }
+}
+
+/* Dropdown menu styles */
+.user-dropdown-menu {
+  position: absolute;
+  right: 0;
+  margin-top: 1rem;
+  width: 200px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(26,20,16,0.07);
+  z-index: 1000;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.user-dropdown-menu div {
+  padding: 1rem;
+}
+
+.user-dropdown-menu a,
+.user-dropdown-menu button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin: 0.25rem 0;
+  background: none;
+  border: none;
+  text-align: left;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.user-dropdown-menu a:hover,
+.user-dropdown-menu button:hover {
+  background: var(--warm);
+  color: var(--ink);
+}
+
+.user-dropdown-menu button {
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.user-dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.user-dropdown-toggle:hover {
+  background: var(--warm);
+  transform: scale(1.05);
 }

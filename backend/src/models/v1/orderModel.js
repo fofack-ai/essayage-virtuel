@@ -2,67 +2,46 @@ const db = require("../../config/database");
 
 async function createOrder(connection, data) {
   const [result] = await connection.query(
-    `
-    INSERT INTO orders
-    (
-      userId,
-      orderNumber,
-      total,
-      status,
-      paymentMethod,
-      paymentStatus,
-      deliveryAddress,
-      deliveryCity,
-      deliveryPhone
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `,
+    `INSERT INTO orders
+     (userId, orderNumber, total, status, paymentMethod, paymentStatus,
+      deliveryAddress, deliveryCity, deliveryPhone, deliveryType, deliveryFee, promoCode, promoDiscount)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       data.userId,
       data.orderNumber,
       data.total,
-      data.status || "pending",
-      data.paymentMethod || "cash_on_delivery",
-      data.paymentStatus || "pending",
-      data.deliveryAddress || null,
-      data.deliveryCity || null,
-      data.deliveryPhone || null,
+      "pending",
+      data.paymentMethod    || "cash_on_delivery",
+      data.paymentStatus    || "pending",
+      data.deliveryAddress  || null,
+      data.deliveryCity     || null,
+      data.deliveryPhone    || null,
+      data.deliveryType     || "std",
+      data.deliveryFee      ?? 0,
+      data.promoCode        || null,
+      data.promoDiscount    ?? 0,
     ]
   );
-
   return result.insertId;
 }
 
 async function createOrderItem(connection, data) {
   const [result] = await connection.query(
-    `
-    INSERT INTO order_items
-    (
-      orderId,
-      productId,
-      productName,
-      productImage,
-      size,
-      color,
-      quantity,
-      price,
-      subtotal
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `,
+    `INSERT INTO order_items
+     (orderId, productId, productName, productImage, size, color, quantity, price, subtotal)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       data.orderId,
-      data.productId || null,
+      data.productId    || null,
       data.productName,
       data.productImage || null,
-      data.size || null,
-      data.color || null,
+      data.size         || null,
+      data.color        || null,
       data.quantity,
       data.price,
       data.subtotal,
     ]
   );
-
   return result.insertId;
 }
 
@@ -75,75 +54,40 @@ async function markCartAsConverted(connection, cartId) {
 
 async function getUserOrders(userId) {
   const [rows] = await db.query(
-    `
-    SELECT
-      id,
-      orderNumber,
-      total,
-      status,
-      paymentMethod,
-      paymentStatus,
-      deliveryAddress,
-      deliveryCity,
-      deliveryPhone,
-      createdAt,
-      updatedAt
-    FROM orders
-    WHERE userId = ?
-    ORDER BY createdAt DESC
-    `,
+    `SELECT id, orderNumber, total, status, paymentMethod, paymentStatus,
+            deliveryAddress, deliveryCity, deliveryPhone,
+            deliveryType, deliveryFee, promoCode, promoDiscount,
+            createdAt, updatedAt
+     FROM orders
+     WHERE userId = ?
+     ORDER BY createdAt DESC`,
     [userId]
   );
-
   return rows;
 }
 
 async function getOrderById(orderId, userId) {
   const [rows] = await db.query(
-    `
-    SELECT
-      id,
-      userId,
-      orderNumber,
-      total,
-      status,
-      paymentMethod,
-      paymentStatus,
-      deliveryAddress,
-      deliveryCity,
-      deliveryPhone,
-      createdAt,
-      updatedAt
-    FROM orders
-    WHERE id = ? AND userId = ?
-    LIMIT 1
-    `,
+    `SELECT id, userId, orderNumber, total, status, paymentMethod, paymentStatus,
+            deliveryAddress, deliveryCity, deliveryPhone,
+            deliveryType, deliveryFee, promoCode, promoDiscount,
+            createdAt, updatedAt
+     FROM orders
+     WHERE id = ? AND userId = ?
+     LIMIT 1`,
     [orderId, userId]
   );
-
   return rows[0];
 }
 
 async function getOrderItems(orderId) {
   const [rows] = await db.query(
-    `
-    SELECT
-      id,
-      productId,
-      productName,
-      productImage,
-      size,
-      color,
-      quantity,
-      price,
-      subtotal,
-      createdAt
-    FROM order_items
-    WHERE orderId = ?
-    `,
+    `SELECT id, productId, productName, productImage, size, color,
+            quantity, price, subtotal, createdAt
+     FROM order_items
+     WHERE orderId = ?`,
     [orderId]
   );
-
   return rows;
 }
 

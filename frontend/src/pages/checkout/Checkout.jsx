@@ -1,206 +1,588 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api';
 
+/* ─── Constantes ─────────────────────────────────────────── */
 const PAYMENT = [
-  { id:'orange', label:'🟠 Orange Money',      desc:'Paiement via votre compte Orange' },
-  { id:'mtn',    label:'🟡 MTN Mobile Money',  desc:'Paiement via Mobile Money MTN' },
-  { id:'card',   label:'💳 Visa / Mastercard', desc:'Carte bancaire internationale' },
-  { id:'cash',   label:'🤝 À la livraison',    desc:'Espèces à la réception' },
+  { id: 'orange', label: '🟠 Orange Money',     desc: 'Paiement via votre compte Orange Money', backend: 'orange_money' },
+  { id: 'mtn',    label: '🟡 MTN Mobile Money', desc: 'Paiement via Mobile Money MTN',           backend: 'mtn_mobile_money' },
+  { id: 'cash',   label: '🤝 À la livraison',   desc: 'Espèces à la réception de votre colis',  backend: 'cash_on_delivery' },
 ];
 
-export default function Checkout() {
-  const { items: cartItems = [], clearCart } = useCart();
-  const navigate = useNavigate();
-  const [step, setStep] = useState(1);
-  const [pay, setPay]   = useState('orange');
-  const [promo, setPromo] = useState('');
-  const [promoOk, setPromoOk] = useState(false);
-  const [done, setDone] = useState(false);
-  const [form, setForm] = useState({ nom:'', prenom:'', email:'', tel:'', adresse:'', ville:'Douala' });
+const DELIVERY_OPTIONS = [
+  { id: 'std', label: 'Livraison standard', desc: '3-5 jours ouvrés', fee: 0,    feeLabel: 'Gratuite',   green: true  },
+  { id: 'exp', label: 'Livraison express',  desc: '24h garantis',     fee: 2000, feeLabel: '2 000 FCFA', green: false },
+];
 
-  const subtotal  = cartItems.reduce((s,i) => s + i.price * i.qty, 0);
-  const discount  = promoOk ? Math.round(subtotal * .10) : 0;
-  const total     = subtotal - discount;
+const CITIES = [
+  'Douala','Yaoundé','Bafoussam','Garoua','Maroua','Bamenda',
+  'Ngaoundéré','Bertoua','Kousséri','Batouri','Nkongsamba',
+  'Kumbo','Kribi','Limbé','Tiko','Kumba','Foumban',
+  'Mbandjock','Sangmelima','Ebolowa',
+];
 
-  const inp = (label, key, type='text', ph='') => (
-    <div style={{ marginBottom:18 }}>
-      <label style={{ fontSize:12, fontWeight:500, letterSpacing:1, textTransform:'uppercase', color:'#6A6F78', display:'block', marginBottom:8 }}>{label}</label>
-      <input type={type} value={form[key]} placeholder={ph}
-        onChange={e => setForm({...form, [key]:e.target.value})}
-        style={{ width:'100%', padding:'13px 16px', border:'1.5px solid rgba(26,26,26,.11)', borderRadius:10, fontFamily:"'DM Sans',sans-serif", fontSize:14, background:'#fff', outline:'none', color:'#1A1A1A' }}
-        onFocus={e => e.target.style.borderColor='#355C86'}
-        onBlur={e => e.target.style.borderColor='rgba(26,26,26,.11)'}
-      />
-    </div>
-  );
+const LABEL_STYLE = {
+  fontSize: 11, fontWeight: 700, letterSpacing: 1.2,
+  textTransform: 'uppercase', color: '#6A6F78',
+  display: 'block', marginBottom: 8,
+};
 
-  const confirm = () => { clearCart(); setDone(true); setTimeout(() => navigate('/'), 3000); };
-
-  if (done) return (
-    <div style={{ paddingTop:64, minHeight:'100vh', background:'#1A1A1A', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', color:'#fff', textAlign:'center' }}>
-      <div style={{ fontSize:80, marginBottom:24 }}>✅</div>
-      <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:52, fontWeight:300, marginBottom:16 }}>
-        Commande <em style={{ color:'#c9a96e' }}>confirmée !</em>
-      </h1>
-      <p style={{ color:'rgba(255,255,255,.5)', fontSize:15 }}>Vous recevrez un SMS de confirmation. Redirection…</p>
-    </div>
-  );
-
+/* ─── Composants dépendants définis HORS du parent ──────────
+   (Important : les définir à l'intérieur causerait un re-mount
+    à chaque render → perte de focus à chaque frappe)          */
+function Field({ label, value, onChange, type = 'text', placeholder = '', error = '' }) {
   return (
-    <div style={{ paddingTop:64, background:'#F9F9F9', minHeight:'100vh' }}>
-      {/* Breadcrumb */}
-      <div style={{ padding:'12px 48px', fontSize:12, color:'#6A6F78', display:'flex', gap:8, borderBottom:'1px solid rgba(26,26,26,.105)', background:'#fff' }}>
-        <Link to="/" style={{ color:'#355C86', textDecoration:'none' }}>Accueil</Link> ›
-        <Link to="/panier" style={{ color:'#355C86', textDecoration:'none' }}>Panier</Link> › Paiement
+    <div style={{ marginBottom: 18 }}>
+      <label style={LABEL_STYLE}>{label}</label>
+      <input
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        onChange={e => onChange(e.target.value)}
+        style={{
+          width: '100%', boxSizing: 'border-box',
+          padding: '13px 16px',
+          border: `1.5px solid ${error ? '#E53E3E' : 'rgba(26,26,26,.12)'}`,
+          borderRadius: 10, fontSize: 14,
+          background: '#fff', outline: 'none', color: '#1A1A1A',
+          transition: 'border-color .15s',
+        }}
+        onFocus={e => (e.target.style.borderColor = '#355C86')}
+        onBlur={e => (e.target.style.borderColor = error ? '#E53E3E' : 'rgba(26,26,26,.12)')}
+      />
+      {error && (
+        <p style={{ color: '#E53E3E', fontSize: 11, margin: '5px 0 0', fontStyle: 'italic' }}>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function CitySelect({ value, onChange, error = '' }) {
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <label style={LABEL_STYLE}>Ville *</label>
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        style={{
+          width: '100%', boxSizing: 'border-box',
+          padding: '13px 16px',
+          border: `1.5px solid ${error ? '#E53E3E' : 'rgba(26,26,26,.12)'}`,
+          borderRadius: 10, fontSize: 14,
+          background: '#fff', outline: 'none',
+          color: value ? '#1A1A1A' : '#9CA3AF',
+          cursor: 'pointer', appearance: 'none',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236A6F78' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'right 14px center',
+          paddingRight: 36,
+        }}
+      >
+        <option value="">-- Choisir une ville --</option>
+        {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+      </select>
+      {error && (
+        <p style={{ color: '#E53E3E', fontSize: 11, margin: '5px 0 0', fontStyle: 'italic' }}>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ─── Composant principal ────────────────────────────────── */
+export default function Checkout() {
+  const { items: cartItems = [], loadCart, loadingCart } = useCart();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+
+  const [step, setStep]             = useState(1);
+  const [pay, setPay]               = useState('cash');
+  const [delivery, setDelivery]     = useState('std');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [orderResult, setOrderResult] = useState(null);
+  const [errors, setErrors]         = useState({});
+  const [form, setFormState] = useState({
+    nom: '', prenom: '', email: '',
+    tel: '', adresse: '', ville: '',
+    quartier: '', reference: '',
+  });
+
+  /* ── Guards ── */
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) navigate('/auth');
+  }, [authLoading, isAuthenticated, navigate]);
+
+  useEffect(() => {
+    // On attend que le panier soit chargé avant de rediriger
+    if (!authLoading && !loadingCart && isAuthenticated && cartItems.length === 0 && !orderResult) {
+      navigate('/cart');
+    }
+  }, [authLoading, loadingCart, isAuthenticated, cartItems, orderResult, navigate]);
+
+  /* Pré-remplir l'email depuis le compte */
+  useEffect(() => {
+    if (user?.email) setFormState(f => ({ ...f, email: user.email }));
+  }, [user]);
+
+  /* ── Prix ── */
+  const deliveryFee = DELIVERY_OPTIONS.find(d => d.id === delivery)?.fee ?? 0;
+  const subtotal    = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
+  const total       = subtotal + deliveryFee;
+  const fmt         = n => Number(n).toLocaleString('fr-FR');
+
+  /* ── Validation ── */
+  const validatePhone = phone => /^6\d{8}$/.test(phone.trim());
+
+  const validateStep1 = () => {
+    const e = {};
+    if (!form.nom.trim())    e.nom    = 'Le nom est requis';
+    if (!form.prenom.trim()) e.prenom = 'Le prénom est requis';
+    if (!form.email.trim())  e.email  = "L'email est requis";
+    else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Email invalide';
+    if (!form.tel.trim())    e.tel    = 'Le téléphone est requis';
+    else if (!validatePhone(form.tel)) e.tel = 'Format requis : 6XXXXXXXX (9 chiffres, ex: 671207375)';
+    if (!form.adresse.trim()) e.adresse = "L'adresse est requise";
+    if (!form.ville)          e.ville   = 'La ville est requise';
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const setField = (key, val) => {
+    setFormState(f => ({ ...f, [key]: val }));
+    if (errors[key]) setErrors(e => ({ ...e, [key]: '' }));
+  };
+
+  /* ── Soumission ── */
+  const placeOrder = async () => {
+    setSubmitting(true);
+    setSubmitError('');
+    try {
+      const deliveryAddress = [form.adresse, form.quartier, form.reference]
+        .filter(Boolean).join(', ');
+
+      const response = await api.post('/orders', {
+        paymentMethod:   PAYMENT.find(p => p.id === pay)?.backend ?? 'cash_on_delivery',
+        deliveryAddress,
+        deliveryCity:    form.ville,
+        deliveryPhone:   form.tel,
+        deliveryType:    delivery,
+      });
+
+      setOrderResult(response.data);
+      await loadCart();
+    } catch (err) {
+      setSubmitError(err.message || 'Une erreur est survenue. Veuillez réessayer.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  /* ── Écran de succès ── */
+  if (orderResult) return (
+    <div style={{
+      paddingTop: 64, minHeight: '100vh', background: '#1A1A1A',
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      justifyContent: 'center', color: '#fff', textAlign: 'center',
+      padding: '64px 24px',
+    }}>
+      <div style={{ fontSize: 72, marginBottom: 20 }}>✅</div>
+      <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 'clamp(28px,5vw,50px)', fontWeight: 300, margin: '0 0 20px' }}>
+        Commande <em style={{ color: '#c9a96e' }}>confirmée !</em>
+      </h1>
+      <div style={{ background: 'rgba(255,255,255,.08)', borderRadius: 12, padding: '16px 32px', marginBottom: 24, display: 'inline-block' }}>
+        <p style={{ fontSize: 11, color: 'rgba(255,255,255,.4)', letterSpacing: 2, textTransform: 'uppercase', margin: '0 0 6px' }}>
+          Numéro de commande
+        </p>
+        <p style={{ fontSize: 22, fontWeight: 700, color: '#c9a96e', margin: 0 }}>
+          {orderResult.orderNumber}
+        </p>
       </div>
-
-      {/* Étapes */}
-      <div style={{ display:'flex', justifyContent:'center', gap:0, padding:'28px 48px', background:'#fff', borderBottom:'1px solid rgba(26,26,26,.105)' }}>
-        {['Livraison','Paiement','Confirmation'].map((s, i) => {
-          const n = i+1; const done2 = step>n; const active = step===n;
-          return (
-            <div key={s} style={{ display:'flex', alignItems:'center' }}>
-              <div style={{ display:'flex', alignItems:'center', gap:10, cursor:done2?'pointer':'default' }} onClick={() => done2 && setStep(n)}>
-                <div style={{ width:32, height:32, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', background:done2?'#06D6A0':active?'#B83228':'#F1F5F9', color:done2||active?'#fff':'#6A6F78', fontSize:13, fontWeight:700 }}>
-                  {done2?'✓':n}
-                </div>
-                <span style={{ fontSize:12, fontWeight:600, color:active?'#B83228':done2?'#06D6A0':'#6A6F78', letterSpacing:1, textTransform:'uppercase' }}>{s}</span>
-              </div>
-              {i<2 && <div style={{ width:60, height:1, background:done2?'#06D6A0':'rgba(26,26,26,.10)', margin:'0 16px' }}/>}
-            </div>
-          );
-        })}
-      </div>
-
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 380px' }}>
-
-        {/* Formulaire */}
-        <div style={{ padding:'48px 56px' }}>
-
-          {step===1 && (
-            <div>
-              <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:38, fontWeight:300, marginBottom:6 }}>Adresse de livraison</h2>
-              <p style={{ fontSize:13, color:'#6A6F78', marginBottom:32 }}>Où devons-nous livrer votre commande ?</p>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0 20px' }}>
-                {inp('Nom','nom','text','Votre nom')}
-                {inp('Prénom','prenom','text','Votre prénom')}
-              </div>
-              {inp('Email','email','email','vous@exemple.cm')}
-              {inp('Téléphone','tel','tel','+237 6XX XXX XXX')}
-              {inp('Adresse','adresse','text','Rue, numéro…')}
-              {inp('Ville','ville','text','Douala')}
-
-              <div style={{ marginBottom:28 }}>
-                <div style={{ fontSize:12, fontWeight:500, letterSpacing:1, textTransform:'uppercase', color:'#6A6F78', marginBottom:14 }}>Mode de livraison</div>
-                {[
-                  { id:'std', label:'Livraison standard', desc:'3-5 jours ouvrés', price:'Gratuite', green:true },
-                  { id:'exp', label:'Livraison express',  desc:'24h garantis',     price:'2 000 FCFA', green:false },
-                ].map(o => (
-                  <div key={o.id} style={{ display:'flex', alignItems:'center', gap:16, padding:18, border:'1.5px solid rgba(26,26,26,.08)', borderRadius:10, marginBottom:10, background:'#fff', cursor:'pointer' }}>
-                    <input type="radio" name="del" defaultChecked={o.id==='std'} style={{ accentColor:'#B83228' }}/>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:14, fontWeight:500 }}>{o.label}</div>
-                      <div style={{ fontSize:12, color:'#6A6F78' }}>{o.desc}</div>
-                    </div>
-                    <span style={{ fontWeight:700, color:o.green?'#06D6A0':'#B83228' }}>{o.price}</span>
-                  </div>
-                ))}
-              </div>
-              <button onClick={() => setStep(2)} style={{ width:'100%', padding:18, background:'linear-gradient(135deg,#B83228,#8E241D)', color:'#fff', border:'none', cursor:'pointer', fontSize:13, fontWeight:600, letterSpacing:2, textTransform:'uppercase', borderRadius:10 }}>
-                Continuer →
-              </button>
-            </div>
-          )}
-
-          {step===2 && (
-            <div>
-              <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:38, fontWeight:300, marginBottom:6 }}>Mode de paiement</h2>
-              <p style={{ fontSize:13, color:'#6A6F78', marginBottom:32 }}>Choisissez votre méthode préférée.</p>
-              <div style={{ display:'flex', flexDirection:'column', gap:12, marginBottom:32 }}>
-                {PAYMENT.map(m => (
-                  <div key={m.id} onClick={() => setPay(m.id)} style={{ display:'flex', alignItems:'center', gap:16, padding:20, border:`1.5px solid ${pay===m.id?'#B83228':'rgba(26,26,26,.08)'}`, borderRadius:12, cursor:'pointer', background:'#fff', transition:'border-color .18s' }}>
-                    <div style={{ width:20, height:20, borderRadius:'50%', border:`2px solid ${pay===m.id?'#B83228':'#ddd'}`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                      {pay===m.id && <div style={{ width:8, height:8, borderRadius:'50%', background:'#B83228' }}/>}
-                    </div>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:14, fontWeight:500 }}>{m.label}</div>
-                      <div style={{ fontSize:12, color:'#6A6F78' }}>{m.desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display:'flex', gap:12 }}>
-                <button onClick={() => setStep(1)} style={{ padding:'16px 24px', background:'#F1F5F9', border:'none', cursor:'pointer', fontSize:11, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', borderRadius:10 }}>← Retour</button>
-                <button onClick={() => setStep(3)} style={{ flex:1, padding:18, background:'linear-gradient(135deg,#B83228,#8E241D)', color:'#fff', border:'none', cursor:'pointer', fontSize:13, fontWeight:600, letterSpacing:2, textTransform:'uppercase', borderRadius:10 }}>Confirmer →</button>
-              </div>
-            </div>
-          )}
-
-          {step===3 && (
-            <div>
-              <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:38, fontWeight:300, marginBottom:6 }}>Vérification finale</h2>
-              <p style={{ fontSize:13, color:'#6A6F78', marginBottom:32 }}>Relisez votre commande avant de valider.</p>
-              <div style={{ background:'#fff', borderRadius:12, border:'1.5px solid rgba(26,26,26,.08)', marginBottom:20, overflow:'hidden' }}>
-                {cartItems.map((item, i) => (
-                  <div key={i} style={{ display:'flex', gap:16, padding:20, borderBottom: i<cartItems.length-1?'1px solid rgba(26,26,26,.06)':'none', alignItems:'center' }}>
-                    <div style={{ width:60, height:75, background:'linear-gradient(160deg,#f5f0e8,#ede5d8)', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', fontSize:28 }}>{item.emoji}</div>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:14, fontWeight:500, marginBottom:3 }}>{item.name}</div>
-                      <div style={{ fontSize:12, color:'#6A6F78' }}>Taille {item.size} · Qté {item.qty}</div>
-                    </div>
-                    <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:20, fontWeight:600 }}>{(item.price*item.qty).toLocaleString()} FCFA</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display:'flex', gap:12 }}>
-                <button onClick={() => setStep(2)} style={{ padding:'16px 24px', background:'#F1F5F9', border:'none', cursor:'pointer', fontSize:11, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', borderRadius:10 }}>← Retour</button>
-                <button onClick={confirm} style={{ flex:1, padding:18, background:'linear-gradient(135deg,#06D6A0,#059669)', color:'#fff', border:'none', cursor:'pointer', fontSize:13, fontWeight:600, letterSpacing:2, textTransform:'uppercase', borderRadius:10 }}>✓ Valider la commande</button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Récapitulatif */}
-        <div style={{ padding:'48px 36px', background:'#fff', borderLeft:'1px solid rgba(26,26,26,.08)', position:'sticky', top:104, alignSelf:'start' }}>
-          <h3 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:26, fontWeight:400, marginBottom:24 }}>Récapitulatif</h3>
-          {cartItems.map((item,i) => (
-            <div key={i} style={{ display:'flex', justifyContent:'space-between', fontSize:13, marginBottom:10, color:'#6A6F78' }}>
-              <span>{item.name} × {item.qty}</span>
-              <span style={{ fontWeight:600, color:'#1A1A1A' }}>{(item.price*item.qty).toLocaleString()}</span>
-            </div>
-          ))}
-          <div style={{ height:1, background:'rgba(26,26,26,.08)', margin:'16px 0' }}/>
-          <div style={{ display:'flex', justifyContent:'space-between', fontSize:14, marginBottom:10 }}>
-            <span style={{ color:'#6A6F78' }}>Sous-total</span><span>{subtotal.toLocaleString()} FCFA</span>
-          </div>
-          <div style={{ display:'flex', justifyContent:'space-between', fontSize:14, marginBottom:10 }}>
-            <span style={{ color:'#6A6F78' }}>Livraison</span>
-            <span style={{ color:'#06D6A0', fontWeight:700 }}>Gratuite</span>
-          </div>
-          {promoOk && (
-            <div style={{ display:'flex', justifyContent:'space-between', fontSize:14, marginBottom:10 }}>
-              <span style={{ color:'#6A6F78' }}>Réduction (10%)</span>
-              <span style={{ color:'#B83228', fontWeight:700 }}>−{discount.toLocaleString()} FCFA</span>
-            </div>
-          )}
-          <div style={{ display:'flex', justifyContent:'space-between', fontWeight:500, fontSize:17, paddingTop:14, borderTop:'1px solid rgba(26,26,26,.10)', marginTop:6 }}>
-            <span>Total</span><span>{total.toLocaleString()} FCFA</span>
-          </div>
-          <div style={{ display:'flex', gap:8, margin:'20px 0' }}>
-            <input value={promo} onChange={e => setPromo(e.target.value)} placeholder="Code promo"
-              style={{ flex:1, padding:'10px 14px', border:'1.5px solid rgba(26,26,26,.11)', borderRadius:10, fontFamily:"'DM Sans',sans-serif", fontSize:13, outline:'none', background:'#F9F9F9' }}/>
-            <button onClick={() => setPromoOk(promo.toUpperCase()==='VESTI10')}
-              style={{ padding:'10px 16px', background:'#F1F5F9', border:'none', cursor:'pointer', fontSize:12, fontWeight:600, letterSpacing:1, textTransform:'uppercase', borderRadius:10 }}>OK</button>
-          </div>
-          {promoOk && <p style={{ fontSize:12, color:'#06D6A0', marginTop:-10 }}>✓ Code VESTI10 appliqué !</p>}
-          <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginTop:16 }}>
-            {['🟠 Orange','🟡 MTN','💳 Visa','PayDunya'].map(b => (
-              <span key={b} style={{ padding:'5px 10px', background:'#F1F5F9', borderRadius:8, fontSize:10, fontWeight:600, color:'#6A6F78', border:'1px solid rgba(26,26,26,.08)' }}>{b}</span>
-            ))}
-          </div>
-        </div>
+      <p style={{ color: 'rgba(255,255,255,.55)', maxWidth: 400, lineHeight: 1.7, marginBottom: 32, fontSize: 15 }}>
+        Commande bien enregistrée. Nous vous contacterons au{' '}
+        <strong style={{ color: '#fff' }}>{form.tel}</strong> pour la confirmation.
+      </p>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <button
+          onClick={() => navigate('/orders')}
+          style={{ padding: '13px 26px', background: '#c9a96e', color: '#1A1A1A', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 14 }}
+        >
+          Voir mes commandes
+        </button>
+        <button
+          onClick={() => navigate('/')}
+          style={{ padding: '13px 26px', background: 'rgba(255,255,255,.1)', color: '#fff', border: '1px solid rgba(255,255,255,.2)', borderRadius: 8, fontWeight: 600, cursor: 'pointer', fontSize: 14 }}
+        >
+          Retour à l'accueil
+        </button>
       </div>
     </div>
+  );
+
+  if (authLoading) return (
+    <div style={{ paddingTop: 140, textAlign: 'center', color: '#6A6F78', minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      Chargement…
+    </div>
+  );
+
+  const deliveryOption = DELIVERY_OPTIONS.find(d => d.id === delivery);
+  const paymentOption  = PAYMENT.find(p => p.id === pay);
+
+  /* ── Rendu principal ── */
+  return (
+    <>
+      <style>{`
+        .co-wrap { padding-top: 64px; background: #F9F9F9; min-height: 100vh; }
+        .co-breadcrumb { padding: 12px 56px; font-size: 12px; color: #6A6F78; display: flex; gap: 8px; border-bottom: 1px solid rgba(26,26,26,.09); background: #fff; }
+        .co-steps { display: flex; justify-content: center; align-items: center; padding: 22px 24px; background: #fff; border-bottom: 1px solid rgba(26,26,26,.09); }
+        .co-grid { display: grid; grid-template-columns: 1fr 360px; }
+        .co-form { padding: 44px 56px; }
+        .co-sidebar { padding: 44px 30px; background: #fff; border-left: 1px solid rgba(26,26,26,.08); position: sticky; top: 104px; align-self: start; max-height: calc(100vh - 104px); overflow-y: auto; }
+        .co-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+        .step-label { font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; }
+        @media (max-width: 900px) {
+          .co-grid { grid-template-columns: 1fr; }
+          .co-sidebar { position: static; max-height: none; border-left: none; border-top: 1px solid rgba(26,26,26,.08); order: -1; padding: 24px 20px; }
+          .co-form { padding: 28px 20px; }
+          .co-breadcrumb { padding: 12px 20px; }
+        }
+        @media (max-width: 600px) {
+          .co-row2 { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 420px) {
+          .step-label { display: none; }
+        }
+      `}</style>
+
+      <div className="co-wrap">
+
+        {/* Fil d'Ariane */}
+        <div className="co-breadcrumb">
+          <Link to="/"     style={{ color: '#355C86', textDecoration: 'none' }}>Accueil</Link>
+          <span>›</span>
+          <Link to="/cart" style={{ color: '#355C86', textDecoration: 'none' }}>Panier</Link>
+          <span>›</span>
+          <span>Paiement</span>
+        </div>
+
+        {/* Indicateur d'étapes */}
+        <div className="co-steps">
+          {['Livraison', 'Paiement', 'Confirmation'].map((s, i) => {
+            const n = i + 1, done2 = step > n, active = step === n;
+            return (
+              <div key={s} style={{ display: 'flex', alignItems: 'center' }}>
+                <div
+                  onClick={() => done2 && setStep(n)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: done2 ? 'pointer' : 'default' }}
+                >
+                  <div style={{
+                    width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: done2 ? '#06D6A0' : active ? '#B83228' : '#F1F5F9',
+                    color: (done2 || active) ? '#fff' : '#9CA3AF',
+                    fontSize: 13, fontWeight: 700, transition: 'background .2s',
+                  }}>
+                    {done2 ? '✓' : n}
+                  </div>
+                  <span className="step-label" style={{ color: active ? '#B83228' : done2 ? '#06D6A0' : '#9CA3AF' }}>
+                    {s}
+                  </span>
+                </div>
+                {i < 2 && (
+                  <div style={{ width: 44, height: 1, background: done2 ? '#06D6A0' : '#E5E7EB', margin: '0 10px', transition: 'background .3s' }} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="co-grid">
+
+          {/* ════════ FORMULAIRE ════════ */}
+          <div className="co-form">
+
+            {/* ÉTAPE 1 — Livraison */}
+            {step === 1 && (
+              <div>
+                <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 'clamp(26px,4vw,38px)', fontWeight: 300, margin: '0 0 6px' }}>
+                  Adresse de livraison
+                </h2>
+                <p style={{ color: '#6A6F78', fontSize: 13, margin: '0 0 28px' }}>
+                  Où devons-nous livrer votre commande ?
+                </p>
+
+                <div className="co-row2">
+                  <Field label="Nom *"    value={form.nom}    onChange={v => setField('nom', v)}    placeholder="Votre nom"    error={errors.nom} />
+                  <Field label="Prénom *" value={form.prenom} onChange={v => setField('prenom', v)} placeholder="Votre prénom" error={errors.prenom} />
+                </div>
+
+                <Field label="Email *" value={form.email} onChange={v => setField('email', v)} type="email" placeholder="vous@exemple.cm" error={errors.email} />
+
+                <Field
+                  label="Téléphone * — format : 671207375"
+                  value={form.tel}
+                  onChange={v => setField('tel', v)}
+                  type="tel"
+                  placeholder="Ex : 671207375"
+                  error={errors.tel}
+                />
+
+                <Field label="Adresse *" value={form.adresse} onChange={v => setField('adresse', v)} placeholder="Numéro et nom de rue" error={errors.adresse} />
+
+                <div className="co-row2">
+                  <CitySelect value={form.ville} onChange={v => setField('ville', v)} error={errors.ville} />
+                  <Field label="Quartier / Secteur" value={form.quartier} onChange={v => setField('quartier', v)} placeholder="Ex : Bastos, Bonapriso" />
+                </div>
+
+                <Field
+                  label="Point de référence (optionnel)"
+                  value={form.reference}
+                  onChange={v => setField('reference', v)}
+                  placeholder="Ex : près de la mairie, supermarché Casino…"
+                />
+
+                {/* Mode de livraison */}
+                <div style={{ marginBottom: 28 }}>
+                  <p style={{ ...LABEL_STYLE, marginBottom: 12 }}>Mode de livraison</p>
+                  {DELIVERY_OPTIONS.map(o => (
+                    <div
+                      key={o.id}
+                      onClick={() => setDelivery(o.id)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 14,
+                        padding: '16px 18px', marginBottom: 10,
+                        border: `2px solid ${delivery === o.id ? '#B83228' : 'rgba(26,26,26,.10)'}`,
+                        borderRadius: 10, background: '#fff',
+                        cursor: 'pointer', transition: 'border-color .15s',
+                      }}
+                    >
+                      <div style={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0, border: `2px solid ${delivery === o.id ? '#B83228' : '#D1D5DB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {delivery === o.id && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#B83228' }} />}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 14, fontWeight: 600 }}>{o.label}</div>
+                        <div style={{ fontSize: 12, color: '#6A6F78', marginTop: 2 }}>{o.desc}</div>
+                      </div>
+                      <span style={{ fontWeight: 700, fontSize: 14, color: o.green ? '#059669' : '#B83228', flexShrink: 0 }}>
+                        {o.feeLabel}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => { if (validateStep1()) setStep(2); }}
+                  style={{ width: '100%', padding: 16, background: 'linear-gradient(135deg,#B83228,#8E241D)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', borderRadius: 10 }}
+                >
+                  Continuer →
+                </button>
+              </div>
+            )}
+
+            {/* ÉTAPE 2 — Paiement */}
+            {step === 2 && (
+              <div>
+                <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 'clamp(26px,4vw,38px)', fontWeight: 300, margin: '0 0 6px' }}>
+                  Mode de paiement
+                </h2>
+                <p style={{ color: '#6A6F78', fontSize: 13, margin: '0 0 28px' }}>
+                  Choisissez votre méthode de paiement.
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 36 }}>
+                  {PAYMENT.map(m => (
+                    <div
+                      key={m.id}
+                      onClick={() => setPay(m.id)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 14,
+                        padding: '18px 20px',
+                        border: `2px solid ${pay === m.id ? '#B83228' : 'rgba(26,26,26,.10)'}`,
+                        borderRadius: 12, background: '#fff',
+                        cursor: 'pointer', transition: 'border-color .15s',
+                      }}
+                    >
+                      <div style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0, border: `2px solid ${pay === m.id ? '#B83228' : '#D1D5DB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {pay === m.id && <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#B83228' }} />}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 15, fontWeight: 600 }}>{m.label}</div>
+                        <div style={{ fontSize: 12, color: '#6A6F78', marginTop: 3 }}>{m.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button
+                    onClick={() => setStep(1)}
+                    style={{ padding: '15px 20px', background: '#F3F4F6', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', borderRadius: 10, color: '#374151' }}
+                  >
+                    ← Retour
+                  </button>
+                  <button
+                    onClick={() => setStep(3)}
+                    style={{ flex: 1, padding: 15, background: 'linear-gradient(135deg,#B83228,#8E241D)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', borderRadius: 10 }}
+                  >
+                    Confirmer →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ÉTAPE 3 — Vérification */}
+            {step === 3 && (
+              <div>
+                <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 'clamp(26px,4vw,38px)', fontWeight: 300, margin: '0 0 6px' }}>
+                  Vérification finale
+                </h2>
+                <p style={{ color: '#6A6F78', fontSize: 13, margin: '0 0 24px' }}>
+                  Vérifiez vos informations avant de valider.
+                </p>
+
+                {/* Récap livraison */}
+                <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid rgba(26,26,26,.09)', padding: '18px 20px', marginBottom: 12 }}>
+                  <p style={{ ...LABEL_STYLE, margin: '0 0 10px' }}>Livraison</p>
+                  <p style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 600 }}>
+                    {form.prenom} {form.nom} · {form.tel}
+                  </p>
+                  <p style={{ margin: '0 0 6px', fontSize: 13, color: '#4B5563' }}>
+                    {[form.adresse, form.quartier, form.reference].filter(Boolean).join(', ')}, {form.ville}
+                  </p>
+                  <p style={{ margin: 0, fontSize: 13, color: '#B83228', fontWeight: 600 }}>
+                    {deliveryOption?.label} — {deliveryOption?.desc}
+                  </p>
+                </div>
+
+                {/* Récap paiement */}
+                <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid rgba(26,26,26,.09)', padding: '18px 20px', marginBottom: 20 }}>
+                  <p style={{ ...LABEL_STYLE, margin: '0 0 8px' }}>Paiement</p>
+                  <p style={{ margin: '0 0 3px', fontSize: 15, fontWeight: 600 }}>{paymentOption?.label}</p>
+                  <p style={{ margin: 0, fontSize: 12, color: '#6A6F78' }}>{paymentOption?.desc}</p>
+                </div>
+
+                {/* Articles */}
+                <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid rgba(26,26,26,.09)', marginBottom: 20, overflow: 'hidden' }}>
+                  <p style={{ ...LABEL_STYLE, margin: 0, padding: '14px 20px', borderBottom: '1px solid rgba(26,26,26,.07)' }}>
+                    Articles commandés
+                  </p>
+                  {cartItems.map((item, i) => (
+                    <div
+                      key={i}
+                      style={{ display: 'flex', gap: 14, padding: '14px 20px', borderBottom: i < cartItems.length - 1 ? '1px solid rgba(26,26,26,.06)' : 'none', alignItems: 'center' }}
+                    >
+                      {item.image
+                        ? <img src={item.image} alt={item.name} style={{ width: 52, height: 66, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
+                        : <div style={{ width: 52, height: 66, background: 'linear-gradient(135deg,#f5f0e8,#ede5d8)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>👗</div>
+                      }
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {item.name}
+                        </p>
+                        <p style={{ margin: 0, fontSize: 12, color: '#6A6F78' }}>
+                          {[item.size && `Taille ${item.size}`, item.color && `Couleur ${item.color}`, `Qté ${item.qty}`].filter(Boolean).join(' · ')}
+                        </p>
+                      </div>
+                      <p style={{ margin: 0, fontSize: 15, fontWeight: 700, flexShrink: 0 }}>
+                        {fmt(item.price * item.qty)} <span style={{ fontSize: 11, fontWeight: 500, color: '#6A6F78' }}>FCFA</span>
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Erreur de soumission */}
+                {submitError && (
+                  <div style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 10, padding: '14px 18px', marginBottom: 20, color: '#B91C1C', fontSize: 14 }}>
+                    ⚠️ {submitError}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button
+                    onClick={() => setStep(2)}
+                    disabled={submitting}
+                    style={{ padding: '15px 20px', background: '#F3F4F6', border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', borderRadius: 10, color: '#374151', opacity: submitting ? .6 : 1 }}
+                  >
+                    ← Retour
+                  </button>
+                  <button
+                    onClick={placeOrder}
+                    disabled={submitting}
+                    style={{ flex: 1, padding: 15, background: submitting ? '#6B7280' : 'linear-gradient(135deg,#059669,#047857)', color: '#fff', border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', borderRadius: 10, transition: 'background .2s' }}
+                  >
+                    {submitting ? '⏳ En cours…' : '✓ Valider la commande'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ════════ SIDEBAR ════════ */}
+          <div className="co-sidebar">
+            <h3 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 24, fontWeight: 400, margin: '0 0 20px' }}>
+              Récapitulatif
+            </h3>
+
+            <div style={{ marginBottom: 16 }}>
+              {cartItems.map((item, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, fontSize: 13, marginBottom: 10 }}>
+                  <span style={{ color: '#6A6F78', lineHeight: 1.4 }}>
+                    {item.name} <span style={{ color: '#9CA3AF' }}>×{item.qty}</span>
+                  </span>
+                  <span style={{ fontWeight: 600, color: '#1A1A1A', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                    {fmt(item.price * item.qty)} FCFA
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ height: 1, background: 'rgba(26,26,26,.09)', marginBottom: 14 }} />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 10, color: '#4B5563' }}>
+              <span>Sous-total</span>
+              <span>{fmt(subtotal)} FCFA</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 18, color: '#4B5563' }}>
+              <span>Livraison</span>
+              <span style={{ fontWeight: 700, color: deliveryFee === 0 ? '#059669' : '#B83228' }}>
+                {deliveryFee === 0 ? 'Gratuite' : `${fmt(deliveryFee)} FCFA`}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 800, paddingTop: 14, borderTop: '2px solid rgba(26,26,26,.10)', marginBottom: 22 }}>
+              <span>Total</span>
+              <span>{fmt(total)} FCFA</span>
+            </div>
+
+            {/* Badges */}
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+              {[
+                { label: '🟠 Orange',    bg: '#FFF8E7', border: '#F59E0B', color: '#92400E' },
+                { label: '🟡 MTN',       bg: '#FFFBEB', border: '#FBBF24', color: '#78350F' },
+                { label: '🤝 Livraison', bg: '#ECFDF5', border: '#6EE7B7', color: '#065F46' },
+              ].map(b => (
+                <span key={b.label} style={{ padding: '6px 12px', background: b.bg, border: `1px solid ${b.border}`, borderRadius: 8, fontSize: 11, fontWeight: 700, color: b.color }}>
+                  {b.label}
+                </span>
+              ))}
+            </div>
+
+            {/* Légal */}
+            <div style={{ paddingTop: 16, borderTop: '1px solid rgba(26,26,26,.08)', fontSize: 11, color: '#9CA3AF', lineHeight: 1.65 }}>
+              <p style={{ margin: '0 0 6px' }}>
+                Conformément à la loi camerounaise n° 2011/012, vous disposez d'un délai de rétractation de 7 jours à compter de la réception.
+              </p>
+              <p style={{ margin: 0 }}>Prix exprimés en FCFA TTC.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </>
   );
 }
