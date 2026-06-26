@@ -1463,6 +1463,7 @@ function Dashboard() {
   const [dateFilter, setDateFilter] = useState("all");
   const [catFilter, setCatFilter] = useState("all");
   const [reviewFilter, setReviewFilter] = useState("all");
+  const [stockFilter, setStockFilter] = useState("all");
   const [promoFilter, setPromoFilter] = useState("all");
   const [logFilter, setLogFilter] = useState("all");
   const [notifFilter, setNotifFilter] = useState("all");
@@ -1772,6 +1773,42 @@ function Dashboard() {
         `${p.name || ""} ${p.brand || ""} ${p.cat || ""}`.toLowerCase().includes(q)
     )
   );
+
+  const stockStats = useMemo(() => {
+    const allProducts = safeDb.products || [];
+
+    const rupture = allProducts.filter((p) => Number(p.stock || 0) === 0);
+    const faible = allProducts.filter(
+      (p) => Number(p.stock || 0) > 0 && Number(p.stock || 0) <= 5
+    );
+    const disponible = allProducts.filter((p) => Number(p.stock || 0) > 5);
+
+    return {
+      rupture,
+      faible,
+      disponible,
+    };
+  }, [safeDb.products]);
+
+  const stockProducts = useMemo(() => {
+    const allProducts = safeDb.products || [];
+
+    if (stockFilter === "rupture") {
+      return allProducts.filter((p) => Number(p.stock || 0) === 0);
+    }
+
+    if (stockFilter === "faible") {
+      return allProducts.filter(
+        (p) => Number(p.stock || 0) > 0 && Number(p.stock || 0) <= 5
+      );
+    }
+
+    if (stockFilter === "disponible") {
+      return allProducts.filter((p) => Number(p.stock || 0) > 5);
+    }
+
+    return allProducts;
+  }, [safeDb.products, stockFilter]);
 
   const orders = applyAdvancedFilters(
     filterByDate(safeDb.orders || []).filter(
@@ -2403,17 +2440,99 @@ function Dashboard() {
           {/* STOCK & APPROVISIONNEMENT */}
           {page === "stock" && (
             <>
-              <div className="toolbar"><span className="muted">Gestion des stocks et réapprovisionnement.</span></div>
+              <div className="grid-3">
+                <Kpi
+                  label="Produits en rupture"
+                  value={stockStats.rupture.length}
+                  change="Stock égal à 0"
+                />
+                <Kpi
+                  label="Stock faible"
+                  value={stockStats.faible.length}
+                  change="Stock entre 1 et 5"
+                />
+                <Kpi
+                  label="Disponibles"
+                  value={stockStats.disponible.length}
+                  change="Stock supérieur à 5"
+                />
+              </div>
+
+              <Toolbar
+                filters={[
+                  ["all", "Tous"],
+                  ["rupture", "Rupture"],
+                  ["faible", "Stock faible"],
+                  ["disponible", "Disponible"],
+                ]}
+                active={stockFilter}
+                setActive={setStockFilter}
+                onAdvancedSearch={() => setSearchModal(true)}
+              />
+
               <div className="stock-grid">
-                {safeDb.products.map((p) => (
-                  <div className="card stock-card" key={p.id}>
-                    <div className="stock-header"><span className="stock-emoji">{p.emoji}</span><h3>{p.name}</h3></div>
-                    <div className="stock-info"><span>Marque: {p.brand}</span><span>Catégorie: {p.cat}</span></div>
-                    <div className="stock-bar"><div className="stock-fill" style={{ width: `${Math.min(100, (p.stock / 30) * 100)}%`, background: p.stock < 6 ? 'var(--red)' : p.stock < 12 ? 'var(--orange)' : 'var(--green)' }} /></div>
-                    <div className="stock-details"><span>Stock: <strong>{p.stock}</strong></span><span className={`badge ${p.stock < 6 ? "bad" : p.stock < 12 ? "warn" : "ok"}`}>{p.stock < 6 ? "Urgent" : p.stock < 12 ? "Faible" : "OK"}</span></div>
-                    <div className="stock-actions"><Actions view={() => openView("product", p)} edit={() => openEdit("product", p)} del={() => remove("product", p.id)} /></div>
-                  </div>
-                ))}
+                {stockProducts.map((p) => {
+                  const status = getStockStatus(p.stock);
+
+                  return (
+                    <div className="card stock-card" key={p.id}>
+                      <div className="stock-header">
+                        <span className="stock-emoji">{p.emoji}</span>
+                        <h3>{p.name}</h3>
+                      </div>
+
+                      <div className="stock-info">
+                        <span>Marque : {p.brand}</span>
+                        <span>Catégorie : {p.cat}</span>
+                      </div>
+
+                      <div className="stock-bar">
+                        <div
+                          className="stock-fill"
+                          style={{
+                            width: `${Math.min(100, (Number(p.stock || 0) / 30) * 100)}%`,
+                            background:
+                              Number(p.stock || 0) === 0
+                                ? "var(--red)"
+                                : Number(p.stock || 0) <= 5
+                                ? "var(--orange)"
+                                : "var(--green)",
+                          }}
+                        />
+                      </div>
+
+                      <div className="stock-details">
+                        <span>
+                          Stock total : <strong>{p.stock}</strong>
+                        </span>
+
+                        <span className={`badge ${status.className}`}>
+                          {status.text}
+                        </span>
+                      </div>
+
+                      <div className="stock-actions">
+                        <button
+                          className="btn btn-light"
+                          onClick={() => openView("product", p)}
+                        >
+                          👁️ Voir
+                        </button>
+
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => openEdit("product", p)}
+                        >
+                          📦 Réapprovisionner
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {!stockProducts.length && (
+                  <div className="empty card">Aucun produit dans cette catégorie de stock.</div>
+                )}
               </div>
             </>
           )}
