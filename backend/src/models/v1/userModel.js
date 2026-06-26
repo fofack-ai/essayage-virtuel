@@ -5,21 +5,19 @@ async function findByEmail(email) {
     "SELECT * FROM users WHERE email = ? LIMIT 1",
     [email]
   );
-
   return rows[0];
 }
 
 async function findById(id) {
   const [rows] = await db.query(
     `
-    SELECT id, firstName, lastName, email, role, phone, address, city, status, createdAt
+    SELECT id, firstName, lastName, email, role, phone, address, city, createdAt
     FROM users
     WHERE id = ?
     LIMIT 1
     `,
     [id]
   );
-
   return rows[0];
 }
 
@@ -41,8 +39,19 @@ async function createUser(data) {
       data.city || null,
     ]
   );
-
   return result.insertId;
+}
+
+async function updateProfile(userId, data) {
+  const [result] = await db.query(
+    `
+    UPDATE users
+    SET firstName = ?, lastName = ?, phone = ?, email = ?
+    WHERE id = ?
+    `,
+    [data.firstName, data.lastName, data.phone || null, data.email, userId]
+  );
+  return result.affectedRows > 0;
 }
 
 async function saveOtp(userId, otpCode, otpExpiresAt) {
@@ -88,7 +97,6 @@ async function findByResetToken(resetToken) {
     `,
     [resetToken]
   );
-
   return rows[0];
 }
 
@@ -118,6 +126,7 @@ module.exports = {
   findByEmail,
   findById,
   createUser,
+  updateProfile,
   saveOtp,
   clearOtp,
   saveResetToken,
