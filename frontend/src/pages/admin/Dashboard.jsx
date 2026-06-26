@@ -102,7 +102,7 @@ function useOnlineStatus() {
   return isOnline;
 }
 
-// ==================== PAGINATION COMPONENT ====================
+// ==================== COMPOSANT DE PAGINATION ====================
 const Pagination = React.memo(({ current, total, onChange }) => {
   if (total <= 1) return null;
 
@@ -588,7 +588,7 @@ const ExportModal = React.memo(({ onExport, onClose, orders }) => {
   );
 });
 
-// Table standard
+// Tableau standard
 const Table = React.memo(({ head, rows, cls = "" }) => {
   return (
     <div className="card table-card">
@@ -1573,11 +1573,11 @@ function Dashboard() {
         console.log("Try-ons:", tryonsRes);
         console.log("Clients:", clientsRes);
       
-      // Transformation des données pour le front-end
+      // Transformation des données pour le frontend
       // Ici on mappe les données reçues du backend pour les adapter à l'interface admin
-      //Order, product, tryon, client, review, promotion, transaction, log, notification, support
+      // Commande, produit, essayage, client, avis, promotion, transaction, log, notification, support
 
-      //ORDERS
+      // COMMANDES
       const orders = ordersRes.data.map((o) => ({
         id: o.id,
         orderNumber: o.orderNumber,
@@ -1592,7 +1592,7 @@ function Dashboard() {
         deliveryPhone: o.deliveryPhone,
       }));
 
-      //PRODUCTS
+      // PRODUITS
       const products = productsRes.data.map((p) => ({
         id: p.id,
         name: p.name,
@@ -1607,7 +1607,7 @@ function Dashboard() {
         emoji: "👗",
       }));
 
-      //TRY-ONS
+      // ESSAYAGES
       const tryons = (tryonsRes.data || []).map((t) => ({
         id: t.id,
         client: `${t.firstName || ""} ${t.lastName || ""}`.trim(),
@@ -1618,7 +1618,7 @@ function Dashboard() {
         date: t.createdAt,
       }));
 
-      //CLIENTS
+      // CLIENTS
       const clients = (clientsRes.data || []).map((c) => ({
         id: c.id,
         name: `${c.firstName || ""} ${c.lastName || ""}`.trim(),
@@ -1633,7 +1633,7 @@ function Dashboard() {
         date: c.createdAt ? c.createdAt.slice(0, 10) : "",
       }));
 
-      //NOTIFICATIONS
+      // NOTIFICATIONS
       const notifications = [];
 
       // NOUVELLES COMMANDES
@@ -1692,7 +1692,7 @@ function Dashboard() {
         }
       });
 
-      //PAIEMENTS ET TRANSACTIONS
+      // PAIEMENTS ET TRANSACTIONS
       const transactions = orders.map((order) => ({
         id: `TRX-${order.id}`,
         orderId: order.id,
@@ -1743,6 +1743,8 @@ function Dashboard() {
   }, [darkMode]);
   
   const safeDb = db;
+  // Source de vérité unique du dashboard : toutes les sections lisent et modifient uniquement safeDb/db.
+  // Les constantes filtrées ci-dessous sont seulement des vues calculées pour l'affichage.
 
   const saveDb = (updater) => {
     setDb((prev) => {
@@ -1956,7 +1958,7 @@ function Dashboard() {
   );
 
   const transactions = (safeDb.transactions || []).filter((t) =>
-    `${t.order || ""} ${t.method || ""} ${t.status || ""}`.toLowerCase().includes(q)
+    `${t.id || ""} ${t.orderNumber || ""} ${t.client || ""} ${t.method || ""} ${t.status || ""}`.toLowerCase().includes(q)
   );
 
   const logs = (safeDb.logs || []).filter(
@@ -1986,7 +1988,7 @@ function Dashboard() {
     8
   );
   const transactionsPage = paginate(
-    safeDb.transactions || [],
+    transactions,
     pagination.transactions,
     6
   );
