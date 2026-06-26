@@ -1089,7 +1089,8 @@ const Modal = React.memo(({ modal, close, save, loading }) => {
       promotion: "une promotion",
       notification: "une notification",
       support: "un ticket",
-      client: "un client"
+      client: "un client",
+      restock: "un réapprovisionnement",
     };
     return labels[type] || "un élément";
   };
@@ -1103,6 +1104,43 @@ const Modal = React.memo(({ modal, close, save, loading }) => {
         </div>
 
         <form className="modal-body" onSubmit={save}>
+          {type === "restock" && (
+            <>
+              <h3>{item.name}</h3>
+              <p className="muted">Ajoutez des quantités au stock existant.</p>
+
+              <div className="card soft-card">
+                <h4>Stock par taille</h4>
+
+                {["XS", "S", "M", "L", "XL", "XXL"].map((size) => {
+                  const currentStock =
+                    item.sizes?.find((s) => s.sizeLabel === size)?.stock || 0;
+
+                  return (
+                    <div className="form-grid" key={size}>
+                      <div className="field">
+                        <label className="label">Taille</label>
+                        <input className="input" value={size} readOnly />
+                      </div>
+
+                      <div className="field">
+                        <label className="label">Stock actuel</label>
+                        <input className="input" value={currentStock} readOnly />
+                      </div>
+
+                      <Field
+                        label={`Ajouter ${size}`}
+                        type="number"
+                        name={`restock_${size}`}
+                        defaultValue="0"
+                        min="0"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
           {type === "product" && (
             <>
               <Field label="Nom" name="name" defaultValue={item.name || ""} required />
@@ -1474,7 +1512,7 @@ function Dashboard() {
   const [searchModal, setSearchModal] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState(null);
   const [pagination, setPagination] = useState({ 
-    commandes: 1, produits: 1, clients: 1, essayages: 1,
+    commandes: 1, produits: 1, clients: 1, stock: 1, essayages: 1,
     reviews: 1, promotions: 1, transactions: 1, logs: 1,
     notifications: 1, support: 1
   });
@@ -1534,7 +1572,12 @@ function Dashboard() {
         console.log("Products:", productsRes);
         console.log("Try-ons:", tryonsRes);
         console.log("Clients:", clientsRes);
-        
+      
+      // Transformation des données pour le front-end
+      // Ici on mappe les données reçues du backend pour les adapter à l'interface admin
+      //Order, product, tryon, client, review, promotion, transaction, log, notification, support
+
+      //ORDERS
       const orders = ordersRes.data.map((o) => ({
         id: o.id,
         orderNumber: o.orderNumber,
@@ -1549,6 +1592,7 @@ function Dashboard() {
         deliveryPhone: o.deliveryPhone,
       }));
 
+      //PRODUCTS
       const products = productsRes.data.map((p) => ({
         id: p.id,
         name: p.name,
@@ -1563,6 +1607,7 @@ function Dashboard() {
         emoji: "👗",
       }));
 
+      //TRY-ONS
       const tryons = (tryonsRes.data || []).map((t) => ({
         id: t.id,
         client: `${t.firstName || ""} ${t.lastName || ""}`.trim(),
@@ -1573,6 +1618,7 @@ function Dashboard() {
         date: t.createdAt,
       }));
 
+      //CLIENTS
       const clients = (clientsRes.data || []).map((c) => ({
         id: c.id,
         name: `${c.firstName || ""} ${c.lastName || ""}`.trim(),
@@ -1587,6 +1633,77 @@ function Dashboard() {
         date: c.createdAt ? c.createdAt.slice(0, 10) : "",
       }));
 
+      //NOTIFICATIONS
+      const notifications = [];
+
+      // NOUVELLES COMMANDES
+      orders.forEach((order) => {
+        if (order.status === "pending") {
+          notifications.push({
+            id: `order-${order.id}`,
+            type: "order",
+            title: "Nouvelle commande",
+            message: `Commande ${order.orderNumber} en attente de traitement.`,
+            date: order.date || new Date().toISOString().slice(0, 10),
+            read: false,
+          });
+        }
+      });
+
+      // STOCK FAIBLE
+      products.forEach((product) => {
+        if (product.stock > 0 && product.stock <= 5) {
+          notifications.push({
+            id: `stock-${product.id}`,
+            type: "stock",
+            title: "Stock faible",
+            message: `${product.name} ne possède plus que ${product.stock} exemplaire(s).`,
+            date: new Date().toISOString().slice(0, 10),
+            read: false,
+          });
+        }
+      });
+
+      // RUPTURE DE STOCK
+      products.forEach((product) => {
+        if (product.stock === 0) {
+          notifications.push({
+            id: `rupture-${product.id}`,
+            type: "stock",
+            title: "Rupture de stock",
+            message: `${product.name} est en rupture de stock.`,
+            date: new Date().toISOString().slice(0, 10),
+            read: false,
+          });
+        }
+      });
+
+      // CLIENTS SUSPENDUS OU INACTIFS
+      clients.forEach((client) => {
+        if (client.status === "suspended" || client.status === "inactive") {
+          notifications.push({
+            id: `client-${client.id}`,
+            type: "client",
+            title: "Compte client à surveiller",
+            message: `${client.name} possède le statut : ${client.status}.`,
+            date: client.date || new Date().toISOString().slice(0, 10),
+            read: false,
+          });
+        }
+      });
+
+      //PAIEMENTS ET TRANSACTIONS
+      const transactions = orders.map((order) => ({
+        id: `TRX-${order.id}`,
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        amount: order.total,
+        method: order.paymentMethod || "cash_on_delivery",
+        status: order.paymentStatus || "pending",
+        date: order.date,
+        client: order.client,
+      }));         
+
       setDb((prev) => ({
         ...prev,
         orders,
@@ -1595,9 +1712,9 @@ function Dashboard() {
         clients,
         reviews: [],
         promotions: [],
-        transactions: [],
+        transactions,
         logs: [],
-        notifications: [],
+        notifications,
         support: [],
         audit: ["Données admin chargées depuis le backend"],
         stats: dashboardRes.data,
@@ -1863,10 +1980,19 @@ function Dashboard() {
   const ordersPage = paginate(orders, pagination.commandes, 5);
   const productsPage = paginate(products, pagination.produits, 6);
   const clientsPage = paginate(clients, pagination.clients, 5);
+  const stockPage = paginate(
+    stockProducts,
+    pagination.stock,
+    8
+  );
+  const transactionsPage = paginate(
+    safeDb.transactions || [],
+    pagination.transactions,
+    6
+  );
   const tryonsPage = paginate(tryons, pagination.essayages, 5);
   const reviewsPage = paginate(reviews, pagination.reviews, 5);
   const promotionsPage = paginate(promotions, pagination.promotions, 4);
-  const transactionsPage = paginate(transactions, pagination.transactions, 5);
   const logsPage = paginate(logs, pagination.logs, 5);
   const notificationsPage = paginate(notifications, pagination.notifications, 5);
   const supportPage = paginate(support, pagination.support, 5);
@@ -2058,6 +2184,24 @@ function Dashboard() {
     setViewItem({ type, item });
   };
 
+  const openRestock = async (product) => {
+    try {
+      setLoading(true);
+
+      const response = await adminService.getProduct(product.id);
+
+      setModal({
+        type: "restock",
+        mode: "edit",
+        item: response.data,
+      });
+    } catch (error) {
+      notify(error.message || "Impossible de charger le stock", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const saveModal = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -2087,6 +2231,40 @@ function Dashboard() {
           "success"
         );
 
+        return;
+      }
+
+      // STOCK (REAPPROVISIONNEMENT)
+      if (modal?.type === "restock") {
+        const sizeMap = {
+          XS: 1,
+          S: 2,
+          M: 3,
+          L: 4,
+          XL: 5,
+          XXL: 6,
+        };
+
+        const productId = modal.item?.id;
+
+        for (const [label, sizeId] of Object.entries(sizeMap)) {
+          const addedStock = Number(form[`restock_${label}`] || 0);
+
+          if (addedStock > 0) {
+            const currentStock =
+              modal.item?.sizes?.find((s) => s.sizeLabel === label)?.stock || 0;
+
+            await adminService.addProductSize(productId, {
+              sizeId,
+              stock: Number(currentStock) + addedStock,
+            });
+          }
+        }
+
+        await loadAdminData();
+        setModal(null);
+        notify("Stock réapprovisionné avec succès", "success");
+        addAudit(`Réapprovisionnement : ${modal.item?.name}`);
         return;
       }
 
@@ -2471,7 +2649,7 @@ function Dashboard() {
               />
 
               <div className="stock-grid">
-                {stockProducts.map((p) => {
+                {stockPage.items.map((p) => {
                   const status = getStockStatus(p.stock);
 
                   return (
@@ -2521,7 +2699,7 @@ function Dashboard() {
 
                         <button
                           className="btn btn-primary"
-                          onClick={() => openEdit("product", p)}
+                          onClick={() => openRestock(p)}
                         >
                           📦 Réapprovisionner
                         </button>
@@ -2534,6 +2712,16 @@ function Dashboard() {
                   <div className="empty card">Aucun produit dans cette catégorie de stock.</div>
                 )}
               </div>
+              <Pagination
+                current={stockPage.currentPage}
+                total={stockPage.totalPages}
+                onChange={(value) =>
+                  setPagination((prev) => ({
+                    ...prev,
+                    stock: value,
+                  }))
+                }
+              />
             </>
           )}
 
@@ -2588,25 +2776,57 @@ function Dashboard() {
           {/* PAIEMENTS & TRANSACTIONS */}
           {page === "paiements" && (
             <>
-              <div className="toolbar"><span className="muted">Suivi des transactions financières.</span></div>
               <div className="payment-summary">
-                <div className="card"><div className="kpi-label">Total transactions</div><div className="kpi-value">{safeDb.transactions.length}</div></div>
-                <div className="card"><div className="kpi-label">Montant total</div><div className="kpi-value">{fmt(safeDb.transactions.reduce((s, t) => s + (t.status === "completed" ? t.amount : 0), 0))}</div></div>
-                <div className="card"><div className="kpi-label">Remboursements</div><div className="kpi-value">{safeDb.transactions.filter(t => t.status === "refunded").length}</div></div>
-                <div className="card"><div className="kpi-label">En attente</div><div className="kpi-value">{safeDb.transactions.filter(t => t.status === "pending").length}</div></div>
+                <Kpi
+                  label="Total transactions"
+                  value={safeDb.transactions.length}
+                  change="Commandes enregistrées"
+                />
+
+                <Kpi
+                  label="Montant total"
+                  value={fmt(
+                    safeDb.transactions.reduce((sum, t) => sum + Number(t.amount || 0), 0)
+                  )}
+                  change="Total encaissable"
+                />
+
+                <Kpi
+                  label="Confirmées"
+                  value={safeDb.transactions.filter((t) => t.status === "paid").length}
+                  change="Paiements validés"
+                />
+
+                <Kpi
+                  label="En attente"
+                  value={safeDb.transactions.filter((t) => t.status === "pending").length}
+                  change="Paiements à suivre"
+                />
               </div>
+
               <Table
                 head={["Transaction", "Commande", "Montant", "Méthode", "Statut", "Actions"]}
+                cls="transactions"
                 rows={transactionsPage.items.map((t) => [
                   t.id,
-                  t.order,
-                  <strong>{fmt(t.amount)}</strong>,
+                  t.orderNumber || "-",
+                  fmt(t.amount),
                   t.method,
-                  <span className={`badge ${t.status === "completed" ? "ok" : t.status === "pending" ? "warn" : t.status === "refunded" ? "bad" : ""}`}>{t.status}</span>,
-                  <Actions view={() => openView("transaction", t)} edit={() => openEdit("transaction", t)} del={() => remove("transaction", t.id)} />
+                  <span className={`badge ${t.status === "paid" ? "ok" : "warn"}`}>
+                    {t.status === "paid" ? "Payé" : "En attente"}
+                  </span>,
+                  <Actions
+                    view={() => openView("transaction", t)}
+                    edit={() => openEdit("transaction", t)}
+                    del={() => remove("transaction", t.id)}
+                  />,
                 ])}
               />
-              <Pagination current={transactionsPage.currentPage} total={transactionsPage.totalPages} onChange={(n) => setPageNumber("transactions", n)} />
+              <Pagination
+                current={transactionsPage.currentPage}
+                total={transactionsPage.totalPages}
+                onChange={(n) => setPageNumber("transactions", n)}
+              />
             </>
           )}
 
@@ -2667,7 +2887,17 @@ function Dashboard() {
                 {notificationsPage.items.map((n) => (
                   <div className={`card notification-item ${n.read ? 'read' : 'unread'}`} key={n.id}>
                     <div className="notif-header">
-                      <span className="notif-type">{n.type === "order" ? "📦" : n.type === "stock" ? "📊" : n.type === "review" ? "⭐" : "📬"}</span>
+                      <span className="notif-type">
+                        {n.type === "order"
+                          ? "📦"
+                          : n.type === "stock"
+                          ? "⚠️"
+                          : n.type === "client"
+                          ? "👤"
+                          : n.type === "review"
+                          ? "⭐"
+                          : "📬"}
+                      </span>
                       <div className="notif-content">
                         <h4>{n.title}</h4>
                         <p>{n.message}</p>
