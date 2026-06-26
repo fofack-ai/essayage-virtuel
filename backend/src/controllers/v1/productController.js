@@ -203,7 +203,7 @@ async function addProductImage(req, res) {
 
 async function getProductImages(req, res) {
   try {
-    const productId = req.params.productId;
+    const productId = req.params.id;
 
     if (!productId) {
       return res.status(400).json({
@@ -261,7 +261,7 @@ async function deleteProductImage(req, res) {
 // Product Sizes
 async function addProductSize(req, res) {
   try {
-    const productId = req.params.productId;
+    const productId = req.params.id;
     const { sizeId, stock } = req.body;
 
     if (!productId) {
@@ -305,7 +305,7 @@ async function addProductSize(req, res) {
 
 async function getProductSizes(req, res) {
   try {
-    const productId = req.params.productId;
+    const productId = req.params.id;
 
     if (!productId) {
       return res.status(400).json({
@@ -337,7 +337,7 @@ async function getProductSizes(req, res) {
 
 async function updateProductSizeStock(req, res) {
   try {
-    const productId = req.params.productId;
+    const productId = req.params.id;
     const sizeId = req.params.sizeId;
     const { stock } = req.body;
 

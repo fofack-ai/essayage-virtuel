@@ -9,7 +9,13 @@ async function findAll(filters = {}) {
       u.email,
       p.name as productName,
       p.brand as productBrand,
-      p.image as productImage
+      (
+        SELECT imageUrl
+        FROM product_images
+        WHERE productId = p.id
+        AND isMain = 1
+        LIMIT 1
+      ) AS productImage
     FROM tryons t
     LEFT JOIN users u ON t.userId = u.id
     LEFT JOIN products p ON t.productId = p.id
@@ -56,7 +62,13 @@ async function findById(id) {
       u.email,
       p.name as productName,
       p.brand as productBrand,
-      p.image as productImage
+      (
+        SELECT imageUrl
+        FROM product_images
+        WHERE productId = p.id
+        AND isMain = 1
+        LIMIT 1
+      ) AS productImage
     FROM tryons t
     LEFT JOIN users u ON t.userId = u.id
     LEFT JOIN products p ON t.productId = p.id
@@ -77,7 +89,13 @@ async function findByUserId(userId, limit = 10) {
       u.email,
       p.name as productName,
       p.brand as productBrand,
-      p.image as productImage
+      (
+        SELECT imageUrl
+        FROM product_images
+        WHERE productId = p.id
+        AND isMain = 1
+        LIMIT 1
+      ) AS productImage
     FROM tryons t
     LEFT JOIN users u ON t.userId = u.id
     LEFT JOIN products p ON t.productId = p.id

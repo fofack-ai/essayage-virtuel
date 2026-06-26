@@ -48,6 +48,10 @@ async function login(email, password) {
     throw new Error("Email ou mot de passe incorrect");
   }
 
+  if (user.status !== "active") {
+    throw new Error("Votre compte est désactivé ou suspendu.");
+  }
+
   const isValidPassword = await comparePassword(password, user.password);
 
   if (!isValidPassword) {

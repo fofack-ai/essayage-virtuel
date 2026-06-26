@@ -23,6 +23,7 @@ export function CartProvider({ children }) {
       name: item.productName,
       image: item.productImage,
       size: item.size,
+      sizeStock: item.sizeStock || item.stock || item.availableStock || null,
       color: item.color,
       qty: item.quantity,
       price: item.price,

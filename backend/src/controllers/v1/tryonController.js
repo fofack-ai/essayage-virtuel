@@ -109,12 +109,8 @@ async function getUserTryons(req, res) {
 
 async function createTryon(req, res) {
   try {
-    // Handle file upload data from middleware
-    // In a real app, this would come from multer middleware
-    let tryonData = req.body;
 
-    // If files were uploaded, they would be in req.files
-    // For now, we expect URLs to be in the body after processing
+    let tryonData = req.body;
 
     const tryon = await tryonService.createTryon(tryonData);
 

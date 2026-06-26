@@ -72,7 +72,7 @@ async function createTryon(tryonData) {
   }
 
   // If this is set as latest, the model will handle unsetting others
-  const tryonId = await tryonModel.createTryon(tryonData);
+  const tryonId = await tryonModel.create(tryonData);
   return await tryonModel.findById(tryonId);
 }
 
@@ -104,7 +104,7 @@ async function updateTryon(id, tryonData) {
     throw new Error("Le score doit être entre 0 et 100");
   }
 
-  const success = await tryonModel.updateTryon(id, tryonData);
+  const success = await tryonModel.update(id, tryonData);
   if (!success) {
     throw new Error("Échec de la mise à jour de l'essai");
   }
@@ -119,7 +119,7 @@ async function deleteTryon(id) {
     throw new Error("Essai non trouvé");
   }
 
-  const success = await tryonModel.removeTryon(id);
+  const success = await tryonModel.remove(id);
   if (!success) {
     throw new Error("Échec de la suppression de l'essai");
   }

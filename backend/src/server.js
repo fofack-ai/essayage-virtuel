@@ -7,6 +7,11 @@ const { port } = require("./config/environment");
 async function startServer() {
   try {
     await db.query("SELECT 1");
+    
+    //Limite de requêtes simultanées pour éviter les erreurs de surcharge du serveur
+    /*const connection = await db.getConnection();
+    await connection.ping();
+    connection.release();*/
 
     console.log("Connexion MySQL Alwaysdata réussie");
 

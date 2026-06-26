@@ -3,10 +3,23 @@ const db = require("../../config/database");
 async function findAll(filters = {}) {
   let query = `
     SELECT
-      p.*,
-      c.name as categoryName,
-      c.slug as categorySlug,
-      (SELECT imageUrl FROM product_images WHERE productId = p.id AND isMain = 1 LIMIT 1) AS image
+    p.*,
+    c.name as categoryName,
+    c.slug as categorySlug,
+
+    (
+      SELECT imageUrl
+      FROM product_images
+      WHERE productId = p.id
+      AND isMain = 1
+      LIMIT 1
+    ) AS image,
+
+    (
+      SELECT COALESCE(SUM(stock),0)
+      FROM product_sizes
+      WHERE productId = p.id
+    ) AS totalStock
     FROM products p
     LEFT JOIN categories c ON p.categoryId = c.id
     WHERE p.status = 'active'
@@ -199,22 +212,6 @@ async function updateSizeStock(productId, sizeId, stock) {
   return result.affectedRows > 0;
 }
 
-module.exports = {
-  findAll,
-  findById,
-  findFeatured,
-  create,
-  update,
-  remove,
-  addImage,
-  getImages,
-  deleteImage,
-  addSize,
-  getSizes,
-  updateSizeStock,
-};
-
-
 async function findById(id) {
   const [rows] = await db.query(
     `
@@ -231,3 +228,38 @@ async function findById(id) {
   );
   return rows[0];
 }
+
+async function decreaseSizeStock(productId, sizeLabel, quantity, connection = db) {
+  await connection.query(
+    `
+    UPDATE product_sizes ps
+    JOIN sizes s ON s.id = ps.sizeId
+    SET ps.stock = ps.stock - ?
+    WHERE ps.productId = ?
+      AND s.label = ?
+      AND ps.stock >= ?
+    `,
+    [
+      quantity,
+      productId,
+      sizeLabel,
+      quantity,
+    ]
+  );
+}
+
+module.exports = {
+  findAll,
+  findById,
+  findFeatured,
+  create,
+  update,
+  remove,
+  addImage,
+  getImages,
+  deleteImage,
+  addSize,
+  getSizes,
+  updateSizeStock,
+  decreaseSizeStock,
+};

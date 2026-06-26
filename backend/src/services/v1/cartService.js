@@ -42,6 +42,24 @@ async function getProductDetails(productId) {
   return rows[0];
 }
 
+async function getSizeStock(productId, size) {
+  if (!size) return null;
+
+  const [rows] = await db.query(
+    `
+    SELECT ps.stock
+    FROM product_sizes ps
+    JOIN sizes s ON s.id = ps.sizeId
+    WHERE ps.productId = ?
+      AND s.label = ?
+    LIMIT 1
+    `,
+    [productId, size]
+  );
+
+  return rows[0] ? Number(rows[0].stock || 0) : 0;
+}
+
 async function getCart(userId) {
   const cart = await getOrCreateCart(userId);
   const items = await cartModel.getCartItems(cart.id);
@@ -79,6 +97,14 @@ async function addToCart(userId, data) {
   // Get product details from database
   const product = await getProductDetails(data.productId);
 
+  const sizeStock = await getSizeStock(product.id, data.size || null);
+
+  if (data.size && sizeStock <= 0) {
+    throw new Error(
+      `La taille ${data.size} n'est pas disponible en stock.`
+    );
+  }
+
   const cart = await getOrCreateCart(userId);
 
   // Check if item already exists in cart with same specifications
@@ -90,13 +116,19 @@ async function addToCart(userId, data) {
   );
 
   if (existingItem) {
-    // If exists, update quantity only (keep original product details)
+    const nextQuantity = Number(existingItem.quantity) + quantity;
+
+    if (data.size && sizeStock !== null && nextQuantity > sizeStock) {
+      throw new Error(
+        `Ce produit en taille ${data.size} n'est disponible qu'en ${sizeStock} exemplaire(s) en stock.`
+      );
+    }
+
     await cartModel.updateItemQuantity(
       existingItem.id,
-      existingItem.quantity + quantity
+      nextQuantity
     );
   } else {
-    // If doesn't exist, add new item with product details from database
     await cartModel.addItem({
       cartId: cart.id,
       productId: product.id,
@@ -125,6 +157,14 @@ async function updateCartItem(userId, itemId, quantity) {
   }
 
   const newQuantity = Number(quantity);
+
+  const sizeStock = await getSizeStock(item.productId, item.size || null);
+
+  if (item.size && sizeStock !== null && newQuantity > sizeStock) {
+    throw new Error(
+      `Ce produit en taille ${item.size} n'est disponible qu'en ${sizeStock} exemplaire(s) en stock.`
+    );
+  }
 
   if (newQuantity <= 0) {
     await cartModel.removeItem(itemId, cart.id);

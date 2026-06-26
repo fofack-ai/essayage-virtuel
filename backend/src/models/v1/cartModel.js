@@ -75,20 +75,26 @@ async function getCartItems(cartId) {
   const [rows] = await db.query(
     `
     SELECT
-      id,
-      productId,
-      productName,
-      productImage,
-      size,
-      color,
-      quantity,
-      price,
-      (quantity * price) AS subtotal,
-      createdAt,
-      updatedAt
-    FROM cart_items
-    WHERE cartId = ?
-    ORDER BY createdAt DESC
+      ci.id,
+      ci.productId,
+      ci.productName,
+      ci.productImage,
+      ci.size,
+      ci.color,
+      ci.quantity,
+      ci.price,
+      (ci.quantity * ci.price) AS subtotal,
+      ci.createdAt,
+      ci.updatedAt,
+      COALESCE(ps.stock, 0) AS sizeStock
+    FROM cart_items ci
+    LEFT JOIN sizes s
+      ON s.label = ci.size
+    LEFT JOIN product_sizes ps
+      ON ps.productId = ci.productId
+      AND ps.sizeId = s.id
+    WHERE ci.cartId = ?
+    ORDER BY ci.createdAt DESC
     `,
     [cartId]
   );

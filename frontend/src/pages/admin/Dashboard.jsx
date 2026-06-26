@@ -1,80 +1,7 @@
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
-
-const STORAGE_KEY = "tryon_admin_v2";
-
-const seed = {
-  products: [
-    { id: "PRD-001", name: "Robe Évasée Florale", brand: "Afro Chic", price: 15000, stock: 18, cat: "femme", emoji: "👗" },
-    { id: "PRD-002", name: "Veste Structurée", brand: "Élégance", price: 19500, stock: 4, cat: "homme", emoji: "🧥" },
-    { id: "PRD-003", name: "Chemise Lin Premium", brand: "Casual", price: 9800, stock: 22, cat: "homme", emoji: "👕" },
-    { id: "PRD-004", name: "Ensemble Tailleur", brand: "Business", price: 32000, stock: 9, cat: "homme", emoji: "👔" },
-    { id: "PRD-005", name: "Sac Wax Signature", brand: "Accessoires", price: 12500, stock: 3, cat: "accessoire", emoji: "👜" },
-    { id: "PRD-006", name: "Boubou Brodé Royal", brand: "Tradition", price: 27000, stock: 11, cat: "homme", emoji: "🪡" },
-    { id: "PRD-007", name: "Kimono Wax Court", brand: "Afro Chic", price: 16500, stock: 7, cat: "femme", emoji: "🥻" },
-  ],
-  orders: [
-    { id: "#0042", client: "Marie Ngo", date: "2026-06-18", status: "pending", total: 15000 },
-    { id: "#0041", client: "Lindsay Richarda", date: "2026-06-18", status: "delivered", total: 32000 },
-    { id: "#0040", client: "Yannick Eko", date: "2026-06-17", status: "delivered", total: 9800 },
-    { id: "#0039", client: "Paul Mbarga", date: "2026-06-16", status: "cancelled", total: 18500 },
-    { id: "#0038", client: "Nadia Kenfack", date: "2026-06-15", status: "delivered", total: 27000 },
-    { id: "#0037", client: "Eric Talla", date: "2026-06-14", status: "pending", total: 14500 },
-  ],
-  clients: [
-    { id: "CLI-001", name: "Yannick Eko", email: "yannickeko70@gmail.com", city: "Douala", orders: 3, total: 78000 },
-    { id: "CLI-002", name: "Lindsay Richarda", email: "lindsayricharda10@gmail.com", city: "Douala", orders: 1, total: 32000 },
-    { id: "CLI-003", name: "Marie Ngo", email: "marie@exemple.cm", city: "Yaoundé", orders: 2, total: 24800 },
-    { id: "CLI-004", name: "Paul Mbarga", email: "paul@exemple.cm", city: "Douala", orders: 2, total: 51500 },
-  ],
-  tryons: [
-    { id: "TRY-001", client: "Yannick Eko", product: "Robe Wax Royale", score: 94, result: "panier" },
-    { id: "TRY-002", client: "Lindsay Richarda", product: "Chemise Prestige", score: 88, result: "favori" },
-    { id: "TRY-003", client: "Marie Ngo", product: "Robe Africa Chic", score: 91, result: "panier" },
-    { id: "TRY-004", client: "Nadia Kenfack", product: "Kimono Wax Court", score: 87, result: "comparaison" },
-  ],
-  reviews: [
-    { id: "REV-001", product: "Robe Évasée Florale", client: "Marie Ngo", rating: 5, comment: "Magnifique robe, très belle coupe !", date: "2026-06-18", status: "approved" },
-    { id: "REV-002", product: "Veste Structurée", client: "Paul Mbarga", rating: 4, comment: "Bonne qualité, légèrement petit à la taille.", date: "2026-06-17", status: "pending" },
-    { id: "REV-003", product: "Sac Wax Signature", client: "Nadia Kenfack", rating: 5, comment: "Superbe sac, les couleurs sont magnifiques !", date: "2026-06-16", status: "approved" },
-    { id: "REV-004", product: "Chemise Lin Premium", client: "Eric Talla", rating: 3, comment: "Bon produit mais un peu cher.", date: "2026-06-15", status: "pending" },
-  ],
-  promotions: [
-    { id: "PROMO-001", code: "TRYON10", type: "percentage", value: 10, expires: "2026-07-01", usage: 45, maxUsage: 100, active: true },
-    { id: "PROMO-002", code: "WELCOME15", type: "percentage", value: 15, expires: "2026-08-15", usage: 120, maxUsage: 200, active: true },
-    { id: "PROMO-003", code: "FREESHIP", type: "fixed", value: 5000, expires: "2026-06-30", usage: 28, maxUsage: 50, active: false },
-  ],
-  transactions: [
-    { id: "TRX-001", order: "#0042", amount: 15000, method: "Orange Money", status: "completed", date: "2026-06-18" },
-    { id: "TRX-002", order: "#0041", amount: 32000, method: "MTN MoMo", status: "completed", date: "2026-06-18" },
-    { id: "TRX-003", order: "#0040", amount: 9800, method: "Carte Bancaire", status: "pending", date: "2026-06-17" },
-    { id: "TRX-004", order: "#0039", amount: 18500, method: "Orange Money", status: "refunded", date: "2026-06-16" },
-  ],
-  logs: [
-    { id: "LOG-001", user: "Admin TryOn", action: "Connexion", ip: "192.168.1.1", date: "2026-06-18 08:30", severity: "info" },
-    { id: "LOG-002", user: "Admin TryOn", action: "Suppression produit PRD-005", ip: "192.168.1.1", date: "2026-06-18 09:15", severity: "warning" },
-    { id: "LOG-003", user: "Admin TryOn", action: "Tentative de connexion échouée", ip: "192.168.1.45", date: "2026-06-18 10:00", severity: "critical" },
-    { id: "LOG-004", user: "Admin TryOn", action: "Modification paramètres", ip: "192.168.1.1", date: "2026-06-17 14:20", severity: "info" },
-  ],
-  notifications: [
-    { id: "NOTIF-001", title: "Nouvelle commande #0043", message: "Une nouvelle commande a été passée par Yannick Eko", type: "order", read: false, date: "2026-06-18 08:30" },
-    { id: "NOTIF-002", title: "Stock faible", message: "Le produit 'Veste Structurée' n'a plus que 4 unités en stock", type: "stock", read: false, date: "2026-06-18 07:45" },
-    { id: "NOTIF-003", title: "Nouvel avis client", message: "Marie Ngo a laissé un avis sur 'Robe Évasée Florale'", type: "review", read: true, date: "2026-06-17 16:20" },
-  ],
-  support: [
-    { id: "SUP-001", client: "Marie Ngo", subject: "Problème de livraison", message: "Ma commande n'est toujours pas arrivée...", status: "open", priority: "high", date: "2026-06-18" },
-    { id: "SUP-002", client: "Paul Mbarga", subject: "Demande de retour", message: "Je souhaite retourner la veste car elle est trop petite", status: "in-progress", priority: "medium", date: "2026-06-17" },
-    { id: "SUP-003", client: "Nadia Kenfack", subject: "Question sur une taille", message: "Je souhaite connaître les mesures exactes du kimono", status: "closed", priority: "low", date: "2026-06-16" },
-  ],
-  audit: ["Connexion administrateur", "Catalogue connecté", "Panier client synchronisé", "Export CSV généré"],
-  settings: {
-    shopName: "TryOn",
-    city: "Douala - Cameroun",
-    supportEmail: "support@tryon.cm",
-    address: "CFPD, Douala, Cameroun",
-  },
-};
+import { adminService } from "../../services/adminService";
 
 const nav = [
   { key: "dashboard", icon: "📊", label: "Tableau de bord", group: "Gestion" },
@@ -113,52 +40,31 @@ const titles = {
 };
 
 const fmt = (n) => `${Number(n || 0).toLocaleString("fr-FR")} FCFA`;
-const statusText = { pending: "En cours", delivered: "Livré", cancelled: "Annulé" };
 
-function normalizeDb(data) {
-  const source = data && typeof data === "object" ? data : {};
-  return {
-    ...seed,
-    ...source,
-    products: Array.isArray(source.products) ? source.products : seed.products,
-    orders: Array.isArray(source.orders) ? source.orders : seed.orders,
-    clients: Array.isArray(source.clients) ? source.clients : seed.clients,
-    tryons: Array.isArray(source.tryons) ? source.tryons : source.tries ? source.tries : seed.tryons,
-    reviews: Array.isArray(source.reviews) ? source.reviews : seed.reviews,
-    promotions: Array.isArray(source.promotions) ? source.promotions : seed.promotions,
-    transactions: Array.isArray(source.transactions) ? source.transactions : seed.transactions,
-    logs: Array.isArray(source.logs) ? source.logs : seed.logs,
-    notifications: Array.isArray(source.notifications) ? source.notifications : seed.notifications,
-    support: Array.isArray(source.support) ? source.support : seed.support,
-    audit: Array.isArray(source.audit) ? source.audit : seed.audit,
-    settings: { ...seed.settings, ...(source.settings || {}) },
-  };
-}
+const getStockStatus = (stock) => {
+  const value = Number(stock || 0);
 
-function loadDb() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return normalizeDb(stored);
-  } catch {
-    return normalizeDb(seed);
+  if (value === 0) {
+    return {
+      text: "Rupture",
+      className: "bad",
+    };
   }
-}
 
-function nextCode(prefix, list) {
-  const max = (list || []).reduce((acc, item) => {
-    const match = String(item.id || "").match(/(\d+)$/);
-    return match ? Math.max(acc, Number(match[1])) : acc;
-  }, 0);
-  return `${prefix}-${String(max + 1).padStart(3, "0")}`;
-}
+  if (value <= 5) {
+    return {
+      text: "Stock faible",
+      className: "warn",
+    };
+  }
 
-function nextOrderId(list) {
-  const max = (list || []).reduce((acc, item) => {
-    const match = String(item.id || "").match(/\d+/);
-    return match ? Math.max(acc, Number(match[0])) : acc;
-  }, 0);
-  return `#${String(max + 1).padStart(4, "0")}`;
-}
+  return {
+    text: "Disponible",
+    className: "ok",
+  };
+};
+
+const statusText = { pending: "En cours", delivered: "Livré", cancelled: "Annulé" };
 
 function paginate(list, page, perPage) {
   const safeList = Array.isArray(list) ? list : [];
@@ -273,25 +179,63 @@ const SalesChart = React.memo(({ orders }) => {
   );
 });
 
-const ChartLine = React.memo(() => {
+const ChartLine = React.memo(({ orders = [] }) => {
+  const points = useMemo(() => {
+    const values = (orders || [])
+      .filter((o) => o.status !== "cancelled")
+      .slice(-7)
+      .map((o) => Number(o.total || 0));
+
+    const safeValues = values.length ? values : [0, 0, 0, 0, 0, 0, 0];
+    const max = Math.max(...safeValues, 1);
+    return safeValues.map((value, index) => {
+      const x = (index / Math.max(1, safeValues.length - 1)) * 400;
+      const y = 160 - (value / max) * 125;
+      return `${x},${y}`;
+    }).join(" ");
+  }, [orders]);
+
   return (
     <Card title="2. Évolution du CA" side="Courbe">
       <svg className="line-chart" viewBox="0 0 400 180" preserveAspectRatio="none">
-        <polygon className="area" points="0,160 0,130 65,110 130,125 195,70 260,95 325,55 400,35 400,160" />
-        <polyline points="0,130 65,110 130,125 195,70 260,95 325,55 400,35" />
+        <polyline points={points} />
       </svg>
     </Card>
   );
 });
 
-const ChartDonut = React.memo(() => {
+const ChartDonut = React.memo(({ products = [] }) => {
+  const { categories, gradient } = useMemo(() => {
+    const counts = {};
+    (products || []).forEach((p) => {
+      const key = p.cat || "Autres";
+      counts[key] = (counts[key] || 0) + 1;
+    });
+
+    const entries = Object.entries(counts).slice(0, 3);
+    const total = Math.max(1, entries.reduce((sum, [, count]) => sum + count, 0));
+    const colors = ["var(--red)", "var(--ink)", "#B36B12"];
+    let start = 0;
+    const parts = entries.map(([, count], index) => {
+      const end = start + Math.round((count / total) * 100);
+      const part = `${colors[index]} ${start}% ${end}%`;
+      start = end;
+      return part;
+    });
+
+    return {
+      categories: entries,
+      gradient: entries.length ? `conic-gradient(${parts.join(", ")}, #ddd ${start}% 100%)` : "conic-gradient(#ddd 0% 100%)",
+    };
+  }, [products]);
+
   return (
-    <Card title="3. Catégories vendues" side="Répartition">
-      <div className="donut" />
+    <Card title="3. Catégories" side="Répartition">
+      <div className="donut" style={{ background: gradient }} />
       <div className="legend">
-        <span><i className="dot" />Robes</span>
-        <span><i className="dot dark" />Hommes</span>
-        <span><i className="dot gold" />Accessoires</span>
+        {categories.length ? categories.map(([label], index) => (
+          <span key={label}><i className={`dot ${index === 1 ? "dark" : index === 2 ? "gold" : ""}`} />{label}</span>
+        )) : <span className="muted">Aucune catégorie</span>}
       </div>
     </Card>
   );
@@ -308,28 +252,49 @@ const HBar = React.memo(({ label, width, value }) => {
 });
 
 const TopProducts = React.memo(({ products }) => {
+  const topProducts = useMemo(() => {
+    const list = (products || []).slice(0, 5);
+    const maxStock = Math.max(...list.map((p) => Number(p.stock || 0)), 1);
+    return list.map((p) => ({
+      ...p,
+      width: Math.round((Number(p.stock || 0) / maxStock) * 100),
+      value: Number(p.stock || 0),
+    }));
+  }, [products]);
+
   return (
-    <Card title="4. Top produits" side="Quantités">
+    <Card title="4. Top produits" side="Stock">
       <div className="hbar-list">
-        {(products || []).slice(0, 5).map((p, i) => (
-          <HBar key={p.id} label={String(p.name || "").split(" ")[0]} width={[92, 76, 64, 55, 43][i]} value={[92, 76, 64, 55, 43][i]} />
-        ))}
+        {topProducts.length ? topProducts.map((p) => (
+          <HBar key={p.id} label={String(p.name || "Produit").split(" ")[0]} width={p.width} value={p.value} />
+        )) : <div className="empty">Aucun produit.</div>}
       </div>
     </Card>
   );
 });
 
-const Funnel = React.memo(() => {
+const Funnel = React.memo(({ orders = [], tryons = [], products = [] }) => {
+  const values = useMemo(() => {
+    const productViews = products.length;
+    const tryonCount = tryons.length;
+    const cartIntent = tryons.filter((t) => t.result === "panier").length;
+    const purchases = orders.filter((o) => o.status !== "cancelled").length;
+    const base = Math.max(productViews, tryonCount, cartIntent, purchases, 1);
+
+    return [
+      [`Produits · ${productViews}`, Math.round((productViews / base) * 100)],
+      [`Essayages · ${tryonCount}`, Math.round((tryonCount / base) * 100)],
+      [`Paniers · ${cartIntent}`, Math.round((cartIntent / base) * 100)],
+      [`Achats · ${purchases}`, Math.round((purchases / base) * 100)],
+    ];
+  }, [orders, tryons, products]);
+
   return (
     <Card title="5. Tunnel e-commerce" side="Conversion">
       <div className="funnel">
-        {[
-          ["Visites · 1 850", "100%"],
-          ["Produits vus · 1 520", "82%"],
-          ["Essayages · 420", "54%"],
-          ["Paniers · 260", "33%"],
-          ["Achats · 96", "20%"],
-        ].map(([t, w]) => <div className="funnel-step" style={{ width: w }} key={t}>{t}</div>)}
+        {values.map(([label, width]) => (
+          <div className="funnel-step" style={{ width: `${Math.max(width, 8)}%` }} key={label}>{label}</div>
+        ))}
       </div>
     </Card>
   );
@@ -638,90 +603,7 @@ const Table = React.memo(({ head, rows, cls = "" }) => {
   );
 });
 
-// Mode démo interactif
-const DemoMode = React.memo(({ children, page }) => {
-  const [step, setStep] = useState(0);
-  const [showDemo, setShowDemo] = useState(() => {
-    return JSON.parse(localStorage.getItem('tryon_demo_mode') || 'true');
-  });
 
-  const steps = [
-    { element: '.sidebar', text: '👈 Voici la navigation principale du dashboard. Cliquez sur une section pour y accéder.' },
-    { element: '.kpi-grid', text: '📊 Ces indicateurs clés vous donnent un aperçu rapide de votre activité.' },
-    { element: '.charts-grid', text: '📈 Ces graphiques vous aident à analyser les tendances de votre boutique.' },
-    { element: '.top-actions', text: '🔍 Utilisez la recherche rapide ou exportez vos données depuis ici.' },
-  ];
-
-  const currentStep = steps[step];
-  const [elementRect, setElementRect] = useState(null);
-
-  useEffect(() => {
-    if (currentStep && showDemo) {
-      const el = document.querySelector(currentStep.element);
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        setElementRect(rect);
-      }
-    }
-  }, [currentStep, showDemo, page]);
-
-  const nextStep = () => {
-    if (step < steps.length - 1) {
-      setStep(step + 1);
-    } else {
-      setShowDemo(false);
-      localStorage.setItem('tryon_demo_mode', 'false');
-    }
-  };
-
-  const skipDemo = () => {
-    setShowDemo(false);
-    localStorage.setItem('tryon_demo_mode', 'false');
-  };
-
-  if (!showDemo || !currentStep || !elementRect) return children;
-
-  return (
-    <>
-      {children}
-      <div className="demo-overlay">
-        <div 
-          className="demo-tooltip"
-          style={{
-            position: 'fixed',
-            top: elementRect.top - 20,
-            left: elementRect.left + elementRect.width / 2,
-            transform: 'translateX(-50%) translateY(-100%)'
-          }}
-        >
-          <div className="demo-content">
-            <span className="demo-step">{step + 1}/{steps.length}</span>
-            <p>{currentStep.text}</p>
-            <div className="demo-actions">
-              <button className="btn btn-light" onClick={skipDemo}>Passer</button>
-              <button className="btn btn-red" onClick={nextStep}>
-                {step < steps.length - 1 ? 'Suivant →' : '✓ Terminé'}
-              </button>
-            </div>
-          </div>
-          <div className="demo-arrow" />
-        </div>
-        <div className="demo-highlight" style={{
-          position: 'fixed',
-          top: elementRect.top - 8,
-          left: elementRect.left - 8,
-          width: elementRect.width + 16,
-          height: elementRect.height + 16,
-          borderRadius: '12px',
-          boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)',
-          pointerEvents: 'none',
-          border: '2px solid var(--red)',
-          animation: 'pulse-border 1.5s ease-in-out infinite'
-        }} />
-      </div>
-    </>
-  );
-});
 
 const Toolbar = React.memo(({ filters, active, setActive, dateFilters, dateActive, setDateActive, button, onAdd, onAdvancedSearch }) => {
   return (
@@ -768,7 +650,15 @@ const ProductCard = React.memo(({ product, onView, onEdit, onDelete }) => {
         <p className="muted">{product.brand} · {product.cat}</p>
         <b>{fmt(product.price)}</b>
         <br />
-        <span className={`badge ${product.stock < 6 ? "warn" : "ok"}`}>Stock : {product.stock}</span>
+        {(() => {
+          const stockStatus = getStockStatus(product.stock);
+
+          return (
+            <span className={`badge ${stockStatus.className}`}>
+              Stock : {product.stock} · {stockStatus.text}
+            </span>
+          );
+        })()}
       </div>
       <div className="product-actions-admin">
         <div className="actions">
@@ -781,104 +671,400 @@ const ProductCard = React.memo(({ product, onView, onEdit, onDelete }) => {
   );
 });
 
-const Sales = React.memo(({ runExport }) => {
+const Sales = React.memo(({ runExport, orders = [], products = [] }) => {
+  const data = useMemo(() => {
+    const validOrders = (orders || []).filter((o) => o.status !== "cancelled");
+    const revenue = validOrders.reduce((sum, order) => sum + Number(order.total || 0), 0);
+    const avgOrder = validOrders.length ? Math.round(revenue / validOrders.length) : 0;
+    const delivered = validOrders.filter((order) => order.status === "delivered").length;
+    const deliveryRate = validOrders.length ? Math.round((delivered / validOrders.length) * 100) : 0;
+
+    const categoryCounts = {};
+    (products || []).forEach((product) => {
+      const key = product.cat || "Autres";
+      categoryCounts[key] = (categoryCounts[key] || 0) + 1;
+    });
+    const totalProducts = Math.max(1, products.length);
+    const categories = Object.entries(categoryCounts).map(([label, count]) => ({
+      label,
+      width: Math.round((count / totalProducts) * 100),
+      value: `${Math.round((count / totalProducts) * 100)}%`,
+    }));
+
+    return { revenue, avgOrder, deliveryRate, categories };
+  }, [orders, products]);
+
   return (
     <>
       <div className="grid-3">
-        <Kpi label="Objectif mensuel" value="72%" change="1 420 000 / 2 000 000 FCFA" />
-        <Kpi label="Panier moyen" value="18 450" change="FCFA par commande" />
-        <Kpi label="Remboursements" value="2.1%" change="Très faible" />
+        <Kpi label="Chiffre d'affaires" value={fmt(data.revenue)} change="Données backend" />
+        <Kpi label="Panier moyen" value={fmt(data.avgOrder)} change="FCFA par commande" />
+        <Kpi label="Commandes livrées" value={`${data.deliveryRate}%`} change="Taux de livraison" />
       </div>
       <div className="card sales-card">
         <div className="card-title">
           <h3>Rapport commercial</h3>
           <button className="btn btn-red" onClick={() => runExport("pdf")}>Exporter PDF</button>
         </div>
-        <HBar label="Robes" width={42} value="42%" />
-        <HBar label="Hommes" width={26} value="26%" />
-        <HBar label="Wax" width={19} value="19%" />
-        <HBar label="Accessoires" width={13} value="13%" />
+        {data.categories.length ? data.categories.map((category) => (
+          <HBar key={category.label} label={category.label} width={category.width} value={category.value} />
+        )) : <div className="empty">Aucune donnée commerciale.</div>}
       </div>
     </>
   );
 });
 
-const Settings = React.memo(({ safeDb, saveDb, reset }) => {
-  const [shop, setShop] = useState(safeDb.settings || seed.settings);
+
+const Settings = React.memo(({ safeDb, saveDb }) => {
+  const defaultSettings = {
+    shopName: "TryOn",
+    city: "Douala - Cameroun",
+    supportEmail: "support@tryon.cm",
+    address: "CFPD, Douala, Cameroun",
+    phone: "",
+    country: "Cameroun",
+    currency: "FCFA",
+    language: "Français",
+    aiEnabled: true,
+    aiHd: false,
+    aiDailyLimit: 5,
+    aiKeepUploads: false,
+    aiAutoDeleteDays: 7,
+    autoValidateOrders: false,
+    minOrderAmount: 5000,
+    freeShippingFrom: 50000,
+    allowCancellation: true,
+    cancellationDelay: 24,
+    orangeMoney: true,
+    mtnMoney: true,
+    cardPayment: false,
+    paypal: false,
+    paymentMode: "test",
+    deliveryCities: "Douala, Yaoundé",
+    deliveryDelay: "24h - 72h",
+    deliveryFee: 1500,
+    pickupEnabled: true,
+    emailNotif: true,
+    smsNotif: false,
+    pushNotif: true,
+    orderNotif: true,
+    paymentNotif: true,
+    stockNotif: true,
+    twoFactor: false,
+    sessionDuration: 60,
+    maxLoginAttempts: 5,
+    auditLogs: true,
+    autoBackup: false,
+    backupFrequency: "Hebdomadaire",
+    apiVersion: "v1",
+  };
+
+  const [shop, setShop] = useState({
+    ...defaultSettings,
+    ...(safeDb.settings || {}),
+  });
+
+  useEffect(() => {
+    setShop((prev) => ({
+      ...prev,
+      ...(safeDb.settings || {}),
+    }));
+  }, [safeDb.settings]);
+
+  const updateSetting = (key, value) => {
+    setShop((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
 
   const saveSettings = () => {
     saveDb((prev) => ({
       ...prev,
-      settings: { ...prev.settings, ...shop },
-      audit: ["Paramètres enregistrés", ...prev.audit].slice(0, 20),
+      settings: { ...(prev.settings || {}), ...shop },
+      audit: ["Paramètres enregistrés", ...(prev.audit || [])].slice(0, 20),
     }));
     alert("Paramètres enregistrés !");
   };
 
+  const systemStatus = [
+    { label: "API Backend", value: navigator.onLine ? "Disponible" : "Hors ligne", status: navigator.onLine ? "ok" : "bad" },
+    { label: "Base de données", value: "À vérifier via backend", status: "warn" },
+    { label: "Service IA CatVTON", value: "À vérifier via backend", status: "warn" },
+    { label: "Version API", value: shop.apiVersion || "v1", status: "blue" },
+  ];
+
   return (
-    <div className="settings-grid">
-      <div className="card settings-card">
-        <h3>Informations boutique</h3>
-        <div className="form-grid">
-          <Field label="Nom boutique" value={shop.shopName} onChange={(e) => setShop({ ...shop, shopName: e.target.value })} />
-          <Field label="Ville" value={shop.city} onChange={(e) => setShop({ ...shop, city: e.target.value })} />
+    <div className="settings-page">
+      <div className="settings-hero card">
+        <div>
+          <span className="settings-kicker">Configuration générale</span>
+          <h2>Paramètres TryOn</h2>
+          <p>
+            Gérez les informations de la boutique, l'essayage virtuel, les commandes,
+            les paiements, la sécurité et les services système.
+          </p>
         </div>
-        <Field label="Email support" value={shop.supportEmail} onChange={(e) => setShop({ ...shop, supportEmail: e.target.value })} />
-        <label className="label">Adresse</label>
-        <textarea className="textarea" value={shop.address} onChange={(e) => setShop({ ...shop, address: e.target.value })} />
-        <button className="btn btn-red" onClick={saveSettings}>Enregistrer</button>
+        <button className="btn btn-red" onClick={saveSettings}>
+          Enregistrer les paramètres
+        </button>
       </div>
 
-      {["Design & interface", "Notifications", "Sécurité", "Paiement & livraison"].map((t) => (
-        <div className="card settings-card" key={t}>
-          <h3>{t}</h3>
-          {["Option activée", "Configuration avancée", "Gestion sécurisée"].map((x) => <SwitchLine key={x} title={x} />)}
-        </div>
-      ))}
-
-      <div className="card settings-card">
-        <h3>Sauvegarde & maintenance</h3>
-        <div className="grid-2 mini-grid">
-          <button className="btn btn-light" onClick={() => { saveDb((prev) => ({ ...prev, audit: ["Sauvegarde JSON manuelle", ...prev.audit].slice(0, 20) })); alert("Sauvegarde effectuée !"); }}>Sauvegarder JSON</button>
-          <button className="btn btn-light" onClick={reset}>Réinitialiser démo</button>
-        </div>
-        <SwitchLine title="Mode maintenance" />
-        <SwitchLine title="Auto-sauvegarde locale" />
-      </div>
-
-      <div className="card settings-card">
-        <h3>Rôles administrateurs</h3>
-        {["Super Admin", "Gestionnaire ventes", "Gestionnaire catalogue"].map((x) => (
-          <div className="role" key={x}>
+      <div className="settings-grid">
+        <div className="card settings-card large">
+          <div className="settings-head">
+            <span className="settings-icon">🏪</span>
             <div>
-              <b>{x}</b>
-              <p className="muted">Droits administrateur</p>
+              <h3>1. Paramètres de la boutique</h3>
+              <p className="muted">Informations visibles et configuration commerciale.</p>
             </div>
-            <span className="badge blue">Rôle</span>
           </div>
-        ))}
-      </div>
 
-      <div className="card settings-card">
-        <h3>Historique système</h3>
-        {safeDb.audit.slice(0, 5).map((a) => <div className="audit-line" key={a}>{a}</div>)}
+          <div className="form-grid">
+            <Field label="Nom boutique" value={shop.shopName} onChange={(e) => updateSetting("shopName", e.target.value)} />
+            <Field label="Email support" value={shop.supportEmail} onChange={(e) => updateSetting("supportEmail", e.target.value)} />
+            <Field label="Téléphone" value={shop.phone} onChange={(e) => updateSetting("phone", e.target.value)} />
+            <Field label="Ville" value={shop.city} onChange={(e) => updateSetting("city", e.target.value)} />
+            <Field label="Pays" value={shop.country} onChange={(e) => updateSetting("country", e.target.value)} />
+            <Field label="Devise" value={shop.currency} onChange={(e) => updateSetting("currency", e.target.value)} />
+          </div>
+
+          <label className="label">Adresse</label>
+          <textarea className="textarea" value={shop.address} onChange={(e) => updateSetting("address", e.target.value)} />
+
+          <div className="field">
+            <label className="label">Langue</label>
+            <select className="select" value={shop.language} onChange={(e) => updateSetting("language", e.target.value)}>
+              <option value="Français">Français</option>
+              <option value="Anglais">Anglais</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="card settings-card">
+          <div className="settings-head">
+            <span className="settings-icon">✨</span>
+            <div>
+              <h3>2. Essayage virtuel IA</h3>
+              <p className="muted">Réglages de la cabine virtuelle et de CatVTON.</p>
+            </div>
+          </div>
+
+          <SwitchLine title="Activer l'essayage IA" desc="Autoriser les clients à lancer un essayage virtuel." checked={shop.aiEnabled} onChange={(value) => updateSetting("aiEnabled", value)} />
+          <SwitchLine title="Génération HD" desc="Améliore la qualité, mais augmente le temps de traitement." checked={shop.aiHd} onChange={(value) => updateSetting("aiHd", value)} />
+          <SwitchLine title="Conserver les uploads" desc="Sauvegarder temporairement les images utilisateur." checked={shop.aiKeepUploads} onChange={(value) => updateSetting("aiKeepUploads", value)} />
+
+          <div className="form-grid compact">
+            <Field label="Essayages / jour" type="number" value={shop.aiDailyLimit} onChange={(e) => updateSetting("aiDailyLimit", e.target.value)} />
+            <Field label="Suppression après (jours)" type="number" value={shop.aiAutoDeleteDays} onChange={(e) => updateSetting("aiAutoDeleteDays", e.target.value)} />
+          </div>
+        </div>
+
+        <div className="card settings-card">
+          <div className="settings-head">
+            <span className="settings-icon">📦</span>
+            <div>
+              <h3>3. Commandes</h3>
+              <p className="muted">Règles de validation, annulation et minimum d'achat.</p>
+            </div>
+          </div>
+
+          <SwitchLine title="Validation automatique" desc="Valider automatiquement une commande après paiement." checked={shop.autoValidateOrders} onChange={(value) => updateSetting("autoValidateOrders", value)} />
+          <SwitchLine title="Annulation autorisée" desc="Permettre au client d'annuler une commande récente." checked={shop.allowCancellation} onChange={(value) => updateSetting("allowCancellation", value)} />
+
+          <div className="form-grid compact">
+            <Field label="Commande minimum" type="number" value={shop.minOrderAmount} onChange={(e) => updateSetting("minOrderAmount", e.target.value)} />
+            <Field label="Livraison gratuite dès" type="number" value={shop.freeShippingFrom} onChange={(e) => updateSetting("freeShippingFrom", e.target.value)} />
+            <Field label="Délai annulation (h)" type="number" value={shop.cancellationDelay} onChange={(e) => updateSetting("cancellationDelay", e.target.value)} />
+          </div>
+        </div>
+
+        <div className="card settings-card">
+          <div className="settings-head">
+            <span className="settings-icon">💳</span>
+            <div>
+              <h3>4. Paiements</h3>
+              <p className="muted">Moyens de paiement disponibles sur la plateforme.</p>
+            </div>
+          </div>
+
+          <SwitchLine title="Orange Money" desc="Activer le paiement via Orange Money." checked={shop.orangeMoney} onChange={(value) => updateSetting("orangeMoney", value)} />
+          <SwitchLine title="MTN Mobile Money" desc="Activer le paiement via MTN MoMo." checked={shop.mtnMoney} onChange={(value) => updateSetting("mtnMoney", value)} />
+          <SwitchLine title="Carte bancaire" desc="Autoriser les paiements par carte." checked={shop.cardPayment} onChange={(value) => updateSetting("cardPayment", value)} />
+          <SwitchLine title="PayPal" desc="Autoriser PayPal pour les paiements internationaux." checked={shop.paypal} onChange={(value) => updateSetting("paypal", value)} />
+
+          <div className="field">
+            <label className="label">Mode paiement</label>
+            <select className="select" value={shop.paymentMode} onChange={(e) => updateSetting("paymentMode", e.target.value)}>
+              <option value="test">Test</option>
+              <option value="production">Production</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="card settings-card">
+          <div className="settings-head">
+            <span className="settings-icon">🚚</span>
+            <div>
+              <h3>5. Livraison</h3>
+              <p className="muted">Zones desservies, délais et frais de livraison.</p>
+            </div>
+          </div>
+
+          <Field label="Zones desservies" value={shop.deliveryCities} onChange={(e) => updateSetting("deliveryCities", e.target.value)} />
+          <div className="form-grid compact">
+            <Field label="Délai de livraison" value={shop.deliveryDelay} onChange={(e) => updateSetting("deliveryDelay", e.target.value)} />
+            <Field label="Frais livraison" type="number" value={shop.deliveryFee} onChange={(e) => updateSetting("deliveryFee", e.target.value)} />
+          </div>
+          <SwitchLine title="Retrait en magasin" desc="Autoriser le client à récupérer sa commande sur place." checked={shop.pickupEnabled} onChange={(value) => updateSetting("pickupEnabled", value)} />
+        </div>
+
+        <div className="card settings-card">
+          <div className="settings-head">
+            <span className="settings-icon">🔔</span>
+            <div>
+              <h3>6. Notifications</h3>
+              <p className="muted">Canaux et alertes automatiques.</p>
+            </div>
+          </div>
+
+          <SwitchLine title="Email" desc="Envoyer les notifications importantes par email." checked={shop.emailNotif} onChange={(value) => updateSetting("emailNotif", value)} />
+          <SwitchLine title="SMS" desc="Envoyer les alertes par SMS." checked={shop.smsNotif} onChange={(value) => updateSetting("smsNotif", value)} />
+          <SwitchLine title="Push" desc="Afficher les notifications dans l'application." checked={shop.pushNotif} onChange={(value) => updateSetting("pushNotif", value)} />
+          <SwitchLine title="Commandes" desc="Notifier lors des nouvelles commandes." checked={shop.orderNotif} onChange={(value) => updateSetting("orderNotif", value)} />
+          <SwitchLine title="Paiements" desc="Notifier lors des paiements validés." checked={shop.paymentNotif} onChange={(value) => updateSetting("paymentNotif", value)} />
+          <SwitchLine title="Stock faible" desc="Alerter quand un produit doit être réapprovisionné." checked={shop.stockNotif} onChange={(value) => updateSetting("stockNotif", value)} />
+        </div>
+
+        <div className="card settings-card">
+          <div className="settings-head">
+            <span className="settings-icon">👥</span>
+            <div>
+              <h3>7. Administrateurs</h3>
+              <p className="muted">Gestion des rôles et accès admin.</p>
+            </div>
+          </div>
+
+          <div className="admin-role-grid">
+            <div className="admin-role-card">
+              <b>Super Admin</b>
+              <span>Accès complet</span>
+            </div>
+            <div className="admin-role-card">
+              <b>Gestionnaire ventes</b>
+              <span>Commandes, paiements, clients</span>
+            </div>
+            <div className="admin-role-card">
+              <b>Gestionnaire catalogue</b>
+              <span>Produits, stock, promotions</span>
+            </div>
+          </div>
+
+          <div className="empty soft">
+            Les comptes administrateurs seront chargés depuis le backend.
+          </div>
+
+          <button className="btn btn-light" onClick={() => alert("Création administrateur à connecter au backend")}>
+            + Ajouter un administrateur
+          </button>
+        </div>
+
+        <div className="card settings-card">
+          <div className="settings-head">
+            <span className="settings-icon">🔒</span>
+            <div>
+              <h3>8. Sécurité</h3>
+              <p className="muted">Protection des sessions et journalisation.</p>
+            </div>
+          </div>
+
+          <SwitchLine title="Double authentification" desc="Ajouter une vérification supplémentaire à la connexion." checked={shop.twoFactor} onChange={(value) => updateSetting("twoFactor", value)} />
+          <SwitchLine title="Journalisation" desc="Conserver les actions importantes du back-office." checked={shop.auditLogs} onChange={(value) => updateSetting("auditLogs", value)} />
+
+          <div className="form-grid compact">
+            <Field label="Durée session (min)" type="number" value={shop.sessionDuration} onChange={(e) => updateSetting("sessionDuration", e.target.value)} />
+            <Field label="Tentatives connexion" type="number" value={shop.maxLoginAttempts} onChange={(e) => updateSetting("maxLoginAttempts", e.target.value)} />
+          </div>
+        </div>
+
+        <div className="card settings-card">
+          <div className="settings-head">
+            <span className="settings-icon">💾</span>
+            <div>
+              <h3>9. Sauvegardes système</h3>
+              <p className="muted">Préparation des sauvegardes et restaurations.</p>
+            </div>
+          </div>
+
+          <SwitchLine title="Sauvegarde automatique" desc="Programmer une sauvegarde régulière côté serveur." checked={shop.autoBackup} onChange={(value) => updateSetting("autoBackup", value)} />
+
+          <div className="field">
+            <label className="label">Fréquence</label>
+            <select className="select" value={shop.backupFrequency} onChange={(e) => updateSetting("backupFrequency", e.target.value)}>
+              <option value="Quotidienne">Quotidienne</option>
+              <option value="Hebdomadaire">Hebdomadaire</option>
+              <option value="Mensuelle">Mensuelle</option>
+            </select>
+          </div>
+
+          <div className="settings-actions">
+            <button className="btn btn-light" onClick={() => alert("Sauvegarde à connecter au backend")}>Créer une sauvegarde</button>
+            <button className="btn btn-light" onClick={() => alert("Téléchargement à connecter au backend")}>Télécharger</button>
+            <button className="btn btn-light" onClick={() => alert("Restauration à connecter au backend")}>Restaurer</button>
+          </div>
+        </div>
+
+        <div className="card settings-card">
+          <div className="settings-head">
+            <span className="settings-icon">⚙️</span>
+            <div>
+              <h3>10. API & Backend</h3>
+              <p className="muted">État des services techniques de TryOn.</p>
+            </div>
+          </div>
+
+          <div className="system-list">
+            {systemStatus.map((item) => (
+              <div className="system-line" key={item.label}>
+                <span>{item.label}</span>
+                <b className={`badge ${item.status}`}>{item.value}</b>
+              </div>
+            ))}
+          </div>
+
+          <Field label="Version API" value={shop.apiVersion} onChange={(e) => updateSetting("apiVersion", e.target.value)} />
+        </div>
       </div>
     </div>
   );
 });
 
-const SwitchLine = React.memo(({ title }) => {
-  const [on, setOn] = useState(true);
+
+
+const SwitchLine = React.memo(({ title, desc, checked, onChange }) => {
+  const [localOn, setLocalOn] = useState(Boolean(checked));
+
+  useEffect(() => {
+    setLocalOn(Boolean(checked));
+  }, [checked]);
+
+  const toggle = () => {
+    const next = !localOn;
+    setLocalOn(next);
+    if (onChange) onChange(next);
+  };
+
   return (
     <div className="switch-row">
       <div>
         <b>{title}</b>
-        <p className="muted">Paramètre personnalisable</p>
+        {desc && <p className="muted">{desc}</p>}
       </div>
-      <button className={`switch ${on ? "on" : ""}`} onClick={() => setOn(!on)} />
+      <button type="button" className={`switch ${localOn ? "on" : ""}`} onClick={toggle} />
     </div>
   );
 });
+
 
 const Field = React.memo(({ label, ...props }) => {
   return (
@@ -935,7 +1121,32 @@ const Modal = React.memo(({ modal, close, save, loading }) => {
                   </select>
                 </div>
               </div>
+              <Field
+                label="Image du produit"
+                type="file"
+                name="image"
+                accept="image/*"
+              />
               <Field label="Emoji" name="emoji" defaultValue={item.emoji || "👗"} />
+              <div className="card soft-card">
+                <h4>Tailles et stocks</h4>
+
+                {["XS", "S", "M", "L", "XL", "XXL"].map((size) => (
+                  <div className="form-grid" key={size}>
+                    <div className="field">
+                      <label className="label">Taille</label>
+                      <input className="input" value={size} readOnly />
+                    </div>
+
+                    <Field
+                      label={`Stock ${size}`}
+                      type="number"
+                      name={`stock_${size}`}
+                      defaultValue={item.sizes?.find((s) => s.sizeLabel === size)?.stock || 0}
+                    />
+                  </div>
+                ))}
+              </div>
             </>
           )}
 
@@ -959,10 +1170,53 @@ const Modal = React.memo(({ modal, close, save, loading }) => {
 
           {type === "client" && (
             <>
-              <Field label="Nom" name="name" defaultValue={item.name || ""} required />
+              <Field
+                label="Nom"
+                name="name"
+                defaultValue={item.name || ""}
+                required
+              />
+
               <div className="form-grid">
-                <Field label="Email" name="email" defaultValue={item.email || ""} />
-                <Field label="Ville" name="city" defaultValue={item.city || ""} />
+                <Field
+                  label="Email"
+                  name="email"
+                  defaultValue={item.email || ""}
+                />
+
+                <Field
+                  label="Ville"
+                  name="city"
+                  defaultValue={item.city || ""}
+                />
+              </div>
+
+              <div className="form-grid">
+                <Field
+                  label="Téléphone"
+                  name="phone"
+                  defaultValue={item.phone || ""}
+                />
+
+                <Field
+                  label="Adresse"
+                  name="address"
+                  defaultValue={item.address || ""}
+                />
+              </div>
+
+              <div className="field">
+                <label className="label">Statut</label>
+
+                <select
+                  className="select"
+                  name="status"
+                  defaultValue={item.status || "active"}
+                >
+                  <option value="active">Actif</option>
+                  <option value="inactive">Inactif</option>
+                  <option value="suspended">Suspendu</option>
+                </select>
               </div>
             </>
           )}
@@ -1095,8 +1349,7 @@ const Modal = React.memo(({ modal, close, save, loading }) => {
 });
 
 const ViewModal = React.memo(({ view, close }) => {
-  const entries = Object.entries(view.item || {});
-  const filteredEntries = entries.filter(([key]) => !["id"].includes(key));
+  const item = view.item || {};
 
   const getTypeLabel = () => {
     const labels = {
@@ -1109,10 +1362,63 @@ const ViewModal = React.memo(({ view, close }) => {
       log: "du log",
       transaction: "de la transaction",
       order: "de la commande",
-      tryon: "de l'essayage"
+      tryon: "de l'essayage",
     };
+
     return labels[view.type] || "de l'élément";
   };
+
+  if (view.type === "order") {
+    return (
+      <div className="modal-overlay" onClick={close}>
+        <div className="modal-box view-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-head">
+            <h3>Détails {getTypeLabel()}</h3>
+            <button className="close" onClick={close}>✕</button>
+          </div>
+
+          <div className="modal-body">
+            <div className="view-list">
+              <div className="view-line"><span>COMMANDE</span><b>{item.orderNumber || item.id}</b></div>
+              <div className="view-line"><span>CLIENT</span><b>{`${item.firstName || ""} ${item.lastName || ""}`.trim() || "-"}</b></div>
+              <div className="view-line"><span>EMAIL</span><b>{item.email || "-"}</b></div>
+              <div className="view-line"><span>STATUT</span><b>{item.status || "-"}</b></div>
+              <div className="view-line"><span>PAIEMENT</span><b>{item.paymentMethod || "-"}</b></div>
+              <div className="view-line"><span>STATUT PAIEMENT</span><b>{item.paymentStatus || "-"}</b></div>
+              <div className="view-line"><span>VILLE</span><b>{item.deliveryCity || "-"}</b></div>
+              <div className="view-line"><span>TÉLÉPHONE</span><b>{item.deliveryPhone || "-"}</b></div>
+              <div className="view-line"><span>ADRESSE</span><b>{item.deliveryAddress || "-"}</b></div>
+              <div className="view-line"><span>TOTAL</span><b>{fmt(item.total)}</b></div>
+            </div>
+
+            <h3 style={{ marginTop: 20 }}>Produits commandés</h3>
+
+            <div className="view-list">
+              {(item.items || []).length ? (
+                item.items.map((p) => (
+                  <div className="view-line" key={p.id}>
+                    <span>{p.productName}</span>
+                    <b>
+                      Qté {p.quantity} · {fmt(p.subtotal)}
+                    </b>
+                  </div>
+                ))
+              ) : (
+                <div className="empty">Aucun produit trouvé pour cette commande.</div>
+              )}
+            </div>
+
+            <div className="modal-foot">
+              <button type="button" className="btn btn-red" onClick={close}>Fermer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const entries = Object.entries(item);
+  const filteredEntries = entries.filter(([key]) => !["id"].includes(key));
 
   return (
     <div className="modal-overlay" onClick={close}>
@@ -1121,6 +1427,7 @@ const ViewModal = React.memo(({ view, close }) => {
           <h3>Détails {getTypeLabel()}</h3>
           <button className="close" onClick={close}>✕</button>
         </div>
+
         <div className="modal-body">
           <div className="view-list">
             {filteredEntries.map(([key, value]) => (
@@ -1130,6 +1437,7 @@ const ViewModal = React.memo(({ view, close }) => {
               </div>
             ))}
           </div>
+
           <div className="modal-foot">
             <button type="button" className="btn btn-red" onClick={close}>Fermer</button>
           </div>
@@ -1172,65 +1480,140 @@ function Dashboard() {
   const [exporting, setExporting] = useState(false);
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState(null);
-  const [db, setDb] = useState(loadDb);
+  const [db, setDb] = useState({
+    orders: [],
+    products: [],
+    clients: [],
+    tryons: [],
+    reviews: [],
+    promotions: [],
+    transactions: [],
+    logs: [],
+    notifications: [],
+    support: [],
+    audit: [],
+    settings: {
+      shopName: "TryOn",
+      city: "Douala - Cameroun",
+      supportEmail: "support@tryon.cm",
+      address: "CFPD, Douala, Cameroun",
+    },
+  });
+  const loadAdminData = async () => {
+    const token =
+      sessionStorage.getItem("tryon_token") ||
+      localStorage.getItem("tryon_token");
+
+    if (!token) {
+      notify("Veuillez vous connecter en administrateur.", "error");
+      navigate("/auth");
+      return;
+    }
+    try {
+      setLoading(true);
+
+      const [dashboardRes, ordersRes, productsRes, tryonsRes, clientsRes] =
+        await Promise.all([
+          adminService.getDashboard(),
+          adminService.getOrders(),
+          adminService.getProducts(),
+          adminService.getTryons(),
+          adminService.getClients(),
+        ]);
+
+      //Limite de requêtes simultanées pour éviter les erreurs de surcharge du serveur
+      /*const dashboardRes = await adminService.getDashboard();
+      const ordersRes = await adminService.getOrders();
+      const productsRes = await adminService.getProducts();
+      const tryonsRes = await adminService.getTryons();
+      const clientsRes = await adminService.getClients();*/
+
+        console.log("Dashboard:", dashboardRes);
+        console.log("Orders:", ordersRes);
+        console.log("Products:", productsRes);
+        console.log("Try-ons:", tryonsRes);
+        console.log("Clients:", clientsRes);
+        
+      const orders = ordersRes.data.map((o) => ({
+        id: o.id,
+        orderNumber: o.orderNumber,
+        client: `${o.firstName || ""} ${o.lastName || ""}`.trim(),
+        email: o.email,
+        date: o.createdAt ? o.createdAt.slice(0, 10) : "",
+        status: o.status,
+        total: Number(o.total || 0),
+        paymentMethod: o.paymentMethod,
+        paymentStatus: o.paymentStatus,
+        deliveryCity: o.deliveryCity,
+        deliveryPhone: o.deliveryPhone,
+      }));
+
+      const products = productsRes.data.map((p) => ({
+        id: p.id,
+        name: p.name,
+        brand: p.brand || "TryOn",
+        price: Number(p.price || 0),
+
+        // Ici on utilise le stock total calculé par le backend
+        stock: Number(p.totalStock || p.stock || 0),
+
+        cat: p.target || p.categoryName || p.categorySlug || "Catalogue",
+        image: p.image,
+        emoji: "👗",
+      }));
+
+      const tryons = (tryonsRes.data || []).map((t) => ({
+        id: t.id,
+        client: `${t.firstName || ""} ${t.lastName || ""}`.trim(),
+        product: t.productName || "-",
+        brand: t.productBrand || "-",
+        score: Number(t.score || 0),
+        image: t.resultImage,
+        date: t.createdAt,
+      }));
+
+      const clients = (clientsRes.data || []).map((c) => ({
+        id: c.id,
+        name: `${c.firstName || ""} ${c.lastName || ""}`.trim(),
+        email: c.email || "-",
+        city: c.city || "-",
+        phone: c.phone || "-",
+        address: c.address || "-",
+        status: c.status || "active",
+        orders: Number(c.orders || 0),
+        tryons: Number(c.tryons || 0),
+        totalSpent: Number(c.totalSpent || 0),
+        date: c.createdAt ? c.createdAt.slice(0, 10) : "",
+      }));
+
+      setDb((prev) => ({
+        ...prev,
+        orders,
+        products,
+        tryons,
+        clients,
+        reviews: [],
+        promotions: [],
+        transactions: [],
+        logs: [],
+        notifications: [],
+        support: [],
+        audit: ["Données admin chargées depuis le backend"],
+        stats: dashboardRes.data,
+      }));
+    } catch (error) {
+      console.error("Erreur chargement admin :", error.message);
+      notify("Erreur chargement admin", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    loadAdminData();
+  }, []);
 
   const isOnline = useOnlineStatus();
   const debouncedSearch = useDebounce(search, 300);
-
-  // Sauvegarde automatique
-  useEffect(() => {
-    const saveInterval = setInterval(() => {
-      setSaving(true);
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeDb(db)));
-        setLastSaved(new Date());
-      } finally {
-        setSaving(false);
-      }
-    }, 30000);
-    return () => clearInterval(saveInterval);
-  }, [db]);
-
-  // Notifications en temps réel
-  useEffect(() => {
-    if (page === 'notifications') return;
-    
-    const interval = setInterval(() => {
-      const random = Math.random();
-      if (random > 0.75) {
-        const types = ['order', 'stock', 'review'];
-        const type = types[Math.floor(Math.random() * types.length)];
-        const messages = {
-          order: 'Nouvelle commande passée !',
-          stock: 'Un produit est en rupture de stock !',
-          review: 'Nouvel avis client publié !'
-        };
-        const titles = {
-          order: '📦 Nouvelle commande',
-          stock: '⚠️ Alerte stock',
-          review: '⭐ Nouvel avis'
-        };
-        
-        saveDb((prev) => ({
-          ...prev,
-          notifications: [{
-            id: nextCode('NOTIF', prev.notifications),
-            title: titles[type],
-            message: messages[type],
-            type: type,
-            read: false,
-            date: new Date().toISOString().slice(0, 10)
-          }, ...prev.notifications]
-        }));
-        
-        notify('🔔 ' + messages[type], 'info');
-      }
-    }, 45000);
-    
-    return () => clearInterval(interval);
-  }, [page]);
 
   // Persistance des préférences
   useEffect(() => {
@@ -1240,18 +1623,14 @@ function Dashboard() {
   useEffect(() => {
     localStorage.setItem('tryon_dark_mode', JSON.stringify(darkMode));
   }, [darkMode]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeDb(db)));
-  }, [db]);
-
-  const safeDb = normalizeDb(db);
+  
+  const safeDb = db;
 
   const saveDb = (updater) => {
     setDb((prev) => {
-      const current = normalizeDb(prev);
-      const next = typeof updater === "function" ? updater(current) : updater;
-      return normalizeDb(next);
+      return typeof updater === "function"
+        ? updater(prev)
+        : updater;
     });
   };
 
@@ -1455,6 +1834,36 @@ function Dashboard() {
   const notificationsPage = paginate(notifications, pagination.notifications, 5);
   const supportPage = paginate(support, pagination.support, 5);
 
+  const reportCategories = useMemo(() => {
+    const counts = {};
+    (safeDb.products || []).forEach((product) => {
+      const key = product.cat || "Autres";
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    const total = Math.max(1, (safeDb.products || []).length);
+    return Object.entries(counts).map(([label, count]) => ({
+      label,
+      width: Math.round((count / total) * 100),
+      value: `${Math.round((count / total) * 100)}%`,
+    }));
+  }, [safeDb.products]);
+
+  const reviewStats = useMemo(() => {
+    const reviewsList = safeDb.reviews || [];
+    const total = Math.max(1, reviewsList.length);
+    const groups = [5, 4, 3, 2];
+    return groups.map((rating) => {
+      const count = rating === 2
+        ? reviewsList.filter((review) => Number(review.rating || 0) <= 2).length
+        : reviewsList.filter((review) => Number(review.rating || 0) === rating).length;
+      const percent = Math.round((count / total) * 100);
+      return {
+        label: rating === 2 ? "⭐ 1-2 étoiles" : `⭐ ${rating} étoiles`,
+        percent,
+      };
+    });
+  }, [safeDb.reviews]);
+
   const setPageNumber = (section, value) => {
     setPagination((prev) => ({ ...prev, [section]: value }));
   };
@@ -1516,23 +1925,48 @@ function Dashboard() {
     notify('Export PDF généré', 'success');
   };
 
-  const remove = (kind, id) => {
+  const remove = async (kind, id) => {
     if (!window.confirm("Confirmer la suppression ?")) return;
 
-    const map = { 
-      order: "orders", product: "products", client: "clients", tryon: "tryons",
-      review: "reviews", promotion: "promotions", transaction: "transactions",
-      log: "logs", notification: "notifications", support: "support"
-    };
-    const key = map[kind];
+    try {
+      setLoading(true);
 
-    saveDb((prev) => ({
-      ...prev,
-      [key]: (prev[key] || []).filter((x) => x.id !== id),
-      audit: [`Suppression ${kind} ${id}`, ...(prev.audit || [])].slice(0, 20),
-    }));
+      if (kind === "product") {
+        await adminService.deleteProduct(id);
+        await loadAdminData();
 
-    notify(`${kind} supprimé`, 'success');
+        notify("Produit supprimé avec succès", "success");
+        addAudit(`Produit supprimé : ${id}`);
+        return;
+      }
+
+      if (kind === "tryon") {
+        await adminService.deleteTryon(id);
+        await loadAdminData();
+        notify(
+          "Essayage supprimé avec succès",
+          "success"
+        );
+        addAudit(`Essayage supprimé : ${id}`);
+        return;
+      }
+
+      if (kind === "client") {
+        await adminService.deleteClient(id);
+
+        await loadAdminData();
+
+        notify("Client désactivé avec succès", "success");
+        addAudit(`Client désactivé : ${id}`);
+        return;
+      }
+
+      notify(`Suppression ${kind} à connecter au backend`, "info");
+    } catch (error) {
+      notify(error.message || "Erreur lors de la suppression", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openEdit = (type, item) => {
@@ -1543,153 +1977,178 @@ function Dashboard() {
     setModal({ type, mode: "add", item: null });
   };
 
-  const openView = (type, item) => {
+  const openView = async (type, item) => {
+    if (type === "order") {
+      try {
+        setLoading(true);
+
+        const response = await adminService.getOrder(item.id);
+
+        setViewItem({
+          type,
+          item: response.data,
+        });
+
+        return;
+      } catch (error) {
+        notify(error.message || "Impossible de charger la commande", "error");
+        return;
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (type === "product") {
+      try {
+        setLoading(true);
+
+        const response = await adminService.getProduct(item.id);
+
+        setViewItem({
+          type,
+          item: response.data,
+        });
+
+        return;
+      } catch (error) {
+        notify(error.message || "Impossible de charger le produit", "error");
+        return;
+      } finally {
+        setLoading(false);
+      }
+    }
+
     setViewItem({ type, item });
   };
 
-  const saveModal = (e) => {
+  const saveModal = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      const form = Object.fromEntries(new FormData(e.currentTarget).entries());
-      const mode = modal?.mode;
-      const current = modal?.item;
+      const form = Object.fromEntries(
+        new FormData(e.currentTarget).entries()
+      );
 
+      // COMMANDES
+      if (
+        modal?.type === "order" &&
+        modal.mode === "edit" &&
+        modal.item?.id
+      ) {
+        await adminService.updateOrderStatus(
+          modal.item.id,
+          form.status
+        );
+
+        await loadAdminData();
+
+        setModal(null);
+
+        notify(
+          "Statut de la commande mis à jour",
+          "success"
+        );
+
+        return;
+      }
+
+      // PRODUITS
       if (modal?.type === "product") {
-        const item = {
-          id: current?.id || nextCode("PRD", safeDb.products),
+        const formElement = e.currentTarget;
+
+        const payload = {
           name: form.name,
-          brand: form.brand,
-          price: Number(form.price || 0),
+          brand: form.brand || "",
+          price: Number(form.price),
           stock: Number(form.stock || 0),
-          cat: form.cat,
-          emoji: form.emoji || "👗",
+          target: form.cat || "unisexe",
+          status: "active",
         };
-        saveDb((prev) => ({
-          ...prev,
-          products: mode === "edit" ? prev.products.map((p) => (p.id === item.id ? item : p)) : [item, ...prev.products],
-          audit: [`Produit ${mode === "edit" ? "modifié" : "ajouté"} ${item.id}`, ...(prev.audit || [])].slice(0, 20),
-        }));
+
+        const imageFile = formElement.elements.image?.files?.[0];
+
+        let productId = modal.item?.id;
+
+        if (modal.mode === "edit" && productId) {
+          await adminService.updateProduct(productId, payload);
+          notify("Produit modifié avec succès", "success");
+          addAudit(`Produit modifié : ${payload.name}`);
+        } else {
+          const created = await adminService.createProduct(payload);
+
+          productId =
+            created.data?.id ||
+            created.data?.productId ||
+            created.data?.insertId;
+
+          notify("Produit ajouté avec succès", "success");
+          addAudit(`Produit ajouté : ${payload.name}`);
+        }
+
+        if (imageFile && productId) {
+          const imageData = new FormData();
+          imageData.append("image", imageFile);
+          imageData.append("isMain", "true");
+
+          await adminService.uploadProductImage(productId, imageData);
+        }
+
+        const sizeMap = {
+          XS: 1,
+          S: 2,
+          M: 3,
+          L: 4,
+          XL: 5,
+          XXL: 6,
+        };
+
+        for (const [label, sizeId] of Object.entries(sizeMap)) {
+          const stock = Number(form[`stock_${label}`] || 0);
+
+          await adminService.addProductSize(productId, {
+            sizeId,
+            stock,
+          });
+        }
+
+        await loadAdminData();
+        setModal(null);
+        return;
       }
 
-      if (modal?.type === "order") {
-        const item = {
-          id: current?.id || nextOrderId(safeDb.orders),
-          client: form.client,
-          date: form.date,
-          status: form.status,
-          total: Number(form.total || 0),
-        };
-        saveDb((prev) => ({
-          ...prev,
-          orders: mode === "edit" ? prev.orders.map((o) => (o.id === item.id ? item : o)) : [item, ...prev.orders],
-          audit: [`Commande ${mode === "edit" ? "modifiée" : "ajoutée"} ${item.id}`, ...(prev.audit || [])].slice(0, 20),
-        }));
-      }
-
+      // CLIENTS
       if (modal?.type === "client") {
-        const item = {
-          id: current?.id || nextCode("CLI", safeDb.clients),
-          name: form.name,
-          email: form.email,
-          city: form.city,
-          orders: Number(current?.orders || 0),
-          total: Number(current?.total || 0),
+        const nameParts = (form.name || "").trim().split(" ");
+
+        const payload = {
+          firstName: nameParts[0] || "",
+          lastName: nameParts.slice(1).join(" ") || "",
+          phone: form.phone || "",
+          city: form.city || "",
+          address: form.address || "",
+          status: form.status || "active",
         };
-        saveDb((prev) => ({
-          ...prev,
-          clients: mode === "edit" ? prev.clients.map((c) => (c.id === item.id ? item : c)) : [item, ...prev.clients],
-          audit: [`Client ${mode === "edit" ? "modifié" : "ajouté"} ${item.id}`, ...(prev.audit || [])].slice(0, 20),
-        }));
+
+        if (modal.mode === "edit" && modal.item?.id) {
+          await adminService.updateClient(modal.item.id, payload);
+          notify("Client modifié avec succès", "success");
+          addAudit(`Client modifié : ${form.name}`);
+        }
+
+        await loadAdminData();
+        setModal(null);
+        return;
       }
 
-      if (modal?.type === "tryon") {
-        const item = {
-          id: current?.id || nextCode("TRY", safeDb.tryons),
-          client: form.client,
-          product: form.product,
-          score: Number(form.score || 0),
-          result: form.result,
-        };
-        saveDb((prev) => ({
-          ...prev,
-          tryons: mode === "edit" ? prev.tryons.map((t) => (t.id === item.id ? item : t)) : [item, ...prev.tryons],
-          audit: [`Essayage ${mode === "edit" ? "modifié" : "ajouté"} ${item.id}`, ...(prev.audit || [])].slice(0, 20),
-        }));
-      }
-
-      if (modal?.type === "review") {
-        const item = {
-          id: current?.id || nextCode("REV", safeDb.reviews),
-          product: form.product,
-          client: form.client,
-          rating: Number(form.rating || 5),
-          comment: form.comment,
-          date: new Date().toISOString().slice(0, 10),
-          status: form.status,
-        };
-        saveDb((prev) => ({
-          ...prev,
-          reviews: mode === "edit" ? prev.reviews.map((r) => (r.id === item.id ? item : r)) : [item, ...prev.reviews],
-          audit: [`Avis ${mode === "edit" ? "modifié" : "ajouté"} ${item.id}`, ...(prev.audit || [])].slice(0, 20),
-        }));
-      }
-
-      if (modal?.type === "promotion") {
-        const item = {
-          id: current?.id || nextCode("PROMO", safeDb.promotions),
-          code: form.code,
-          type: form.type,
-          value: Number(form.value || 0),
-          expires: form.expires,
-          usage: Number(current?.usage || 0),
-          maxUsage: Number(form.maxUsage || 100),
-          active: form.active === "true",
-        };
-        saveDb((prev) => ({
-          ...prev,
-          promotions: mode === "edit" ? prev.promotions.map((p) => (p.id === item.id ? item : p)) : [item, ...prev.promotions],
-          audit: [`Promotion ${mode === "edit" ? "modifiée" : "ajoutée"} ${item.id}`, ...(prev.audit || [])].slice(0, 20),
-        }));
-      }
-
-      if (modal?.type === "notification") {
-        const item = {
-          id: current?.id || nextCode("NOTIF", safeDb.notifications),
-          title: form.title,
-          message: form.message,
-          type: form.type,
-          read: false,
-          date: new Date().toISOString().slice(0, 10),
-        };
-        saveDb((prev) => ({
-          ...prev,
-          notifications: mode === "edit" ? prev.notifications.map((n) => (n.id === item.id ? item : n)) : [item, ...prev.notifications],
-          audit: [`Notification ${mode === "edit" ? "modifiée" : "ajoutée"} ${item.id}`, ...(prev.audit || [])].slice(0, 20),
-        }));
-      }
-
-      if (modal?.type === "support") {
-        const item = {
-          id: current?.id || nextCode("SUP", safeDb.support),
-          client: form.client,
-          subject: form.subject,
-          message: form.message,
-          status: form.status,
-          priority: form.priority,
-          date: new Date().toISOString().slice(0, 10),
-        };
-        saveDb((prev) => ({
-          ...prev,
-          support: mode === "edit" ? prev.support.map((s) => (s.id === item.id ? item : s)) : [item, ...prev.support],
-          audit: [`Support ${mode === "edit" ? "modifié" : "ajouté"} ${item.id}`, ...(prev.audit || [])].slice(0, 20),
-        }));
-      }
-
+      notify("Cette action sera connectée au backend dans l'étape suivante", "info");
       setModal(null);
-      notify("Enregistré avec succès", 'success');
     } catch (error) {
-      notify("Erreur lors de l'enregistrement", 'error');
+      notify(
+        error.message ||
+          "Erreur lors de l'enregistrement",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -1726,15 +2185,10 @@ function Dashboard() {
 
       {!isOnline && (
         <div className="offline-banner">
-          ⚠️ Mode hors ligne - Les données sont sauvegardées localement
+          ⚠️ Mode hors ligne - Données backend indisponibles
         </div>
       )}
 
-      <div className="save-indicator">
-        {saving ? '💾 Sauvegarde en cours...' : lastSaved ? `✅ Sauvegardé à ${lastSaved.toLocaleTimeString()}` : ''}
-      </div>
-
-      <DemoMode page={page}>
         <aside className="sidebar">
           <div className="brand">
             <div className="brand-text">
@@ -1786,7 +2240,6 @@ function Dashboard() {
             <span>Déconnexion</span>
           </button>
         </aside>
-      </DemoMode>
 
       <main className="main">
         <header className="topbar">
@@ -1810,8 +2263,7 @@ function Dashboard() {
           </div>
         </header>
 
-        <DemoMode page={page}>
-          {/* DASHBOARD */}
+        <>{/* DASHBOARD */}
           {page === "dashboard" && (
             <>
               <div className="kpi-grid">
@@ -1830,10 +2282,10 @@ function Dashboard() {
 
               <div className="charts-grid">
                 <SalesChart orders={safeDb.orders} />
-                <ChartLine />
-                <ChartDonut />
+                <ChartLine orders={safeDb.orders} />
+                <ChartDonut products={safeDb.products} />
                 <TopProducts products={safeDb.products} />
-                <Funnel />
+                <Funnel orders={safeDb.orders} tryons={safeDb.tryons} products={safeDb.products} />
                 <StatusChart orders={safeDb.orders} />
               </div>
 
@@ -1929,7 +2381,6 @@ function Dashboard() {
             <>
               <div className="toolbar">
                 <span className="muted">Historique IA, scores, décisions client.</span>
-                <button className="btn btn-light" onClick={() => { const p = safeDb.products[0]; saveDb((prev) => ({ ...prev, tryons: [{ id: nextCode("TRY", prev.tryons), client: "Visiteur", product: p?.name || "Produit", score: 90, result: "panier" }, ...prev.tryons], audit: ["Essayage simulé", ...prev.audit].slice(0, 20) })); notify("Essayage simulé", 'success'); }}>+ Simuler essayage</button>
               </div>
               <Table
                 cls="tries-row"
@@ -1947,7 +2398,7 @@ function Dashboard() {
           )}
 
           {/* VENTES */}
-          {page === "ventes" && <Sales runExport={runExportPdf} />}
+          {page === "ventes" && <Sales runExport={runExportPdf} orders={safeDb.orders} products={safeDb.products} />}
 
           {/* STOCK & APPROVISIONNEMENT */}
           {page === "stock" && (
@@ -2047,18 +2498,20 @@ function Dashboard() {
               <div className="reports-grid">
                 <div className="card"><h3>Ventes par catégorie</h3>
                   <div className="hbar-list">
-                    <HBar label="Robes" width={42} value="42%" />
-                    <HBar label="Hommes" width={26} value="26%" />
-                    <HBar label="Accessoires" width={19} value="19%" />
-                    <HBar label="Wax" width={13} value="13%" />
+                    {reportCategories.length ? reportCategories.map((category) => (
+                      <HBar key={category.label} label={category.label} width={category.width} value={category.value} />
+                    )) : <div className="empty">Aucune catégorie.</div>}
                   </div>
                 </div>
                 <div className="card"><h3>Avis clients</h3>
                   <div className="review-stats">
-                    <div className="stat-item"><span>⭐ 5 étoiles</span><div className="stat-bar"><div className="stat-fill" style={{ width: '60%' }} /></div><span>60%</span></div>
-                    <div className="stat-item"><span>⭐ 4 étoiles</span><div className="stat-bar"><div className="stat-fill" style={{ width: '25%' }} /></div><span>25%</span></div>
-                    <div className="stat-item"><span>⭐ 3 étoiles</span><div className="stat-bar"><div className="stat-fill" style={{ width: '10%' }} /></div><span>10%</span></div>
-                    <div className="stat-item"><span>⭐ 1-2 étoiles</span><div className="stat-bar"><div className="stat-fill" style={{ width: '5%' }} /></div><span>5%</span></div>
+                    {reviewStats.map((stat) => (
+                      <div className="stat-item" key={stat.label}>
+                        <span>{stat.label}</span>
+                        <div className="stat-bar"><div className="stat-fill" style={{ width: `${stat.percent}%` }} /></div>
+                        <span>{stat.percent}%</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 <div className="card"><h3>Performance des promotions</h3>
@@ -2160,8 +2613,8 @@ function Dashboard() {
           )}
 
           {/* PARAMÈTRES */}
-          {page === "parametres" && <Settings safeDb={safeDb} saveDb={saveDb} reset={() => { saveDb(seed); notify("Données réinitialisées", 'success'); }} />}
-        </DemoMode>
+          {page === "parametres" && <Settings safeDb={safeDb} saveDb={saveDb} />}
+        </>
       </main>
 
       {modal && <Modal modal={modal} close={() => setModal(null)} save={saveModal} loading={loading} />}
@@ -2199,7 +2652,39 @@ function Dashboard() {
 }
 
 const styles = `
-:root{--red:#E30613;--red2:#9F1118;--ink:#121212;--muted:#6D6D6D;--border:rgba(18,18,18,.10);--soft:#F1EFEC;--green:#2D7D46;--orange:#B36B12;--blue:#385E9D;--shadow:0 18px 50px rgba(0,0,0,.14);--shadow2:0 10px 28px rgba(0,0,0,.08);--side:276px;--side-collapsed:84px}.tryon-admin,.tryon-admin *{box-sizing:border-box}.tryon-admin{min-height:100vh;display:grid;grid-template-columns:var(--side) 1fr;background:linear-gradient(180deg,#fbfaf8,#ede9e4);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;transition:.28s}.tryon-admin.collapsed{grid-template-columns:var(--side-collapsed) 1fr}button,input,select,textarea{font:inherit}button{cursor:pointer}.sidebar{position:sticky;top:0;height:100vh;background:linear-gradient(180deg,#080808,#1a1110);color:#fff;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(255,255,255,.08)}.brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;gap:12px}.brand-text{flex:1;min-width:0}.brand-title{font-family:'Cormorant Garamond',serif;font-size:28px;letter-spacing:2px;line-height:1}.brand-sub{font-size:10px;letter-spacing:1.2px;color:rgba(255,255,255,.48);margin-top:2px}.brand-actions{display:flex;gap:8px;flex-shrink:0}.theme-toggle{width:36px;height:36px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.06);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:.22s}.theme-toggle:hover{background:rgba(227,6,19,.16)}.collapse-btn{width:36px;height:36px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.06);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:.22s}.collapse-btn:hover{background:rgba(227,6,19,.16)}.tryon-admin.collapsed .brand-text,.tryon-admin.collapsed .nav-label,.tryon-admin.collapsed .nav-section,.tryon-admin.collapsed .logout span:not(.ico){display:none}.tryon-admin.collapsed .brand{padding:24px 12px;justify-content:center}.tryon-admin.collapsed .collapse-btn{margin-left:0}.nav{padding:18px 10px;overflow:auto;flex:1;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.28);padding:16px 16px 8px;margin-top:8px}.nav-item{width:100%;border:0;background:transparent;color:rgba(255,255,255,.64);display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:15px;text-align:left;margin:4px 0;transition:.22s;cursor:pointer;position:relative}.nav-item .ico,.logout .ico{width:30px;height:30px;border-radius:11px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0}.nav-item:hover,.nav-item.active{background:rgba(227,6,19,.16);color:#fff}.nav-item.active .ico{background:var(--red)}.badge-notif{background:var(--red);color:#fff;border-radius:50%;padding:2px 6px;font-size:10px;font-weight:700;margin-left:auto;min-width:20px;text-align:center}.logout{margin:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);color:#fff;border-radius:16px;padding:13px;display:flex;align-items:center;justify-content:center;gap:10px;transition:.25s;cursor:pointer}.logout:hover{border-color:var(--red);box-shadow:0 0 0 3px rgba(227,6,19,.16);background:rgba(227,6,19,.12)}.main{min-width:0;padding:28px 34px 50px}.topbar{min-height:72px;background:rgba(255,255,255,.76);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow2);display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 18px;margin-bottom:28px;position:sticky;top:16px;z-index:20}.top-left{display:flex;align-items:center;gap:12px}.mobile-menu{display:none;width:42px;height:42px;border:0;background:var(--ink);color:#fff;border-radius:14px;cursor:pointer}.page-title{font-family:'Cormorant Garamond',serif;font-size:34px;margin:0}.page-subtitle{margin:4px 0 0;font-size:12px;color:var(--muted)}.top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.search{min-width:200px;border:1px solid var(--border);background:#fff;border-radius:14px;padding:12px 14px;outline:none;transition:.22s}.search:focus{border-color:var(--red);box-shadow:0 0 0 4px rgba(227,6,19,.12)}.btn{border:0;border-radius:14px;padding:12px 16px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.9px;display:inline-flex;align-items:center;gap:8px;transition:.22s;cursor:pointer}.btn:hover{transform:translateY(-2px);box-shadow:var(--shadow2)}.btn-primary{background:var(--ink);color:#fff}.btn-red{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff}.btn-light{background:#fff;color:var(--ink);border:1px solid var(--border)}.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-bottom:22px}.card{background:rgba(255,255,255,.88);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow2);padding:22px}.kpi{position:relative;overflow:hidden}.kpi:before{content:"";position:absolute;width:110px;height:110px;right:-45px;top:-45px;border-radius:50%;background:rgba(227,6,19,.10)}.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted);font-weight:700}.kpi-value{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:600;margin:10px 0 4px}.kpi-change{font-size:12px;color:var(--green);font-weight:700}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.charts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:18px 0}.chart-card{min-height:270px}.card-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.card-title h3{font-size:15px;margin:0}.muted{color:var(--muted);font-size:13px}.bars{display:flex;align-items:flex-end;gap:9px;height:160px;padding:10px 2px 26px}.bar{flex:1;border-radius:10px 10px 4px 4px;background:linear-gradient(180deg,var(--red),#201111);position:relative;min-height:14px;transition:.5s}.bar span{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}.bar-value{position:absolute;bottom:-40px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted)}.line-chart{height:170px;width:100%}.line-chart polyline{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.line-chart .area{fill:rgba(227,6,19,.10)}.donut{width:170px;height:170px;border-radius:50%;background:conic-gradient(var(--red) 0 42%,var(--ink) 42% 67%,#B36B12 67% 85%,#ddd 85% 100%);margin:0 auto;position:relative}.donut:after{content:"42%";position:absolute;inset:28px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:36px}.legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px}.legend span{font-size:11px;color:var(--muted)}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;background:var(--red)}.dot.dark{background:#111}.dot.gold{background:#B36B12}.hbar-row{display:grid;grid-template-columns:92px 1fr 42px;align-items:center;gap:10px;font-size:12px;margin-bottom:13px}.hbar-track{height:12px;background:var(--soft);border-radius:999px;overflow:hidden}.hbar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--red),var(--ink))}.funnel{display:flex;flex-direction:column;align-items:center;gap:10px}.funnel-step{height:34px;background:linear-gradient(90deg,var(--red),var(--ink));border-radius:12px;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;width:100%}.activity-item{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;padding:12px;border-radius:16px;background:var(--soft);margin-bottom:10px}.activity-icon{width:36px;height:36px;border-radius:13px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.toolbar-actions{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid var(--border);background:#fff;color:var(--muted);padding:9px 14px;border-radius:999px;font-size:12px;font-weight:700;cursor:pointer;transition:.22s}.chip.active,.chip:hover{background:var(--ink);color:#fff}.chip.disabled{cursor:default}.table-card{padding:0;overflow:hidden}.row{display:grid;grid-template-columns:1fr 1.3fr 1fr 1fr 1fr 150px;gap:14px;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);font-size:13px}.row.head{background:#161616;color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:800}.clients-row{grid-template-columns:1.1fr 1.5fr 1fr .7fr 1fr 150px}.tries-row{grid-template-columns:1fr 1.4fr .8fr 1fr 150px}.badge{display:inline-flex;width:max-content;padding:5px 10px;border-radius:999px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.8px}.ok{background:rgba(45,125,70,.12);color:var(--green)}.warn{background:rgba(179,107,18,.12);color:var(--orange)}.bad{background:rgba(227,6,19,.12);color:var(--red)}.blue{background:rgba(56,94,157,.12);color:var(--blue)}.actions{display:flex;gap:8px;justify-content:flex-end}.icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:12px;background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:.22s}.icon-btn.view:hover{background:rgba(56,94,157,.10);color:var(--blue)}.icon-btn.danger:hover{background:rgba(227,6,19,.10);color:var(--red)}.products-grid-admin{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.stock-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.stock-card .stock-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}.stock-card .stock-emoji{font-size:28px}.stock-card .stock-info{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px}.stock-bar{height:8px;background:var(--soft);border-radius:999px;overflow:hidden;margin:10px 0}.stock-fill{height:100%;border-radius:999px;transition:.5s}.stock-details{display:flex;justify-content:space-between;align-items:center}.stock-actions{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}.promotions-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.promotion-card.inactive{opacity:.6}.promo-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.promo-code{font-size:18px;font-weight:900;font-family:monospace}.promo-details{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}.promo-bar{height:6px;background:var(--soft);border-radius:999px;overflow:hidden;margin:10px 0}.promo-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--ink));border-radius:999px;transition:.5s}.promo-actions{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}.payment-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:22px}.reports-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.review-stats .stat-item{display:grid;grid-template-columns:100px 1fr 60px;gap:10px;align-items:center;margin-bottom:8px}.stat-bar{height:8px;background:var(--soft);border-radius:999px;overflow:hidden}.stat-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--ink));border-radius:999px;transition:.5s}.support-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center}.support-stats div{background:var(--soft);padding:12px;border-radius:12px}.support-stats strong{display:block;font-size:24px;margin-top:4px}.notifications-list{display:flex;flex-direction:column;gap:12px}.notification-item.unread{background:rgba(227,6,19,.05);border-left:4px solid var(--red)}.notification-item.read{opacity:.7}.notif-header{display:flex;align-items:flex-start;gap:14px}.notif-type{font-size:24px;flex-shrink:0}.notif-content{flex:1}.notif-content h4{margin:0 0 4px}.notif-content p{margin:0;font-size:13px;color:var(--muted)}.notif-date{font-size:11px;color:var(--muted)}.notif-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}.notif-actions .actions{flex-wrap:wrap}.product-card-admin{position:relative;display:grid;grid-template-columns:78px 1fr;gap:14px;align-items:center;padding-bottom:62px;min-height:180px;overflow:hidden;transition:.28s}.product-card-admin:hover{transform:translateY(-5px);box-shadow:0 20px 46px rgba(0,0,0,.14);border-color:rgba(227,6,19,.35)}.product-img{width:78px;height:96px;border-radius:18px;background:linear-gradient(160deg,#f4ebe6,#fff);display:flex;align-items:center;justify-content:center;font-size:38px;flex-shrink:0}.product-card-admin h3{margin:0 0 6px}.product-actions-admin{position:absolute;left:18px;right:18px;top:auto;bottom:16px;display:flex;justify-content:center;gap:9px;opacity:0;transform:translateY(14px);transition:.25s ease;pointer-events:none}.product-card-admin:hover .product-actions-admin{opacity:1;transform:translateY(0);pointer-events:auto}.product-actions-admin .actions{justify-content:center}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.settings-card h3{font-size:16px;margin:0 0 14px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{margin-bottom:14px}.label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:800;margin-bottom:7px}.input,.select,.textarea{width:100%;border:1px solid var(--border);background:#fff;border-radius:14px;padding:12px;outline:none;transition:.22s}.input:focus,.select:focus,.textarea:focus{border-color:var(--red);box-shadow:0 0 0 4px rgba(227,6,19,.12)}.textarea{min-height:92px;resize:vertical;margin-bottom:14px}.switch-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}.switch{width:54px;height:30px;border-radius:999px;background:#ddd;position:relative;border:0;transition:.2s;cursor:pointer}.switch:before{content:"";position:absolute;width:24px;height:24px;border-radius:50%;background:#fff;left:3px;top:3px;transition:.2s;box-shadow:0 3px 10px rgba(0,0,0,.2)}.switch.on{background:var(--red)}.switch.on:before{left:27px}.role{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--border);border-radius:16px;background:#fff;margin-bottom:10px}.audit-line{padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.58);display:flex;align-items:center;justify-content:center;padding:18px;z-index:80;animation:fadeIn .25s ease}.modal-box{background:#fff;border-radius:24px;width:min(620px,100%);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow)}.modal-head{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1;border-radius:24px 24px 0 0}.modal-body{padding:22px}.modal-foot{padding-top:16px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border);margin-top:16px}.close{width:36px;height:36px;border:0;border-radius:50%;background:var(--soft);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.22s}.close:hover{background:rgba(227,6,19,.12)}.view-modal{max-width:500px}.view-list{display:flex;flex-direction:column;gap:10px}.view-line{display:grid;grid-template-columns:140px 1fr;gap:12px;padding:12px 16px;border:1px solid var(--border);border-radius:14px;background:#fafafa}.view-line span{text-transform:uppercase;font-size:11px;letter-spacing:1px;color:var(--muted);font-weight:800}.view-line b{font-size:14px;word-break:break-word}.export-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:flex;align-items:center;justify-content:center;color:#fff;text-align:center;animation:fadeIn .3s ease}.export-box{width:min(420px,90%);background:linear-gradient(160deg,#161616,#33100d);border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:36px;box-shadow:0 30px 80px rgba(0,0,0,.35)}.loader{width:74px;height:74px;border:6px solid rgba(255,255,255,.16);border-top-color:var(--red);border-radius:50%;margin:0 auto 22px;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}.progress{height:10px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-top:18px}.progress-fill{height:100%;width:100%;background:linear-gradient(90deg,var(--red),#fff);border-radius:999px;animation:progressPulse 1.5s ease infinite}@keyframes progressPulse{0%,100%{opacity:1}50%{opacity:.6}}.toast{position:fixed;right:22px;bottom:22px;z-index:120;background:var(--ink);color:#fff;border-radius:16px;padding:14px 18px;box-shadow:var(--shadow);font-size:13px;animation:slideIn .3s ease;max-width:400px}.toast-error{background:var(--red)}.toast-success{background:var(--green)}@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}.empty{text-align:center;padding:36px;color:var(--muted)}.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}.kpi-value{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;font-weight:800 !important;letter-spacing:-1px}.sidebar,.nav{scrollbar-width:none}.sidebar::-webkit-scrollbar,.nav::-webkit-scrollbar{display:none}.sales-card{margin-top:30px}.pagination{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:22px;flex-wrap:wrap}.page-btn{min-width:40px;height:40px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--ink);font-weight:900;transition:.22s;cursor:pointer}.page-btn:hover:not(:disabled),.page-btn.active{background:var(--ink);color:#fff;transform:translateY(-2px)}.page-btn:disabled{opacity:.35;cursor:not-allowed}.error-page{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}.error-page h2{font-size:28px;color:var(--red)}.stars{color:#f5c518;font-size:14px}.comment-preview{font-style:italic;color:var(--muted)}.offline-banner{background:var(--orange);color:#fff;padding:10px 20px;text-align:center;font-weight:700;position:sticky;top:0;z-index:100}.save-indicator{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;z-index:50}.advanced-analytics .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:12px}.metric-item{display:flex;flex-direction:column;align-items:center;padding:12px;background:var(--soft);border-radius:12px}.metric-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}.metric-value{font-size:20px;font-weight:700;margin-top:4px}.checkbox-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.checkbox-label{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}.checkbox-label input[type="checkbox"]{width:16px;height:16px;cursor:pointer}.demo-overlay{position:fixed;inset:0;z-index:200;pointer-events:none}.demo-tooltip{position:fixed;z-index:201;pointer-events:auto;min-width:280px;max-width:400px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);padding:20px;margin-bottom:12px;animation:demoPop .4s ease}.demo-content p{margin:0 0 12px;font-size:14px;line-height:1.5}.demo-step{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block}.demo-actions{display:flex;gap:8px;justify-content:flex-end}.demo-arrow{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:12px solid #fff}.demo-highlight{pointer-events:none;animation:pulse-border 1.5s ease-in-out infinite;z-index:199}@keyframes pulse-border{0%,100%{box-shadow:0 0 0 2px var(--red),0 0 20px rgba(227,6,19,.3)}50%{box-shadow:0 0 0 4px var(--red),0 0 40px rgba(227,6,19,.5)}}@keyframes demoPop{from{opacity:0;transform:scale(.9) translateY(-10px)}to{opacity:1;transform:scale(1) translateY(0)}}.tryon-admin.dark{--ink:#f5f5f5;--border:rgba(255,255,255,.10);--soft:#1a1a1a;--shadow2:0 10px 28px rgba(255,255,255,.05);background:linear-gradient(180deg,#1a1a1a,#0d0d0d)}.tryon-admin.dark .card{background:rgba(30,30,30,.9)}.tryon-admin.dark .topbar{background:rgba(30,30,30,.8);border-color:rgba(255,255,255,.08)}.tryon-admin.dark .search{background:#222;border-color:rgba(255,255,255,.08);color:#fff}.tryon-admin.dark .search::placeholder{color:#888}.tryon-admin.dark .btn-light{background:#222;color:#fff;border-color:rgba(255,255,255,.08)}.tryon-admin.dark .donut:after{background:#1a1a1a}.tryon-admin.dark .view-line{background:#1a1a1a;border-color:rgba(255,255,255,.08)}.tryon-admin.dark .modal-box{background:#1a1a1a}.tryon-admin.dark .modal-head{background:#1a1a1a;border-color:rgba(255,255,255,.08)}.tryon-admin.dark .modal-foot{border-color:rgba(255,255,255,.08)}.tryon-admin.dark .close{background:#2a2a2a;color:#fff}.tryon-admin.dark .role{background:#1a1a1a;border-color:rgba(255,255,255,.08)}.tryon-admin.dark .input,.tryon-admin.dark .select,.tryon-admin.dark .textarea{background:#222;border-color:rgba(255,255,255,.08);color:#fff}.tryon-admin.dark .chip{background:#222;color:#aaa;border-color:rgba(255,255,255,.08)}.tryon-admin.dark .chip.active,.tryon-admin.dark .chip:hover{background:#333;color:#fff}.tryon-admin.dark .page-btn{background:#222;color:#aaa;border-color:rgba(255,255,255,.08)}.tryon-admin.dark .page-btn:hover:not(:disabled),.tryon-admin.dark .page-btn.active{background:#333;color:#fff}.tryon-admin.dark .switch-row{border-color:rgba(255,255,255,.08)}.tryon-admin.dark .icon-btn{background:#222;border-color:rgba(255,255,255,.08);color:#aaa}.tryon-admin.dark .activity-item{background:#1a1a1a}.tryon-admin.dark .activity-icon{background:#333}.tryon-admin.dark .badge.ok{background:rgba(45,125,70,.2)}.tryon-admin.dark .badge.warn{background:rgba(179,107,18,.2)}.tryon-admin.dark .badge.bad{background:rgba(227,6,19,.2)}.tryon-admin.dark .badge.blue{background:rgba(56,94,157,.2)}.tryon-admin.dark .notification-item.unread{background:rgba(227,6,19,.1)}.tryon-admin.dark .support-stats div{background:#1a1a1a}.tryon-admin.dark .stock-card .stock-info{color:#aaa}.tryon-admin.dark .promo-details{color:#aaa}.tryon-admin.dark .stars{color:#f5c518}.tryon-admin.dark .demo-tooltip{background:#1a1a1a;color:#fff;border:1px solid rgba(255,255,255,.1)}.tryon-admin.dark .demo-arrow{border-top-color:#1a1a1a}.tryon-admin.dark .offline-banner{background:var(--orange)}.tryon-admin.dark .save-indicator{background:rgba(0,0,0,.9)}.tryon-admin.dark .metric-item{background:#1a1a1a;border:1px solid rgba(255,255,255,.05)}@media(max-width:1180px){.charts-grid,.products-grid-admin,.promotions-grid{grid-template-columns:repeat(2,1fr)}.kpi-grid{grid-template-columns:repeat(3,1fr)}.settings-grid{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr 1fr}.stock-grid{grid-template-columns:repeat(2,1fr)}.reports-grid{grid-template-columns:1fr}.payment-summary{grid-template-columns:repeat(2,1fr)}.advanced-analytics .metrics-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:820px){.tryon-admin{display:block}.sidebar{position:fixed;left:0;top:0;z-index:70;width:280px;transform:translateX(-105%);transition:.28s;height:100vh}.sidebar.open{transform:translateX(0)}.tryon-admin.collapsed .sidebar{transform:translateX(-105%)}.main{padding:18px}.mobile-menu{display:block}.topbar{height:auto;align-items:flex-start;flex-direction:column;padding:16px}.top-actions{width:100%}.search{width:100%;min-width:0}.charts-grid,.products-grid-admin,.grid-2,.grid-3,.kpi-grid,.form-grid,.stock-grid,.promotions-grid,.payment-summary,.reports-grid{grid-template-columns:1fr}.row,.clients-row,.tries-row{grid-template-columns:1fr;gap:6px}.row.head{display:none}.actions{justify-content:flex-start}.product-actions-admin{opacity:1;transform:none;pointer-events:auto;position:relative;left:auto;right:auto;bottom:auto;padding-top:12px}.modal-overlay{align-items:flex-start;padding-top:40px}.brand{flex-wrap:nowrap}.kpi-grid{grid-template-columns:repeat(2,1fr)}.notif-header{flex-wrap:wrap}.advanced-analytics .metrics-grid{grid-template-columns:1fr 1fr}.save-indicator{bottom:10px;font-size:10px;padding:4px 12px}.demo-tooltip{min-width:200px;max-width:300px;left:50%!important;transform:translateX(-50%)!important;top:50%!important}}@media print{.sidebar,.topbar,.actions,.toolbar,.btn,.modal-overlay,.export-overlay,.toast,.offline-banner,.save-indicator,.demo-overlay{display:none!important}.tryon-admin{display:block}.main{padding:0}.card{box-shadow:none;border:1px solid #ddd}.charts-grid{grid-template-columns:1fr 1fr}.kpi-grid{grid-template-columns:repeat(5,1fr)}
+:root
+{
+  --red:#E30613;
+  --red2:#9F1118;
+  --ink:#121212;
+  --muted:#6D6D6D;
+  --border:rgba(18,18,18,.10);
+  --soft:#F1EFEC;--green:#2D7D46;
+  --orange:#B36B12;
+  --blue:#385E9D;
+  --shadow:0 18px 50px rgba(0,0,0,.14);
+  --shadow2:0 10px 28px rgba(0,0,0,.08);
+  --side:276px;
+  --side-collapsed:84px
+}
+.tryon-admin,
+.tryon-admin 
+*{
+  box-sizing:border-box
+}
+.tryon-admin
+{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:var(--side) 1fr;background:linear-gradient(180deg,#fbfaf8,#ede9e4);color:var(--ink);
+  font-family:'DM Sans',system-ui,sans-serif;
+  transition:.28s
+}
+.tryon-admin.collapsed
+{
+  grid-template-columns:var(--side-collapsed) 1fr}
+  button,input,select,textarea{font:inherit}button{cursor:pointer}.sidebar{position:sticky;top:0;height:100vh;background:linear-gradient(180deg,#080808,#1a1110);color:#fff;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(255,255,255,.08)}.brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;gap:12px}.brand-text{flex:1;min-width:0}.brand-title{font-family:'Cormorant Garamond',serif;font-size:28px;letter-spacing:2px;line-height:1}.brand-sub{font-size:10px;letter-spacing:1.2px;color:rgba(255,255,255,.48);margin-top:2px}.brand-actions{display:flex;gap:8px;flex-shrink:0}.theme-toggle{width:36px;height:36px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.06);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:.22s}.theme-toggle:hover{background:rgba(227,6,19,.16)}.collapse-btn{width:36px;height:36px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.06);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:.22s}.collapse-btn:hover{background:rgba(227,6,19,.16)}.tryon-admin.collapsed .brand-text,.tryon-admin.collapsed .nav-label,.tryon-admin.collapsed .nav-section,.tryon-admin.collapsed .logout span:not(.ico){display:none}.tryon-admin.collapsed .brand{padding:24px 12px;justify-content:center}.tryon-admin.collapsed .collapse-btn{margin-left:0}.nav{padding:18px 10px;overflow:auto;flex:1;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.28);padding:16px 16px 8px;margin-top:8px}.nav-item{width:100%;border:0;background:transparent;color:rgba(255,255,255,.64);display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:15px;text-align:left;margin:4px 0;transition:.22s;cursor:pointer;position:relative}.nav-item .ico,.logout .ico{width:30px;height:30px;border-radius:11px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0}.nav-item:hover,.nav-item.active{background:rgba(227,6,19,.16);color:#fff}.nav-item.active .ico{background:var(--red)}.badge-notif{background:var(--red);color:#fff;border-radius:50%;padding:2px 6px;font-size:10px;font-weight:700;margin-left:auto;min-width:20px;text-align:center}.logout{margin:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);color:#fff;border-radius:16px;padding:13px;display:flex;align-items:center;justify-content:center;gap:10px;transition:.25s;cursor:pointer}.logout:hover{border-color:var(--red);box-shadow:0 0 0 3px rgba(227,6,19,.16);background:rgba(227,6,19,.12)}.main{min-width:0;padding:28px 34px 50px}.topbar{min-height:72px;background:rgba(255,255,255,.76);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow2);display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 18px;margin-bottom:28px;position:sticky;top:16px;z-index:20}.top-left{display:flex;align-items:center;gap:12px}.mobile-menu{display:none;width:42px;height:42px;border:0;background:var(--ink);color:#fff;border-radius:14px;cursor:pointer}.page-title{font-family:'Cormorant Garamond',serif;font-size:34px;margin:0}.page-subtitle{margin:4px 0 0;font-size:12px;color:var(--muted)}.top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.search{min-width:200px;border:1px solid var(--border);background:#fff;border-radius:14px;padding:12px 14px;outline:none;transition:.22s}.search:focus{border-color:var(--red);box-shadow:0 0 0 4px rgba(227,6,19,.12)}.btn{border:0;border-radius:14px;padding:12px 16px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.9px;display:inline-flex;align-items:center;gap:8px;transition:.22s;cursor:pointer}.btn:hover{transform:translateY(-2px);box-shadow:var(--shadow2)}.btn-primary{background:var(--ink);color:#fff}.btn-red{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff}.btn-light{background:#fff;color:var(--ink);border:1px solid var(--border)}.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-bottom:22px}.card{background:rgba(255,255,255,.88);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow2);padding:22px}.kpi{position:relative;overflow:hidden}.kpi:before{content:"";position:absolute;width:110px;height:110px;right:-45px;top:-45px;border-radius:50%;background:rgba(227,6,19,.10)}.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted);font-weight:700}.kpi-value{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:600;margin:10px 0 4px}.kpi-change{font-size:12px;color:var(--green);font-weight:700}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.charts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:18px 0}.chart-card{min-height:270px}.card-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.card-title h3{font-size:15px;margin:0}.muted{color:var(--muted);font-size:13px}.bars{display:flex;align-items:flex-end;gap:9px;height:160px;padding:10px 2px 26px}.bar{flex:1;border-radius:10px 10px 4px 4px;background:linear-gradient(180deg,var(--red),#201111);position:relative;min-height:14px;transition:.5s}.bar span{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}.bar-value{position:absolute;bottom:-40px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted)}.line-chart{height:170px;width:100%}.line-chart polyline{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.line-chart .area{fill:rgba(227,6,19,.10)}.donut{width:170px;height:170px;border-radius:50%;background:conic-gradient(var(--red) 0 42%,var(--ink) 42% 67%,#B36B12 67% 85%,#ddd 85% 100%);margin:0 auto;position:relative}.donut:after{content:"";position:absolute;inset:28px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:36px}.legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px}.legend span{font-size:11px;color:var(--muted)}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;background:var(--red)}.dot.dark{background:#111}.dot.gold{background:#B36B12}.hbar-row{display:grid;grid-template-columns:92px 1fr 42px;align-items:center;gap:10px;font-size:12px;margin-bottom:13px}.hbar-track{height:12px;background:var(--soft);border-radius:999px;overflow:hidden}.hbar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--red),var(--ink))}.funnel{display:flex;flex-direction:column;align-items:center;gap:10px}.funnel-step{height:34px;background:linear-gradient(90deg,var(--red),var(--ink));border-radius:12px;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;width:100%}.activity-item{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;padding:12px;border-radius:16px;background:var(--soft);margin-bottom:10px}.activity-icon{width:36px;height:36px;border-radius:13px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.toolbar-actions{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid var(--border);background:#fff;color:var(--muted);padding:9px 14px;border-radius:999px;font-size:12px;font-weight:700;cursor:pointer;transition:.22s}.chip.active,.chip:hover{background:var(--ink);color:#fff}.chip.disabled{cursor:default}.table-card{padding:0;overflow:hidden}.row{display:grid;grid-template-columns:1fr 1.3fr 1fr 1fr 1fr 150px;gap:14px;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);font-size:13px}.row.head{background:#161616;color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:800}.clients-row{grid-template-columns:1.1fr 1.5fr 1fr .7fr 1fr 150px}.tries-row{grid-template-columns:1fr 1.4fr .8fr 1fr 150px}.badge{display:inline-flex;width:max-content;padding:5px 10px;border-radius:999px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.8px}.ok{background:rgba(45,125,70,.12);color:var(--green)}.warn{background:rgba(179,107,18,.12);color:var(--orange)}.bad{background:rgba(227,6,19,.12);color:var(--red)}.blue{background:rgba(56,94,157,.12);color:var(--blue)}.actions{display:flex;gap:8px;justify-content:flex-end}.icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:12px;background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:.22s}.icon-btn.view:hover{background:rgba(56,94,157,.10);color:var(--blue)}.icon-btn.danger:hover{background:rgba(227,6,19,.10);color:var(--red)}.products-grid-admin{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.stock-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.stock-card .stock-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}.stock-card .stock-emoji{font-size:28px}.stock-card .stock-info{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px}.stock-bar{height:8px;background:var(--soft);border-radius:999px;overflow:hidden;margin:10px 0}.stock-fill{height:100%;border-radius:999px;transition:.5s}.stock-details{display:flex;justify-content:space-between;align-items:center}.stock-actions{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}.promotions-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.promotion-card.inactive{opacity:.6}.promo-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.promo-code{font-size:18px;font-weight:900;font-family:monospace}.promo-details{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}.promo-bar{height:6px;background:var(--soft);border-radius:999px;overflow:hidden;margin:10px 0}.promo-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--ink));border-radius:999px;transition:.5s}.promo-actions{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}.payment-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:22px}.reports-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.review-stats .stat-item{display:grid;grid-template-columns:100px 1fr 60px;gap:10px;align-items:center;margin-bottom:8px}.stat-bar{height:8px;background:var(--soft);border-radius:999px;overflow:hidden}.stat-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--ink));border-radius:999px;transition:.5s}.support-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center}.support-stats div{background:var(--soft);padding:12px;border-radius:12px}.support-stats strong{display:block;font-size:24px;margin-top:4px}.notifications-list{display:flex;flex-direction:column;gap:12px}.notification-item.unread{background:rgba(227,6,19,.05);border-left:4px solid var(--red)}.notification-item.read{opacity:.7}.notif-header{display:flex;align-items:flex-start;gap:14px}.notif-type{font-size:24px;flex-shrink:0}.notif-content{flex:1}.notif-content h4{margin:0 0 4px}.notif-content p{margin:0;font-size:13px;color:var(--muted)}.notif-date{font-size:11px;color:var(--muted)}.notif-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}.notif-actions .actions{flex-wrap:wrap}.product-card-admin{position:relative;display:grid;grid-template-columns:78px 1fr;gap:14px;align-items:center;padding-bottom:62px;min-height:180px;overflow:hidden;transition:.28s}.product-card-admin:hover{transform:translateY(-5px);box-shadow:0 20px 46px rgba(0,0,0,.14);border-color:rgba(227,6,19,.35)}.product-img{width:78px;height:96px;border-radius:18px;background:linear-gradient(160deg,#f4ebe6,#fff);display:flex;align-items:center;justify-content:center;font-size:38px;flex-shrink:0}.product-card-admin h3{margin:0 0 6px}.product-actions-admin{position:absolute;left:18px;right:18px;top:auto;bottom:16px;display:flex;justify-content:center;gap:9px;opacity:0;transform:translateY(14px);transition:.25s ease;pointer-events:none}.product-card-admin:hover .product-actions-admin{opacity:1;transform:translateY(0);pointer-events:auto}.product-actions-admin .actions{justify-content:center}.settings-page{display:flex;flex-direction:column;gap:20px}.settings-hero{display:flex;align-items:center;justify-content:space-between;gap:22px;background:linear-gradient(135deg,#fff,#fff7f7);border:1px solid rgba(227,6,19,.12)}.settings-kicker{display:inline-flex;color:var(--red);font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}.settings-hero h2{margin:0 0 6px;font-size:30px}.settings-hero p{margin:0;color:var(--muted);line-height:1.6;max-width:760px}.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.settings-card{position:relative;overflow:hidden}.settings-card.large{grid-column:span 2}.settings-card:before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--red),#111)}.settings-head{display:flex;align-items:flex-start;gap:13px;margin-bottom:18px}.settings-icon{width:44px;height:44px;border-radius:15px;background:#fff0f1;color:var(--red);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}.settings-head h3{font-size:17px;margin:0 0 4px}.settings-head p{margin:0}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.form-grid.compact{gap:12px}.field{margin-bottom:14px}.label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:800;margin-bottom:7px}.input,.select,.textarea{width:100%;border:1px solid var(--border);background:#fff;border-radius:14px;padding:12px;outline:none;transition:.22s}.input:focus,.select:focus,.textarea:focus{border-color:var(--red);box-shadow:0 0 0 4px rgba(227,6,19,.12)}.textarea{min-height:92px;resize:vertical;margin-bottom:14px}.switch-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid var(--border)}.switch-row:last-child{border-bottom:0}.switch-row b{font-size:14px}.switch-row p{margin:4px 0 0;line-height:1.45}.switch{width:54px;height:30px;border-radius:999px;background:#ddd;position:relative;border:0;transition:.2s;cursor:pointer;flex-shrink:0}.switch:before{content:"";position:absolute;width:24px;height:24px;border-radius:50%;background:#fff;left:3px;top:3px;transition:.2s;box-shadow:0 3px 10px rgba(0,0,0,.2)}.switch.on{background:var(--red)}.switch.on:before{left:27px}.admin-role-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px}.admin-role-card{border:1px solid var(--border);border-radius:16px;background:#fff;padding:13px;display:flex;align-items:center;justify-content:space-between;gap:12px}.admin-role-card b{font-size:14px}.admin-role-card span{font-size:12px;color:var(--muted);text-align:right}.settings-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}.system-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}.system-line{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--border);border-radius:16px;background:#fff}.empty.soft{background:#fff7f7;border:1px dashed rgba(227,6,19,.25);color:var(--muted);margin-bottom:14px}.role{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--border);border-radius:16px;background:#fff;margin-bottom:10px}.audit-line{padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}@media(max-width:1000px){.settings-grid{grid-template-columns:1fr}.settings-card.large{grid-column:span 1}.settings-hero{flex-direction:column;align-items:flex-start}}@media(max-width:720px){.form-grid{grid-template-columns:1fr}.settings-actions{flex-direction:column}.settings-actions .btn{width:100%}}.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.58);display:flex;align-items:center;justify-content:center;padding:18px;z-index:80;animation:fadeIn .25s ease}.modal-box{background:#fff;border-radius:24px;width:min(620px,100%);max-height:90vh;overflow-y:auto;box-shadow:var(--shadow)}.modal-head{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1;border-radius:24px 24px 0 0}.modal-body{padding:22px}.modal-foot{padding-top:16px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border);margin-top:16px}.close{width:36px;height:36px;border:0;border-radius:50%;background:var(--soft);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.22s}.close:hover{background:rgba(227,6,19,.12)}.view-modal{max-width:500px}.view-list{display:flex;flex-direction:column;gap:10px}.view-line{display:grid;grid-template-columns:140px 1fr;gap:12px;padding:12px 16px;border:1px solid var(--border);border-radius:14px;background:#fafafa}.view-line span{text-transform:uppercase;font-size:11px;letter-spacing:1px;color:var(--muted);font-weight:800}.view-line b{font-size:14px;word-break:break-word}.export-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:flex;align-items:center;justify-content:center;color:#fff;text-align:center;animation:fadeIn .3s ease}.export-box{width:min(420px,90%);background:linear-gradient(160deg,#161616,#33100d);border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:36px;box-shadow:0 30px 80px rgba(0,0,0,.35)}.loader{width:74px;height:74px;border:6px solid rgba(255,255,255,.16);border-top-color:var(--red);border-radius:50%;margin:0 auto 22px;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}.progress{height:10px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-top:18px}.progress-fill{height:100%;width:100%;background:linear-gradient(90deg,var(--red),#fff);border-radius:999px;animation:progressPulse 1.5s ease infinite}@keyframes progressPulse{0%,100%{opacity:1}50%{opacity:.6}}.toast{position:fixed;right:22px;bottom:22px;z-index:120;background:var(--ink);color:#fff;border-radius:16px;padding:14px 18px;box-shadow:var(--shadow);font-size:13px;animation:slideIn .3s ease;max-width:400px}.toast-error{background:var(--red)}.toast-success{background:var(--green)}@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}.empty{text-align:center;padding:36px;color:var(--muted)}.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}.kpi-value{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;font-weight:800 !important;letter-spacing:-1px}.sidebar,.nav{scrollbar-width:none}.sidebar::-webkit-scrollbar,.nav::-webkit-scrollbar{display:none}.sales-card{margin-top:30px}.pagination{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:22px;flex-wrap:wrap}.page-btn{min-width:40px;height:40px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--ink);font-weight:900;transition:.22s;cursor:pointer}.page-btn:hover:not(:disabled),.page-btn.active{background:var(--ink);color:#fff;transform:translateY(-2px)}.page-btn:disabled{opacity:.35;cursor:not-allowed}.error-page{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}.error-page h2{font-size:28px;color:var(--red)}.stars{color:#f5c518;font-size:14px}.comment-preview{font-style:italic;color:var(--muted)}.offline-banner{background:var(--orange);color:#fff;padding:10px 20px;text-align:center;font-weight:700;position:sticky;top:0;z-index:100}.save-indicator{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;z-index:50}.advanced-analytics{margin-bottom:28px}.advanced-analytics .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:12px}.metric-item{display:flex;flex-direction:column;align-items:center;padding:12px;background:var(--soft);border-radius:12px}.metric-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}.metric-value{font-size:20px;font-weight:700;margin-top:4px}.checkbox-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.checkbox-label{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}.checkbox-label input[type="checkbox"]{width:16px;height:16px;cursor:pointer}.demo-overlay{position:fixed;inset:0;z-index:200;pointer-events:none}.demo-tooltip{position:fixed;z-index:201;pointer-events:auto;min-width:280px;max-width:400px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);padding:20px;margin-bottom:12px;animation:demoPop .4s ease}.demo-content p{margin:0 0 12px;font-size:14px;line-height:1.5}.demo-step{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block}.demo-actions{display:flex;gap:8px;justify-content:flex-end}.demo-arrow{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:12px solid #fff}.demo-highlight{pointer-events:none;animation:pulse-border 1.5s ease-in-out infinite;z-index:199}@keyframes pulse-border{0%,100%{box-shadow:0 0 0 2px var(--red),0 0 20px rgba(227,6,19,.3)}50%{box-shadow:0 0 0 4px var(--red),0 0 40px rgba(227,6,19,.5)}}@keyframes demoPop{from{opacity:0;transform:scale(.9) translateY(-10px)}to{opacity:1;transform:scale(1) translateY(0)}}.tryon-admin.dark{--ink:#f5f5f5;--border:rgba(255,255,255,.10);--soft:#1a1a1a;--shadow2:0 10px 28px rgba(255,255,255,.05);background:linear-gradient(180deg,#1a1a1a,#0d0d0d)}.tryon-admin.dark .card{background:rgba(30,30,30,.9)}.tryon-admin.dark .topbar{background:rgba(30,30,30,.8);border-color:rgba(255,255,255,.08)}.tryon-admin.dark .search{background:#222;border-color:rgba(255,255,255,.08);color:#fff}.tryon-admin.dark .search::placeholder{color:#888}.tryon-admin.dark .btn-light{background:#222;color:#fff;border-color:rgba(255,255,255,.08)}.tryon-admin.dark .donut:after{background:#1a1a1a}.tryon-admin.dark .view-line{background:#1a1a1a;border-color:rgba(255,255,255,.08)}.tryon-admin.dark .modal-box{background:#1a1a1a}.tryon-admin.dark .modal-head{background:#1a1a1a;border-color:rgba(255,255,255,.08)}.tryon-admin.dark .modal-foot{border-color:rgba(255,255,255,.08)}.tryon-admin.dark .close{background:#2a2a2a;color:#fff}.tryon-admin.dark .role{background:#1a1a1a;border-color:rgba(255,255,255,.08)}.tryon-admin.dark .input,.tryon-admin.dark .select,.tryon-admin.dark .textarea{background:#222;border-color:rgba(255,255,255,.08);color:#fff}.tryon-admin.dark .chip{background:#222;color:#aaa;border-color:rgba(255,255,255,.08)}.tryon-admin.dark .chip.active,.tryon-admin.dark .chip:hover{background:#333;color:#fff}.tryon-admin.dark .page-btn{background:#222;color:#aaa;border-color:rgba(255,255,255,.08)}.tryon-admin.dark .page-btn:hover:not(:disabled),.tryon-admin.dark .page-btn.active{background:#333;color:#fff}.tryon-admin.dark .switch-row{border-color:rgba(255,255,255,.08)}.tryon-admin.dark .icon-btn{background:#222;border-color:rgba(255,255,255,.08);color:#aaa}.tryon-admin.dark .activity-item{background:#1a1a1a}.tryon-admin.dark .activity-icon{background:#333}.tryon-admin.dark .badge.ok{background:rgba(45,125,70,.2)}.tryon-admin.dark .badge.warn{background:rgba(179,107,18,.2)}.tryon-admin.dark .badge.bad{background:rgba(227,6,19,.2)}.tryon-admin.dark .badge.blue{background:rgba(56,94,157,.2)}.tryon-admin.dark .notification-item.unread{background:rgba(227,6,19,.1)}.tryon-admin.dark .support-stats div{background:#1a1a1a}.tryon-admin.dark .stock-card .stock-info{color:#aaa}.tryon-admin.dark .promo-details{color:#aaa}.tryon-admin.dark .stars{color:#f5c518}.tryon-admin.dark .demo-tooltip{background:#1a1a1a;color:#fff;border:1px solid rgba(255,255,255,.1)}.tryon-admin.dark .demo-arrow{border-top-color:#1a1a1a}.tryon-admin.dark .offline-banner{background:var(--orange)}.tryon-admin.dark .save-indicator{background:rgba(0,0,0,.9)}.tryon-admin.dark .metric-item{background:#1a1a1a;border:1px solid rgba(255,255,255,.05)}@media(max-width:1180px){.charts-grid,.products-grid-admin,.promotions-grid{grid-template-columns:repeat(2,1fr)}.kpi-grid{grid-template-columns:repeat(3,1fr)}.settings-grid{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr 1fr}.stock-grid{grid-template-columns:repeat(2,1fr)}.reports-grid{grid-template-columns:1fr}.payment-summary{grid-template-columns:repeat(2,1fr)}.advanced-analytics{margin-bottom:28px}.advanced-analytics .metrics-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:820px){.tryon-admin{display:block}.sidebar{position:fixed;left:0;top:0;z-index:70;width:280px;transform:translateX(-105%);transition:.28s;height:100vh}.sidebar.open{transform:translateX(0)}.tryon-admin.collapsed .sidebar{transform:translateX(-105%)}.main{padding:18px}.mobile-menu{display:block}.topbar{height:auto;align-items:flex-start;flex-direction:column;padding:16px}.top-actions{width:100%}.search{width:100%;min-width:0}.charts-grid,.products-grid-admin,.grid-2,.grid-3,.kpi-grid,.form-grid,.stock-grid,.promotions-grid,.payment-summary,.reports-grid{grid-template-columns:1fr}.row,.clients-row,.tries-row{grid-template-columns:1fr;gap:6px}.row.head{display:none}.actions{justify-content:flex-start}.product-actions-admin{opacity:1;transform:none;pointer-events:auto;position:relative;left:auto;right:auto;bottom:auto;padding-top:12px}.modal-overlay{align-items:flex-start;padding-top:40px}.brand{flex-wrap:nowrap}.kpi-grid{grid-template-columns:repeat(2,1fr)}.notif-header{flex-wrap:wrap}.advanced-analytics{margin-bottom:28px}.advanced-analytics .metrics-grid{grid-template-columns:1fr 1fr}.save-indicator{bottom:10px;font-size:10px;padding:4px 12px}.demo-tooltip{min-width:200px;max-width:300px;left:50%!important;transform:translateX(-50%)!important;top:50%!important}}@media print{.sidebar,.topbar,.actions,.toolbar,.btn,.modal-overlay,.export-overlay,.toast,.offline-banner,.save-indicator,.demo-overlay{display:none!important}.tryon-admin{display:block}.main{padding:0}.card{box-shadow:none;border:1px solid #ddd}.charts-grid{grid-template-columns:1fr 1fr}.kpi-grid{grid-template-columns:repeat(5,1fr)}
 `;
+
 
 export default Dashboard;
