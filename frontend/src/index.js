@@ -5,6 +5,7 @@ import reportWebVitals from './reportWebVitals';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import './index.css';
+import './App.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

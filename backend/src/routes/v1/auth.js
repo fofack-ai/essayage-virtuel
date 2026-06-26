@@ -6,15 +6,11 @@ const authController = require("../../controllers/v1/authController");
 const auth = require("../../middleware/auth");
 
 router.post("/register", authController.register);
-
 router.post("/login", authController.login);
-
 router.post("/verify-otp", authController.verifyOtp);
-
 router.get("/profile", auth, authController.profile);
-
+router.put("/profile", auth, authController.updateProfile);
 router.post("/forgot-password", authController.forgotPassword);
-
 router.post("/reset-password", authController.resetPassword);
 
 module.exports = router;

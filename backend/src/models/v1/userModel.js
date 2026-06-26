@@ -114,6 +114,18 @@ async function clearResetToken(userId) {
   );
 }
 
+async function updateProfile(userId, data) {
+  const [result] = await db.query(
+    `
+    UPDATE users
+    SET firstName = ?, lastName = ?, phone = ?, email = ?
+    WHERE id = ?
+    `,
+    [data.firstName, data.lastName, data.phone || null, data.email, userId]
+  );
+  return result.affectedRows > 0;
+}
+
 module.exports = {
   findByEmail,
   findById,
@@ -124,4 +136,5 @@ module.exports = {
   findByResetToken,
   updatePassword,
   clearResetToken,
+  updateProfile,
 };

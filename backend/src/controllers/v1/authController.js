@@ -73,6 +73,23 @@ async function profile(req, res) {
   }
 }
 
+async function updateProfile(req, res) {
+  try {
+    const user = await authService.updateProfile(req.user.id, req.body);
+
+    return res.status(200).json({
+      success: true,
+      message: "Profil mis à jour avec succès",
+      data: user,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
 async function forgotPassword(req, res) {
   try {
     const { email } = req.body;
@@ -95,10 +112,7 @@ async function resetPassword(req, res) {
   try {
     const { token, newPassword } = req.body;
 
-    const result = await authService.resetPassword(
-      token,
-      newPassword
-    );
+    const result = await authService.resetPassword(token, newPassword);
 
     return res.status(200).json({
       success: true,
@@ -117,6 +131,7 @@ module.exports = {
   login,
   verifyOtp,
   profile,
+  updateProfile,
   forgotPassword,
   resetPassword,
 };

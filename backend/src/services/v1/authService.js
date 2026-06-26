@@ -189,6 +189,22 @@ async function resetPassword(token, newPassword) {
   };
 }
 
+async function updateProfile(userId, data) {
+  if (!data.firstName || !data.lastName) {
+    throw new Error("Le prénom et le nom sont obligatoires");
+  }
+
+  if (data.email) {
+    const existing = await userModel.findByEmail(data.email);
+    if (existing && existing.id !== userId) {
+      throw new Error("Cet email est déjà utilisé par un autre compte");
+    }
+  }
+
+  await userModel.updateProfile(userId, data);
+  return await userModel.findById(userId);
+}
+
 module.exports = {
   register,
   login,
@@ -196,4 +212,5 @@ module.exports = {
   getProfile,
   forgotPassword,
   resetPassword,
+  updateProfile,
 };
