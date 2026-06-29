@@ -133,6 +133,26 @@ useEffect(() => {
     }
   };
 
+  // En haut du composant, vous avez déjà : const navigate = useNavigate();
+// Ajoutez ce bouton en haut du return(), avant le premier élément :
+
+<button
+  onClick={() => navigate(-1)}
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    color: '#355C86',
+    fontWeight: 600,
+    fontSize: 14,
+    padding: '16px 24px',
+  }}
+>
+  ← Retour
+</button>
   return (
     <div style={{ paddingTop: 64 }}>
       {/* Breadcrumb */}
