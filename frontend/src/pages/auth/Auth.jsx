@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
+
+// Dans le composant :
 
 const DATA = {
   login: {
@@ -39,7 +41,9 @@ const DATA = {
 },
 };
 
+
 export default function Auth() {
+  const navigate = useNavigate();
   const { token } = useParams();
   const { login, register, verifyOtp, pendingOtp } = useAuth();
 
@@ -193,6 +197,20 @@ export default function Auth() {
       setError(err.message);
     }
   };
+
+
+  <button
+  onClick={() => navigate(-1)}
+  style={{
+    position: 'fixed', top: 90, left: 20, zIndex: 100,
+    background: 'rgba(255,255,255,0.9)', border: '1.5px solid #ddd',
+    borderRadius: 12, padding: '8px 16px', cursor: 'pointer',
+    fontWeight: 700, fontSize: 13, color: '#1A1A1A',
+    backdropFilter: 'blur(8px)',
+  }}
+>
+  ← Retour
+</button>
 
   return (
     <div style={pageStyle}>

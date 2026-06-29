@@ -32,7 +32,7 @@ export function CartProvider({ children }) {
   };
 
   const loadCart = async () => {
-    const token = sessionStorage.getItem("tryon_token");
+const token = localStorage.getItem("tryon_token");
 
     if (!token) {
       setItems([]);
@@ -73,7 +73,7 @@ export function CartProvider({ children }) {
   }, []);
 
   const addItem = async (product) => {
-    const token = sessionStorage.getItem("tryon_token");
+    const token = localStorage.getItem("tryon_token");
 
     if (!token) {
       alert("Veuillez vous connecter pour ajouter un produit au panier.");

@@ -25,6 +25,8 @@ const T = {
   border: 'rgba(26,26,26,0.105)',
 };
 
+
+
 /* ── Fonctions utilitaires pour les mensurations ── */
 
 /** Extrait les mensurations normalisées à partir des landmarks */
@@ -513,6 +515,25 @@ const handleAITryon = async () => {
 
   const sizeOptions = sizes.length ? sizes : ['XS', 'S', 'M', 'L', 'XL'];
   const colorOptions = colors.length ? colors : ['#1a1410'];
+
+// Ajoutez un bouton retour en haut du JSX :
+<button
+  onClick={() => navigate(-1)}
+  style={{
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    color: '#355C86',
+    fontWeight: 600,
+    fontSize: 14,
+    padding: '16px 24px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  }}
+>
+  ← Retour
+</button>
 
   return (
     <div style={{

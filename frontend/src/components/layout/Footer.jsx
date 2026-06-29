@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+
 export default function Footer() {
   return (
     <footer>
@@ -36,14 +37,16 @@ export default function Footer() {
           <div className="footer-col-title">Contact</div>
           <ul className="footer-links">
             <li><a href="https://cfpd-isgd.com/">CFPD</a></li>
-            <li><a href="tel:+2376XXXXXXX">+237 6XX XXX XXX</a></li>
+            <li><a href="tel:+2376XXXXXXX">+237 671 207 375</a></li>
             <li>Douala, Cameroun</li>
           </ul>
         </div>
       </div>
       <div className="footer-bottom">
         <span>© 2026 TryOn — Application de mode africaine et cabine d’essayage virtuelle. Tous droits réservés.</span>
-        <span>Politique de confidentialité · CGV</span>
+        <span>
+          <Link to="/privacy-policy">Politique de confidentialité</Link> · <Link to="/terms">CGV</Link>
+        </span>
       </div>
     </footer>
   );

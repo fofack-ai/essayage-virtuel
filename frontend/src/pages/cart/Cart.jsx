@@ -12,6 +12,25 @@ export default function Cart() {
       <style>{styles}</style>
 
       <section className="cart-hero">
+        
+        <div style={{ padding: '12px 24px' }}>
+  <button
+    onClick={() => navigate(-1)}
+    style={{
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      color: '#355C86',
+      fontWeight: 600,
+      fontSize: 14,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+    }}
+  >
+    ← Continuer mes achats
+  </button>
+</div>
         <span>Panier TryOn</span>
         <h1>Votre sélection</h1>
         <p>Finalisez vos articles avant de passer commande.</p>

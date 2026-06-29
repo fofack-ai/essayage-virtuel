@@ -36,9 +36,9 @@ export default function Orders() {
   const [loadingDetail, setLoadingDetail] = useState(null);
 
   /* ── Auth guard ── */
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) navigate('/auth');
-  }, [authLoading, isAuthenticated, navigate]);
+  //useEffect(() => {
+    //if (!authLoading && !isAuthenticated) navigate('/auth');
+  //}, [authLoading, isAuthenticated, navigate]);
 
   /* ── Chargement de la liste ── */
   useEffect(() => {

@@ -8,16 +8,35 @@ export function AuthProvider({ children }) {
   const [pendingOtp, setPendingOtp] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Lecture initiale depuis localStorage (partagé entre onglets)
   useEffect(() => {
-    const savedUser = sessionStorage.getItem("tryon_user");
-    const savedToken = sessionStorage.getItem("tryon_token");
+    const savedUser  = localStorage.getItem("tryon_user");
+    const savedToken = localStorage.getItem("tryon_token");
     if (savedUser && savedToken) setUser(JSON.parse(savedUser));
     setLoading(false);
   }, []);
 
+  // ✅ Écoute les changements des autres onglets
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      // Un autre onglet a supprimé le token → déconnexion ici aussi
+      if (e.key === "tryon_token" && !e.newValue) {
+        setUser(null);
+      }
+      // Un autre onglet s'est connecté → on récupère l'utilisateur
+      if (e.key === "tryon_user" && e.newValue) {
+        setUser(JSON.parse(e.newValue));
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  // ✅ Sauvegarde dans localStorage au lieu de sessionStorage
   const saveSession = (data) => {
-    sessionStorage.setItem("tryon_token", data.token);
-    sessionStorage.setItem("tryon_user", JSON.stringify(data.user));
+    localStorage.setItem("tryon_token", data.token);
+    localStorage.setItem("tryon_user", JSON.stringify(data.user));
     setUser(data.user);
   };
 
@@ -44,18 +63,18 @@ export function AuthProvider({ children }) {
     return response.data.user;
   };
 
-  // Met à jour le profil côté serveur ET côté session, pour ne plus jamais redemander les infos
   const updateProfile = async (data) => {
     const response = await api.put("/auth/profile", data);
     const updatedUser = response.data;
-    sessionStorage.setItem("tryon_user", JSON.stringify(updatedUser));
+    localStorage.setItem("tryon_user", JSON.stringify(updatedUser));
     setUser(updatedUser);
     return updatedUser;
   };
 
+  // ✅ Déconnexion dans localStorage → les autres onglets le détectent
   const logout = () => {
-    sessionStorage.removeItem("tryon_token");
-    sessionStorage.removeItem("tryon_user");
+    localStorage.removeItem("tryon_token");
+    localStorage.removeItem("tryon_user");
     setUser(null);
     setPendingOtp(null);
   };
