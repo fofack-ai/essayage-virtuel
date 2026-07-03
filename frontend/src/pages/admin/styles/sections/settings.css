@@ -1,0 +1,21 @@
+.settings-page { display: flex; flex-direction: column; gap: 22px; }
+.settings-hero { display: flex; align-items: center; justify-content: space-between; gap: 22px; background: linear-gradient(135deg, #fff, #fff7f7); border: 1px solid rgba(227, 6, 19, 0.12); }
+.settings-kicker { display: inline-flex; color: var(--red); font-size: 11px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.settings-hero h2 { margin: 0 0 6px; font-size: 30px; }
+.settings-hero p { margin: 0; color: var(--muted); line-height: 1.6; max-width: 760px; }
+.settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--card-gap); }
+.settings-card { position: relative; overflow: hidden; }
+.settings-card.large { grid-column: span 2; }
+.settings-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: linear-gradient(90deg, var(--red), #111); }
+.settings-head { display: flex; align-items: flex-start; gap: 13px; margin-bottom: 18px; }
+.settings-icon { width: 44px; height: 44px; border-radius: 15px; background: #fff0f1; color: var(--red); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.settings-head h3 { font-size: 17px; margin: 0 0 4px; }
+.settings-head p { margin: 0; }
+.admin-role-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 14px; }
+.admin-role-card { border: 1px solid var(--border); border-radius: 16px; background: #fff; padding: 13px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.admin-role-card b { font-size: 14px; }
+.admin-role-card span { font-size: 12px; color: var(--muted); text-align: right; }
+.settings-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.system-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.system-line { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 16px; background: #fff; }
+.role { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 12px; border: 1px solid var(--border); border-radius: 16px; background: #fff; margin-bottom: 10px; }

@@ -1,0 +1,68 @@
+.stock-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--card-gap); align-items: stretch; }
+.stock-card { min-height: 270px; display: flex; flex-direction: column; }
+.stock-card .stock-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.stock-card .stock-emoji { font-size: 28px; }
+.stock-card .stock-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+.stock-bar { height: 9px; background: var(--soft); border-radius: 999px; overflow: hidden; margin: 12px 0; }
+.stock-fill { height: 100%; border-radius: 999px; transition: 0.5s ease; }
+.stock-details { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 4px; }
+.stock-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.stock-actions {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(18px);
+  pointer-events: none;
+  transition: 0.28s ease;
+}
+
+.stock-card:hover .stock-actions {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.stock-action-btn {
+  width: 54px;
+  height: 54px;
+  border: none;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #111;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.24s ease;
+}
+
+.stock-action-btn:hover {
+  transform: translateY(-4px) scale(1.04);
+  background: #111;
+  color: #fff;
+}
+
+.stock-action-btn.restock {
+  background: linear-gradient(135deg, var(--red), var(--red2));
+  color: #fff;
+}
+
+.stock-action-btn.restock:hover {
+  background: #111;
+}
+
+.stock-card {
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 92px;
+}

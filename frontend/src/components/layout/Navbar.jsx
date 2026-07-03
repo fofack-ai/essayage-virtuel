@@ -60,7 +60,7 @@ export default function Navbar() {
 
                 <div className="user-dropdown-links">
                   <Link to="/profile" className="user-dropdown-link" onClick={() => setIsDropdownOpen(false)}>
-                    <span className="user-dropdown-link-icon">👤</span> Mon profil
+                    <span className="user-dropdown-link-icon">⚙</span> Paramètres
                   </Link>
                   <Link to="/orders" className="user-dropdown-link" onClick={() => setIsDropdownOpen(false)}>
                     <span className="user-dropdown-link-icon">📦</span> Mes commandes

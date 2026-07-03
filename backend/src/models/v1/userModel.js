@@ -8,10 +8,20 @@ async function findByEmail(email) {
   return rows[0];
 }
 
+async function findByGoogleId(googleId) {
+  const [rows] = await db.query(
+    "SELECT * FROM users WHERE googleId = ? LIMIT 1",
+    [googleId]
+  );
+  return rows[0];
+}
+
 async function findById(id) {
   const [rows] = await db.query(
     `
-    SELECT id, firstName, lastName, email, role, phone, address, city, createdAt
+    SELECT 
+      id, googleId, firstName, lastName, email, role, phone, address, city,
+      avatar, status, createdAt
     FROM users
     WHERE id = ?
     LIMIT 1
@@ -39,7 +49,41 @@ async function createUser(data) {
       data.city || null,
     ]
   );
+
   return result.insertId;
+}
+
+async function createGoogleUser(data) {
+  const [result] = await db.query(
+    `
+    INSERT INTO users
+    (googleId, firstName, lastName, email, password, role, avatar, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+    [
+      data.googleId,
+      data.firstName || "Utilisateur",
+      data.lastName || "Google",
+      data.email,
+      null,
+      data.role || "client",
+      data.avatar || null,
+      "active",
+    ]
+  );
+
+  return result.insertId;
+}
+
+async function attachGoogleAccount(userId, googleId, avatar) {
+  await db.query(
+    `
+    UPDATE users
+    SET googleId = ?, avatar = ?
+    WHERE id = ?
+    `,
+    [googleId, avatar || null, userId]
+  );
 }
 
 async function updateProfile(userId, data) {
@@ -51,6 +95,7 @@ async function updateProfile(userId, data) {
     `,
     [data.firstName, data.lastName, data.phone || null, data.email, userId]
   );
+
   return result.affectedRows > 0;
 }
 
@@ -97,6 +142,7 @@ async function findByResetToken(resetToken) {
     `,
     [resetToken]
   );
+
   return rows[0];
 }
 
@@ -124,8 +170,11 @@ async function clearResetToken(userId) {
 
 module.exports = {
   findByEmail,
+  findByGoogleId,
   findById,
   createUser,
+  createGoogleUser,
+  attachGoogleAccount,
   updateProfile,
   saveOtp,
   clearOtp,

@@ -1,0 +1,7 @@
+.products-grid-admin { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--card-gap); }
+.product-card-admin { position: relative; display: grid; grid-template-columns: 78px 1fr; gap: 16px; align-items: center; padding-bottom: 68px; min-height: 190px; overflow: hidden; }
+.product-img { width: 78px; height: 96px; border-radius: 18px; background: linear-gradient(160deg, #f4ebe6, #fff); display: flex; align-items: center; justify-content: center; font-size: 38px; flex-shrink: 0; }
+.product-card-admin h3 { margin: 0 0 6px; }
+.product-actions-admin { position: absolute; left: 18px; right: 18px; bottom: 16px; display: flex; justify-content: center; gap: 9px; opacity: 0; transform: translateY(14px); transition: 0.25s ease; pointer-events: none; }
+.product-card-admin:hover .product-actions-admin { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.product-actions-admin .actions { justify-content: center; }

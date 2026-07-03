@@ -1,5 +1,19 @@
 const authService = require("../../services/v1/authService");
 
+function sendAuthRedirect(res, result) {
+  const payload = encodeURIComponent(
+    JSON.stringify({
+      token: result.token,
+      user: result.user,
+    })
+  );
+
+  const target = result.user?.role === "admin" ? "/admin" : "/";
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+
+  return res.redirect(`${frontendUrl}/auth/google/success?data=${payload}&redirect=${target}`);
+}
+
 async function register(req, res) {
   try {
     const result = await authService.register(req.body);
@@ -10,38 +24,28 @@ async function register(req, res) {
       data: result,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 }
 
 async function login(req, res) {
   try {
     const { email, password } = req.body;
-
     const result = await authService.login(email, password);
 
     return res.status(200).json({
       success: true,
-      message: result.requiresOtp
-        ? "Code OTP envoyé par email"
-        : "Connexion réussie",
+      message: result.requiresOtp ? "Code OTP envoyé par email" : "Connexion réussie",
       data: result,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 }
 
 async function verifyOtp(req, res) {
   try {
     const { email, otp } = req.body;
-
     const result = await authService.verifyOtp(email, otp);
 
     return res.status(200).json({
@@ -50,10 +54,17 @@ async function verifyOtp(req, res) {
       data: result,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
+  }
+}
+
+async function googleCallback(req, res) {
+  try {
+    const result = await authService.googleLogin(req.user);
+    return sendAuthRedirect(res, result);
+  } catch (error) {
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    return res.redirect(`${frontendUrl}/auth?error=${encodeURIComponent(error.message)}`);
   }
 }
 
@@ -61,15 +72,9 @@ async function profile(req, res) {
   try {
     const user = await authService.getProfile(req.user.id);
 
-    return res.status(200).json({
-      success: true,
-      data: user,
-    });
+    return res.status(200).json({ success: true, data: user });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 }
 
@@ -83,46 +88,50 @@ async function updateProfile(req, res) {
       data: user,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 }
 
 async function forgotPassword(req, res) {
   try {
     const { email } = req.body;
-
     const result = await authService.forgotPassword(email);
 
-    return res.status(200).json({
-      success: true,
-      message: result.message,
-    });
+    return res.status(200).json({ success: true, message: result.message });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 }
 
 async function resetPassword(req, res) {
   try {
     const { token, newPassword } = req.body;
-
     const result = await authService.resetPassword(token, newPassword);
 
-    return res.status(200).json({
-      success: true,
-      message: result.message,
-    });
+    return res.status(200).json({ success: true, message: result.message });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
+  }
+}
+
+async function googleCallback(req, res) {
+  try {
+    const result = await authService.handleGoogleUser(req.user);
+
+    const redirect =
+      result.user?.role === "admin"
+        ? "/admin"
+        : "/";
+
+    const data = encodeURIComponent(JSON.stringify(result));
+
+    return res.redirect(
+      `${process.env.FRONTEND_URL}/auth/google/success?data=${data}&redirect=${redirect}`
+    );
+  } catch (error) {
+    return res.redirect(
+      `${process.env.FRONTEND_URL}/auth?error=${encodeURIComponent(error.message)}`
+    );
   }
 }
 
@@ -130,8 +139,10 @@ module.exports = {
   register,
   login,
   verifyOtp,
+  googleCallback,
   profile,
   updateProfile,
   forgotPassword,
   resetPassword,
+  googleCallback,
 };

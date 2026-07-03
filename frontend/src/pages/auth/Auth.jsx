@@ -45,7 +45,7 @@ const DATA = {
 export default function Auth() {
   const navigate = useNavigate();
   const { token } = useParams();
-  const { login, register, verifyOtp, pendingOtp } = useAuth();
+  const { login, register, verifyOtp, pendingOtp, loginWithGoogle, completeGoogleLogin } = useAuth();
 
   const [screen, setScreen] = useState("login");
   const [error, setError] = useState("");
@@ -72,12 +72,34 @@ export default function Auth() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
+  // Gestion des effets secondaires pour le token de réinitialisation et la connexion Google
   useEffect(() => {
     if (token) {
       setResetToken(token);
       setScreen("reset");
     }
   }, [token]);
+
+  // Gestion de la connexion Google après le redirection en passant par le formulaire d'OTP si nécessaire
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const data = params.get("data");
+    const redirect = params.get("redirect") || "/";
+
+    if (window.location.pathname === "/auth/google/success" && data) {
+      const payload = JSON.parse(decodeURIComponent(data));
+      const result = completeGoogleLogin(payload);
+
+      if (result?.requiresOtp) {
+        setScreen("login");
+        setMessage("Un code OTP a été envoyé à votre email administrateur.");
+        window.history.replaceState({}, "", "/auth");
+        return;
+      }
+
+      window.location.href = redirect;
+    }
+  }, [completeGoogleLogin]);
 
   const active = DATA[screen];
 
@@ -369,8 +391,9 @@ export default function Auth() {
 
                   <div style={separatorStyle}>ou continuer avec</div>
 
-                  <SocialButton>🌐 Continuer avec Google</SocialButton>
-                  <SocialButton>📘 Continuer avec Facebook</SocialButton>
+                  <SocialButton onClick={loginWithGoogle}>
+                    🌐 Continuer avec Google
+                  </SocialButton>
                 </>
               )}
             </>
@@ -631,11 +654,12 @@ function HoverButton({ children, type = "button" }) {
   );
 }
 
-function SocialButton({ children }) {
+function SocialButton({ children, onClick }) {
   return (
     <button
       type="button"
       style={socialButtonStyle}
+      onClick={onClick}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = "#E30613";
         e.currentTarget.style.color = "#E30613";
