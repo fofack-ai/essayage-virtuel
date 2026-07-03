@@ -47,7 +47,7 @@ function AppLayout() {
           <Route path="/cart"     element={<ProtectedRoute><Cart /></ProtectedRoute>} />
           <Route path="/orders"   element={<ProtectedRoute><Orders /></ProtectedRoute>} />
           <Route path="/profile"  element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/admin"    element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/admin"    element={<ProtectedRoute adminOnly><Dashboard /></ProtectedRoute>} />
 
           <Route path="*" element={<div style={{ paddingTop: 120, textAlign: 'center' }}>Page introuvable</div>} />
         </Routes>

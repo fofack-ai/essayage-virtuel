@@ -136,7 +136,6 @@ nav.vesti-header {
 /* Option : ajuster la hauteur de ligne du conteneur parent */
 .vesti-header {
   line-height: 1;            /* évite les décalages dus à la hauteur de ligne par défaut */
-  
 }
 
 .header-icon-btn:hover {
@@ -301,7 +300,7 @@ footer {
 /* Dropdown menu styles */
 .user-dropdown-menu {
   position: absolute;
-  right: 20px;
+  right: 0;
   top: calc(100% + 12px);
   width: 240px;
   background: var(--white);
@@ -311,8 +310,6 @@ footer {
   overflow: hidden;
   z-index: 1000;
   animation: dropdownIn 0.18s ease;
-  /* ✅ Empêche le débordement sur le bord droit */
-  margin-right: -8px;
 }
 
 @keyframes dropdownIn {

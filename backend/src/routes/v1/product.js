@@ -1,81 +1,64 @@
 const express = require("express");
 
 const router = express.Router();
-const uploadMiddleware = require('../../middleware/upload');
-
+const uploadMiddleware = require("../../middleware/upload");
 
 const auth = require("../../middleware/auth");
+const admin = require("../../middleware/admin");
 const productController = require("../../controllers/v1/productController");
 
-// Public routes (no authentication required)
-router.get(
-  "/",
-  productController.getProducts
-);
+// ============================================================
+// ROUTES PUBLIQUES (lecture seule, pas d'authentification)
+// ============================================================
 
-router.get(
-  "/:id",
-  productController.getProduct
-);
+// IMPORTANT : les routes fixes (/featured) doivent être déclarées
+// AVANT la route dynamique /:id, sinon Express interprète
+// "featured" comme un id de produit et /featured ne répond jamais.
+router.get("/featured", productController.getProducts);
 
-router.get(
-  "/featured",
-  productController.getProducts // Will handle featured=true in query
-);
+router.get("/", productController.getProducts);
 
-// Protected routes (authentication required)
-router.post(
-  "/",
-  auth,
-  productController.createProduct
-);
+router.get("/:id/images", productController.getProductImages);
 
-router.put(
-  "/:id",
-  auth,
-  productController.updateProduct
-);
+router.get("/:id/sizes", productController.getProductSizes);
 
-router.delete(
-  "/:id",
-  auth,
-  productController.deleteProduct
-);
+router.get("/:id", productController.getProduct);
 
-// Product Images
+// ============================================================
+// ROUTES PROTÉGÉES — RÉSERVÉES À L'ADMINISTRATEUR
+// La modification du catalogue (produits, images, tailles/stock)
+// exige le rôle admin : auth vérifie le token, admin vérifie le rôle.
+// ============================================================
+
+router.post("/", auth, admin, productController.createProduct);
+
+router.put("/:id", auth, admin, productController.updateProduct);
+
+router.delete("/:id", auth, admin, productController.deleteProduct);
+
+// Images produit
 router.post(
   "/:id/images",
   auth,
+  admin,
   uploadMiddleware.uploadProductImage,
   productController.addProductImage
-);
-
-router.get(
-  "/:id/images",
-  productController.getProductImages
 );
 
 router.delete(
   "/images/:imageId",
   auth,
+  admin,
   productController.deleteProductImage
 );
 
-// Product Sizes
-router.post(
-  "/:id/sizes",
-  auth,
-  productController.addProductSize
-);
-
-router.get(
-  "/:id/sizes",
-  productController.getProductSizes
-);
+// Tailles / stock
+router.post("/:id/sizes", auth, admin, productController.addProductSize);
 
 router.put(
   "/:id/sizes/:sizeId",
   auth,
+  admin,
   productController.updateProductSizeStock
 );
 

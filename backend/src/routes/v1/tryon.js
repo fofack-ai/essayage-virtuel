@@ -3,46 +3,36 @@ const express = require("express");
 const router = express.Router();
 
 const auth = require("../../middleware/auth");
+const admin = require("../../middleware/admin");
 const uploadMiddleware = require("../../middleware/upload");
 const tryonController = require("../../controllers/v1/tryonController");
 
-// Public routes (no authentication required for history)
-router.get(
-  "/",
-  tryonController.getTryons
-);
+// ============================================================
+// ROUTES ADMIN
+// La liste globale des essayages et les statistiques exposent
+// les photos personnelles des clients : elles ne doivent JAMAIS
+// être publiques. Seul l'admin (dashboard) y a accès.
+// ============================================================
 
-router.get(
-  "/stats",
-  tryonController.getTryonStats
-);
+router.get("/", auth, admin, tryonController.getTryons);
 
-// Protected routes (authentication required)
-router.get(
-  "/user/:userId",
-  auth,
-  tryonController.getUserTryons
-);
+router.get("/stats", auth, admin, tryonController.getTryonStats);
 
-router.post(
-  "/",
-  auth,
-  tryonController.createTryon
-);
+// ============================================================
+// ROUTES UTILISATEUR (authentification requise)
+// Le controller vérifie que l'utilisateur n'accède / ne modifie
+// que SES propres essayages (sauf s'il est admin).
+// ============================================================
 
-router.put(
-  "/:id",
-  auth,
-  tryonController.updateTryon
-);
+router.get("/user/:userId", auth, tryonController.getUserTryons);
 
-router.delete(
-  "/:id",
-  auth,
-  tryonController.deleteTryon
-);
+router.post("/", auth, tryonController.createTryon);
 
-// Photo upload route
+router.put("/:id", auth, tryonController.updateTryon);
+
+router.delete("/:id", auth, tryonController.deleteTryon);
+
+// Upload de photo d'essayage
 router.post(
   "/upload",
   auth,
@@ -50,13 +40,12 @@ router.post(
   tryonController.uploadTryonPhoto
 );
 
-
-// Route génération IA
+// Génération IA
 // multipart/form-data : champ "tryonPhoto" (image) + body "productId"
 router.post(
-  '/ai-generate',
+  "/ai-generate",
   auth,
-  uploadMiddleware.uploadSingle('tryonPhoto'),
+  uploadMiddleware.uploadSingle("tryonPhoto"),
   tryonController.aiGenerateTryon
 );
 
