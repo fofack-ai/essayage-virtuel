@@ -1,0 +1,17 @@
+.tryon-admin.dark { --ink: #f5f5f5; --border: rgba(255, 255, 255, 0.10); --soft: #1a1a1a; --card-bg: rgba(30, 30, 30, 0.90); --shadow2: 0 10px 28px rgba(255, 255, 255, 0.05); background: linear-gradient(180deg, #1a1a1a, #0d0d0d); }
+.tryon-admin.dark .topbar { background: rgba(30, 30, 30, 0.80); border-color: rgba(255, 255, 255, 0.08); }
+.tryon-admin.dark .search, .tryon-admin.dark .input, .tryon-admin.dark .select, .tryon-admin.dark .textarea, .tryon-admin.dark .btn-light, .tryon-admin.dark .chip, .tryon-admin.dark .page-btn, .tryon-admin.dark .icon-btn { background: #222; border-color: rgba(255, 255, 255, 0.08); color: #fff; }
+.tryon-admin.dark .search::placeholder { color: #888; }
+.tryon-admin.dark .chip.active, .tryon-admin.dark .chip:hover, .tryon-admin.dark .page-btn:hover:not(:disabled), .tryon-admin.dark .page-btn.active { background: #333; color: #fff; }
+.tryon-admin.dark .modal-box, .tryon-admin.dark .modal-head { background: #1a1a1a; }
+.tryon-admin.dark .modal-head, .tryon-admin.dark .modal-foot, .tryon-admin.dark .switch-row { border-color: rgba(255, 255, 255, 0.08); }
+.tryon-admin.dark .close { background: #2a2a2a; color: #fff; }
+.tryon-admin.dark .view-line, .tryon-admin.dark .role, .tryon-admin.dark .system-line, .tryon-admin.dark .admin-role-card, .tryon-admin.dark .activity-item, .tryon-admin.dark .support-stats div { background: #1a1a1a; border-color: rgba(255, 255, 255, 0.08); }
+.tryon-admin.dark .activity-icon { background: #333; }
+.tryon-admin.dark .badge.ok { background: rgba(45, 125, 70, 0.20); }
+.tryon-admin.dark .badge.warn { background: rgba(179, 107, 18, 0.20); }
+.tryon-admin.dark .badge.bad { background: rgba(227, 6, 19, 0.20); }
+.tryon-admin.dark .badge.blue { background: rgba(56, 94, 157, 0.20); }
+.tryon-admin.dark .notification-item.unread { background: rgba(227, 6, 19, 0.10); }
+.tryon-admin.dark .stock-card .stock-info, .tryon-admin.dark .promo-details { color: #aaa; }
+.tryon-admin.dark .donut::after { background: #1a1a1a; }

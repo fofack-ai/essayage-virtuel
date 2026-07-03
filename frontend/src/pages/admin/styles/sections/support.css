@@ -1,0 +1,68 @@
+.support-tabs {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  margin-bottom: 18px;
+}
+
+.support-tabs button {
+  border: none;
+  background: transparent;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.22s ease;
+}
+
+.support-tabs button:hover,
+.support-tabs button.active {
+  background: rgba(227, 6, 19, 0.12);
+  color: var(--red);
+}
+
+.support-kpis {
+  margin-bottom: 18px;
+}
+
+.mini-stat {
+  padding: 18px;
+  min-height: 110px;
+}
+
+.mini-stat span,
+.mini-stat small {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.mini-stat strong {
+  display: block;
+  margin: 8px 0 4px;
+  font-size: 28px;
+  color: var(--ink);
+}
+
+.support-subject-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 220px;
+}
+
+.support-subject-cell span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.support-history-card {
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.025);
+}

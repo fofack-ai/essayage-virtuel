@@ -1,0 +1,98 @@
+.table-card {
+  padding: 0;
+  overflow: hidden;
+  margin-top: 14px;
+}
+
+.table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 1fr 1fr 1fr 150px;
+  gap: 14px;
+  align-items: center;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.row.head {
+  background: #161616;
+  color: #fff;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 900;
+}
+
+.clients-row {
+  grid-template-columns: 1.1fr 1.5fr 1fr 0.7fr 1fr 150px;
+}
+
+.tries-row {
+  grid-template-columns: 1fr 1.4fr 0.8fr 1fr 150px;
+}
+
+.transactions {
+  grid-template-columns: 1fr 1.4fr 1fr 1fr 1fr 150px;
+}
+
+.logs {
+  grid-template-columns: 1fr 2fr 1fr 1.2fr 1fr 150px;
+}
+
+.support {
+  grid-template-columns: 1fr 1.4fr 1fr 1fr 150px;
+}
+
+.reviews {
+  grid-template-columns: 1fr 1fr 0.8fr 1.6fr 1fr 150px;
+}
+
+.badge {
+  display: inline-flex;
+  width: max-content;
+  padding: 6px 11px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.ok {
+  background: rgba(45, 125, 70, 0.12);
+  color: var(--green);
+}
+
+.warn {
+  background: rgba(179, 107, 18, 0.12);
+  color: var(--orange);
+}
+
+.bad {
+  background: rgba(227, 6, 19, 0.12);
+  color: var(--red);
+}
+
+.blue {
+  background: rgba(56, 94, 157, 0.12);
+  color: var(--blue);
+}
+
+.stars {
+  color: #f5c518;
+  font-size: 14px;
+}
+
+.comment-preview {
+  font-style: italic;
+  color: var(--muted);
+}

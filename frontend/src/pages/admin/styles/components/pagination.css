@@ -1,0 +1,4 @@
+.pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 26px; flex-wrap: wrap; }
+.page-btn { min-width: 40px; height: 40px; border-radius: 999px; border: 1px solid var(--border); background: #fff; color: var(--ink); font-weight: 900; transition: 0.22s ease; }
+.page-btn:hover:not(:disabled), .page-btn.active { background: var(--ink); color: #fff; transform: translateY(-2px); }
+.page-btn:disabled { opacity: 0.35; cursor: not-allowed; }

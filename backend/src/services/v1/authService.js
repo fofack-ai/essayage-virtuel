@@ -1,12 +1,23 @@
+const passport = require("passport");
 const userModel = require("../../models/v1/userModel");
 const { hashPassword, comparePassword } = require("../../utils/crypto");
 const { generateToken } = require("../../utils/jwt");
-const { sendOtpEmail } = require("./emailService");
+const { sendOtpEmail, sendResetPasswordEmail } = require("./emailService");
 const crypto = require("crypto");
-const { sendResetPasswordEmail } = require("./emailService");
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function cleanUser(user) {
+  if (!user) return null;
+  const copy = { ...user };
+  delete copy.password;
+  delete copy.otpCode;
+  delete copy.otpExpiresAt;
+  delete copy.resetToken;
+  delete copy.resetTokenExpiresAt;
+  return copy;
 }
 
 async function register(data) {
@@ -28,13 +39,10 @@ async function register(data) {
     role: "client",
   });
 
-  const user = await userModel.findById(userId);
+  const user = cleanUser(await userModel.findById(userId));
   const token = generateToken(user);
 
-  return {
-    token,
-    user,
-  };
+  return { token, user };
 }
 
 async function login(email, password) {
@@ -52,6 +60,10 @@ async function login(email, password) {
     throw new Error("Votre compte est désactivé ou suspendu.");
   }
 
+  if (!user.password) {
+    throw new Error("Ce compte utilise Google. Connectez-vous avec Google.");
+  }
+
   const isValidPassword = await comparePassword(password, user.password);
 
   if (!isValidPassword) {
@@ -61,7 +73,6 @@ async function login(email, password) {
   if (user.role === "admin") {
     const otp = generateOtp();
     const hashedOtp = await hashPassword(otp);
-
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await userModel.saveOtp(user.id, hashedOtp, expiresAt);
@@ -74,16 +85,10 @@ async function login(email, password) {
     };
   }
 
-  const token = generateToken(user);
+  const clean = cleanUser(user);
+  const token = generateToken(clean);
 
-  delete user.password;
-  delete user.otpCode;
-  delete user.otpExpiresAt;
-
-  return {
-    token,
-    user,
-  };
+  return { token, user: clean };
 }
 
 async function verifyOtp(email, otp) {
@@ -114,13 +119,16 @@ async function verifyOtp(email, otp) {
 
   await userModel.clearOtp(user.id);
 
-  const cleanUser = await userModel.findById(user.id);
-  const token = generateToken(cleanUser);
+  const clean = cleanUser(await userModel.findById(user.id));
+  const token = generateToken(clean);
 
-  return {
-    token,
-    user: cleanUser,
-  };
+  return { token, user: clean };
+}
+
+async function googleLogin(user) {
+  const clean = cleanUser(user);
+  const token = generateToken(clean);
+  return { token, user: clean };
 }
 
 async function getProfile(userId) {
@@ -130,7 +138,7 @@ async function getProfile(userId) {
     throw new Error("Utilisateur introuvable");
   }
 
-  return user;
+  return cleanUser(user);
 }
 
 async function forgotPassword(email) {
@@ -146,21 +154,20 @@ async function forgotPassword(email) {
     };
   }
 
+  if (!user.password) {
+    return {
+      message: "Ce compte utilise Google. Connectez-vous avec Google.",
+    };
+  }
+
   const resetToken = crypto.randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-  await userModel.saveResetToken(
-    user.id,
-    resetToken,
-    expiresAt
-  );
+  await userModel.saveResetToken(user.id, resetToken, expiresAt);
 
   const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-  await sendResetPasswordEmail(
-    user.email,
-    resetLink
-  );
+  await sendResetPasswordEmail(user.email, resetLink);
 
   return {
     message: "Si cet email existe, un lien de réinitialisation a été envoyé",
@@ -206,15 +213,49 @@ async function updateProfile(userId, data) {
   }
 
   await userModel.updateProfile(userId, data);
-  return await userModel.findById(userId);
+  return cleanUser(await userModel.findById(userId));
+}
+
+async function handleGoogleUser(user) {
+  if (!user) {
+    throw new Error("Utilisateur Google introuvable");
+  }
+
+  if (user.status !== "active") {
+    throw new Error("Votre compte est désactivé ou suspendu.");
+  }
+
+  if (user.role === "admin") {
+    const otp = generateOtp();
+    const hashedOtp = await hashPassword(otp);
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await userModel.saveOtp(user.id, hashedOtp, expiresAt);
+    await sendOtpEmail(user.email, otp);
+
+    return {
+      requiresOtp: true,
+      email: user.email,
+      userId: user.id,
+    };
+  }
+
+  const token = generateToken(user);
+
+  return {
+    token,
+    user,
+  };
 }
 
 module.exports = {
   register,
   login,
   verifyOtp,
+  googleLogin,
   getProfile,
   forgotPassword,
   resetPassword,
   updateProfile,
+  handleGoogleUser,
 };

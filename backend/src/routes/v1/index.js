@@ -9,6 +9,13 @@ const adminRoutes = require("./admin");
 const productRoutes = require("./product");
 const categoryRoutes = require("./category");
 const tryonRoutes = require("./tryon");
+const activityLogRoutes = require("./activityLog");
+const notificationRoutes = require("./notification");
+const supportRoutes = require("./support");
+const promotionRoutes = require("./promotion");
+const reviewRoutes = require("./review");
+const settingsRoutes = require("./settings");
+const reportRoutes = require("./report");
 
 router.get("/", (req, res) => {
   res.json({
@@ -24,5 +31,12 @@ router.use("/admin", adminRoutes);
 router.use("/products", productRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/tryons", tryonRoutes);
+router.use("/logs", activityLogRoutes);
+router.use("/notifications", notificationRoutes);
+router.use("/support", supportRoutes);
+router.use("/promotions", promotionRoutes);
+router.use("/reviews", reviewRoutes);
+router.use("/settings", settingsRoutes);
+router.use("/reports", reportRoutes);
 
 module.exports = router;

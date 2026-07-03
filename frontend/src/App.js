@@ -34,6 +34,7 @@ function AppLayout() {
           <Route path="/catalogue" element={<Shop />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/google/success" element={<Auth />} />
           <Route path="/reset-password/:token" element={<Auth />} />
           <Route path="/size-guide" element={<SizeGuide />} />
           <Route path="/shipping" element={<Shipping />} />
