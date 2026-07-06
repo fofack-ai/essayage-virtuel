@@ -230,7 +230,7 @@ async function findById(id) {
 }
 
 async function decreaseSizeStock(productId, sizeLabel, quantity, connection = db) {
-  await connection.query(
+  const [result] = await connection.query(
     `
     UPDATE product_sizes ps
     JOIN sizes s ON s.id = ps.sizeId
@@ -246,6 +246,14 @@ async function decreaseSizeStock(productId, sizeLabel, quantity, connection = db
       quantity,
     ]
   );
+
+  // Si aucune ligne n'a été modifiée : stock insuffisant (ou taille inexistante).
+  // On lève une erreur explicite -> la transaction de commande est annulée (rollback).
+  if (result.affectedRows === 0) {
+    throw new Error(
+      `Stock insuffisant pour la taille ${sizeLabel} (quantité demandée : ${quantity})`
+    );
+  }
 }
 
 module.exports = {

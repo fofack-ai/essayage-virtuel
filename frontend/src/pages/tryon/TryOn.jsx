@@ -25,8 +25,6 @@ const T = {
   border: 'rgba(26,26,26,0.105)',
 };
 
-
-
 /* ── Fonctions utilitaires pour les mensurations ── */
 
 /** Extrait les mensurations normalisées à partir des landmarks */
@@ -99,6 +97,7 @@ export default function TryOn() {
 const [aiGenerating, setAiGenerating] = useState(false);
 const [aiResult, setAiResult]         = useState(null);
 const [aiError, setAiError]           = useState(null);
+const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info', text }
 
   // États de la cabine
   const [photo, setPhoto] = useState(null);
@@ -171,6 +170,7 @@ const [aiError, setAiError]           = useState(null);
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    setPageMessage(null);
     setPhoto(file);
     const previewUrl = URL.createObjectURL(file);
     setPhotoPreview(previewUrl);
@@ -331,7 +331,10 @@ const [aiError, setAiError]           = useState(null);
     await pose.send({ image: img });
 
     if (!detectedLandmarks) {
-      alert('Aucune silhouette détectée. Essayez une photo de face en pied.');
+      setPageMessage({
+        type: 'error',
+        text: "Nous n'avons pas reconnu de personne sur cette photo. Envoyez une photo de vous, de face et en entier, sur un fond dégagé.",
+      });
       setStep(1);
       return;
     }
@@ -344,7 +347,10 @@ const [aiError, setAiError]           = useState(null);
     // Calcul des mensurations, score et taille
     const m = getMeasurements(detectedLandmarks);
     if (!m) {
-      alert('Impossible de calculer les mensurations. Veuillez essayer une autre photo.');
+      setPageMessage({
+        type: 'error',
+        text: "La photo n'est pas assez nette pour l'analyse. Essayez une photo bien éclairée où l'on voit tout votre corps.",
+      });
       setStep(1);
       return;
     }
@@ -364,7 +370,10 @@ const [aiError, setAiError]           = useState(null);
   /* ── 6. Sauvegarde de l'essai ── */
   const saveTryon = async (landmarks, scoreVal, sizeVal) => {
     if (!user) {
-      alert('Veuillez vous connecter pour enregistrer votre essai.');
+      setPageMessage({
+        type: 'info',
+        text: "Connectez-vous pour enregistrer votre essayage et le retrouver plus tard.",
+      });
       return;
     }
 
@@ -389,19 +398,20 @@ const [aiError, setAiError]           = useState(null);
         formData.append('notes', tryonData.notes);
         formData.append('isLatest', 'true');
 
-        const response = await api.post('/tryons/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        uploadedTryon = response.data.data;
+        const response = await api.upload('/tryons/upload', formData);
+        uploadedTryon = response.data;
       } else {
         const response = await api.post('/tryons', tryonData);
-        uploadedTryon = response.data.data;
+        uploadedTryon = response.data;
       }
 
       setTryonId(uploadedTryon.id);
     } catch (err) {
       console.error('Erreur sauvegarde essai:', err);
-      alert('Erreur lors de la sauvegarde.');
+      setPageMessage({
+        type: 'error',
+        text: "Votre essayage n'a pas pu être enregistré. Vérifiez votre connexion et réessayez.",
+      });
     }
   };
 
@@ -427,6 +437,7 @@ const [aiError, setAiError]           = useState(null);
 
   /* ── 8. Réinitialisation ── */
   const resetTryon = () => {
+    setPageMessage(null);
     setStep(1);
     setPhoto(null);
     setPhotoPreview(null);
@@ -466,8 +477,8 @@ const handleAITryon = async () => {
     if (score)           formData.append('score', String(score));
     if (recommendedSize) formData.append('recommendedSize', recommendedSize);
 
-    // ✅ FIX 1 : le token est dans sessionStorage avec la clé "tryon_token"
-    const token = sessionStorage.getItem('tryon_token');
+    // Le token est stocké dans localStorage par AuthContext (pas sessionStorage)
+    const token = localStorage.getItem('tryon_token');
 
     // ✅ FIX 2 : BASE_URL inclut déjà /v1, donc endpoint sans préfixe /v1
     const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1';
@@ -515,25 +526,6 @@ const handleAITryon = async () => {
 
   const sizeOptions = sizes.length ? sizes : ['XS', 'S', 'M', 'L', 'XL'];
   const colorOptions = colors.length ? colors : ['#1a1410'];
-
-// Ajoutez un bouton retour en haut du JSX :
-<button
-  onClick={() => navigate(-1)}
-  style={{
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    color: '#355C86',
-    fontWeight: 600,
-    fontSize: 14,
-    padding: '16px 24px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-  }}
->
-  ← Retour
-</button>
 
   return (
     <div style={{
@@ -606,6 +598,36 @@ const handleAITryon = async () => {
       </div>
 
       <div style={{ padding: '40px 80px 80px' }}>
+        {pageMessage && (
+          <div style={{
+            maxWidth: '720px',
+            margin: '0 auto 24px',
+            padding: '16px 20px',
+            borderRadius: '14px',
+            background: pageMessage.type === 'error' ? 'rgba(192,57,43,0.06)' : T.blueLight,
+            border: `1px solid ${pageMessage.type === 'error' ? 'rgba(192,57,43,0.25)' : 'rgba(53,92,134,0.25)'}`,
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '12px',
+          }}>
+            <span style={{ fontSize: '20px', flexShrink: 0, lineHeight: 1.2 }}>
+              {pageMessage.type === 'error' ? '📷' : 'ℹ️'}
+            </span>
+            <p style={{ flex: 1, margin: 0, fontSize: '14px', lineHeight: 1.6, color: T.ink }}>
+              {pageMessage.text}
+            </p>
+            <button
+              onClick={() => setPageMessage(null)}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: '18px', color: T.muted, flexShrink: 0, lineHeight: 1,
+              }}
+              aria-label="Fermer le message"
+            >
+              ×
+            </button>
+          </div>
+        )}
         {/* ÉTAPE 1 : Upload + sélections */}
         {step === 1 && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 340px', gap: '32px', alignItems: 'start' }}>
@@ -819,13 +841,15 @@ const handleAITryon = async () => {
                 justifyContent: 'center',
                 flexDirection: 'column',
               }}>
-                {photoPreview || useWebcam ? (
+                {aiResult ? (
+                  /* Le vrai rendu IA est prêt : on affiche le résultat généré */
                   <div style={{ position: 'relative', width: '100%', height: '340px' }}>
-                    {useWebcam ? (
-                      <video ref={videoRef} style={{ width: '100%', height: '100%', objectFit: 'cover' }} autoPlay playsInline />
-                    ) : (
-                      <img src={photoPreview} alt="essayage" style={{ width: '100%', height: '340px', objectFit: 'cover' }} />
-                    )}
+                    <img
+                      src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1').replace(/\/api(\/v1)?/, '')}${aiResult.resultImageUrl}`}
+                      alt="Rendu de l'essayage"
+                      style={{ width: '100%', height: '340px', objectFit: 'contain', background: '#EEF1F5' }}
+                      onError={(e) => { e.target.src = photoPreview; }}
+                    />
                     <div style={{
                       position: 'absolute',
                       bottom: '12px',
@@ -842,7 +866,7 @@ const handleAITryon = async () => {
                       <span style={{ fontSize: '22px' }}>👕</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: '12px', fontWeight: 600, color: T.ink }}>{product.name}</div>
-                        <div style={{ fontSize: '11px', color: T.muted }}>Taille {selectedSize} · Aperçu IA</div>
+                        <div style={{ fontSize: '11px', color: T.muted }}>Taille {selectedSize} · Rendu IA</div>
                       </div>
                       <div style={{
                         background: `linear-gradient(135deg, ${T.red}, ${T.redDark})`,
@@ -857,22 +881,40 @@ const handleAITryon = async () => {
                     </div>
                   </div>
                 ) : (
-                  <div style={{ textAlign: 'center', padding: '48px 32px' }}>
-                    <div style={{
-                      width: '80px',
-                      height: '80px',
-                      borderRadius: '50%',
-                      background: 'rgba(53,92,134,0.10)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 20px',
-                      fontSize: '36px',
-                    }}>
-                      👗
-                    </div>
-                    <p style={{ fontWeight: 500, color: T.muted, fontSize: '14px', marginBottom: '8px' }}>Le rendu apparaîtra ici</p>
-                    <p style={{ fontSize: '12px', color: 'rgba(106,111,120,0.7)' }}>Uploadez votre photo ou activez la webcam</p>
+                  <div style={{ textAlign: 'center', padding: '32px' }}>
+                    {product?.image ? (
+                      <img
+                        src={getImageUrl(product.image)}
+                        alt={product.name}
+                        style={{
+                          maxWidth: '220px',
+                          maxHeight: '260px',
+                          objectFit: 'contain',
+                          borderRadius: '14px',
+                          marginBottom: '18px',
+                          display: 'block',
+                          marginLeft: 'auto',
+                          marginRight: 'auto',
+                        }}
+                      />
+                    ) : (
+                      <div style={{
+                        width: '80px', height: '80px', borderRadius: '50%',
+                        background: 'rgba(53,92,134,0.10)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        margin: '0 auto 20px', fontSize: '36px',
+                      }}>
+                        👗
+                      </div>
+                    )}
+                    <p style={{ fontWeight: 500, color: T.ink, fontSize: '14px', marginBottom: '4px' }}>
+                      {product?.name || 'Votre vêtement'}
+                    </p>
+                    <p style={{ fontSize: '12px', color: 'rgba(106,111,120,0.7)' }}>
+                      {photoPreview
+                        ? 'Photo prête — lancez la génération pour voir le rendu'
+                        : 'Ajoutez votre photo pour le voir sur vous'}
+                    </p>
                   </div>
                 )}
               </div>
@@ -1415,24 +1457,6 @@ const handleAITryon = async () => {
           onError={(e) => { e.target.src = photoPreview; }}
         />
       </div>
-
-      {/* Comparaison côte à côte */}
-      {photoPreview && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
-          <div>
-            <p style={{ fontSize: '10px', color: T.muted, textAlign: 'center', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '1px' }}>Original</p>
-            <img src={photoPreview} alt="photo originale" style={{ width: '100%', borderRadius: '8px', objectFit: 'cover', height: '120px' }} />
-          </div>
-          <div>
-            <p style={{ fontSize: '10px', color: T.blueDark, textAlign: 'center', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>Avec le vêtement</p>
-            <img
-              src={`${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000'}${aiResult.resultImageUrl}`}
-              alt="Essayage IA"
-              style={{ width: '100%', borderRadius: '8px', objectFit: 'cover', height: '120px' }}
-            />
-          </div>
-        </div>
-      )}
 
       {/* Regénérer */}
       <button

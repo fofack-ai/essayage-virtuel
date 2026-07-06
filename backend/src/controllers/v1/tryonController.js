@@ -5,6 +5,22 @@ const productModel   = require('../../models/v1/productModel');
 const path           = require('path');
 const fs             = require('fs');
 
+/**
+ * Vérifie que l'utilisateur connecté est propriétaire de l'essayage
+ * (ou administrateur). Lève une erreur 403 sinon.
+ */
+async function assertOwnerOrAdmin(req, tryonId) {
+  if (req.user && req.user.role === "admin") return;
+
+  const tryon = await tryonService.getTryonById(tryonId); // lève "Essai non trouvé" si absent
+
+  if (!req.user || tryon.userId !== req.user.id) {
+    const err = new Error("Accès non autorisé à cet essayage");
+    err.statusCode = 403;
+    throw err;
+  }
+}
+
 async function getTryons(req, res) {
   try {
     const filters = {
@@ -86,6 +102,15 @@ async function getUserTryons(req, res) {
       });
     }
 
+    // Un client ne peut consulter que ses propres essayages.
+    // Seul un admin peut consulter ceux d'un autre utilisateur.
+    if (req.user.role !== "admin" && parseInt(userId) !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Accès non autorisé aux essayages d'un autre utilisateur"
+      });
+    }
+
     const tryons = await tryonService.getUserTryons(userId, limit);
 
     return res.status(200).json({
@@ -148,6 +173,8 @@ async function updateTryon(req, res) {
       });
     }
 
+    await assertOwnerOrAdmin(req, tryonId);
+
     const tryonData = req.body;
 
     const tryon = await tryonService.updateTryon(tryonId, tryonData);
@@ -158,6 +185,12 @@ async function updateTryon(req, res) {
       data: tryon
     });
   } catch (error) {
+    if (error.statusCode === 403) {
+      return res.status(403).json({
+        success: false,
+        message: error.message
+      });
+    }
     if (error.message === "Essai non trouvé") {
       return res.status(404).json({
         success: false,
@@ -192,6 +225,8 @@ async function deleteTryon(req, res) {
       });
     }
 
+    await assertOwnerOrAdmin(req, tryonId);
+
     await tryonService.deleteTryon(tryonId);
 
     return res.status(200).json({
@@ -199,6 +234,12 @@ async function deleteTryon(req, res) {
       message: "Essai supprimé avec succès"
     });
   } catch (error) {
+    if (error.statusCode === 403) {
+      return res.status(403).json({
+        success: false,
+        message: error.message
+      });
+    }
     if (error.message === "Essai non trouvé") {
       return res.status(404).json({
         success: false,
@@ -373,7 +414,7 @@ async function aiGenerateTryon(req, res) {
         isLatest:        true,
       };
       try {
-        const tryonId = await tryonModel.createTryon(tryonData);
+        const tryonId = await tryonModel.create(tryonData);
         tryon = await tryonModel.findById(tryonId);
       } catch (dbErr) {
         console.warn('[aiGenerateTryon] Sauvegarde DB non bloquante :', dbErr.message);

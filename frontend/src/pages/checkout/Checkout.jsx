@@ -94,14 +94,11 @@ function CitySelect({ value, onChange, error = '' }) {
   );
 }
 
-
-
 /* ─── Composant principal ────────────────────────────────── */
 export default function Checkout() {
-  const navigate = useNavigate();
   const { items: cartItems = [], loadCart, loadingCart } = useCart();
   const { isAuthenticated, user, loading: authLoading } = useAuth();
-  
+  const navigate = useNavigate();
 
   const [step, setStep]             = useState(1);
   const [pay, setPay]               = useState('cash');
@@ -236,23 +233,6 @@ export default function Checkout() {
   const deliveryOption = DELIVERY_OPTIONS.find(d => d.id === delivery);
   const paymentOption  = PAYMENT.find(p => p.id === pay);
 
-  <button
-  onClick={() => navigate(-1)}
-  style={{
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    color: '#355C86',
-    fontWeight: 600,
-    fontSize: 14,
-    padding: '16px 24px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-  }}
->
-  ← Retour au panier
-</button>
   /* ── Rendu principal ── */
   return (
     <>
