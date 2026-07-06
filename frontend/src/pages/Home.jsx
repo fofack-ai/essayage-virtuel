@@ -741,7 +741,7 @@ function ProductCard({ product }) {
           )}
           {hovered && (
             <Link
-              to="/tryon"
+              to={`/tryon?productId=${product.id}`}
               onClick={(e) => e.stopPropagation()}
               style={{
                 position: 'absolute',

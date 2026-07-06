@@ -27,7 +27,7 @@ export default function Footer() {
         <div>
           <div className="footer-col-title">Services</div>
           <ul className="footer-links">
-            <li><Link to="/tryon">Essayage Virtuel</Link></li>
+            <li><Link to="/catalogue">Essayage Virtuel</Link></li>
             <li><Link to="/size-guide">Guide des tailles</Link></li>
             <li><Link to="/shipping">Livraison</Link></li>
             <li><Link to="/returns">Retours</Link></li>

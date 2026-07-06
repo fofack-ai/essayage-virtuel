@@ -21,7 +21,7 @@ export default function ProductCard({ product }) {
 
       <div className="product-actions">
         <Link to={`/product/${product.id}`}>Voir</Link>
-        <Link to="/tryon">Essayer virtuellement</Link>
+        <Link to={`/tryon?productId=${product.id}`}>Essayer virtuellement</Link>
       </div>
     </article>
   );

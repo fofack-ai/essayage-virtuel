@@ -223,6 +223,18 @@ footer {
   font-size: 12px;
 }
 
+.footer-bottom a {
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-bottom a:visited {
+  color: rgba(255,255,255,0.5);
+}
+.footer-bottom a:hover {
+  color: #E30613;
+}
+
 /* ─── BOUTONS GLOBAUX ─── */
 .btn-primary {
   display: inline-flex;
