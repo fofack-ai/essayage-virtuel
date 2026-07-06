@@ -25,6 +25,13 @@ HF_CATVTON_SPACE = os.getenv("HF_CATVTON_SPACE", "zhengchong/CatVTON")
 # 50 étapes dépassait régulièrement le quota gratuit -> échec systématique.
 NUM_STEPS = int(os.getenv("AI_NUM_STEPS", "30"))
 
+# --- Configuration FASHN (fournisseur alternatif, API commerciale) ---
+FASHN_API_KEY = os.getenv("FASHN_API_KEY")
+FASHN_BASE_URL = "https://api.fashn.ai/v1"
+
+# Quel fournisseur utiliser : "catvton" (défaut, gratuit) ou "fashn" (payant, pro)
+AI_PROVIDER = os.getenv("AI_TRYON_STRATEGY", "catvton").lower()
+
 # En développement, mettre AI_DEBUG_FALLBACK=true dans le .env pour retrouver
 # l'ancien comportement (collage côte à côte au lieu d'une erreur).
 # NE JAMAIS activer en production : le client croirait que c'est le résultat IA.
@@ -85,6 +92,7 @@ def health():
         "hf_token_configured": bool(HF_TOKEN),
         "num_steps": NUM_STEPS,
         "debug_fallback": DEBUG_FALLBACK,
+        "provider": AI_PROVIDER,
     }
 
 
@@ -137,6 +145,73 @@ def make_editor_payload(person_path):
         "layers": [],
         "composite": None,
     }
+
+
+def run_fashn(person_path, garment_path, output_path):
+    """
+    Génère un essayage via l'API FASHN (fournisseur commercial).
+    FASHN fonctionne en 2 temps : on soumet la requête (/run), on reçoit
+    un ID, puis on interroge (/status) en boucle jusqu'au résultat.
+    """
+    import base64
+    import time
+    import requests
+
+    if not FASHN_API_KEY:
+        raise RuntimeError("FASHN_API_KEY absente du .env")
+
+    def to_data_uri(path):
+        with open(path, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode("utf-8")
+        return f"data:image/png;base64,{b64}"
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {FASHN_API_KEY}",
+    }
+
+    # 1. Soumettre la requête
+    payload = {
+        "model_name": "tryon-v1.6",
+        "inputs": {
+            "model_image": to_data_uri(person_path),
+            "garment_image": to_data_uri(garment_path),
+            "mode": "balanced",
+            "output_format": "png",
+        },
+    }
+    run_resp = requests.post(f"{FASHN_BASE_URL}/run", json=payload, headers=headers, timeout=60)
+    run_resp.raise_for_status()
+    prediction_id = run_resp.json().get("id")
+    if not prediction_id:
+        raise RuntimeError("FASHN n'a pas retourné d'ID de prédiction")
+
+    # 2. Interroger le statut jusqu'à complétion (max ~90 secondes)
+    for _ in range(45):  # 45 x 2s = 90s max
+        time.sleep(2)
+        status_resp = requests.get(
+            f"{FASHN_BASE_URL}/status/{prediction_id}", headers=headers, timeout=30
+        )
+        status_resp.raise_for_status()
+        data = status_resp.json()
+        status = data.get("status")
+
+        if status == "completed":
+            output_urls = data.get("output") or []
+            if not output_urls:
+                raise RuntimeError("FASHN : résultat vide")
+            img_resp = requests.get(output_urls[0], timeout=60)
+            img_resp.raise_for_status()
+            output_path.write_bytes(img_resp.content)
+            img = Image.open(output_path).convert("RGB")
+            img.save(output_path, format="PNG")
+            return
+
+        if status in ("failed", "canceled", "timed_out"):
+            err = data.get("error") or {}
+            raise RuntimeError(f"FASHN a échoué : {err.get('message', status)}")
+
+    raise RuntimeError("FASHN : délai dépassé (le service met trop de temps)")
 
 
 def run_catvton(person_path, garment_path, output_path):
@@ -196,14 +271,21 @@ async def generate_tryon(
         shutil.copyfileobj(garment_image.file, buffer)
 
     try:
-        try:
-            run_catvton(person_path, garment_path, output_path)
-        except Exception:
-            # La session Gradio peut expirer : une reconnexion + 1 retry
-            # règle la majorité des échecs transitoires.
-            print("[CatVTON] Premier essai échoué, reconnexion au Space...")
-            reset_client()
-            run_catvton(person_path, garment_path, output_path)
+        if AI_PROVIDER == "fashn":
+            # Fournisseur commercial FASHN (activé via AI_TRYON_STRATEGY=fashn)
+            print("[TryOn] Fournisseur : FASHN")
+            run_fashn(person_path, garment_path, output_path)
+        else:
+            # Fournisseur par défaut : CatVTON (gratuit)
+            print("[TryOn] Fournisseur : CatVTON")
+            try:
+                run_catvton(person_path, garment_path, output_path)
+            except Exception:
+                # La session Gradio peut expirer : une reconnexion + 1 retry
+                # règle la majorité des échecs transitoires.
+                print("[CatVTON] Premier essai échoué, reconnexion au Space...")
+                reset_client()
+                run_catvton(person_path, garment_path, output_path)
 
         return FileResponse(
             output_path, media_type="image/png", filename="tryon_result.png"
