@@ -5,6 +5,7 @@ const passport = require("./config/passport");
 
 const corsOptions = require("./config/cors");
 const v1Routes = require("./routes/v1");
+const paymentRoutes = require("./routes/v1/paymentRoutes");
 
 const app = express();
 
@@ -23,5 +24,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1", v1Routes);
+
+app.use("/api/v1/payments", paymentRoutes);
 
 module.exports = app;

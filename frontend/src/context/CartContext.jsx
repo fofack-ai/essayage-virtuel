@@ -32,7 +32,7 @@ export function CartProvider({ children }) {
   };
 
   const loadCart = async () => {
-    const token = sessionStorage.getItem("tryon_token");
+    const token = localStorage.getItem("tryon_token");
 
     if (!token) {
       setItems([]);
@@ -57,8 +57,8 @@ export function CartProvider({ children }) {
           error.message.includes("invalide") ||
           error.message.includes("manquant")
         ) {
-          sessionStorage.removeItem("tryon_token");
-          sessionStorage.removeItem("tryon_user");
+          localStorage.removeItem("tryon_token");
+          localStorage.removeItem("tryon_user");
           setItems([]);
           setTotal(0);
           setCount(0);
@@ -73,7 +73,7 @@ export function CartProvider({ children }) {
   }, []);
 
   const addItem = async (product) => {
-    const token = sessionStorage.getItem("tryon_token");
+    const token = localStorage.getItem("tryon_token");
 
     if (!token) {
       alert("Veuillez vous connecter pour ajouter un produit au panier.");

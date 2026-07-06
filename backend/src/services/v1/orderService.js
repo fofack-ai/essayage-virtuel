@@ -2,6 +2,7 @@ const db       = require("../../config/database");
 const cartModel  = require("../../models/v1/cartModel");
 const orderModel = require("../../models/v1/orderModel");
 const productModel = require("../../models/v1/productModel");
+const paymentModel = require("../../models/v1/paymentModel");
 
 const DELIVERY_FEES = { std: 0, exp: 2000 };
 
@@ -79,6 +80,30 @@ async function createOrderFromCart(userId, data) {
     }
 
     await orderModel.markCartAsConverted(connection, cart.id);
+
+    await paymentModel.createPayment(connection, {
+      orderId: orderId,
+      paymentMethod: data.paymentMethod || "cash_on_delivery",
+
+      provider:
+        data.paymentMethod === "cash_on_delivery"
+          ? "manual"
+          : "paydunya",
+
+      transactionId: null,
+
+      amount: total,
+
+      currency: "XAF",
+
+      status:
+        data.paymentMethod === "cash_on_delivery"
+          ? "pending"
+          : "processing",
+
+      paymentUrl: null,
+    });
+
     await connection.commit();
 
     return getOrderDetails(orderId, userId);
