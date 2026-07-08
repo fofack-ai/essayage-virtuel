@@ -17,6 +17,7 @@ const promotionRoutes = require("./promotion");
 const reviewRoutes = require("./review");
 const settingsRoutes = require("./settings");
 const reportRoutes = require("./report");
+const paymentRoutes = require("./paymentRoutes");
 
 router.get("/", (req, res) => {
   res.json({
@@ -40,5 +41,6 @@ router.use("/promotions", promotionRoutes);
 router.use("/reviews", reviewRoutes);
 router.use("/settings", settingsRoutes);
 router.use("/reports", reportRoutes);
+router.use("/payments", paymentRoutes);
 
 module.exports = router;

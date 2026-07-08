@@ -657,7 +657,7 @@ export default function Home() {
             Uploadez votre photo, notre IA analyse votre morphologie et vous propose les tailles et coupes les plus
             adaptées.
           </p>
-          <Link to="/tryon" style={IA_BUTTON_STYLE} aria-label="Commencer l'essayage virtuel gratuitement">
+          <Link to="/catalogue" style={IA_BUTTON_STYLE} aria-label="Commencer l'essayage virtuel gratuitement">
             Essayer gratuitement →
           </Link>
         </div>

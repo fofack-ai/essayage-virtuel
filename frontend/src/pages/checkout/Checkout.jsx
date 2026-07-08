@@ -4,24 +4,30 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 
+/* Logos officiels — à placer dans src/assets/logos/ */
+import orangeLogo from '../../assets/logos/orange-money.png';
+import mtnLogo from '../../assets/logos/mtn-momo.png';
+import deliveryLogo from '../../assets/logos/cash-on-delivery.png';
+
 /* ─── Constantes ─────────────────────────────────────────── */
 const PAYMENT = [
-  { id: 'orange', label: '🟠 Orange Money',     desc: 'Paiement via votre compte Orange Money', backend: 'orange_money' },
-  { id: 'mtn',    label: '🟡 MTN Mobile Money', desc: 'Paiement via Mobile Money MTN',           backend: 'mtn_mobile_money' },
-  { id: 'cash',   label: '🤝 À la livraison',   desc: 'Espèces à la réception de votre colis',  backend: 'cash_on_delivery' },
+  { id: 'orange', label: 'Orange Money',     desc: 'Paiement via votre compte Orange Money', backend: 'orange_money' },
+  { id: 'mtn',    label: 'MTN Mobile Money', desc: 'Paiement via Mobile Money MTN',           backend: 'mtn_mobile_money' },
+  { id: 'cash',   label: 'À la livraison',   desc: 'Espèces à la réception de votre colis',  backend: 'cash_on_delivery' },
 ];
 
-const DELIVERY_OPTIONS = [
-  { id: 'std', label: 'Livraison standard', desc: '3-5 jours ouvrés', fee: 0,    feeLabel: 'Gratuite',   green: true  },
-  { id: 'exp', label: 'Livraison express',  desc: '24h garantis',     fee: 2000, feeLabel: '2 000 FCFA', green: false },
-];
+const LOGOS = {
+  orange: orangeLogo,
+  mtn: mtnLogo,
+  cash: deliveryLogo,
+};
 
-const CITIES = [
-  'Douala','Yaoundé','Bafoussam','Garoua','Maroua','Bamenda',
-  'Ngaoundéré','Bertoua','Kousséri','Batouri','Nkongsamba',
-  'Kumbo','Kribi','Limbé','Tiko','Kumba','Foumban',
-  'Mbandjock','Sangmelima','Ebolowa',
-];
+/* On ne livre pour l'instant qu'à Douala */
+const CITIES = ['Douala'];
+const DEFAULT_CITY = 'Douala';
+
+/* Frais de livraison — Douala uniquement */
+const DELIVERY_FEE = 2000; // FCFA
 
 const LABEL_STYLE = {
   fontSize: 11, fontWeight: 700, letterSpacing: 1.2,
@@ -61,6 +67,7 @@ function Field({ label, value, onChange, type = 'text', placeholder = '', error 
   );
 }
 
+/* Ville verrouillée sur Douala tant qu'une seule ville est desservie */
 function CitySelect({ value, onChange, error = '' }) {
   return (
     <div style={{ marginBottom: 18 }}>
@@ -68,23 +75,29 @@ function CitySelect({ value, onChange, error = '' }) {
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
+        disabled={CITIES.length === 1}
         style={{
           width: '100%', boxSizing: 'border-box',
           padding: '13px 16px',
           border: `1.5px solid ${error ? '#E53E3E' : 'rgba(26,26,26,.12)'}`,
           borderRadius: 10, fontSize: 14,
-          background: '#fff', outline: 'none',
+          background: CITIES.length === 1 ? '#F3F4F6' : '#fff', outline: 'none',
           color: value ? '#1A1A1A' : '#9CA3AF',
-          cursor: 'pointer', appearance: 'none',
+          cursor: CITIES.length === 1 ? 'not-allowed' : 'pointer', appearance: 'none',
           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236A6F78' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")`,
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'right 14px center',
           paddingRight: 36,
         }}
       >
-        <option value="">-- Choisir une ville --</option>
+        {CITIES.length > 1 && <option value="">-- Choisir une ville --</option>}
         {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
       </select>
+      {CITIES.length === 1 && (
+        <p style={{ fontSize: 11.5, color: '#6A6F78', margin: '5px 0 0' }}>
+          Nous livrons uniquement à Douala pour le moment.
+        </p>
+      )}
       {error && (
         <p style={{ color: '#E53E3E', fontSize: 11, margin: '5px 0 0', fontStyle: 'italic' }}>
           {error}
@@ -92,6 +105,40 @@ function CitySelect({ value, onChange, error = '' }) {
       )}
     </div>
   );
+}
+
+/* Logos des moyens de paiement — images importées (logos officiels) */
+function PaymentLogo({ type, size = 44 }) {
+  
+  return (
+    <img
+      src={LOGOS[type]}
+      alt={type}
+      style={{
+        width: size, height: size,
+        borderRadius: 12, objectFit: 'contain',
+        background: '#fff',
+      }}
+    />
+  );
+}
+
+/* Détection de l'opérateur à partir du numéro de téléphone
+   MTN: 67, 68, 650-654 / Orange: 69, 655-659
+   (plages à revérifier périodiquement, elles peuvent évoluer) */
+function detectOperator(phone) {
+  const p = phone.replace(/\D/g, '');
+  if (!/^6\d{8}$/.test(p)) return null;
+  const p2 = p.slice(0, 2);
+  const p3 = p.slice(0, 3);
+  if (p2 === '67' || p2 === '68') return 'mtn';
+  if (p2 === '69') return 'orange';
+  if (p2 === '65') {
+    const n = parseInt(p3, 10);
+    if (n >= 650 && n <= 654) return 'mtn';
+    if (n >= 655 && n <= 659) return 'orange';
+  }
+  return null;
 }
 
 /* ─── Composant principal ────────────────────────────────── */
@@ -102,14 +149,13 @@ export default function Checkout() {
 
   const [step, setStep]             = useState(1);
   const [pay, setPay]               = useState('cash');
-  const [delivery, setDelivery]     = useState('std');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [orderResult, setOrderResult] = useState(null);
   const [errors, setErrors]         = useState({});
   const [form, setFormState] = useState({
     nom: '', prenom: '', email: '',
-    tel: '', adresse: '', ville: '',
+    tel: '', adresse: '', ville: DEFAULT_CITY,
     quartier: '', reference: '',
   });
 
@@ -131,7 +177,7 @@ export default function Checkout() {
   }, [user]);
 
   /* ── Prix ── */
-  const deliveryFee = DELIVERY_OPTIONS.find(d => d.id === delivery)?.fee ?? 0;
+  const deliveryFee = DELIVERY_FEE;
   const subtotal    = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
   const total       = subtotal + deliveryFee;
   const fmt         = n => Number(n).toLocaleString('fr-FR');
@@ -149,6 +195,7 @@ export default function Checkout() {
     else if (!validatePhone(form.tel)) e.tel = 'Format requis : 6XXXXXXXX (9 chiffres, ex: 671207375)';
     if (!form.adresse.trim()) e.adresse = "L'adresse est requise";
     if (!form.ville)          e.ville   = 'La ville est requise';
+    if (!form.quartier.trim()) e.quartier = 'Le quartier est requis pour permettre au livreur de vous trouver';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -156,9 +203,17 @@ export default function Checkout() {
   const setField = (key, val) => {
     setFormState(f => ({ ...f, [key]: val }));
     if (errors[key]) setErrors(e => ({ ...e, [key]: '' }));
+
+    if (key === 'tel') {
+      const op = detectOperator(val);
+      if (op) setPay(op); // pré-sélection automatique
+      // si op est null (numéro incomplet/inconnu), on ne touche pas à "pay"
+      // → l'utilisateur garde toujours la main pour changer manuellement ensuite
+    }
   };
 
   /* ── Soumission ── */
+
   const placeOrder = async () => {
     setSubmitting(true);
     setSubmitError('');
@@ -166,15 +221,39 @@ export default function Checkout() {
       const deliveryAddress = [form.adresse, form.quartier, form.reference]
         .filter(Boolean).join(', ');
 
+      const paymentMethod = PAYMENT.find(p => p.id === pay)?.backend ?? 'cash_on_delivery';
+
+      // 1. On crée toujours la commande d'abord
       const response = await api.post('/orders', {
-        paymentMethod:   PAYMENT.find(p => p.id === pay)?.backend ?? 'cash_on_delivery',
+        paymentMethod,
+        recipientFirstName: form.prenom,
+        recipientLastName:  form.nom,
         deliveryAddress,
         deliveryCity:    form.ville,
         deliveryPhone:   form.tel,
-        deliveryType:    delivery,
       });
 
-      setOrderResult(response.data);
+      const order = response.data;
+
+      // 2. Si paiement en ligne (Orange ou MTN via Paydunya), on redirige vers Paydunya
+      if (paymentMethod === 'orange_money' || paymentMethod === 'mtn_mobile_money') {
+        const payRes = await api.post('/payments/paydunya/init', { orderId: order.id });
+        const paymentUrl = payRes.data?.paymentUrl;
+        if (paymentUrl) {
+          // On quitte le site vers la page de paiement sécurisée Paydunya.
+          // On NE recharge PAS le panier avant : ça déclenchait le useEffect
+          // de redirection interne vers /cart et créait un flash/race avec
+          // cette navigation externe. Le panier sera de toute façon marqué
+          // "converted" côté serveur.
+          window.location.href = paymentUrl;
+          return;
+        }
+        // Si pas d'URL (clés Paydunya absentes en dev), on affiche une erreur claire
+        throw new Error("Le paiement en ligne n'est pas disponible pour le moment. Choisissez le paiement à la livraison.");
+      }
+
+      // 3. Paiement à la livraison : écran de succès classique
+      setOrderResult(order);
       await loadCart();
     } catch (err) {
       setSubmitError(err.message || 'Une erreur est survenue. Veuillez réessayer.');
@@ -230,7 +309,6 @@ export default function Checkout() {
     </div>
   );
 
-  const deliveryOption = DELIVERY_OPTIONS.find(d => d.id === delivery);
   const paymentOption  = PAYMENT.find(p => p.id === pay);
 
   /* ── Rendu principal ── */
@@ -245,6 +323,13 @@ export default function Checkout() {
         .co-sidebar { padding: 44px 30px; background: #fff; border-left: 1px solid rgba(26,26,26,.08); position: sticky; top: 104px; align-self: start; max-height: calc(100vh - 104px); overflow-y: auto; }
         .co-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
         .step-label { font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; }
+        .pay-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 36px; }
+        .pay-card { position: relative; background: #fff; border: 2px solid rgba(26,26,26,.10); border-radius: 14px; padding: 24px 14px 18px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+        .pay-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.06); }
+        .pay-card--active { border-color: #B83228; box-shadow: 0 4px 14px rgba(184,50,40,.14); }
+        .pay-card__check { position: absolute; top: 10px; right: 10px; width: 20px; height: 20px; border-radius: 50%; background: #B83228; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .pay-card__label { font-size: 13.5px; font-weight: 700; color: #1A1A1A; }
+        .pay-card__desc { font-size: 11px; color: #6A6F78; line-height: 1.4; }
         @media (max-width: 900px) {
           .co-grid { grid-template-columns: 1fr; }
           .co-sidebar { position: static; max-height: none; border-left: none; border-top: 1px solid rgba(26,26,26,.08); order: -1; padding: 24px 20px; }
@@ -253,6 +338,9 @@ export default function Checkout() {
         }
         @media (max-width: 600px) {
           .co-row2 { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+          .pay-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 420px) {
           .step-label { display: none; }
@@ -336,7 +424,7 @@ export default function Checkout() {
 
                 <div className="co-row2">
                   <CitySelect value={form.ville} onChange={v => setField('ville', v)} error={errors.ville} />
-                  <Field label="Quartier / Secteur" value={form.quartier} onChange={v => setField('quartier', v)} placeholder="Ex : Bastos, Bonapriso" />
+                  <Field label="Quartier / Secteur *" value={form.quartier} onChange={v => setField('quartier', v)} placeholder="Ex : Bastos, Bonapriso" error={errors.quartier} />
                 </div>
 
                 <Field
@@ -346,34 +434,9 @@ export default function Checkout() {
                   placeholder="Ex : près de la mairie, supermarché Casino…"
                 />
 
-                {/* Mode de livraison */}
-                <div style={{ marginBottom: 28 }}>
-                  <p style={{ ...LABEL_STYLE, marginBottom: 12 }}>Mode de livraison</p>
-                  {DELIVERY_OPTIONS.map(o => (
-                    <div
-                      key={o.id}
-                      onClick={() => setDelivery(o.id)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 14,
-                        padding: '16px 18px', marginBottom: 10,
-                        border: `2px solid ${delivery === o.id ? '#B83228' : 'rgba(26,26,26,.10)'}`,
-                        borderRadius: 10, background: '#fff',
-                        cursor: 'pointer', transition: 'border-color .15s',
-                      }}
-                    >
-                      <div style={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0, border: `2px solid ${delivery === o.id ? '#B83228' : '#D1D5DB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {delivery === o.id && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#B83228' }} />}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600 }}>{o.label}</div>
-                        <div style={{ fontSize: 12, color: '#6A6F78', marginTop: 2 }}>{o.desc}</div>
-                      </div>
-                      <span style={{ fontWeight: 700, fontSize: 14, color: o.green ? '#059669' : '#B83228', flexShrink: 0 }}>
-                        {o.feeLabel}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                <p style={{ fontSize: 12.5, color: '#6A6F78', margin: '0 0 28px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  🚚 Livraison à Douala : {fmt(DELIVERY_FEE)} FCFA (3-5 jours ouvrés).
+                </p>
 
                 <button
                   onClick={() => { if (validateStep1()) setStep(2); }}
@@ -394,26 +457,17 @@ export default function Checkout() {
                   Choisissez votre méthode de paiement.
                 </p>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 36 }}>
+                <div className="pay-grid">
                   {PAYMENT.map(m => (
                     <div
                       key={m.id}
                       onClick={() => setPay(m.id)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 14,
-                        padding: '18px 20px',
-                        border: `2px solid ${pay === m.id ? '#B83228' : 'rgba(26,26,26,.10)'}`,
-                        borderRadius: 12, background: '#fff',
-                        cursor: 'pointer', transition: 'border-color .15s',
-                      }}
+                      className={`pay-card${pay === m.id ? ' pay-card--active' : ''}`}
                     >
-                      <div style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0, border: `2px solid ${pay === m.id ? '#B83228' : '#D1D5DB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {pay === m.id && <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#B83228' }} />}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 15, fontWeight: 600 }}>{m.label}</div>
-                        <div style={{ fontSize: 12, color: '#6A6F78', marginTop: 3 }}>{m.desc}</div>
-                      </div>
+                      {pay === m.id && <div className="pay-card__check">✓</div>}
+                      <PaymentLogo type={m.id} />
+                      <div className="pay-card__label">{m.label}</div>
+                      <div className="pay-card__desc">{m.desc}</div>
                     </div>
                   ))}
                 </div>
@@ -451,19 +505,19 @@ export default function Checkout() {
                   <p style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 600 }}>
                     {form.prenom} {form.nom} · {form.tel}
                   </p>
-                  <p style={{ margin: '0 0 6px', fontSize: 13, color: '#4B5563' }}>
+                  <p style={{ margin: 0, fontSize: 13, color: '#4B5563' }}>
                     {[form.adresse, form.quartier, form.reference].filter(Boolean).join(', ')}, {form.ville}
-                  </p>
-                  <p style={{ margin: 0, fontSize: 13, color: '#B83228', fontWeight: 600 }}>
-                    {deliveryOption?.label} — {deliveryOption?.desc}
                   </p>
                 </div>
 
                 {/* Récap paiement */}
-                <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid rgba(26,26,26,.09)', padding: '18px 20px', marginBottom: 20 }}>
-                  <p style={{ ...LABEL_STYLE, margin: '0 0 8px' }}>Paiement</p>
-                  <p style={{ margin: '0 0 3px', fontSize: 15, fontWeight: 600 }}>{paymentOption?.label}</p>
-                  <p style={{ margin: 0, fontSize: 12, color: '#6A6F78' }}>{paymentOption?.desc}</p>
+                <div style={{ background: '#fff', borderRadius: 12, border: '1.5px solid rgba(26,26,26,.09)', padding: '18px 20px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <PaymentLogo type={pay} size={40} />
+                  <div>
+                    <p style={{ ...LABEL_STYLE, margin: '0 0 6px' }}>Paiement</p>
+                    <p style={{ margin: '0 0 3px', fontSize: 15, fontWeight: 600 }}>{paymentOption?.label}</p>
+                    <p style={{ margin: 0, fontSize: 12, color: '#6A6F78' }}>{paymentOption?.desc}</p>
+                  </div>
                 </div>
 
                 {/* Articles */}
@@ -548,9 +602,9 @@ export default function Checkout() {
               <span>{fmt(subtotal)} FCFA</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 18, color: '#4B5563' }}>
-              <span>Livraison</span>
-              <span style={{ fontWeight: 700, color: deliveryFee === 0 ? '#059669' : '#B83228' }}>
-                {deliveryFee === 0 ? 'Gratuite' : `${fmt(deliveryFee)} FCFA`}
+              <span>Livraison (Douala)</span>
+              <span style={{ fontWeight: 700, color: '#B83228' }}>
+                {fmt(DELIVERY_FEE)} FCFA
               </span>
             </div>
 
@@ -561,13 +615,10 @@ export default function Checkout() {
 
             {/* Badges */}
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
-              {[
-                { label: '🟠 Orange',    bg: '#FFF8E7', border: '#F59E0B', color: '#92400E' },
-                { label: '🟡 MTN',       bg: '#FFFBEB', border: '#FBBF24', color: '#78350F' },
-                { label: '🤝 Livraison', bg: '#ECFDF5', border: '#6EE7B7', color: '#065F46' },
-              ].map(b => (
-                <span key={b.label} style={{ padding: '6px 12px', background: b.bg, border: `1px solid ${b.border}`, borderRadius: 8, fontSize: 11, fontWeight: 700, color: b.color }}>
-                  {b.label}
+              {PAYMENT.map(m => (
+                <span key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px 5px 5px', background: '#F9F9F9', border: '1px solid rgba(26,26,26,.08)', borderRadius: 8, fontSize: 11, fontWeight: 700, color: '#374151' }}>
+                  <PaymentLogo type={m.id} size={18} />
+                  {m.label}
                 </span>
               ))}
             </div>
