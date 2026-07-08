@@ -91,6 +91,13 @@ async function getOrderItems(orderId) {
   return rows;
 }
 
+async function updatePaymentStatus(orderId, paymentStatus) {
+  await db.query(
+    `UPDATE orders SET paymentStatus = ? WHERE id = ?`,
+    [paymentStatus, orderId]
+  );
+}
+
 module.exports = {
   createOrder,
   createOrderItem,
@@ -98,4 +105,5 @@ module.exports = {
   getUserOrders,
   getOrderById,
   getOrderItems,
+  updatePaymentStatus,
 };

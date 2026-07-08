@@ -5,7 +5,7 @@ import React, {
   useState,
 } from "react";
 
-import { api } from "../services/api";
+import { api, getImageUrl } from "../services/api";
 
 const CartContext = createContext();
 
@@ -15,21 +15,21 @@ export function CartProvider({ children }) {
   const [count, setCount] = useState(0);
   const [loadingCart, setLoadingCart] = useState(false);
 
-  const normalizeItems = (backendItems = []) => {
-    return backendItems.map((item) => ({
-      id: item.id,
-      cartItemId: item.id,
-      productId: item.productId,
-      name: item.productName,
-      image: item.productImage,
-      size: item.size,
-      sizeStock: item.sizeStock || item.stock || item.availableStock || null,
-      color: item.color,
-      qty: item.quantity,
-      price: item.price,
-      subtotal: item.subtotal,
-    }));
-  };
+const normalizeItems = (backendItems = []) => {
+  return backendItems.map((item) => ({
+    id: item.id,
+    cartItemId: item.id,
+    productId: item.productId,
+    name: item.productName,
+    image: getImageUrl(item.productImage),
+    size: item.size,
+    sizeStock: item.sizeStock || item.stock || item.availableStock || null,
+    color: item.color,
+    qty: item.quantity,
+    price: item.price,
+    subtotal: item.subtotal,
+  }));
+};
 
   const loadCart = async () => {
     const token = localStorage.getItem("tryon_token");
