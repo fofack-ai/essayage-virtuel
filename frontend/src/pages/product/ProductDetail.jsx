@@ -309,7 +309,7 @@ const handleAdd = async () => {
 {/* Ajouter au panier */}
           <button type="button" onClick={handleAdd} disabled={isOutOfStock} style={{
             width: '100%', padding: 18, borderRadius: 12,
-            background: isOutOfStock ? '#E0E0E0' : (added ? '#06D6A0' : '#1A1A1A'),
+            background: isOutOfStock ? '#E0E0E0' : (added ? '#06D6A0' : '#E30613'),
             color: isOutOfStock ? '#999' : '#fff',
             border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
             fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12,

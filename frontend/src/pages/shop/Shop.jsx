@@ -275,13 +275,20 @@ const styles = `
   gap: 22px;
 }
 
+/* ── Wrapper carte + infos dessous ── */
+.product-card-wrap {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
 .product-card {
-  min-height: 340px;
+  min-height: 420px;
   position: relative;
   overflow: hidden;
   border-radius: 18px;
-  background-size: contain;
-  background-position: center;
+  background-size: cover;
+  background-position: center top;
   background-repeat: no-repeat;
   background-color: #f5f5f5;
   border: 1px solid rgba(26,26,26,.10);
@@ -298,7 +305,7 @@ const styles = `
 .product-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,.55) 100%);
+  background: transparent;
   z-index: 1;
 }
 
@@ -318,28 +325,26 @@ const styles = `
   text-transform: uppercase;
 }
 
-.product-content {
-  position: absolute;
-  left: 18px;
-  right: 18px;
-  bottom: 68px;
-  z-index: 2;
-  text-align: center;
-}
-
+/* Catégorie supprimée */
 .product-category {
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: #8A8F98;
-  text-transform: uppercase;
-  font-weight: 900;
+  display: none;
 }
 
-.product-card h3 {
-  font-size: 15px;
-  font-weight: 800;
+/* Ancien product-content supprimé de la carte */
+.product-content {
+  display: none;
+}
+
+/* Infos en dessous de la carte */
+.product-info-below {
+  padding: 10px 4px 0;
+}
+
+.product-info-below h3 {
+  font-size: 14px;
+  font-weight: 600;
   color: #1A1A1A;
-  margin: 6px 0 8px;
+  margin: 0 0 4px;
 }
 
 .product-price {
@@ -349,8 +354,8 @@ const styles = `
 }
 
 .product-price strong {
-  font-size: 21px;
-  font-weight: 950;
+  font-size: 16px;
+  font-weight: 800;
   letter-spacing: .3px;
 }
 

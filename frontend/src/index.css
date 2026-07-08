@@ -312,7 +312,7 @@ footer {
 /* Dropdown menu styles */
 .user-dropdown-menu {
   position: absolute;
-  right: 0;
+  right: 20px;
   top: calc(100% + 12px);
   width: 240px;
   background: var(--white);
