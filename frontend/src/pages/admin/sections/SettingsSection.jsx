@@ -3,7 +3,7 @@ import Field from "../components/Field";
 import SwitchLine from "../components/SwitchLine";
 import { adminService } from "../../../services/adminService";
 
-const SettingsSection = React.memo(function SettingsSection() {
+const SettingsSection = React.memo(function SettingsSection({ darkMode, setDarkMode }) {
   const defaultSettings = {
     shopName: "TryOn",
     city: "Douala - Cameroun",
@@ -364,6 +364,22 @@ const SettingsSection = React.memo(function SettingsSection() {
           </div>
 
           <Field label="Version API" value={shop.apiVersion} onChange={(e) => updateSetting("apiVersion", e.target.value)} />
+        </div>
+        <div className="card settings-card">
+          <div className="settings-head">
+            <span className="settings-icon">🎨</span>
+            <div>
+              <h3>11. Apparence</h3>
+              <p className="muted">Personnalisation de l'interface du back-office.</p>
+            </div>
+          </div>
+
+          <SwitchLine
+            title="Mode sombre"
+            desc="Activer le thème sombre pour le tableau de bord admin."
+            checked={Boolean(darkMode)}
+            onChange={(value) => setDarkMode(value)}
+          />
         </div>
       </div>
     </div>

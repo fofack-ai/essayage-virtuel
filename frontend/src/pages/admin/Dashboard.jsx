@@ -1068,7 +1068,8 @@ const ViewModal = React.memo(({ view, close }) => {
 // ==================== DASHBOARD PRINCIPAL ====================
 
 function Dashboard() {
-  const { user } = useAuth();
+  //const { user } = useAuth();
+  const { user, logout: authLogout } = useAuth();
   const navigate = useNavigate();
   const [page, setPage] = useState("dashboard");
   const [collapsed, setCollapsed] = useState(() => {
@@ -1092,6 +1093,7 @@ function Dashboard() {
   const [exportModal, setExportModal] = useState(false);
   const [searchModal, setSearchModal] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState(null);
+  const [showLogout, setShowLogout] = useState(false);
   const [pagination, setPagination] = useState({ 
     commandes: 1, produits: 1, clients: 1, stock: 1, essayages: 1,
     reviews: 1, promotions: 1, transactions: 1, logs: 1,
@@ -1386,6 +1388,7 @@ function Dashboard() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     loadAdminData();
   }, []);
@@ -1858,10 +1861,7 @@ function Dashboard() {
   };
 
   const logout = () => {
-    sessionStorage.removeItem("tryon_token");
-    sessionStorage.removeItem("tryon_user");
-    localStorage.removeItem("tryon_token");
-    localStorage.removeItem("tryon_user");
+    authLogout(); // ← vide le localStorage ET fait setUser(null)
     navigate("/auth");
   };
 
@@ -1906,6 +1906,15 @@ function Dashboard() {
       }
     }, 1000);
   };
+
+  useEffect(() => {
+    if (!showLogout) return;
+    const close = (e) => {
+      if (!e.target.closest('.admin-profile-card')) setShowLogout(false);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [showLogout]);
 
   // Export PDF pour la section ventes
   const runExportPdf = () => {
@@ -2528,12 +2537,8 @@ function Dashboard() {
           <div className="brand">
             <div className="brand-text">
               <div className="brand-title">TryOn</div>
-              <div className="brand-sub">Application de mode africaine et cabine d'essayage virtuelle · Douala.</div>
             </div>
             <div className="brand-actions">
-              <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)} aria-label={darkMode ? "Activer le mode clair" : "Activer le mode sombre"} title={darkMode ? "Mode clair" : "Mode sombre"}>
-                {darkMode ? '☀️' : '🌙'}
-              </button>
               <button className="collapse-btn" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? "Agrandir la sidebar" : "Réduire la sidebar"} title={collapsed ? "Agrandir la sidebar" : "Réduire la sidebar"}>
                 ☰
               </button>
@@ -2570,29 +2575,39 @@ function Dashboard() {
             })}
           </nav>
 
-          <div className="admin-profile-card">
-            <div className="admin-avatar">
-              {user?.avatar ? (
-                <img src={user.avatar} alt={adminName} />
-              ) : (
-                <span>{adminInitials}</span>
-              )}
-            </div>
-
-            <div className="admin-profile-info">
-              <strong>{adminName}</strong>
-              <span>{adminEmail}</span>
-              <small>
-                <i></i>
-                En ligne
-              </small>
-            </div>
+          <div
+            className="admin-profile-card"
+            onClick={() => setShowLogout(!showLogout)}
+            style={{ cursor: 'pointer' }}
+          >
+            {showLogout ? (
+              /* Vue déconnexion */
+              <button
+                className="logout"
+                style={{ width: '100%', margin: 0 }}
+                onClick={(e) => { e.stopPropagation(); logout(); }}
+              >
+                <span className="ico">🚪</span>
+                <span>Déconnexion</span>
+              </button>
+            ) : (
+              /* Vue infos normales */
+              <>
+                <div className="admin-avatar">
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt={adminName} />
+                  ) : (
+                    <span>{adminInitials}</span>
+                  )}
+                </div>
+                <div className="admin-profile-info">
+                  <strong>{adminName}</strong>
+                  <span>{adminEmail}</span>
+                  <small><i></i>En ligne</small>
+                </div>
+              </>
+            )}
           </div>
-
-          <button className="logout" onClick={logout}>
-            <span className="ico">🚪</span>
-            <span>Déconnexion</span>
-          </button>
         </aside>
 
       <main className="main">
@@ -2827,6 +2842,8 @@ function Dashboard() {
               onSaveSettings={saveSettingsToBackend}
               saveSettings={saveSettingsToBackend}
               loading={loading}
+              darkMode={darkMode} 
+              setDarkMode={setDarkMode}
             />
           )}
 

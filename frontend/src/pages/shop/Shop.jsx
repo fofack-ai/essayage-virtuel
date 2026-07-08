@@ -280,8 +280,10 @@ const styles = `
   position: relative;
   overflow: hidden;
   border-radius: 18px;
-  background-size: cover;
+  background-size: contain;
   background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f5f5f5;
   border: 1px solid rgba(26,26,26,.10);
   box-shadow: 0 8px 24px rgba(0,0,0,.06);
   transition: all .28s ease;
@@ -296,7 +298,7 @@ const styles = `
 .product-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,.28) 38%, rgba(255,255,255,.92) 100%);
+  background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,.55) 100%);
   z-index: 1;
 }
 

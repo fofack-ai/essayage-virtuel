@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import ProtectedRoute from './components/layout/ProtectedRoute';
@@ -29,6 +30,7 @@ function AppLayout() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <ScrollToTop />
       {!isAdminPage && <Navbar />}
       <main className="flex-grow">
         <Routes>
