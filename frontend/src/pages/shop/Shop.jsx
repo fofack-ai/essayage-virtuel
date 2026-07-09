@@ -6,6 +6,7 @@ import SearchBar from "../../components/shop/SearchBar";
 import { useAuth } from '../../context/AuthContext';
 import { adminService } from '../../services/adminService';
 import { Link } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 
 const FILTERS = ["Tous", "Femme", "Homme", "Robes", "Chemises", "Pantalons", "Vestes", "Accessoires"];
 const PER_PAGE = 8;
@@ -17,6 +18,7 @@ export default function Shop() {
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { count } = useCart();
 
   // Contextual data
   const { isAuthenticated } = useAuth();
@@ -104,6 +106,7 @@ export default function Shop() {
       <div className="mobile-shop-header">
         <Link to="/" className="logo">TRY<span>ON</span></Link>
         <div className="header-actions">
+          {/* Notifications ou Connexion */}
           {isAuthenticated ? (
             <Link to="/notifications" aria-label="Notifications">
               🔔
@@ -112,6 +115,11 @@ export default function Shop() {
           ) : (
             <Link to="/auth" aria-label="Connexion">👤</Link>
           )}
+          {/* Panier */}
+          <Link to="/cart" aria-label="Panier" style={{ position: 'relative' }}>
+            🛒
+            {count > 0 && <span className="cart-badge-mobile">{count}</span>}
+          </Link>
         </div>
       </div>
 
@@ -127,15 +135,17 @@ export default function Shop() {
         </div>
       </section>
 
+      {/* ─── CATALOGUE ─── */}
       <section className="catalogue-section">
-        <div className="catalogue-head">
-          <div>
-            <span className="section-tag">Catalogue</span>
-            <h2>
-              Tous les <em>vêtements</em>
-            </h2>
-          </div>
+        {/* Titre (pas sticky) */}
+        <div className="catalogue-header">
+          <h2>
+            Tous les <em>vêtements</em>
+          </h2>
+        </div>
 
+        {/* Recherche + Filtres (sticky) */}
+        <div className="sticky-search">
           <SearchBar
             search={search}
             setSearch={setSearch}
@@ -143,41 +153,41 @@ export default function Shop() {
             setSort={setSort}
             setPage={setPage}
           />
+
+          <FilterSidebar filters={FILTERS} activeFilter={filter} onChangeFilter={changeFilter} />
         </div>
 
-        <FilterSidebar filters={FILTERS} activeFilter={filter} onChangeFilter={changeFilter} />
+        {/* Loading */}
         {loading && (
           <div className="products-grid">
-            {Array.from({length:8}).map((_,i)=>(
-            <div key={i} className="skeleton-card"/>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="skeleton-card" />
             ))}
           </div>
         )}
+
+        {/* Aucun produit */}
         {!loading && visibleProducts.length === 0 && (
-          <p>Aucun produit disponible pour le moment.</p>
+          <p style={{ textAlign: 'center', padding: '40px 0', color: '#6A6F78' }}>
+            Aucun produit disponible pour le moment.
+          </p>
         )}
 
+        {/* Produits */}
         <div className="products-grid">
           {visibleProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
 
+        {/* Pagination */}
         {totalPages > 1 && (
           <div className="pagination">
-            <button
-              disabled={page===1}
-              onClick={()=>setPage(page-1)}
-              >
+            <button disabled={page === 1} onClick={() => setPage(page - 1)}>
               ←
             </button>
-            <span>
-              Page {page} / {totalPages}
-            </span>
-            <button
-              disabled={page===totalPages}
-              onClick={()=>setPage(page+1)}
-              >
+            <span>Page {page} / {totalPages}</span>
+            <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>
               →
             </button>
           </div>
@@ -232,8 +242,7 @@ const styles = `
   margin: 18px 0;
 }
 
-.shop-hero-text h1 em,
-.catalogue-head h2 em {
+.shop-hero-text h1 em {
   color: #E30613;
   font-style: italic;
 }
@@ -249,30 +258,38 @@ const styles = `
   padding: 58px 76px 80px;
 }
 
-.catalogue-head{
-display:flex;
-justify-content:space-between;
-align-items:flex-end;
-gap:28px;
-margin-bottom:26px;
-background:#F9F9F9;
-position:sticky;
-top:0;
-z-index:40;
-padding:18px 0;
+/* ─── TITRE (pas sticky) ─── */
+.catalogue-header {
+  margin-bottom: 16px;
 }
 
-.catalogue-head h2 {
+.catalogue-header h2 {
   font-family: 'Cormorant Garamond', serif;
   font-size: clamp(42px, 4vw, 58px);
   font-weight: 300;
   line-height: 1;
-  margin-top: 10px;
+  margin: 0;
+}
+
+.catalogue-header h2 em {
+  color: #E30613;
+  font-style: italic;
+}
+
+/* ─── RECHERCHE + FILTRES (sticky) ─── */
+.sticky-search {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #F9F9F9;
+  padding: 12px 0 18px;
+  margin-bottom: 8px;
 }
 
 .search-sort {
   display: flex;
   gap: 12px;
+  margin-bottom: 16px;
 }
 
 .search-sort input,
@@ -301,7 +318,6 @@ padding:18px 0;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 28px;
 }
 
 .filters button {
@@ -330,7 +346,6 @@ padding:18px 0;
   gap: 22px;
 }
 
-/* ── Wrapper carte + infos dessous ── */
 .product-card-wrap {
   display: flex;
   flex-direction: column;
@@ -382,17 +397,14 @@ padding:18px 0;
   text-transform: uppercase;
 }
 
-/* Catégorie supprimée */
 .product-category {
   display: none;
 }
 
-/* Ancien product-content supprimé de la carte */
 .product-content {
   display: none;
 }
 
-/* Infos en dessous de la carte */
 .product-info-below {
   padding: 10px 4px 0;
 }
@@ -493,10 +505,6 @@ padding:18px 0;
   cursor: not-allowed;
 }
 
-/* ═══ Animations & skeleton — globales, valables sur TOUS les écrans.
-       (avant, elles étaient piégées à l'intérieur du media query
-       mobile, donc invisibles sur desktop) ═══ */
-
 .products-grid .product-card-wrap:nth-child(1) .product-card{ animation-delay: .05s; }
 .products-grid .product-card-wrap:nth-child(2) .product-card{ animation-delay: .1s; }
 .products-grid .product-card-wrap:nth-child(3) .product-card{ animation-delay: .15s; }
@@ -520,12 +528,7 @@ padding:18px 0;
 .skeleton-card {
   height: 340px;
   border-radius: 18px;
-  background: linear-gradient(
-    90deg,
-    #eeeeee 25%,
-    #f8f8f8 50%,
-    #eeeeee 75%
-  );
+  background: linear-gradient(90deg, #eeeeee 25%, #f8f8f8 50%, #eeeeee 75%);
   background-size: 200% 100%;
   animation: skeleton 1.3s infinite;
 }
@@ -535,17 +538,87 @@ padding:18px 0;
   100% { background-position: -200% 0; }
 }
 
+/* ─── EN-TÊTE MOBILE ─── */
+.mobile-shop-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.mobile-shop-header .logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: #1A1A1A;
+  text-decoration: none;
+}
+
+.mobile-shop-header .logo span { color: #E30613; }
+
+.mobile-shop-header .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-shop-header .header-actions a {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #1A1A1A;
+  text-decoration: none;
+  position: relative;
+  padding: 4px;
+  line-height: 1;
+}
+
+.mobile-shop-header .notif-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  background: #E30613;
+  border-radius: 50%;
+}
+
+.cart-badge-mobile {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background: #E30613;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ============================= */
-/* RESPONSIVE MOBILE — un seul bloc, propre */
+/* RESPONSIVE MOBILE */
 /* ============================= */
 
 @media (max-width: 768px) {
-
   .shop-page {
     padding-top: 0;
   }
 
-  /* HERO */
+  .mobile-shop-header {
+    display: flex !important;
+  }
+
   .shop-hero {
     height: 220px;
   }
@@ -565,35 +638,26 @@ padding:18px 0;
     line-height: 1.6;
   }
 
-  /* SECTION */
   .catalogue-section {
-    padding: 24px 18px 90px;
+    padding: 16px 18px 90px;
   }
 
-  /* TITRE — on désactive le sticky sur mobile : une grande en-tête
-     collée en permanence en haut de l'écran mange trop de place
-     pendant le scroll sur un petit écran. */
-     
-  .catalogue-head {
-    flex-direction: column;
-    align-items: flex-start;
-    gap:28px;
-    margin-bottom:26px;
-    position:sticky;
-    top:0;
-    z-index:40;
-    padding:18px 0;
-  }
-
-  .catalogue-head h2 {
+  .catalogue-header h2 {
     font-size: 34px;
   }
 
-  /* SEARCH */
+  .sticky-search {
+    padding: 8px 0 14px;
+    background: #F9F9F9;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+
   .search-sort {
-    width: 100%;
     flex-direction: column;
     gap: 12px;
+    margin-bottom: 14px;
   }
 
   .search-sort input,
@@ -602,15 +666,13 @@ padding:18px 0;
     min-width: 0;
   }
 
-  /* FILTRES */
   .filters {
     flex-wrap: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 8px;
-    margin-bottom: 28px;
+    padding-bottom: 4px;
   }
 
   .filters::-webkit-scrollbar {
@@ -622,13 +684,11 @@ padding:18px 0;
     white-space: nowrap;
   }
 
-  /* PRODUITS */
   .products-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;
   }
 
-  /* CARTES */
   .product-card {
     min-height: 270px;
     border-radius: 14px;
@@ -651,7 +711,6 @@ padding:18px 0;
     font-size: 15px;
   }
 
-  /* ACTIONS */
   .product-actions {
     left: 10px;
     right: 10px;
@@ -663,7 +722,6 @@ padding:18px 0;
     font-size: 9px;
   }
 
-  /* PAGINATION */
   .pagination {
     gap: 12px;
     margin-top: 30px;
@@ -675,7 +733,6 @@ padding:18px 0;
   }
 }
 
-/* Très petits écrans (iPhone SE et similaires) */
 @media (max-width: 380px) {
   .products-grid {
     gap: 10px;
@@ -685,62 +742,8 @@ padding:18px 0;
     min-height: 230px;
   }
 
-  .catalogue-head h2 {
+  .catalogue-header h2 {
     font-size: 28px;
-  }
-}
-
-/* ─── EN-TÊTE MOBILE ─── */
-.mobile-shop-header {
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  background: #fff;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-.mobile-shop-header .logo {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: 3px;
-  color: #1A1A1A;
-  text-decoration: none;
-}
-.mobile-shop-header .logo span { color: #E30613; }
-.mobile-shop-header .header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.mobile-shop-header .header-actions a {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: #1A1A1A;
-  text-decoration: none;
-  position: relative;
-  padding: 4px;
-}
-.mobile-shop-header .notif-dot {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 8px;
-  height: 8px;
-  background: #E30613;
-  border-radius: 50%;
-}
-@media (max-width: 768px) {
-  .mobile-shop-header {
-    display: flex !important;
-  }
-  .shop-page {
-    padding-top: 0 !important;
   }
 }
 `;
