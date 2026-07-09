@@ -1,68 +1,204 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
-import ProtectedRoute from './components/layout/ProtectedRoute';
-import Home from './pages/Home';
-import ProductDetail from './pages/product/ProductDetail';
-import TryOn from './pages/tryon/TryOn';
-import Checkout from './pages/checkout/Checkout';
-import Auth from './pages/auth/Auth';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
+
+import ScrollToTop from "./components/ScrollToTop";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import BottomNav from "./components/layout/BottomNav";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
+
+import useMobile from "./hooks/useMobile";
+
+import Home from "./pages/Home";
+import ProductDetail from "./pages/product/ProductDetail";
+import TryOn from "./pages/tryon/TryOn";
+import Checkout from "./pages/checkout/Checkout";
+import Auth from "./pages/auth/Auth";
 import Shop from "./pages/shop/Shop";
 import Cart from "./pages/cart/Cart";
-import Orders from './pages/account/Orders';
-import Profile from './pages/account/Profile';
+import Orders from "./pages/account/Orders";
+import Profile from "./pages/account/Profile";
+import Notifications from "./pages/account/Notifications";
+import HelpCenter from "./pages/account/HelpCenter";
+
 import Dashboard from "./pages/admin/Dashboard";
+
 import SizeGuide from "./pages/size-guide/SizeGuide";
 import Shipping from "./pages/shipping/Shipping";
 import Returns from "./pages/returns/Returns";
 import PrivacyPolicy from "./pages/privacy-policy/PrivacyPolicy";
 import TermsConditions from "./pages/terms/TermsConditions";
-import './index.css';
-import Notifications from "./pages/account/Notifications";
-import HelpCenter from "./pages/account/HelpCenter";
 
-// ✅ Composant séparé DANS le Router pour pouvoir utiliser useLocation
+import "./index.css";
+
 function AppLayout() {
-  const { pathname } = useLocation();
-  const isAdminPage = pathname === '/admin';
+  const location = useLocation();
+  const { pathname } = location;
+
+  const isMobile = useMobile();
+
+  const isAdminPage = pathname === "/admin";
+
+  const isAuthPage =
+    pathname === "/auth" ||
+    pathname.startsWith("/reset-password") ||
+    pathname === "/auth/google/success";
 
   return (
     <div className="min-h-screen flex flex-col">
-      {!isAdminPage && <Navbar />}
+      <ScrollToTop />
+
+      {/* Navbar uniquement sur Desktop */}
+      {!isAdminPage && !isMobile && <Navbar />}
+
       <main className="flex-grow">
-        <Routes>
+        <Routes location={location} key={pathname}>
           <Route path="/" element={<Home />} />
+
           <Route path="/catalogue" element={<Shop />} />
+
           <Route path="/product/:id" element={<ProductDetail />} />
+
           <Route path="/auth" element={<Auth />} />
+
           <Route path="/auth/google/success" element={<Auth />} />
-          <Route path="/reset-password/:token" element={<Auth />} />
-          <Route path="/size-guide" element={<SizeGuide />} />
-          <Route path="/shipping" element={<Shipping />} />
-          <Route path="/returns" element={<Returns />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsConditions />} />
 
-          {/* 🔒 Routes protégées */}
-          <Route path="/tryon"    element={<ProtectedRoute><TryOn /></ProtectedRoute>} />
-          <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-          <Route path="/cart"     element={<ProtectedRoute><Cart /></ProtectedRoute>} />
-          <Route path="/orders"   element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-          <Route path="/profile"  element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-          <Route path="/help-center" element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
-          <Route path="/admin"    element={<ProtectedRoute adminOnly><Dashboard /></ProtectedRoute>} />
+          <Route
+            path="/reset-password/:token"
+            element={<Auth />}
+          />
 
-          <Route path="*" element={<div style={{ paddingTop: 120, textAlign: 'center' }}>Page introuvable</div>} />
+          <Route
+            path="/size-guide"
+            element={<SizeGuide />}
+          />
+
+          <Route
+            path="/shipping"
+            element={<Shipping />}
+          />
+
+          <Route
+            path="/returns"
+            element={<Returns />}
+          />
+
+          <Route
+            path="/privacy-policy"
+            element={<PrivacyPolicy />}
+          />
+
+          <Route
+            path="/terms"
+            element={<TermsConditions />}
+          />
+
+          {/* Routes protégées */}
+
+          <Route
+            path="/tryon"
+            element={
+              <ProtectedRoute>
+                <TryOn />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <Orders />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <Notifications />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/help-center"
+            element={
+              <ProtectedRoute>
+                <HelpCenter />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute adminOnly>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="*"
+            element={
+              <div
+                style={{
+                  paddingTop: 120,
+                  textAlign: "center",
+                }}
+              >
+                Page introuvable
+              </div>
+            }
+          />
         </Routes>
       </main>
-      {!isAdminPage && <Footer />}
+
+      {/* Footer uniquement Desktop */}
+      {!isAdminPage && !isMobile && <Footer />}
+
+      {/* Bottom Navigation uniquement Mobile */}
+      {isMobile && !isAdminPage && !isAuthPage && (
+        <BottomNav />
+      )}
     </div>
   );
 }
 
-// ✅ App ne fait plus que wrapper avec Router
 function App() {
   return (
     <Router>

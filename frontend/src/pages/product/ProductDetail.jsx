@@ -152,9 +152,142 @@ const handleAdd = async () => {
   const T = { ink: '#1A1A1A', blue: '#355C86', muted: '#6A6F78', border: 'rgba(26,26,26,.11)', card: '#fff' };
 
   return (
-    <div style={{ paddingTop: 64, background: '#F5F1EA', minHeight: '100vh' }}>
+    <div className="product-detail-wrap" style={{ paddingTop: 64, background: '#F5F1EA', minHeight: '100vh' }}>
+      <style>{`
+        /* ─── RESPONSIVE FICHE PRODUIT ─── */
+
+        /* ─── TABLETTE ─── */
+        @media (max-width: 900px) {
+          .product-detail-grid {
+            grid-template-columns: 1fr !important;
+            min-height: auto !important;
+          }
+          .product-gallery {
+            position: static !important;
+            height: 500px !important;
+            min-height: 400px !important;
+          }
+          .product-info-col {
+            padding: 32px 32px 60px !important;
+          }
+        }
+
+        /* ─── MOBILE ─── */
+        @media (max-width: 640px) {
+          .product-detail-wrap {
+            padding-top: 0 !important;
+          }
+          .product-breadcrumb {
+            padding: 10px 16px !important;
+            font-size: 11px !important;
+            flex-wrap: wrap !important;
+          }
+          .product-gallery {
+            height: 420px !important;
+            min-height: 350px !important;
+          }
+          .product-info-col {
+            padding: 20px 16px 80px !important;
+          }
+          .product-info-col h1 {
+            font-size: 28px !important;
+          }
+          .product-price-box {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+            padding: 16px 18px !important;
+          }
+          .product-price-box .price {
+            font-size: 26px !important;
+          }
+          .product-price-box .price small {
+            font-size: 14px !important;
+          }
+          .product-actions-row {
+            flex-direction: column !important;
+            gap: 10px !important;
+          }
+          .product-actions-row button,
+          .product-actions-row a {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+          .product-detail-toggle {
+            padding: 14px 16px !important;
+            font-size: 14px !important;
+          }
+          .product-detail-content {
+            padding: 0 16px 20px !important;
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+          .product-size-grid {
+            gap: 6px !important;
+          }
+          .product-size-grid button {
+            min-width: 48px !important;
+            height: 54px !important;
+            font-size: 12px !important;
+            padding: 4px 6px !important;
+          }
+          .product-size-grid button small {
+            font-size: 8px !important;
+          }
+          .product-description {
+            margin-top: 24px !important;
+            padding-top: 20px !important;
+          }
+          .product-description h2 {
+            font-size: 20px !important;
+          }
+          .product-description p {
+            font-size: 14px !important;
+          }
+          .product-reassurance {
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            font-size: 12px !important;
+          }
+        }
+
+        /* ─── TRÈS PETIT ÉCRAN ─── */
+        @media (max-width: 420px) {
+          .product-gallery {
+            height: 350px !important;
+            min-height: 280px !important;
+          }
+          .product-info-col {
+            padding: 16px 12px 80px !important;
+          }
+          .product-info-col h1 {
+            font-size: 22px !important;
+          }
+          .product-price-box .price {
+            font-size: 22px !important;
+          }
+          .product-price-box .price small {
+            font-size: 12px !important;
+          }
+          .product-size-grid button {
+            min-width: 40px !important;
+            height: 46px !important;
+            font-size: 11px !important;
+          }
+          .product-actions-row button,
+          .product-actions-row a {
+            padding: 14px 16px !important;
+            font-size: 12px !important;
+          }
+          .product-breadcrumb {
+            font-size: 10px !important;
+            padding: 8px 12px !important;
+          }
+        }
+      `}</style>
+
       {/* Breadcrumb */}
-      <div style={{ padding: '12px 48px', fontSize: 12, color: T.muted, display: 'flex', gap: 8, borderBottom: `1px solid ${T.border}`, background: '#fff' }}>
+      <div className="product-breadcrumb" style={{ padding: '12px 48px', fontSize: 12, color: T.muted, display: 'flex', gap: 8, borderBottom: `1px solid ${T.border}`, background: '#fff' }}>
         <Link to="/" style={{ color: T.blue, textDecoration: 'none' }}>Accueil</Link>
         <span>›</span>
         <Link to="/catalogue" style={{ color: T.blue, textDecoration: 'none' }}>Catalogue</Link>
@@ -162,9 +295,9 @@ const handleAdd = async () => {
         <span>{product.name}</span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, minHeight: 'calc(100vh - 104px)' }}>
+      <div className="product-detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, minHeight: 'calc(100vh - 104px)' }}>
         {/* Galerie */}
-        <div style={{
+        <div className="product-gallery" style={{
           position: 'sticky', top: 64, height: 'calc(100vh - 104px)',
           background: 'linear-gradient(160deg,#f5f0e8,#ede5d8)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
@@ -173,7 +306,7 @@ const handleAdd = async () => {
         </div>
 
         {/* Colonne infos */}
-        <div style={{ padding: '48px 56px', overflowY: 'auto' }}>
+        <div className="product-info-col" style={{ padding: '48px 56px', overflowY: 'auto' }}>
           {/* État */}
           <span style={{
             display: 'inline-block', background: 'rgba(53,124,79,.12)', color: '#2E7C4F',
@@ -191,11 +324,11 @@ const handleAdd = async () => {
           </h1>
 
           {/* Prix + favori + partage */}
-          <div style={{
+          <div className="product-price-box" style={{
             background: T.card, borderRadius: 16, padding: '20px 24px', marginBottom: 28,
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: `1px solid ${T.border}`,
           }}>
-            <div style={{ fontFamily: "'sans-serif',serif", fontSize: 34, fontWeight: 600 }}>
+            <div className="price" style={{ fontFamily: "'sans-serif',serif", fontSize: 34, fontWeight: 600 }}>
               {product.price.toLocaleString()} <small style={{ fontSize: 16, fontWeight: 300 }}>FCFA</small>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
@@ -214,7 +347,7 @@ const handleAdd = async () => {
 
           {/* Détails de l'article (pliable) */}
           <div style={{ background: T.card, borderRadius: 16, border: `1px solid ${T.border}`, marginBottom: 28, overflow: 'hidden' }}>
-            <button type="button" onClick={() => setDetailsOpen(o => !o)} style={{
+            <button className="product-detail-toggle" type="button" onClick={() => setDetailsOpen(o => !o)} style={{
               width: '100%', padding: '18px 24px', background: 'none', border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               fontSize: 16, fontWeight: 600, color: T.ink,
@@ -223,7 +356,7 @@ const handleAdd = async () => {
               <span style={{ transform: detailsOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>⌄</span>
             </button>
             {detailsOpen && (
-              <div style={{ padding: '0 24px 24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px 24px' }}>
+              <div className="product-detail-content" style={{ padding: '0 24px 24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px 24px' }}>
                 {[
                   ['Marque', product.brand],
                   ['Taille', selectedSize || '—'],
@@ -243,7 +376,7 @@ const handleAdd = async () => {
             <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: '1.5px', textTransform: 'uppercase', color: T.muted, marginBottom: 12, display: 'flex', justifyContent: 'space-between' }}>
               Taille <Link to="/size-guide" style={{ color: T.blue, textTransform: 'none', letterSpacing: 0, textDecoration: 'none' }}>Guide des tailles →</Link>
             </div>
-<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <div className="product-size-grid" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {ALL_SIZES.map(s => {
                 const sizeInfo = product.sizes.find((size) => size.label === s);
                 const stock = sizeInfo ? sizeInfo.stock : 0;
@@ -274,8 +407,6 @@ const handleAdd = async () => {
             </div>
           </div>
 
-
-
           {/* Message intégré (remplace les alertes système) */}
           {message && (
             <div style={{
@@ -294,49 +425,51 @@ const handleAdd = async () => {
             </div>
           )}
 
-        {/* Essayage virtuel (bien visible) */}
-          <button type="button" onClick={() => navigate(`/tryon?productId=${product.id}`)} disabled={isOutOfStock} style={{
-            width: '100%', padding: 18, borderRadius: 12,
-            background: isOutOfStock ? '#E0E0E0' : 'linear-gradient(135deg,#355C86,#26384D)',
-            color: isOutOfStock ? '#999' : '#F9F9F9', border: 'none',
-            cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-            fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 12,
-          }}>
-            <span style={{ fontSize: 18 }}>✨</span> Essayer virtuellement
-          </button>
+          {/* Essayage virtuel (bien visible) */}
+          <div className="product-actions-row" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <button type="button" onClick={() => navigate(`/tryon?productId=${product.id}`)} disabled={isOutOfStock} style={{
+              width: '100%', padding: 18, borderRadius: 12,
+              background: isOutOfStock ? '#E0E0E0' : 'linear-gradient(135deg,#355C86,#26384D)',
+              color: isOutOfStock ? '#999' : '#F9F9F9', border: 'none',
+              cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+              fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+            }}>
+              <span style={{ fontSize: 18 }}>✨</span> Essayer virtuellement
+            </button>
 
-{/* Ajouter au panier */}
-          <button type="button" onClick={handleAdd} disabled={isOutOfStock} style={{
-            width: '100%', padding: 18, borderRadius: 12,
-            background: isOutOfStock ? '#E0E0E0' : (added ? '#06D6A0' : '#1A1A1A'),
-            color: isOutOfStock ? '#999' : '#fff',
-            border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-            fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12,
-          }}>
-            {isOutOfStock ? '✕ Épuisé' : (added ? '✓ Ajouté au panier' : '🛍 Ajouter au panier')}
-          </button>
+            {/* Ajouter au panier */}
+            <button type="button" onClick={handleAdd} disabled={isOutOfStock} style={{
+              width: '100%', padding: 18, borderRadius: 12,
+              background: isOutOfStock ? '#E0E0E0' : (added ? '#06D6A0' : '#E30613'),
+              color: isOutOfStock ? '#999' : '#fff',
+              border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+              fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase',
+            }}>
+              {isOutOfStock ? '✕ Épuisé' : (added ? '✓ Ajouté au panier' : '🛍 Ajouter au panier')}
+            </button>
 
-<a href={whatsappUrl} target="_blank" rel="noopener noreferrer" style={{
-            width: '100%', padding: 16, borderRadius: 12,
-            background: 'transparent', color: T.ink, border: `1.5px solid ${T.border}`,
-            fontSize: 13, fontWeight: 500, textDecoration: 'none',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 20,
-          }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-            </svg>
-            Contacter sur WhatsApp
-          </a>
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" style={{
+              width: '100%', padding: 16, borderRadius: 12,
+              background: 'transparent', color: T.ink, border: `1.5px solid ${T.border}`,
+              fontSize: 13, fontWeight: 500, textDecoration: 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+            }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              Contacter sur WhatsApp
+            </a>
 
-          {/* Réassurance */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: T.muted, justifyContent: 'center' }}>
-            <span style={{ color: '#2E7C4F' }}>🛡</span>
-            Paiement à la livraison ou Mobile Money sécurisé
+            {/* Réassurance */}
+            <div className="product-reassurance" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: T.muted, justifyContent: 'center' }}>
+              <span style={{ color: '#2E7C4F' }}>🛡</span>
+              Paiement à la livraison ou Mobile Money sécurisé
+            </div>
           </div>
 
           {/* Description */}
-          <div style={{ marginTop: 32, paddingTop: 28, borderTop: `1px solid ${T.border}` }}>
+          <div className="product-description" style={{ marginTop: 32, paddingTop: 28, borderTop: `1px solid ${T.border}` }}>
             <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 24, fontWeight: 400, marginBottom: 14 }}>
               Description
             </h2>

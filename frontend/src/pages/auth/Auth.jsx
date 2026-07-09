@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
+import BottomNav from '../../components/layout/BottomNav';
 
 const DATA = {
   login: {
@@ -217,12 +218,228 @@ export default function Auth() {
   };
 
   return (
-    <div style={pageStyle}>
+    <div style={pageStyle} className="auth-page">
+      <style>{`
+        /* ═══════════════════════════════════════
+          RESPONSIVE — AUTH
+        ═══════════════════════════════════════ */
+
+        /* ─── TABLETTE ─── */
+        @media (max-width: 900px) {
+          .auth-page {
+            grid-template-columns: 1fr !important;
+            padding-top: 0 !important;
+            min-height: 100vh !important;
+            display: flex !important;
+            flex-direction: column !important;
+          }
+
+          .auth-left {
+            min-height: 300px !important;
+            height: auto !important;
+            padding: 32px 24px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background-size: cover !important;
+            background-position: center !important;
+            flex-shrink: 0 !important;
+          }
+
+          .auth-left h1 {
+            font-size: 32px !important;
+          }
+
+          .auth-left .auth-tags {
+            display: flex !important;
+            gap: 8px !important;
+            margin-top: 16px !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+          }
+
+          .auth-left .auth-tags span {
+            padding: 6px 12px !important;
+            font-size: 11px !important;
+          }
+
+          .auth-right {
+            padding: 24px 20px !important;
+            min-height: auto !important;
+            flex: 1 !important;
+          }
+
+          .auth-card {
+            padding: 24px 20px !important;
+            max-width: 100% !important;
+            border-radius: 16px !important;
+            box-shadow: none !important;
+          }
+        }
+
+        /* ─── MOBILE ─── */
+        @media (max-width: 640px) {
+          .auth-left {
+            min-height: 240px !important;
+            padding: 24px 16px !important;
+          }
+
+          .auth-left h1 {
+            font-size: 24px !important;
+          }
+
+          .auth-left .auth-tags {
+            gap: 6px !important;
+            margin-top: 12px !important;
+          }
+
+          .auth-left .auth-tags span {
+            padding: 4px 10px !important;
+            font-size: 10px !important;
+          }
+
+          .auth-right {
+            padding: 16px 14px !important;
+          }
+
+          .auth-card {
+            padding: 20px 14px !important;
+          }
+
+          .auth-card h2 {
+            font-size: 28px !important;
+          }
+
+          .auth-card p {
+            font-size: 14px !important;
+          }
+
+          .auth-tabs button {
+            padding: 12px 8px !important;
+            font-size: 11px !important;
+            letter-spacing: 1px !important;
+          }
+
+          .auth-tabs {
+            padding: 5px !important;
+            border-radius: 16px !important;
+            margin-bottom: 20px !important;
+          }
+
+          .auth-input-wrapper {
+            padding: 0 12px !important;
+          }
+
+          .auth-input-wrapper input {
+            padding: 12px 0 !important;
+            font-size: 14px !important;
+          }
+
+          .auth-input-wrapper .input-icon {
+            font-size: 16px !important;
+          }
+
+          .auth-input-label {
+            font-size: 10px !important;
+            letter-spacing: 1.2px !important;
+          }
+
+          .auth-name-grid {
+            grid-template-columns: 1fr !important;
+            gap: 0 !important;
+          }
+
+          .auth-btn {
+            padding: 14px !important;
+            font-size: 12px !important;
+            letter-spacing: 1.5px !important;
+          }
+
+          .auth-social-btn {
+            padding: 10px !important;
+            font-size: 12px !important;
+          }
+
+          .auth-otp-input {
+            font-size: 16px !important;
+            padding: 12px !important;
+          }
+
+          .auth-separator {
+            font-size: 12px !important;
+            margin: 16px 0 10px !important;
+          }
+
+          .auth-back-link {
+            font-size: 13px !important;
+          }
+        }
+
+        /* ─── TRÈS PETIT ÉCRAN (iPhone SE) ─── */
+        @media (max-width: 420px) {
+          .auth-left {
+            min-height: 200px !important;
+            padding: 16px 12px !important;
+          }
+
+          .auth-left h1 {
+            font-size: 20px !important;
+          }
+
+          .auth-left .auth-tags {
+            gap: 4px !important;
+            margin-top: 10px !important;
+          }
+
+          .auth-left .auth-tags span {
+            padding: 3px 8px !important;
+            font-size: 9px !important;
+          }
+
+          .auth-right {
+            padding: 12px 10px !important;
+          }
+
+          .auth-card {
+            padding: 16px 12px !important;
+          }
+
+          .auth-card h2 {
+            font-size: 24px !important;
+          }
+
+          .auth-card p {
+            font-size: 13px !important;
+          }
+
+          .auth-tabs button {
+            padding: 10px 6px !important;
+            font-size: 10px !important;
+          }
+
+          .auth-input-wrapper input {
+            padding: 10px 0 !important;
+            font-size: 13px !important;
+          }
+
+          .auth-btn {
+            padding: 12px !important;
+            font-size: 11px !important;
+          }
+
+          .auth-tags span {
+            padding: 4px 10px !important;
+            font-size: 10px !important;
+          }
+        }
+      `}</style>
+
       <section
         style={{
           ...leftStyle,
           backgroundImage: `linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.50)), url(${active.image})`,
         }}
+        className="auth-left"
       >
         <div style={leftContentStyle}>
           <h1 style={leftTitleStyle}>
@@ -245,7 +462,7 @@ export default function Auth() {
             )}
           </h1>
 
-          <div style={tagsBoxStyle}>
+          <div style={tagsBoxStyle} className="auth-tags">
             {(pendingOtp && screen === "login"
               ? ["Sécurité renforcée", "Code OTP", "Accès administrateur", "Compte protégé"]
               : active.tags
@@ -258,9 +475,9 @@ export default function Auth() {
         </div>
       </section>
 
-      <section style={rightStyle}>
-        <div style={cardStyle}>
-          <div style={tabsStyle}>
+      <section style={rightStyle} className="auth-right">
+        <div style={cardStyle} className="auth-card">
+          <div style={tabsStyle} className="auth-tabs">
             <button
               type="button"
               onClick={() => changeScreen("login")}
@@ -320,6 +537,7 @@ export default function Auth() {
                         setError("");
                       }}
                       style={inlineButtonStyle}
+                      className="auth-back-link"
                     >
                       Je vais vérifier le terminal backend
                     </button>
@@ -366,14 +584,14 @@ export default function Auth() {
                       </button>
                     </div>
 
-                    <HoverButton type="submit">
+                    <HoverButton type="submit" className="auth-btn">
                       Se connecter
                     </HoverButton>
                   </form>
 
-                  <div style={separatorStyle}>ou continuer avec</div>
+                  <div style={separatorStyle} className="auth-separator">ou continuer avec</div>
 
-                  <SocialButton onClick={loginWithGoogle}>
+                  <SocialButton onClick={loginWithGoogle} className="auth-social-btn">
                     🌐 Continuer avec Google
                   </SocialButton>
                 </>
@@ -389,7 +607,7 @@ export default function Auth() {
               </p>
 
               <form onSubmit={handleRegister}>
-                <div style={registerNameGridStyle}>
+                <div style={registerNameGridStyle} className="auth-name-grid">
                   <Input
                     icon="👤"
                     label="Prénom"
@@ -472,7 +690,7 @@ export default function Auth() {
                   }
                 />
 
-                <HoverButton type="submit">
+                <HoverButton type="submit" className="auth-btn">
                   Créer mon compte
                 </HoverButton>
               </form>
@@ -497,7 +715,7 @@ export default function Auth() {
                   onChange={setForgotEmail}
                 />
 
-                <HoverButton type="submit">
+                <HoverButton type="submit" className="auth-btn">
                   Demander un nouveau mot de passe
                 </HoverButton>
               </form>
@@ -507,6 +725,7 @@ export default function Auth() {
                   type="button"
                   onClick={() => changeScreen("login")}
                   style={inlineButtonStyle}
+                  className="auth-back-link"
                 >
                   ← Retour à la connexion
                 </button>
@@ -544,7 +763,7 @@ export default function Auth() {
                   onChange={setConfirmNewPassword}
                 />
 
-                <HoverButton type="submit">
+                <HoverButton type="submit" className="auth-btn">
                   Réinitialiser
                 </HoverButton>
               </form>
@@ -554,6 +773,7 @@ export default function Auth() {
                   type="button"
                   onClick={() => changeScreen("login")}
                   style={inlineButtonStyle}
+                  className="auth-back-link"
                 >
                   ← Retour à la connexion
                 </button>
@@ -562,6 +782,8 @@ export default function Auth() {
           )}
         </div>
       </section>
+      {/* ─── BOTTOM NAV (mobile uniquement) ─── */}
+      <BottomNav />
     </div>
   );
 }
@@ -575,7 +797,7 @@ function Input({ label, type = "text", placeholder, value, onChange, icon }) {
 
   return (
     <div style={{ marginBottom: 16 }}>
-      <label style={labelStyle}>{label}</label>
+      <label style={labelStyle} className="auth-input-label">{label}</label>
 
       <div
         style={{
@@ -583,8 +805,9 @@ function Input({ label, type = "text", placeholder, value, onChange, icon }) {
           borderColor: focused ? "#E30613" : "#dfe5ec",
           boxShadow: focused ? "0 0 0 4px rgba(227,6,19,.12)" : "none",
         }}
+        className="auth-input-wrapper"
       >
-        <span style={inputIconStyle}>{icon}</span>
+        <span style={inputIconStyle} className="input-icon">{icon}</span>
 
         <input
           required
@@ -611,11 +834,12 @@ function Input({ label, type = "text", placeholder, value, onChange, icon }) {
   );
 }
 
-function HoverButton({ children, type = "button" }) {
+function HoverButton({ children, type = "button", className = "" }) {
   return (
     <button
       type={type}
       style={mainButtonStyle}
+      className={`auth-btn ${className}`}
       onMouseEnter={(e) => {
         e.currentTarget.style.background =
           "linear-gradient(135deg,#E30613,#B8000A)";
@@ -636,11 +860,12 @@ function HoverButton({ children, type = "button" }) {
   );
 }
 
-function SocialButton({ children, onClick }) {
+function SocialButton({ children, onClick, className = "" }) {
   return (
     <button
       type="button"
       style={socialButtonStyle}
+      className={`auth-social-btn ${className}`}
       onClick={onClick}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = "#E30613";

@@ -3,6 +3,10 @@ import { api, getImageUrl } from "../../services/api";
 import ProductCard from "../../components/shop/ProductCard";
 import FilterSidebar from "../../components/shop/FilterSidebar";
 import SearchBar from "../../components/shop/SearchBar";
+import { useAuth } from '../../context/AuthContext';
+import { adminService } from '../../services/adminService';
+import { Link } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 
 const FILTERS = ["Tous", "Femme", "Homme", "Robes", "Chemises", "Pantalons", "Vestes", "Accessoires"];
 const PER_PAGE = 8;
@@ -14,6 +18,11 @@ export default function Shop() {
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { count } = useCart();
+
+  // Contextual data
+  const { isAuthenticated } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     async function loadProducts() {
@@ -40,6 +49,25 @@ export default function Shop() {
 
     loadProducts();
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const fetchUnread = async () => {
+      try {
+        const res = await adminService.getNotifications();
+        const payload = res?.data?.data || res?.data || [];
+        const unread = Array.isArray(payload)
+          ? payload.filter((n) => !n.read && !n.isRead && !n.readAt).length
+          : 0;
+        setUnreadCount(unread);
+      } catch (e) {
+        // silencieux
+      }
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 60000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   const filteredProducts = useMemo(() => {
     let list = [...products];
@@ -73,6 +101,28 @@ export default function Shop() {
 
   return (
     <div className="shop-page">
+
+    {/* ─── EN-TÊTE MOBILE ─── */}
+      <div className="mobile-shop-header">
+        <Link to="/" className="logo">TRY<span>ON</span></Link>
+        <div className="header-actions">
+          {/* Notifications ou Connexion */}
+          {isAuthenticated ? (
+            <Link to="/notifications" aria-label="Notifications">
+              🔔
+              {unreadCount > 0 && <span className="notif-dot" />}
+            </Link>
+          ) : (
+            <Link to="/auth" aria-label="Connexion">👤</Link>
+          )}
+          {/* Panier */}
+          <Link to="/cart" aria-label="Panier" style={{ position: 'relative' }}>
+            🛒
+            {count > 0 && <span className="cart-badge-mobile">{count}</span>}
+          </Link>
+        </div>
+      </div>
+
       <style>{styles}</style>
 
       <section className="shop-hero">
@@ -85,15 +135,17 @@ export default function Shop() {
         </div>
       </section>
 
+      {/* ─── CATALOGUE ─── */}
       <section className="catalogue-section">
-        <div className="catalogue-head">
-          <div>
-            <span className="section-tag">Catalogue</span>
-            <h2>
-              Tous les <em>vêtements</em>
-            </h2>
-          </div>
+        {/* Titre (pas sticky) */}
+        <div className="catalogue-header">
+          <h2>
+            Tous les <em>vêtements</em>
+          </h2>
+        </div>
 
+        {/* Recherche + Filtres (sticky) */}
+        <div className="sticky-search">
           <SearchBar
             search={search}
             setSearch={setSearch}
@@ -101,35 +153,43 @@ export default function Shop() {
             setSort={setSort}
             setPage={setPage}
           />
+
+          <FilterSidebar filters={FILTERS} activeFilter={filter} onChangeFilter={changeFilter} />
         </div>
 
-        <FilterSidebar filters={FILTERS} activeFilter={filter} onChangeFilter={changeFilter} />
-        {loading && <p>Chargement des produits...</p>}
-        {!loading && visibleProducts.length === 0 && (
-          <p>Aucun produit disponible pour le moment.</p>
+        {/* Loading */}
+        {loading && (
+          <div className="products-grid">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="skeleton-card" />
+            ))}
+          </div>
         )}
 
+        {/* Aucun produit */}
+        {!loading && visibleProducts.length === 0 && (
+          <p style={{ textAlign: 'center', padding: '40px 0', color: '#6A6F78' }}>
+            Aucun produit disponible pour le moment.
+          </p>
+        )}
+
+        {/* Produits */}
         <div className="products-grid">
           {visibleProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
 
+        {/* Pagination */}
         {totalPages > 1 && (
           <div className="pagination">
-            <button disabled={page === 1} onClick={() => setPage(page - 1)}>‹</button>
-
-            {Array.from({ length: totalPages }).map((_, index) => (
-              <button
-                key={index}
-                className={page === index + 1 ? "page-active" : ""}
-                onClick={() => setPage(index + 1)}
-              >
-                {index + 1}
-              </button>
-            ))}
-
-            <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>›</button>
+            <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+              ←
+            </button>
+            <span>Page {page} / {totalPages}</span>
+            <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+              →
+            </button>
           </div>
         )}
       </section>
@@ -182,8 +242,7 @@ const styles = `
   margin: 18px 0;
 }
 
-.shop-hero-text h1 em,
-.catalogue-head h2 em {
+.shop-hero-text h1 em {
   color: #E30613;
   font-style: italic;
 }
@@ -199,25 +258,38 @@ const styles = `
   padding: 58px 76px 80px;
 }
 
-.catalogue-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 28px;
-  margin-bottom: 26px;
+/* ─── TITRE (pas sticky) ─── */
+.catalogue-header {
+  margin-bottom: 16px;
 }
 
-.catalogue-head h2 {
+.catalogue-header h2 {
   font-family: 'Cormorant Garamond', serif;
   font-size: clamp(42px, 4vw, 58px);
   font-weight: 300;
   line-height: 1;
-  margin-top: 10px;
+  margin: 0;
+}
+
+.catalogue-header h2 em {
+  color: #E30613;
+  font-style: italic;
+}
+
+/* ─── RECHERCHE + FILTRES (sticky) ─── */
+.sticky-search {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #F9F9F9;
+  padding: 12px 0 18px;
+  margin-bottom: 8px;
 }
 
 .search-sort {
   display: flex;
   gap: 12px;
+  margin-bottom: 16px;
 }
 
 .search-sort input,
@@ -246,7 +318,6 @@ const styles = `
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 28px;
 }
 
 .filters button {
@@ -275,16 +346,26 @@ const styles = `
   gap: 22px;
 }
 
+.product-card-wrap {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
 .product-card {
-  min-height: 340px;
+  min-height: 420px;
   position: relative;
   overflow: hidden;
   border-radius: 18px;
   background-size: cover;
-  background-position: center;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-color: #f5f5f5;
   border: 1px solid rgba(26,26,26,.10);
   box-shadow: 0 8px 24px rgba(0,0,0,.06);
   transition: all .28s ease;
+  animation: cardAppear .7s cubic-bezier(.2,.8,.2,1) forwards;
+  will-change: transform,opacity;
 }
 
 .product-card:hover {
@@ -296,7 +377,7 @@ const styles = `
 .product-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,.28) 38%, rgba(255,255,255,.92) 100%);
+  background: transparent;
   z-index: 1;
 }
 
@@ -316,28 +397,23 @@ const styles = `
   text-transform: uppercase;
 }
 
-.product-content {
-  position: absolute;
-  left: 18px;
-  right: 18px;
-  bottom: 68px;
-  z-index: 2;
-  text-align: center;
-}
-
 .product-category {
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: #8A8F98;
-  text-transform: uppercase;
-  font-weight: 900;
+  display: none;
 }
 
-.product-card h3 {
-  font-size: 15px;
-  font-weight: 800;
+.product-content {
+  display: none;
+}
+
+.product-info-below {
+  padding: 10px 4px 0;
+}
+
+.product-info-below h3 {
+  font-size: 14px;
+  font-weight: 600;
   color: #1A1A1A;
-  margin: 6px 0 8px;
+  margin: 0 0 4px;
 }
 
 .product-price {
@@ -347,8 +423,8 @@ const styles = `
 }
 
 .product-price strong {
-  font-size: 21px;
-  font-weight: 950;
+  font-size: 16px;
+  font-weight: 800;
   letter-spacing: .3px;
 }
 
@@ -366,7 +442,9 @@ const styles = `
   transition: all .25s ease;
 }
 
-.product-card:hover .product-actions {
+.product-card:hover .product-actions,
+.product-card:active .product-actions,
+.product-card:focus-within .product-actions {
   opacity: 1;
   transform: translateY(0);
 }
@@ -393,7 +471,14 @@ const styles = `
   margin-top: 34px;
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
+}
+
+.pagination span {
+  font-weight: 700;
+  font-size: 15px;
 }
 
 .pagination button {
@@ -418,5 +503,247 @@ const styles = `
 .pagination button:disabled {
   opacity: .35;
   cursor: not-allowed;
+}
+
+.products-grid .product-card-wrap:nth-child(1) .product-card{ animation-delay: .05s; }
+.products-grid .product-card-wrap:nth-child(2) .product-card{ animation-delay: .1s; }
+.products-grid .product-card-wrap:nth-child(3) .product-card{ animation-delay: .15s; }
+.products-grid .product-card-wrap:nth-child(4) .product-card{ animation-delay: .2s; }
+.products-grid .product-card-wrap:nth-child(5) .product-card{ animation-delay: .25s; }
+.products-grid .product-card-wrap:nth-child(6) .product-card{ animation-delay: .3s; }
+.products-grid .product-card-wrap:nth-child(7) .product-card{ animation-delay: .35s; }
+.products-grid .product-card-wrap:nth-child(8) .product-card{ animation-delay: .4s; }
+
+@keyframes cardAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.skeleton-card {
+  height: 340px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, #eeeeee 25%, #f8f8f8 50%, #eeeeee 75%);
+  background-size: 200% 100%;
+  animation: skeleton 1.3s infinite;
+}
+
+@keyframes skeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── EN-TÊTE MOBILE ─── */
+.mobile-shop-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.mobile-shop-header .logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: #1A1A1A;
+  text-decoration: none;
+}
+
+.mobile-shop-header .logo span { color: #E30613; }
+
+.mobile-shop-header .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-shop-header .header-actions a {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #1A1A1A;
+  text-decoration: none;
+  position: relative;
+  padding: 4px;
+  line-height: 1;
+}
+
+.mobile-shop-header .notif-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  background: #E30613;
+  border-radius: 50%;
+}
+
+.cart-badge-mobile {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background: #E30613;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================= */
+/* RESPONSIVE MOBILE */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .shop-page {
+    padding-top: 0;
+  }
+
+  .mobile-shop-header {
+    display: flex !important;
+  }
+
+  .shop-hero {
+    height: 220px;
+  }
+
+  .shop-hero-text {
+    margin-left: 20px;
+    margin-right: 20px;
+    max-width: 100%;
+  }
+
+  .shop-hero-text h1 {
+    font-size: 38px;
+  }
+
+  .shop-hero-text p {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .catalogue-section {
+    padding: 16px 18px 90px;
+  }
+
+  .catalogue-header h2 {
+    font-size: 34px;
+  }
+
+  .sticky-search {
+    padding: 8px 0 14px;
+    background: #F9F9F9;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+
+  .search-sort {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .search-sort input,
+  .search-sort select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filters button {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .product-card {
+    min-height: 270px;
+    border-radius: 14px;
+  }
+
+  .product-info-below {
+    padding-top: 8px;
+  }
+
+  .product-info-below h3 {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  .product-price {
+    font-size: 12px;
+  }
+
+  .product-price strong {
+    font-size: 15px;
+  }
+
+  .product-actions {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .product-actions a {
+    padding: 8px 10px;
+    font-size: 9px;
+  }
+
+  .pagination {
+    gap: 12px;
+    margin-top: 30px;
+  }
+
+  .pagination button {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 380px) {
+  .products-grid {
+    gap: 10px;
+  }
+
+  .product-card {
+    min-height: 230px;
+  }
+
+  .catalogue-header h2 {
+    font-size: 28px;
+  }
 }
 `;

@@ -1068,7 +1068,8 @@ const ViewModal = React.memo(({ view, close }) => {
 // ==================== DASHBOARD PRINCIPAL ====================
 
 function Dashboard() {
-  const { user } = useAuth();
+  //const { user } = useAuth();
+  const { user, logout: authLogout } = useAuth();
   const navigate = useNavigate();
   const [page, setPage] = useState("dashboard");
   const [collapsed, setCollapsed] = useState(() => {
@@ -1092,14 +1093,70 @@ function Dashboard() {
   const [exportModal, setExportModal] = useState(false);
   const [searchModal, setSearchModal] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState(null);
+  const [showLogout, setShowLogout] = useState(false);
   const [pagination, setPagination] = useState({ 
     commandes: 1, produits: 1, clients: 1, stock: 1, essayages: 1,
     reviews: 1, promotions: 1, transactions: 1, logs: 1,
     notifications: 1, support: 1, faq: 1
   });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(false);
+
+    const toggleMobileMenu = () => {
+      setMobileMenuOpen(!mobileMenuOpen);
+    };
+
+    // Fermer le menu mobile quand on clique sur un élément
+    const handleNavClick = (key) => {
+      changePage(key);
+      setMobileMenuOpen(false);
+    };
+
+    // Ouvrir/fermer la sidebar au glissement tactile (mobile)
+    useEffect(() => {
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let startedFromEdge = false;
+
+      const handleTouchStart = (e) => {
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        // le geste ne compte que s'il démarre tout près du bord gauche
+        startedFromEdge = touchStartX <= 24;
+      };
+
+      const handleTouchEnd = (e) => {
+        if (window.innerWidth > 820) return; // uniquement en mode mobile
+
+        const touch = e.changedTouches[0];
+        const deltaX = touch.clientX - touchStartX;
+        const deltaY = touch.clientY - touchStartY;
+
+        // on ignore si c'est plutôt un scroll vertical qu'un glissement horizontal
+        if (Math.abs(deltaX) < Math.abs(deltaY) * 1.5) return;
+
+        // glisser vers la droite depuis le bord gauche → ouvre la sidebar
+        if (!mobileMenuOpen && startedFromEdge && deltaX > 60) {
+          setMobileMenuOpen(true);
+        }
+
+        // petit bonus : glisser vers la gauche pendant qu'elle est ouverte → la ferme
+        if (mobileMenuOpen && deltaX < -60) {
+          setMobileMenuOpen(false);
+        }
+      };
+
+      window.addEventListener("touchstart", handleTouchStart, { passive: true });
+      window.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+      return () => {
+        window.removeEventListener("touchstart", handleTouchStart);
+        window.removeEventListener("touchend", handleTouchEnd);
+      };
+    }, [mobileMenuOpen]);
 
   const [db, setDb] = useState({
     orders: [],
@@ -1386,6 +1443,7 @@ function Dashboard() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     loadAdminData();
   }, []);
@@ -1424,6 +1482,7 @@ function Dashboard() {
     setSearch("");
     setAdvancedFilters(null);
     setPagination((prev) => ({ ...prev, [key]: 1 }));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const loadLogsFromBackend = async () => {
@@ -1858,10 +1917,7 @@ function Dashboard() {
   };
 
   const logout = () => {
-    sessionStorage.removeItem("tryon_token");
-    sessionStorage.removeItem("tryon_user");
-    localStorage.removeItem("tryon_token");
-    localStorage.removeItem("tryon_user");
+    authLogout(); // ← vide le localStorage ET fait setUser(null)
     navigate("/auth");
   };
 
@@ -1906,6 +1962,15 @@ function Dashboard() {
       }
     }, 1000);
   };
+
+  useEffect(() => {
+    if (!showLogout) return;
+    const close = (e) => {
+      if (!e.target.closest('.admin-profile-card')) setShowLogout(false);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [showLogout]);
 
   // Export PDF pour la section ventes
   const runExportPdf = () => {
@@ -2515,90 +2580,118 @@ function Dashboard() {
     notify('Recherche avancée appliquée', 'success');
   };
 
-  return (
+    return (
     <div className={`tryon-admin ${collapsed ? "collapsed" : ""} ${darkMode ? "dark" : ""}`}>
-
       {!isOnline && (
         <div className="offline-banner">
           ⚠️ Mode hors ligne - Données backend indisponibles
         </div>
       )}
 
-        <aside className="sidebar">
-          <div className="brand">
-            <div className="brand-text">
-              <div className="brand-title">TryOn</div>
-              <div className="brand-sub">Application de mode africaine et cabine d'essayage virtuelle · Douala.</div>
-            </div>
-            <div className="brand-actions">
-              <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)} aria-label={darkMode ? "Activer le mode clair" : "Activer le mode sombre"} title={darkMode ? "Mode clair" : "Mode sombre"}>
-                {darkMode ? '☀️' : '🌙'}
-              </button>
-              <button className="collapse-btn" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? "Agrandir la sidebar" : "Réduire la sidebar"} title={collapsed ? "Agrandir la sidebar" : "Réduire la sidebar"}>
-                ☰
-              </button>
-            </div>
+      {/* Overlay pour le menu mobile - ajouté AVANT la sidebar */}
+      <div 
+        className={`sidebar-overlay ${mobileMenuOpen ? 'visible' : ''}`} 
+        onClick={toggleMobileMenu}
+      />
+
+      <aside className={`sidebar ${mobileMenuOpen ? 'open' : ''}`}>
+        <div className="brand">
+          <div className="brand-text">
+            <div className="brand-title">TryOn</div>
           </div>
-
-          <nav className="nav">
-            {nav.map((item, index) => {
-              const prevItem = index > 0 ? nav[index - 1] : null;
-              const showGroup = !prevItem || prevItem.group !== item.group;
-              
-              return (
-                <React.Fragment key={item.key}>
-                  {showGroup && <div className="nav-section">{item.group}</div>}
-                  <button 
-                    className={`nav-item ${page === item.key ? "active" : ""}`} 
-                    onClick={() => changePage(item.key)} 
-                    title={collapsed ? item.label : ""}
-                  >
-                    <span className="ico">{item.icon}</span>
-                    <span className="nav-label">{item.label}</span>
-                    {item.key === "notifications" && kpi.unreadNotifs > 0 && (
-                      <span className="badge-notif">{kpi.unreadNotifs}</span>
-                    )}
-                    {item.key === "avis" && kpi.pendingReviews > 0 && (
-                      <span className="badge-notif">{kpi.pendingReviews}</span>
-                    )}
-                    {item.key === "support" && kpi.openSupport > 0 && (
-                      <span className="badge-notif">{kpi.openSupport}</span>
-                    )}
-                  </button>
-                </React.Fragment>
-              );
-            })}
-          </nav>
-
-          <div className="admin-profile-card">
-            <div className="admin-avatar">
-              {user?.avatar ? (
-                <img src={user.avatar} alt={adminName} />
-              ) : (
-                <span>{adminInitials}</span>
-              )}
-            </div>
-
-            <div className="admin-profile-info">
-              <strong>{adminName}</strong>
-              <span>{adminEmail}</span>
-              <small>
-                <i></i>
-                En ligne
-              </small>
-            </div>
+          <div className="brand-actions">
+            {/* Bouton de fermeture pour mobile */}
+            <button 
+              className="mobile-close-btn" 
+              onClick={toggleMobileMenu}
+              aria-label="Fermer le menu"
+            >
+              ✕
+            </button>
+            <button 
+              className="collapse-btn" 
+              onClick={() => setCollapsed(!collapsed)} 
+              aria-label={collapsed ? "Agrandir la sidebar" : "Réduire la sidebar"} 
+              title={collapsed ? "Agrandir la sidebar" : "Réduire la sidebar"}
+            >
+              ☰
+            </button>
           </div>
+        </div>
 
-          <button className="logout" onClick={logout}>
-            <span className="ico">🚪</span>
-            <span>Déconnexion</span>
-          </button>
-        </aside>
+        <nav className="nav">
+          {nav.map((item, index) => {
+            const prevItem = index > 0 ? nav[index - 1] : null;
+            const showGroup = !prevItem || prevItem.group !== item.group;
+            
+            return (
+              <React.Fragment key={item.key}>
+                {showGroup && <div className="nav-section">{item.group}</div>}
+                <button 
+                  className={`nav-item ${page === item.key ? "active" : ""}`} 
+                  onClick={() => handleNavClick(item.key)} 
+                  title={collapsed ? item.label : ""}
+                >
+                  <span className="ico">{item.icon}</span>
+                  <span className="nav-label">{item.label}</span>
+                  {item.key === "notifications" && kpi.unreadNotifs > 0 && (
+                    <span className="badge-notif">{kpi.unreadNotifs}</span>
+                  )}
+                  {item.key === "avis" && kpi.pendingReviews > 0 && (
+                    <span className="badge-notif">{kpi.pendingReviews}</span>
+                  )}
+                  {item.key === "support" && kpi.openSupport > 0 && (
+                    <span className="badge-notif">{kpi.openSupport}</span>
+                  )}
+                </button>
+              </React.Fragment>
+            );
+          })}
+        </nav>
+
+        <div
+          className="admin-profile-card"
+          onClick={() => setShowLogout(!showLogout)}
+          style={{ cursor: 'pointer' }}
+        >
+          {showLogout ? (
+            <button
+              className="logout"
+              style={{ width: '100%', margin: 0 }}
+              onClick={(e) => { e.stopPropagation(); logout(); }}
+            >
+              <span className="ico">🚪</span>
+              <span>Déconnexion</span>
+            </button>
+          ) : (
+            <>
+              <div className="admin-avatar">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt={adminName} />
+                ) : (
+                  <span>{adminInitials}</span>
+                )}
+              </div>
+              <div className="admin-profile-info">
+                <strong>{adminName}</strong>
+                <span>{adminEmail}</span>
+                <small><i></i>En ligne</small>
+              </div>
+            </>
+          )}
+        </div>
+      </aside>
 
       <main className="main">
         <header className="topbar">
           <div className="top-left">
-            <button className="mobile-menu" onClick={() => setCollapsed(!collapsed)} aria-label="Menu">☰</button>
+            <button 
+              className="mobile-menu" 
+              onClick={toggleMobileMenu} 
+              aria-label="Menu"
+            >
+              ☰
+            </button>
             <div>
               <h1 className="page-title">{titles[page]?.[0] || "Tableau de bord"}</h1>
               <p className="page-subtitle">{titles[page]?.[1] || "Vue globale de l'activité"}</p>
@@ -2827,6 +2920,8 @@ function Dashboard() {
               onSaveSettings={saveSettingsToBackend}
               saveSettings={saveSettingsToBackend}
               loading={loading}
+              darkMode={darkMode} 
+              setDarkMode={setDarkMode}
             />
           )}
 

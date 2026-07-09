@@ -110,6 +110,219 @@ export default function Orders() {
           .order-detail { padding: 14px 16px; }
           .orders-container { padding: 24px 14px 60px; }
         }
+
+        /* ─── AMÉLIORATIONS RESPONSIVE ─── */
+
+        /* ─── TABLETTE ─── */
+        @media (max-width: 900px) {
+          .orders-container {
+            padding: 24px 20px 60px !important;
+          }
+
+          .order-head {
+            padding: 14px 18px !important;
+            flex-wrap: wrap !important;
+            gap: 10px !important;
+          }
+
+          .order-meta p:first-child {
+            font-size: 14px !important;
+          }
+
+          .order-total-col p:first-child {
+            font-size: 18px !important;
+          }
+
+          .order-detail {
+            padding: 14px 18px !important;
+          }
+        }
+
+        /* ─── MOBILE ─── */
+        @media (max-width: 640px) {
+          .orders-container {
+            padding: 16px 12px 80px !important;
+          }
+
+          /* ── Hero ── */
+          .orders-hero {
+            padding: 30px 16px 24px !important;
+          }
+
+          .orders-hero h1 {
+            font-size: 32px !important;
+          }
+
+          /* ── En-tête commande ── */
+          .order-head {
+            padding: 12px 14px !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+          }
+
+          .order-head > div:first-child {
+            font-size: 10px !important;
+            padding: 4px 10px !important;
+          }
+
+          .order-meta p:first-child {
+            font-size: 13px !important;
+          }
+
+          .order-meta p:last-child {
+            font-size: 11px !important;
+          }
+
+          .order-total-col p:first-child {
+            font-size: 16px !important;
+          }
+
+          .order-total-col p:last-child {
+            font-size: 10px !important;
+          }
+
+          .order-head > div:last-child {
+            font-size: 15px !important;
+          }
+
+          /* ── Détail commande ── */
+          .order-detail {
+            padding: 12px 14px !important;
+          }
+
+          .order-detail .order-item-row {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 8px !important;
+            padding: 8px 0 !important;
+          }
+
+          .order-detail .order-item-row img,
+          .order-detail .order-item-row > div:first-child {
+            width: 40px !important;
+            height: 50px !important;
+            font-size: 16px !important;
+          }
+
+          .order-detail .order-item-row > div:nth-child(2) p:first-child {
+            font-size: 13px !important;
+          }
+
+          .order-detail .order-item-row > div:nth-child(2) p:last-child {
+            font-size: 11px !important;
+          }
+
+          .order-detail .order-item-row > div:last-child {
+            font-size: 14px !important;
+            align-self: flex-end !important;
+          }
+
+          /* ── Récapitulatif prix ── */
+          .order-detail .order-summary-box {
+            padding: 12px 14px !important;
+            margin: 12px 0 !important;
+          }
+
+          .order-detail .order-summary-box > div:first-child {
+            font-size: 12px !important;
+          }
+
+          .order-detail .order-summary-box > div:last-child {
+            font-size: 14px !important;
+          }
+
+          /* ── Adresse ── */
+          .order-detail .order-address p:first-child {
+            font-size: 10px !important;
+            margin-bottom: 6px !important;
+          }
+
+          .order-detail .order-address p:last-child {
+            font-size: 13px !important;
+          }
+
+          /* ── Bouton retour ── */
+          .order-detail .order-back-link {
+            font-size: 12px !important;
+          }
+
+          /* ── État vide ── */
+          .orders-empty {
+            padding: 30px 20px !important;
+          }
+
+          .orders-empty h2 {
+            font-size: 28px !important;
+          }
+
+          .orders-empty p {
+            font-size: 14px !important;
+          }
+
+          .orders-empty a {
+            padding: 12px 24px !important;
+            font-size: 13px !important;
+          }
+        }
+
+        /* ─── TRÈS PETIT ÉCRAN (iPhone SE) ─── */
+        @media (max-width: 420px) {
+          .orders-container {
+            padding: 12px 8px 80px !important;
+          }
+
+          .orders-hero {
+            padding: 24px 12px 20px !important;
+          }
+
+          .orders-hero h1 {
+            font-size: 26px !important;
+          }
+
+          .order-head {
+            padding: 10px 12px !important;
+          }
+
+          .order-meta p:first-child {
+            font-size: 12px !important;
+          }
+
+          .order-total-col p:first-child {
+            font-size: 14px !important;
+          }
+
+          .order-detail {
+            padding: 10px 12px !important;
+          }
+
+          .order-detail .order-item-row {
+            padding: 6px 0 !important;
+          }
+
+          .order-detail .order-item-row img,
+          .order-detail .order-item-row > div:first-child {
+            width: 34px !important;
+            height: 42px !important;
+            font-size: 14px !important;
+          }
+
+          .order-detail .order-item-row > div:nth-child(2) p:first-child {
+            font-size: 12px !important;
+          }
+
+          .order-detail .order-item-row > div:last-child {
+            font-size: 13px !important;
+          }
+
+          .order-detail .order-summary-box {
+            padding: 10px 12px !important;
+          }
+
+          .order-detail .order-summary-box > div:last-child {
+            font-size: 13px !important;
+          }
+        }
       `}</style>
 
       <div className="orders-page">
