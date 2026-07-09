@@ -1099,9 +1099,20 @@ function Dashboard() {
     reviews: 1, promotions: 1, transactions: 1, logs: 1,
     notifications: 1, support: 1, faq: 1
   });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(false);
+
+    const toggleMobileMenu = () => {
+      setMobileMenuOpen(!mobileMenuOpen);
+    };
+
+  // Fermer le menu mobile quand on clique sur un élément
+  const handleNavClick = (key) => {
+    changePage(key);
+    setMobileMenuOpen(false);
+  };
 
   const [db, setDb] = useState({
     orders: [],
@@ -2524,96 +2535,118 @@ function Dashboard() {
     notify('Recherche avancée appliquée', 'success');
   };
 
-  return (
+    return (
     <div className={`tryon-admin ${collapsed ? "collapsed" : ""} ${darkMode ? "dark" : ""}`}>
-
       {!isOnline && (
         <div className="offline-banner">
           ⚠️ Mode hors ligne - Données backend indisponibles
         </div>
       )}
 
-        <aside className="sidebar">
-          <div className="brand">
-            <div className="brand-text">
-              <div className="brand-title">TryOn</div>
-            </div>
-            <div className="brand-actions">
-              <button className="collapse-btn" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? "Agrandir la sidebar" : "Réduire la sidebar"} title={collapsed ? "Agrandir la sidebar" : "Réduire la sidebar"}>
-                ☰
-              </button>
-            </div>
+      {/* Overlay pour le menu mobile - ajouté AVANT la sidebar */}
+      <div 
+        className={`sidebar-overlay ${mobileMenuOpen ? 'visible' : ''}`} 
+        onClick={toggleMobileMenu}
+      />
+
+      <aside className={`sidebar ${mobileMenuOpen ? 'open' : ''}`}>
+        <div className="brand">
+          <div className="brand-text">
+            <div className="brand-title">TryOn</div>
           </div>
+          <div className="brand-actions">
+            {/* Bouton de fermeture pour mobile */}
+            <button 
+              className="mobile-close-btn" 
+              onClick={toggleMobileMenu}
+              aria-label="Fermer le menu"
+            >
+              ✕
+            </button>
+            <button 
+              className="collapse-btn" 
+              onClick={() => setCollapsed(!collapsed)} 
+              aria-label={collapsed ? "Agrandir la sidebar" : "Réduire la sidebar"} 
+              title={collapsed ? "Agrandir la sidebar" : "Réduire la sidebar"}
+            >
+              ☰
+            </button>
+          </div>
+        </div>
 
-          <nav className="nav">
-            {nav.map((item, index) => {
-              const prevItem = index > 0 ? nav[index - 1] : null;
-              const showGroup = !prevItem || prevItem.group !== item.group;
-              
-              return (
-                <React.Fragment key={item.key}>
-                  {showGroup && <div className="nav-section">{item.group}</div>}
-                  <button 
-                    className={`nav-item ${page === item.key ? "active" : ""}`} 
-                    onClick={() => changePage(item.key)} 
-                    title={collapsed ? item.label : ""}
-                  >
-                    <span className="ico">{item.icon}</span>
-                    <span className="nav-label">{item.label}</span>
-                    {item.key === "notifications" && kpi.unreadNotifs > 0 && (
-                      <span className="badge-notif">{kpi.unreadNotifs}</span>
-                    )}
-                    {item.key === "avis" && kpi.pendingReviews > 0 && (
-                      <span className="badge-notif">{kpi.pendingReviews}</span>
-                    )}
-                    {item.key === "support" && kpi.openSupport > 0 && (
-                      <span className="badge-notif">{kpi.openSupport}</span>
-                    )}
-                  </button>
-                </React.Fragment>
-              );
-            })}
-          </nav>
-
-          <div
-            className="admin-profile-card"
-            onClick={() => setShowLogout(!showLogout)}
-            style={{ cursor: 'pointer' }}
-          >
-            {showLogout ? (
-              /* Vue déconnexion */
-              <button
-                className="logout"
-                style={{ width: '100%', margin: 0 }}
-                onClick={(e) => { e.stopPropagation(); logout(); }}
-              >
-                <span className="ico">🚪</span>
-                <span>Déconnexion</span>
-              </button>
-            ) : (
-              /* Vue infos normales */
-              <>
-                <div className="admin-avatar">
-                  {user?.avatar ? (
-                    <img src={user.avatar} alt={adminName} />
-                  ) : (
-                    <span>{adminInitials}</span>
+        <nav className="nav">
+          {nav.map((item, index) => {
+            const prevItem = index > 0 ? nav[index - 1] : null;
+            const showGroup = !prevItem || prevItem.group !== item.group;
+            
+            return (
+              <React.Fragment key={item.key}>
+                {showGroup && <div className="nav-section">{item.group}</div>}
+                <button 
+                  className={`nav-item ${page === item.key ? "active" : ""}`} 
+                  onClick={() => handleNavClick(item.key)} 
+                  title={collapsed ? item.label : ""}
+                >
+                  <span className="ico">{item.icon}</span>
+                  <span className="nav-label">{item.label}</span>
+                  {item.key === "notifications" && kpi.unreadNotifs > 0 && (
+                    <span className="badge-notif">{kpi.unreadNotifs}</span>
                   )}
-                </div>
-                <div className="admin-profile-info">
-                  <strong>{adminName}</strong>
-                  <span>{adminEmail}</span>
-                  <small><i></i>En ligne</small>
-                </div>
-              </>
-            )}
-          </div>
-        </aside>
+                  {item.key === "avis" && kpi.pendingReviews > 0 && (
+                    <span className="badge-notif">{kpi.pendingReviews}</span>
+                  )}
+                  {item.key === "support" && kpi.openSupport > 0 && (
+                    <span className="badge-notif">{kpi.openSupport}</span>
+                  )}
+                </button>
+              </React.Fragment>
+            );
+          })}
+        </nav>
+
+        <div
+          className="admin-profile-card"
+          onClick={() => setShowLogout(!showLogout)}
+          style={{ cursor: 'pointer' }}
+        >
+          {showLogout ? (
+            <button
+              className="logout"
+              style={{ width: '100%', margin: 0 }}
+              onClick={(e) => { e.stopPropagation(); logout(); }}
+            >
+              <span className="ico">🚪</span>
+              <span>Déconnexion</span>
+            </button>
+          ) : (
+            <>
+              <div className="admin-avatar">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt={adminName} />
+                ) : (
+                  <span>{adminInitials}</span>
+                )}
+              </div>
+              <div className="admin-profile-info">
+                <strong>{adminName}</strong>
+                <span>{adminEmail}</span>
+                <small><i></i>En ligne</small>
+              </div>
+            </>
+          )}
+        </div>
+      </aside>
 
       <main className="main">
         <header className="topbar">
           <div className="top-left">
-            <button className="mobile-menu" onClick={() => setCollapsed(!collapsed)} aria-label="Menu">☰</button>
+            <button 
+              className="mobile-menu" 
+              onClick={toggleMobileMenu} 
+              aria-label="Menu"
+            >
+              ☰
+            </button>
             <div>
               <h1 className="page-title">{titles[page]?.[0] || "Tableau de bord"}</h1>
               <p className="page-subtitle">{titles[page]?.[1] || "Vue globale de l'activité"}</p>
