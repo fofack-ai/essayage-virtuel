@@ -4,6 +4,8 @@ import { api, getImageUrl } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { adminService } from '../services/adminService';
+import { useCart } from '../context/CartContext';
+
 
 /* ── Design tokens ── */
 const T = {
@@ -320,6 +322,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const { count } = useCart();
 
   // Récupérer le nombre de notifications non lues
   useEffect(() => {
@@ -672,12 +675,37 @@ export default function Home() {
             align-items: center;
           }
         }
+
+        /* ─── BADGE PANIER MOBILE ─── */
+        .cart-badge-mobile {
+          position: absolute;
+          top: -4px;
+          right: -6px;
+          background: #E30613;
+          color: #fff;
+          font-size: 9px;
+          font-weight: 700;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        /* ─── AJUSTEMENT DES ICÔNES ─── */
+        .mobile-home-header .header-actions a,
+        .mobile-shop-header .header-actions a {
+          font-size: 20px;
+          line-height: 1;
+        }
       `}</style>
 
       {/* ─── EN-TÊTE MOBILE ─── */}
       <div className="mobile-home-header">
         <Link to="/" className="logo">TRY<span>ON</span></Link>
         <div className="header-actions">
+          {/* Notifications ou Connexion */}
           {isAuthenticated ? (
             <Link to="/notifications" aria-label="Notifications">
               🔔
@@ -686,6 +714,11 @@ export default function Home() {
           ) : (
             <Link to="/auth" aria-label="Connexion">👤</Link>
           )}
+          {/* Panier */}
+          <Link to="/cart" aria-label="Panier" style={{ position: 'relative' }}>
+            🛒
+            {count > 0 && <span className="cart-badge-mobile">{count}</span>}
+          </Link>
         </div>
       </div>
 
