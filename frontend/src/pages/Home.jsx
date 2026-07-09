@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { api, getImageUrl } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { adminService } from '../services/adminService';
 
 /* ── Design tokens ── */
 const T = {
@@ -23,7 +25,7 @@ const T = {
   muted: '#6A6F78',
 };
 
-/* ── Style constants (inchangés) ── */
+/* ── Style constants ── */
 const HERO_CONTENT_STYLE = {
   display: 'flex',
   flexDirection: 'column',
@@ -286,10 +288,9 @@ const IA_STEP_DESCRIPTION_STYLE = {
   lineHeight: 1.5,
 };
 
-// Images par défaut (remplacez par vos propres URLs)
+// Images par défaut
 const DEFAULT_HERO_IMAGE = '/hero-default.jpg';
 const DEFAULT_CATEGORY_IMAGE = '/category-placeholder.jpg';
-
 
 function ImageWithFallback({ src, alt = '', label = 'TryOn', style = {} }) {
   const [error, setError] = useState(false);
@@ -312,11 +313,33 @@ function ImageWithFallback({ src, alt = '', label = 'TryOn', style = {} }) {
 }
 
 export default function Home() {
+  const { isAuthenticated } = useAuth();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [stats, setStats] = useState({ totalProducts: 0, totalTryons: 0, satisfaction: 98 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Récupérer le nombre de notifications non lues
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const fetchUnread = async () => {
+      try {
+        const res = await adminService.getNotifications();
+        const payload = res?.data?.data || res?.data || [];
+        const unread = Array.isArray(payload)
+          ? payload.filter((n) => !n.read && !n.isRead && !n.readAt).length
+          : 0;
+        setUnreadCount(unread);
+      } catch (e) {
+        // silencieux
+      }
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 60000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     async function fetchData() {
@@ -593,7 +616,81 @@ export default function Home() {
 
   return (
     <div style={{ paddingTop: '72px' }}>
-      <style>{mobileStyles}</style> 
+      <style>{`
+        /* ─── EN-TÊTE MOBILE ─── */
+        .mobile-home-header {
+          display: none;
+          align-items: center;
+          justify-content: space-between;
+          padding: 12px 20px;
+          background: #fff;
+          border-bottom: 1px solid rgba(0,0,0,0.06);
+          position: sticky;
+          top: 0;
+          z-index: 50;
+        }
+        .mobile-home-header .logo {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 24px;
+          font-weight: 600;
+          letter-spacing: 3px;
+          color: #1A1A1A;
+          text-decoration: none;
+        }
+        .mobile-home-header .logo span { color: #E30613; }
+        .mobile-home-header .header-actions {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .mobile-home-header .header-actions button,
+        .mobile-home-header .header-actions a {
+          background: none;
+          border: none;
+          font-size: 20px;
+          cursor: pointer;
+          color: #1A1A1A;
+          text-decoration: none;
+          position: relative;
+          padding: 4px;
+        }
+        .mobile-home-header .notif-dot {
+          position: absolute;
+          top: 2px;
+          right: 2px;
+          width: 8px;
+          height: 8px;
+          background: #E30613;
+          border-radius: 50%;
+        }
+        @media (max-width: 768px) {
+          .mobile-home-header {
+            display: flex !important;
+          }
+          .mobile-home-header .header-actions a {
+            display: flex;
+            align-items: center;
+          }
+        }
+      `}</style>
+
+      {/* ─── EN-TÊTE MOBILE ─── */}
+      <div className="mobile-home-header">
+        <Link to="/" className="logo">TRY<span>ON</span></Link>
+        <div className="header-actions">
+          {isAuthenticated ? (
+            <Link to="/notifications" aria-label="Notifications">
+              🔔
+              {unreadCount > 0 && <span className="notif-dot" />}
+            </Link>
+          ) : (
+            <Link to="/auth" aria-label="Connexion">👤</Link>
+          )}
+        </div>
+      </div>
+
+      <style>{mobileStyles}</style>
+
       {/* ── HERO ── */}
       <section
         style={{
@@ -762,7 +859,7 @@ export default function Home() {
                     e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
-                <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${DEFAULT_CATEGORY_IMAGE})`, backgroundSize: 'cover', backgroundPosition: 'center' }} aria-hidden="true" />
+                  <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${DEFAULT_CATEGORY_IMAGE})`, backgroundSize: 'cover', backgroundPosition: 'center' }} aria-hidden="true" />
                   <div
                     style={{
                       position: 'absolute',
@@ -870,7 +967,7 @@ export default function Home() {
 
 function ProductCard({ product }) {
   const [pressed, setPressed] = useState(false);
-  const pressTimer = React.useRef(null);
+  const pressTimer = useRef(null);
   const navigate = useNavigate();
 
   const handlePressStart = () => {
@@ -901,8 +998,7 @@ function ProductCard({ product }) {
         }}
       >
         <div style={{ position: 'relative', height: '280px', overflow: 'hidden' }}>
-          <ImageWithFallback
-            src={product.image}
+          <ImageWithFallback            src={product.image}
             alt={product.name}
             label={product.brand || product.name}
             style={{ transform: pressed ? 'scale(1.05)' : 'scale(1)', transition: 'transform .4s ease' }}

@@ -519,6 +519,8 @@ export default function Profile() {
           <Row icon="❓" label="Centre d'aide" to="/help-center" />
           <Row icon="🔒" label="Politique de confidentialité" to="/privacy-policy" />
           <Row icon="📋" label="Conditions générales de vente" to="/terms" />
+          <Row icon="🚚" label="Livraison" to="/shipping" />
+          <Row icon="↩️" label="Retours" to="/returns" />
         </Group>
 
         {/* ── Se déconnecter ── */}

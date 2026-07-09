@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
+import BottomNav from '../../components/layout/BottomNav';
 
 const DATA = {
   login: {
@@ -220,217 +221,217 @@ export default function Auth() {
     <div style={pageStyle} className="auth-page">
       <style>{`
         /* ═══════════════════════════════════════
-   RESPONSIVE — AUTH
-═══════════════════════════════════════ */
+          RESPONSIVE — AUTH
+        ═══════════════════════════════════════ */
 
-/* ─── TABLETTE ─── */
-@media (max-width: 900px) {
-  .auth-page {
-    grid-template-columns: 1fr !important;
-    padding-top: 0 !important;
-    min-height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
+        /* ─── TABLETTE ─── */
+        @media (max-width: 900px) {
+          .auth-page {
+            grid-template-columns: 1fr !important;
+            padding-top: 0 !important;
+            min-height: 100vh !important;
+            display: flex !important;
+            flex-direction: column !important;
+          }
 
-  .auth-left {
-    min-height: 300px !important;
-    height: auto !important;
-    padding: 32px 24px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background-size: cover !important;
-    background-position: center !important;
-    flex-shrink: 0 !important;
-  }
+          .auth-left {
+            min-height: 300px !important;
+            height: auto !important;
+            padding: 32px 24px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background-size: cover !important;
+            background-position: center !important;
+            flex-shrink: 0 !important;
+          }
 
-  .auth-left h1 {
-    font-size: 32px !important;
-  }
+          .auth-left h1 {
+            font-size: 32px !important;
+          }
 
-  .auth-left .auth-tags {
-    display: flex !important;
-    gap: 8px !important;
-    margin-top: 16px !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-  }
+          .auth-left .auth-tags {
+            display: flex !important;
+            gap: 8px !important;
+            margin-top: 16px !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+          }
 
-  .auth-left .auth-tags span {
-    padding: 6px 12px !important;
-    font-size: 11px !important;
-  }
+          .auth-left .auth-tags span {
+            padding: 6px 12px !important;
+            font-size: 11px !important;
+          }
 
-  .auth-right {
-    padding: 24px 20px !important;
-    min-height: auto !important;
-    flex: 1 !important;
-  }
+          .auth-right {
+            padding: 24px 20px !important;
+            min-height: auto !important;
+            flex: 1 !important;
+          }
 
-  .auth-card {
-    padding: 24px 20px !important;
-    max-width: 100% !important;
-    border-radius: 16px !important;
-    box-shadow: none !important;
-  }
-}
+          .auth-card {
+            padding: 24px 20px !important;
+            max-width: 100% !important;
+            border-radius: 16px !important;
+            box-shadow: none !important;
+          }
+        }
 
-/* ─── MOBILE ─── */
-@media (max-width: 640px) {
-  .auth-left {
-    min-height: 240px !important;
-    padding: 24px 16px !important;
-  }
+        /* ─── MOBILE ─── */
+        @media (max-width: 640px) {
+          .auth-left {
+            min-height: 240px !important;
+            padding: 24px 16px !important;
+          }
 
-  .auth-left h1 {
-    font-size: 24px !important;
-  }
+          .auth-left h1 {
+            font-size: 24px !important;
+          }
 
-  .auth-left .auth-tags {
-    gap: 6px !important;
-    margin-top: 12px !important;
-  }
+          .auth-left .auth-tags {
+            gap: 6px !important;
+            margin-top: 12px !important;
+          }
 
-  .auth-left .auth-tags span {
-    padding: 4px 10px !important;
-    font-size: 10px !important;
-  }
+          .auth-left .auth-tags span {
+            padding: 4px 10px !important;
+            font-size: 10px !important;
+          }
 
-  .auth-right {
-    padding: 16px 14px !important;
-  }
+          .auth-right {
+            padding: 16px 14px !important;
+          }
 
-  .auth-card {
-    padding: 20px 14px !important;
-  }
+          .auth-card {
+            padding: 20px 14px !important;
+          }
 
-  .auth-card h2 {
-    font-size: 28px !important;
-  }
+          .auth-card h2 {
+            font-size: 28px !important;
+          }
 
-  .auth-card p {
-    font-size: 14px !important;
-  }
+          .auth-card p {
+            font-size: 14px !important;
+          }
 
-  .auth-tabs button {
-    padding: 12px 8px !important;
-    font-size: 11px !important;
-    letter-spacing: 1px !important;
-  }
+          .auth-tabs button {
+            padding: 12px 8px !important;
+            font-size: 11px !important;
+            letter-spacing: 1px !important;
+          }
 
-  .auth-tabs {
-    padding: 5px !important;
-    border-radius: 16px !important;
-    margin-bottom: 20px !important;
-  }
+          .auth-tabs {
+            padding: 5px !important;
+            border-radius: 16px !important;
+            margin-bottom: 20px !important;
+          }
 
-  .auth-input-wrapper {
-    padding: 0 12px !important;
-  }
+          .auth-input-wrapper {
+            padding: 0 12px !important;
+          }
 
-  .auth-input-wrapper input {
-    padding: 12px 0 !important;
-    font-size: 14px !important;
-  }
+          .auth-input-wrapper input {
+            padding: 12px 0 !important;
+            font-size: 14px !important;
+          }
 
-  .auth-input-wrapper .input-icon {
-    font-size: 16px !important;
-  }
+          .auth-input-wrapper .input-icon {
+            font-size: 16px !important;
+          }
 
-  .auth-input-label {
-    font-size: 10px !important;
-    letter-spacing: 1.2px !important;
-  }
+          .auth-input-label {
+            font-size: 10px !important;
+            letter-spacing: 1.2px !important;
+          }
 
-  .auth-name-grid {
-    grid-template-columns: 1fr !important;
-    gap: 0 !important;
-  }
+          .auth-name-grid {
+            grid-template-columns: 1fr !important;
+            gap: 0 !important;
+          }
 
-  .auth-btn {
-    padding: 14px !important;
-    font-size: 12px !important;
-    letter-spacing: 1.5px !important;
-  }
+          .auth-btn {
+            padding: 14px !important;
+            font-size: 12px !important;
+            letter-spacing: 1.5px !important;
+          }
 
-  .auth-social-btn {
-    padding: 10px !important;
-    font-size: 12px !important;
-  }
+          .auth-social-btn {
+            padding: 10px !important;
+            font-size: 12px !important;
+          }
 
-  .auth-otp-input {
-    font-size: 16px !important;
-    padding: 12px !important;
-  }
+          .auth-otp-input {
+            font-size: 16px !important;
+            padding: 12px !important;
+          }
 
-  .auth-separator {
-    font-size: 12px !important;
-    margin: 16px 0 10px !important;
-  }
+          .auth-separator {
+            font-size: 12px !important;
+            margin: 16px 0 10px !important;
+          }
 
-  .auth-back-link {
-    font-size: 13px !important;
-  }
-}
+          .auth-back-link {
+            font-size: 13px !important;
+          }
+        }
 
-/* ─── TRÈS PETIT ÉCRAN (iPhone SE) ─── */
-@media (max-width: 420px) {
-  .auth-left {
-    min-height: 200px !important;
-    padding: 16px 12px !important;
-  }
+        /* ─── TRÈS PETIT ÉCRAN (iPhone SE) ─── */
+        @media (max-width: 420px) {
+          .auth-left {
+            min-height: 200px !important;
+            padding: 16px 12px !important;
+          }
 
-  .auth-left h1 {
-    font-size: 20px !important;
-  }
+          .auth-left h1 {
+            font-size: 20px !important;
+          }
 
-  .auth-left .auth-tags {
-    gap: 4px !important;
-    margin-top: 10px !important;
-  }
+          .auth-left .auth-tags {
+            gap: 4px !important;
+            margin-top: 10px !important;
+          }
 
-  .auth-left .auth-tags span {
-    padding: 3px 8px !important;
-    font-size: 9px !important;
-  }
+          .auth-left .auth-tags span {
+            padding: 3px 8px !important;
+            font-size: 9px !important;
+          }
 
-  .auth-right {
-    padding: 12px 10px !important;
-  }
+          .auth-right {
+            padding: 12px 10px !important;
+          }
 
-  .auth-card {
-    padding: 16px 12px !important;
-  }
+          .auth-card {
+            padding: 16px 12px !important;
+          }
 
-  .auth-card h2 {
-    font-size: 24px !important;
-  }
+          .auth-card h2 {
+            font-size: 24px !important;
+          }
 
-  .auth-card p {
-    font-size: 13px !important;
-  }
+          .auth-card p {
+            font-size: 13px !important;
+          }
 
-  .auth-tabs button {
-    padding: 10px 6px !important;
-    font-size: 10px !important;
-  }
+          .auth-tabs button {
+            padding: 10px 6px !important;
+            font-size: 10px !important;
+          }
 
-  .auth-input-wrapper input {
-    padding: 10px 0 !important;
-    font-size: 13px !important;
-  }
+          .auth-input-wrapper input {
+            padding: 10px 0 !important;
+            font-size: 13px !important;
+          }
 
-  .auth-btn {
-    padding: 12px !important;
-    font-size: 11px !important;
-  }
+          .auth-btn {
+            padding: 12px !important;
+            font-size: 11px !important;
+          }
 
-  .auth-tags span {
-    padding: 4px 10px !important;
-    font-size: 10px !important;
-  }
-}
+          .auth-tags span {
+            padding: 4px 10px !important;
+            font-size: 10px !important;
+          }
+        }
       `}</style>
 
       <section
@@ -781,6 +782,8 @@ export default function Auth() {
           )}
         </div>
       </section>
+      {/* ─── BOTTOM NAV (mobile uniquement) ─── */}
+      <BottomNav />
     </div>
   );
 }

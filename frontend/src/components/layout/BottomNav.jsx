@@ -1,15 +1,19 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 
 export default function BottomNav() {
   const { pathname } = useLocation();
   const { count } = useCart();
+  const { isAuthenticated } = useAuth();
 
   const items = [
-    { path: '/',          icon: '🏠', label: 'Accueil'   },
+    { path: '/', icon: '🏠', label: 'Accueil' },
     { path: '/catalogue', icon: '👗', label: 'Catalogue' },
-    { path: '/cart',      icon: '🛒', label: 'Panier',  badge: count },
-    { path: '/profile',   icon: '👤', label: 'Profil'    },
+    { path: '/cart', icon: '🛒', label: 'Panier', badge: count },
+    isAuthenticated
+      ? { path: '/profile', icon: '👤', label: 'Profil' }
+      : { path: '/auth', icon: '🔓', label: 'Connexion' },
   ];
 
   return (

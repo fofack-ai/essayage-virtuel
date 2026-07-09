@@ -3,6 +3,9 @@ import { api, getImageUrl } from "../../services/api";
 import ProductCard from "../../components/shop/ProductCard";
 import FilterSidebar from "../../components/shop/FilterSidebar";
 import SearchBar from "../../components/shop/SearchBar";
+import { useAuth } from '../../context/AuthContext';
+import { adminService } from '../../services/adminService';
+import { Link } from 'react-router-dom';
 
 const FILTERS = ["Tous", "Femme", "Homme", "Robes", "Chemises", "Pantalons", "Vestes", "Accessoires"];
 const PER_PAGE = 8;
@@ -14,6 +17,10 @@ export default function Shop() {
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Contextual data
+  const { isAuthenticated } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     async function loadProducts() {
@@ -40,6 +47,25 @@ export default function Shop() {
 
     loadProducts();
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const fetchUnread = async () => {
+      try {
+        const res = await adminService.getNotifications();
+        const payload = res?.data?.data || res?.data || [];
+        const unread = Array.isArray(payload)
+          ? payload.filter((n) => !n.read && !n.isRead && !n.readAt).length
+          : 0;
+        setUnreadCount(unread);
+      } catch (e) {
+        // silencieux
+      }
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 60000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   const filteredProducts = useMemo(() => {
     let list = [...products];
@@ -73,6 +99,22 @@ export default function Shop() {
 
   return (
     <div className="shop-page">
+
+    {/* ─── EN-TÊTE MOBILE ─── */}
+      <div className="mobile-shop-header">
+        <Link to="/" className="logo">TRY<span>ON</span></Link>
+        <div className="header-actions">
+          {isAuthenticated ? (
+            <Link to="/notifications" aria-label="Notifications">
+              🔔
+              {unreadCount > 0 && <span className="notif-dot" />}
+            </Link>
+          ) : (
+            <Link to="/auth" aria-label="Connexion">👤</Link>
+          )}
+        </div>
+      </div>
+
       <style>{styles}</style>
 
       <section className="shop-hero">
@@ -645,6 +687,60 @@ padding:18px 0;
 
   .catalogue-head h2 {
     font-size: 28px;
+  }
+}
+
+/* ─── EN-TÊTE MOBILE ─── */
+.mobile-shop-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.mobile-shop-header .logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: #1A1A1A;
+  text-decoration: none;
+}
+.mobile-shop-header .logo span { color: #E30613; }
+.mobile-shop-header .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mobile-shop-header .header-actions a {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #1A1A1A;
+  text-decoration: none;
+  position: relative;
+  padding: 4px;
+}
+.mobile-shop-header .notif-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  background: #E30613;
+  border-radius: 50%;
+}
+@media (max-width: 768px) {
+  .mobile-shop-header {
+    display: flex !important;
+  }
+  .shop-page {
+    padding-top: 0 !important;
   }
 }
 `;
