@@ -3,16 +3,23 @@
 ═══════════════════════════════════════ */
 
 /* .sidebar-overlay est rendu en permanence dans le JSX, même en web.
-   .tryon-admin est un CSS Grid à 2 colonnes : sans ça, ce <div> vide
-   casse la grille en mode web. On le cache par défaut, il n'est
-   affiché que dans le media query mobile via .visible */
+   .tryon-admin est un CSS Grid à 2 colonnes : sans "display:none" ici,
+   ce <div> casserait la grille en mode web.
+   IMPORTANT : position:fixed + inset:0 doivent être définis ICI, dans
+   la règle de base (même si display:none le rend invisible/hors flux
+   par défaut). C'est ce qui manquait : sans ça, quand .visible passe
+   en display:block sur mobile, l'élément n'a plus de positionnement
+   plein écran et ne couvre plus rien → le clic "en dehors" ne
+   fonctionne plus. */
 .sidebar-overlay {
   display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 199;
 }
 
 /* Le bouton ✕ de fermeture du drawer n'a de sens qu'en mobile.
-   Cette règle de base manquait : c'est pour ça qu'il s'affichait
-   aussi en version web à côté du logo TryOn. */
+   Sans cette règle de base il s'affiche aussi en version web. */
 .mobile-close-btn {
   display: none;
   background: none;
@@ -46,10 +53,6 @@
   .main { padding: 14px; }
 
   /* ── SIDEBAR DRAWER ── */
-  /* Pas de "background" ici : on garde le dégradé sombre natif de
-     layout.css (identique à la version web). Ne jamais mettre
-     "background: var(--bg)" ici, cette variable n'existe pas dans
-     le projet et rend la sidebar transparente. */
   .sidebar {
     position: fixed;
     left: 0; top: 0;
@@ -67,16 +70,16 @@
     transform: translateX(0);
   }
 
-  /* Overlay sombre derrière la sidebar (uniquement visible sur mobile) */
+  /* Overlay sombre derrière la sidebar (uniquement visible sur mobile).
+     position/inset/z-index viennent déjà de la règle de base ci-dessus,
+     ici on ne fait qu'ajouter l'apparence + le fondu. */
   .sidebar-overlay.visible {
     display: block;
     background: rgba(0,0,0,.52);
-    z-index: 199;
     backdrop-filter: blur(2px);
     animation: fadeIn .22s ease;
   }
 
-  /* Bouton burger visible dans la topbar */
   .mobile-menu {
     display: flex;
     align-items: center;
@@ -91,7 +94,6 @@
     flex-shrink: 0;
   }
 
-  /* Header sidebar mobile — profil en haut comme Xender */
   .sidebar .brand {
     display: flex;
     justify-content: space-between;
@@ -105,19 +107,14 @@
     align-items: center;
   }
 
-  /* Bouton de fermeture (✕) affiché uniquement sur mobile */
   .mobile-close-btn {
     display: flex;
   }
 
-  /* Le bouton "collapse" (☰ réduire la sidebar) n'a pas de sens dans un
-     drawer mobile qui se ferme déjà entièrement : on le cache pour éviter
-     qu'il masque les libellés de navigation (.collapsed .nav-label). */
   .sidebar .brand .collapse-btn {
     display: none;
   }
 
-  /* Nav items plus grands sur mobile */
   .nav-item {
     padding: 14px 16px;
     font-size: 14px;
@@ -131,13 +128,11 @@
     font-size: 17px;
   }
 
-  /* Profil admin en bas de sidebar */
   .admin-profile-card {
     margin: 10px 14px;
     padding: 14px;
   }
 
-  /* Topbar */
   .topbar {
     height: auto;
     flex-wrap: wrap;
@@ -151,7 +146,6 @@
   .top-actions, .search { width: 100%; min-width: 0; }
   .search input { width: 100%; }
 
-  /* Grilles */
   .charts-grid,
   .products-grid-admin,
   .grid-2, .grid-3, .grid-4,
@@ -162,33 +156,19 @@
   .payment-summary,
   .reports-grid { grid-template-columns: 1fr; }
 
-  .row, .clients-row, .tries-row,
-  .transactions, .logs, .support, .reviews, .promotions, .faq { grid-template-columns: 1fr; gap: 6px; }
-
-  .row.head { display: none; }
-
-  /* Produits : PAS de règle ici. .product-actions-admin garde son
-     comportement natif défini dans products.css (opacity:0, révélé au
-     survol/tap de la carte) — exactement comme .stock-actions. */
-
-  /* Modals */
   .modal-overlay { align-items: flex-start; padding-top: 40px; }
 
-  /* Divers */
   .brand { flex-wrap: nowrap; }
   .settings-hero { flex-direction: column; align-items: flex-start; }
   .settings-actions { flex-direction: column; }
   .settings-actions .btn { width: 100%; }
 
-  /* KPI cards plus compactes */
   .kpi-card { padding: 16px; }
   .kpi-value { font-size: 28px; }
 
-  /* Topbar title */
   .page-title { font-size: 24px; }
 
-  /* ═══ NOTIFICATIONS — carte lisible + boutons révélés au tap,
-         même mécanisme que Stock / Produits ═══ */
+  /* ═══ NOTIFICATIONS — carte lisible + boutons révélés au tap ═══ */
   .notification-item {
     position: relative;
     overflow: hidden;
@@ -239,18 +219,66 @@
     pointer-events: auto;
   }
 
-  /* ═══ TOUTES LES SECTIONS EN TABLEAU (Commandes, Clients, Essayages,
-         Avis, Promotions, Paiements, Support, Logs, FAQ) — même règle
-         pour toutes, car elles partagent toutes le composant <Table>
-         et donc la classe ".row". La dernière cellule de chaque ligne
-         est systématiquement la cellule "Actions" : on la masque et on
-         la révèle au tap, en position flottante, comme pour les cartes. ═══ */
-  .row {
+  /* ═══════════════════════════════════════════════════════════
+     TABLEAUX (Commandes, Clients, Essayages, Avis, Promotions,
+     Paiements, Support, Logs, FAQ) — toutes partagent le composant
+     <Table>, donc la classe ".row".
+  ═══════════════════════════════════════════════════════════ */
+  .table-card {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .row.head { display: none; }
+
+  .row, .clients-row, .tries-row,
+  .transactions, .logs, .support, .reviews, .promotions, .faq {
+    grid-template-columns: 1fr;
+    gap: 0;
     position: relative;
-    padding-bottom: 66px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow2);
+    margin-bottom: 12px;
+    padding: 16px 18px 66px;
+  }
+
+  .row:last-child { margin-bottom: 0; }
+
+  .row > span {
+    display: block;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .row > span:last-of-type {
+    border-bottom: none;
+  }
+
+  .row > span[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+    margin-bottom: 3px;
+  }
+
+  .row > span:first-child {
+    font-weight: 800;
+    font-size: 14.5px;
+    color: var(--ink);
   }
 
   .row > span:last-child {
+    border-bottom: none;
+    padding: 0;
     position: absolute;
     left: 16px;
     right: 16px;
@@ -263,6 +291,10 @@
     transition: 0.25s ease;
   }
 
+  .row > span:last-child::before {
+    display: none;
+  }
+
   .row:hover > span:last-child,
   .row:active > span:last-child,
   .row:focus-within > span:last-child {
@@ -271,7 +303,6 @@
     pointer-events: auto;
   }
 
-  /* Les boutons d'action se centrent proprement dans leur bandeau flottant */
   .row .actions {
     justify-content: center;
     flex-wrap: wrap;

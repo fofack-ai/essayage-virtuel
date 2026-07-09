@@ -13,7 +13,7 @@ export default React.memo(function Table({ head, rows, cls = "" }) {
         {rows.map((r, i) => (
           <div className={`row ${cls}`} key={i}>
             {r.map((c, j) => (
-              <span key={j}>{c}</span>
+              <span key={j} data-label={head[j]}>{c}</span>
             ))}
           </div>
         ))}

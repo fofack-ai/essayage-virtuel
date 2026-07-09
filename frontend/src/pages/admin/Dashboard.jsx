@@ -1108,11 +1108,55 @@ function Dashboard() {
       setMobileMenuOpen(!mobileMenuOpen);
     };
 
-  // Fermer le menu mobile quand on clique sur un élément
-  const handleNavClick = (key) => {
-    changePage(key);
-    setMobileMenuOpen(false);
-  };
+    // Fermer le menu mobile quand on clique sur un élément
+    const handleNavClick = (key) => {
+      changePage(key);
+      setMobileMenuOpen(false);
+    };
+
+    // Ouvrir/fermer la sidebar au glissement tactile (mobile)
+    useEffect(() => {
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let startedFromEdge = false;
+
+      const handleTouchStart = (e) => {
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        // le geste ne compte que s'il démarre tout près du bord gauche
+        startedFromEdge = touchStartX <= 24;
+      };
+
+      const handleTouchEnd = (e) => {
+        if (window.innerWidth > 820) return; // uniquement en mode mobile
+
+        const touch = e.changedTouches[0];
+        const deltaX = touch.clientX - touchStartX;
+        const deltaY = touch.clientY - touchStartY;
+
+        // on ignore si c'est plutôt un scroll vertical qu'un glissement horizontal
+        if (Math.abs(deltaX) < Math.abs(deltaY) * 1.5) return;
+
+        // glisser vers la droite depuis le bord gauche → ouvre la sidebar
+        if (!mobileMenuOpen && startedFromEdge && deltaX > 60) {
+          setMobileMenuOpen(true);
+        }
+
+        // petit bonus : glisser vers la gauche pendant qu'elle est ouverte → la ferme
+        if (mobileMenuOpen && deltaX < -60) {
+          setMobileMenuOpen(false);
+        }
+      };
+
+      window.addEventListener("touchstart", handleTouchStart, { passive: true });
+      window.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+      return () => {
+        window.removeEventListener("touchstart", handleTouchStart);
+        window.removeEventListener("touchend", handleTouchEnd);
+      };
+    }, [mobileMenuOpen]);
 
   const [db, setDb] = useState({
     orders: [],
@@ -1438,6 +1482,7 @@ function Dashboard() {
     setSearch("");
     setAdvancedFilters(null);
     setPagination((prev) => ({ ...prev, [key]: 1 }));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const loadLogsFromBackend = async () => {
