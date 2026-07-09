@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { api, getImageUrl } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 /* ── Design tokens ── */
 const T = {
@@ -408,8 +409,191 @@ export default function Home() {
     return <div style={{ paddingTop: '72px', textAlign: 'center', color: T.red }}>Erreur : {error}</div>;
   }
 
+  const mobileStyles = `
+  @media (max-width: 768px) {
+
+    /* ── Navbar cachée, bottom nav prend le relai ── */
+    .vesti-header { display: none !important; }
+    footer { display: none !important; }
+
+    /* ── Padding top réduit ── */
+    div[style*="paddingTop: 72px"],
+    div[style*="padding-top: 72px"] {
+      padding-top: 0 !important;
+    }
+
+    /* ── HERO : colonne unique ── */
+    section[aria-label="Hero section"] {
+      grid-template-columns: 1fr !important;
+      min-height: auto !important;
+    }
+
+    /* Hero centré sur mobile */
+    section[aria-label="Hero section"] > div:first-child {
+      padding: 40px 24px 32px !important;
+      min-height: auto !important;
+      align-items: center !important;
+      text-align: center !important;
+    }
+
+    section[aria-label="Hero section"] h1 {
+      font-size: 36px !important;
+      text-align: center !important;
+    }
+
+    /* Boutons hero centrés sur mobile */
+    .hero-buttons-wrap {
+      justify-content: center !important;
+    }
+
+    section[aria-label="Hero section"] p {
+      text-align: center !important;
+      max-width: 100% !important;
+    }
+
+    div[aria-label="Statistics section"] {
+      justify-content: center !important;
+    }
+
+    /* Image hero cachée sur mobile */
+    section[aria-label="Hero section"] > div:last-child {
+      display: none !important;
+    }
+
+    /* Contenu hero */
+    section[aria-label="Hero section"] > div:first-child {
+      padding: 40px 24px 32px !important;
+      min-height: auto !important;
+    }
+
+    /* Titre hero */
+    section[aria-label="Hero section"] h1 {
+      font-size: 36px !important;
+    }
+
+    /* Stats hero */
+    section[aria-label="Statistics section"],
+    div[aria-label="Statistics section"] {
+      gap: 16px !important;
+      margin-top: 28px !important;
+      padding-top: 20px !important;
+    }
+
+    /* ── CATÉGORIES : scroll horizontal ── */
+    section[aria-label="Product categories section"] {
+      padding: 40px 24px !important;
+    }
+
+    section[aria-label="Product categories section"] > div:last-child {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 12px !important;
+    }
+
+    /* ── PRODUITS VEDETTES : 2 colonnes ── */
+    section[aria-label="Featured products section"] {
+      padding: 40px 24px !important;
+    }
+
+    section[aria-label="Featured products section"] > div:last-child {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 14px !important;
+    }
+
+    /* ── BANNIÈRE IA : alignée avec les cartes ── */
+    section[aria-label="IA banner section"] {
+      margin: 0 24px 40px !important;
+      padding: 32px 24px !important;
+      border-radius: 12px !important;
+      grid-template-columns: 1fr !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 24px !important;
+      overflow: hidden !important;
+    }
+
+    section[aria-label="IA banner section"] > div:first-child,
+    section[aria-label="IA banner section"] > div:last-child {
+      max-width: 100% !important;
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+
+    /* Étapes IA */
+    section[aria-label="IA banner section"] > div:last-child {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 16px !important;
+    }
+
+    /* Chaque étape */
+    section[aria-label="IA banner section"] > div:last-child > div {
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 12px !important;
+      align-items: flex-start !important;
+      overflow: hidden !important;
+      width: 100% !important;
+    }
+
+    /* Texte des étapes ne déborde pas */
+    section[aria-label="IA banner section"] > div:last-child > div > div {
+      flex: 1 !important;
+      min-width: 0 !important;
+      overflow-wrap: break-word !important;
+    }
+
+    /* Padding bottom pour la bottom nav */
+    div[style*="paddingTop"] {
+      padding-bottom: 80px;
+    }
+  }
+
+  @media (max-width: 400px) {
+
+  /* ── PRODUITS : grille 1 colonne ── */
+  section[aria-label="Featured products section"] > div:last-child {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    flex-direction: unset !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    gap: 16px !important;
+    padding-bottom: 0 !important;
+  }
+
+  section[aria-label="Featured products section"] > div:last-child > * {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex-shrink: unset !important;
+  }
+
+  /* ── CATÉGORIES : grille 1 colonne ── */
+  section[aria-label="Product categories section"] > div:last-child {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    flex-direction: unset !important;
+    overflow-x: visible !important;
+    gap: 14px !important;
+    padding-bottom: 0 !important;
+  }
+
+  section[aria-label="Product categories section"] > div:last-child > * {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex-shrink: unset !important;
+  }
+
+  /* Carte catégorie moins haute */
+  section[aria-label="Product categories section"] > div:last-child > * > a > div,
+  section[aria-label="Product categories section"] div[style*="height: 320px"] {
+    height: 180px !important;
+  }
+}
+`;
+
   return (
     <div style={{ paddingTop: '72px' }}>
+      <style>{mobileStyles}</style> 
       {/* ── HERO ── */}
       <section
         style={{
@@ -435,7 +619,7 @@ export default function Home() {
             Essayez virtuellement des tenues wax, bogolan et ankara grâce à notre cabine IA. Commandez avec confiance.
           </p>
 
-          <div style={HERO_BUTTONS_STYLE}>
+          <div style={HERO_BUTTONS_STYLE} className="hero-buttons-wrap">
             <Link to="/tryon" className="btn-primary" aria-label="Essayer l'essayage virtuel">
               Essayer maintenant
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -466,7 +650,7 @@ export default function Home() {
 
         {/* Image hero droite */}
         <div style={{ position: 'relative', overflow: 'hidden' }} aria-hidden="true">
-<ImageWithFallback src={DEFAULT_HERO_IMAGE} alt="" label="TryOn" />
+          <ImageWithFallback src={DEFAULT_HERO_IMAGE} alt="" label="TryOn" />
           <div
             style={{
               position: 'absolute',
@@ -683,165 +867,100 @@ export default function Home() {
 }
 
 // ── ProductCard ──
+
 function ProductCard({ product }) {
-  const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const pressTimer = React.useRef(null);
+  const navigate = useNavigate();
+
+  const handlePressStart = () => {
+    pressTimer.current = setTimeout(() => setPressed(true), 400);
+  };
+
+  const handlePressEnd = () => {
+    clearTimeout(pressTimer.current);
+  };
 
   return (
     <Link
       to={`/product/${product.id}`}
       style={{ textDecoration: 'none', color: 'inherit' }}
-      aria-label={`Voir les détails du produit ${product.name}`}
     >
       <div
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseEnter={() => setPressed(true)}
+        onMouseLeave={() => setPressed(false)}
+        onTouchStart={handlePressStart}
+        onTouchEnd={handlePressEnd}
+        onTouchCancel={handlePressEnd}
         style={{
-          borderRadius: '14px',
-          overflow: 'hidden',
-          background: '#fff',
-          border: `1px solid ${hovered ? 'rgba(91,127,166,0.32)' : T.border}`,
-          boxShadow: hovered ? '0 22px 52px rgba(26,26,26,0.13)' : '0 12px 34px rgba(26,26,26,0.075)',
+          borderRadius: '14px', overflow: 'hidden', background: '#fff',
+          border: `1px solid ${pressed ? 'rgba(91,127,166,0.32)' : T.border}`,
+          boxShadow: pressed ? '0 22px 52px rgba(26,26,26,0.13)' : '0 12px 34px rgba(26,26,26,0.075)',
           transition: 'all .3s ease',
-          transform: hovered ? 'translateY(-4px)' : 'none',
+          transform: pressed ? 'translateY(-4px)' : 'none',
         }}
-        role="group"
-        aria-labelledby={`product-title-${product.id}`}
       >
-        <div
-          style={{
-            position: 'relative',
-            height: '280px',
-            overflow: 'hidden',
-          }}
-        >
-        <ImageWithFallback
-          src={product.image}
-          alt={product.name}
-          label={product.brand || product.name}
-          style={{ transform: hovered ? 'scale(1.05)' : 'scale(1)', transition: 'transform .4s ease' }}
-        />
+        <div style={{ position: 'relative', height: '280px', overflow: 'hidden' }}>
+          <ImageWithFallback
+            src={product.image}
+            alt={product.name}
+            label={product.brand || product.name}
+            style={{ transform: pressed ? 'scale(1.05)' : 'scale(1)', transition: 'transform .4s ease' }}
+          />
           {product.tag && (
-            <span
-              style={{
-                position: 'absolute',
-                top: '14px',
-                left: '14px',
-                background: product.tag === 'Nouveau' ? 'rgba(91,127,166,0.14)' : T.red,
-                color: product.tag === 'Nouveau' ? T.blueDark : '#fff',
-                fontSize: '10px',
-                fontWeight: 600,
-                letterSpacing: '1px',
-                padding: '4px 10px',
-                borderRadius: '100px',
-              }}
-              aria-hidden="true"
-            >
+            <span style={{
+              position: 'absolute', top: '14px', left: '14px',
+              background: product.tag === 'Nouveau' ? 'rgba(91,127,166,0.14)' : T.red,
+              color: product.tag === 'Nouveau' ? T.blueDark : '#fff',
+              fontSize: '10px', fontWeight: 600, letterSpacing: '1px',
+              padding: '4px 10px', borderRadius: '100px',
+            }}>
               {product.tag}
             </span>
           )}
-          {hovered && (
-            <Link
-              to={`/tryon?productId=${product.id}`}
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                position: 'absolute',
-                bottom: '14px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                background: T.blueLight,
-                color: T.blueNavy,
-                fontSize: '11px',
-                fontWeight: 600,
-                letterSpacing: '1px',
-                textTransform: 'uppercase',
-                padding: '10px 20px',
-                borderRadius: '100px',
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-                boxShadow: '0 4px 16px rgba(26,26,26,0.12)',
+
+          {/* ← button au lieu de Link pour éviter <a> dans <a> */}
+          {pressed && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                navigate(`/tryon?productId=${product.id}`);
               }}
-              aria-label="Essayer ce produit virtuellement"
+              style={{
+                position: 'absolute', bottom: '14px', left: '50%',
+                transform: 'translateX(-50%)',
+                background: T.blueLight, color: T.blueNavy,
+                fontSize: '11px', fontWeight: 600, letterSpacing: '1px',
+                textTransform: 'uppercase', padding: '10px 20px',
+                borderRadius: '100px', border: 'none', cursor: 'pointer',
+                whiteSpace: 'nowrap', boxShadow: '0 4px 16px rgba(26,26,26,0.12)',
+              }}
             >
               Essayer virtuellement
-            </Link>
+            </button>
           )}
         </div>
+
         <div style={{ padding: '16px 18px 20px' }}>
-          <div
-            id={`product-brand-${product.id}`}
-            style={{
-              fontSize: '11px',
-              color: T.blueDark,
-              letterSpacing: '1.5px',
-              textTransform: 'uppercase',
-              marginBottom: '4px',
-              fontWeight: 500,
-            }}
-          >
+          <div style={{ fontSize: '11px', color: T.blueDark, letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '4px', fontWeight: 500 }}>
             {product.brand}
           </div>
-          <div
-            id={`product-title-${product.id}`}
-            style={{
-              fontSize: '15px',
-              fontWeight: 500,
-              color: T.ink,
-              marginBottom: '12px',
-            }}
-          >
+          <div style={{ fontSize: '15px', fontWeight: 500, color: T.ink, marginBottom: '12px' }}>
             {product.name}
           </div>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <div>
-              {product.old && (
-                <span
-                  style={{
-                    fontSize: '12px',
-                    color: T.muted,
-                    textDecoration: 'line-through',
-                    marginRight: '8px',
-                  }}
-                >
-                  {product.old.toLocaleString()} FCFA
-                </span>
-              )}
-              <span
-                style={{
-                  fontSize: '15px',
-                  fontWeight: 600,
-                  color: T.ink,
-                }}
-              >
-                {product.price.toLocaleString()}{' '}
-                <small style={{ fontSize: '11px', fontWeight: 400 }}>FCFA</small>
-              </span>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                gap: '6px',
-              }}
-            >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '15px', fontWeight: 600, color: T.ink }}>
+              {product.price.toLocaleString()}{' '}
+              <small style={{ fontSize: '11px', fontWeight: 400 }}>FCFA</small>
+            </span>
+            <div style={{ display: 'flex', gap: '6px' }}>
               {product.colors.slice(0, 3).map((c, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: '12px',
-                    height: '12px',
-                    borderRadius: '50%',
-                    background: c,
-                    outline: i === 0 ? `2px solid ${T.blueDark}` : 'none',
-                    outlineOffset: '2px',
-                    border: '1.5px solid rgba(26,26,26,0.15)',
-                  }}
-                  aria-hidden="true"
-                />
+                <div key={i} style={{
+                  width: '12px', height: '12px', borderRadius: '50%', background: c,
+                  outline: i === 0 ? `2px solid ${T.blueDark}` : 'none',
+                  outlineOffset: '2px', border: '1.5px solid rgba(26,26,26,0.15)',
+                }} />
               ))}
             </div>
           </div>

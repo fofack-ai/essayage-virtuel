@@ -22,18 +22,20 @@ import TermsConditions from "./pages/terms/TermsConditions";
 import './index.css';
 import Notifications from "./pages/account/Notifications";
 import HelpCenter from "./pages/account/HelpCenter";
+import BottomNav from './components/layout/BottomNav';
 
-// ✅ Composant séparé DANS le Router pour pouvoir utiliser useLocation
 function AppLayout() {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
   const isAdminPage = pathname === '/admin';
+  const isAuthPage = pathname === '/auth' || pathname.startsWith('/reset-password') || pathname === '/auth/google/success';
 
   return (
     <div className="min-h-screen flex flex-col">
       <ScrollToTop />
       {!isAdminPage && <Navbar />}
       <main className="flex-grow">
-        <Routes>
+        <Routes location={location} key={pathname}>
           <Route path="/" element={<Home />} />
           <Route path="/catalogue" element={<Shop />} />
           <Route path="/product/:id" element={<ProductDetail />} />
@@ -47,24 +49,25 @@ function AppLayout() {
           <Route path="/terms" element={<TermsConditions />} />
 
           {/* 🔒 Routes protégées */}
-          <Route path="/tryon"    element={<ProtectedRoute><TryOn /></ProtectedRoute>} />
-          <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-          <Route path="/cart"     element={<ProtectedRoute><Cart /></ProtectedRoute>} />
-          <Route path="/orders"   element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-          <Route path="/profile"  element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/tryon"         element={<ProtectedRoute><TryOn /></ProtectedRoute>} />
+          <Route path="/checkout"      element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+          <Route path="/cart"          element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+          <Route path="/orders"        element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+          <Route path="/profile"       element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-          <Route path="/help-center" element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
-          <Route path="/admin"    element={<ProtectedRoute adminOnly><Dashboard /></ProtectedRoute>} />
+          <Route path="/help-center"   element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
+          <Route path="/admin"         element={<ProtectedRoute adminOnly><Dashboard /></ProtectedRoute>} />
 
           <Route path="*" element={<div style={{ paddingTop: 120, textAlign: 'center' }}>Page introuvable</div>} />
         </Routes>
       </main>
       {!isAdminPage && <Footer />}
+      {/* BottomNav visible sur mobile, sauf sur admin et auth */}
+      {!isAdminPage && !isAuthPage && <BottomNav />}
     </div>
   );
 }
 
-// ✅ App ne fait plus que wrapper avec Router
 function App() {
   return (
     <Router>
