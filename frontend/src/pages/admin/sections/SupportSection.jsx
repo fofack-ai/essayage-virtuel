@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { MessageSquare, HelpCircle } from "lucide-react";
 import Toolbar from "../components/Toolbar";
 import Table from "../components/Table";
 import Actions from "../components/Actions";
@@ -64,14 +65,16 @@ export default React.memo(function SupportSection({
           className={tab === "tickets" ? "active" : ""}
           onClick={() => setTab("tickets")}
         >
-          📩 Tickets Support
+          <MessageSquare size={16} style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }} />
+          Tickets Support
         </button>
         <button
           type="button"
           className={tab === "faq" ? "active" : ""}
           onClick={() => setTab("faq")}
         >
-          ❓ Gestion de la FAQ
+          <HelpCircle size={16} style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }} />
+          Gestion de la FAQ
         </button>
       </div>
 

@@ -30,22 +30,30 @@ import Field from "./components/Field";
 import { useAuth } from "../../context/AuthContext";
 import DashboardSkeleton from "./components/DashboardSkeleton";
 
+import {
+  LayoutDashboard, Package, Shirt, Users, Sparkles, TrendingUp,
+  Star, BarChart3, Boxes, Tag, CreditCard, Bell, HelpCircle,
+  ShieldCheck, Settings, Search, LogOut,
+  Eye, Edit, Trash2, Download, X
+} from 'lucide-react';
+
+
 const nav = [
-  { key: "dashboard", icon: "📊", label: "Tableau de bord", group: "Gestion" },
-  { key: "commandes", icon: "📦", label: "Commandes", group: "Gestion" },
-  { key: "produits", icon: "👗", label: "Produits", group: "Gestion" },
-  { key: "clients", icon: "👥", label: "Clients", group: "Gestion" },
-  { key: "essayages", icon: "✨", label: "Essayages", group: "Analyse" },
-  { key: "ventes", icon: "📈", label: "Ventes", group: "Analyse" },
-  { key: "avis", icon: "⭐", label: "Avis & Évaluations", group: "Analyse" },
-  { key: "rapports", icon: "📊", label: "Analyse & Rapports", group: "Analyse" },
-  { key: "stock", icon: "📦", label: "Stock & Approvisionnement", group: "Logistique" },
-  { key: "promotions", icon: "🏷️", label: "Promotions", group: "Marketing" },
-  { key: "paiements", icon: "💳", label: "Paiements & Transactions", group: "Finance" },
-  { key: "notifications", icon: "🔔", label: "Notifications", group: "Système" },
-  { key: "support", icon: "❓", label: "Support & FAQ", group: "Système" },
-  { key: "logs", icon: "🔒", label: "Logs & Sécurité", group: "Système" },
-  { key: "parametres", icon: "⚙️", label: "Paramètres", group: "Système" },
+{ key: "dashboard", Icon: LayoutDashboard, label: "Tableau de bord", group: "Gestion" },
+  { key: "commandes", Icon: Package, label: "Commandes", group: "Gestion" },
+  { key: "produits", Icon: Shirt, label: "Produits", group: "Gestion" },
+  { key: "clients", Icon: Users, label: "Clients", group: "Gestion" },
+  { key: "essayages", Icon: Sparkles, label: "Essayages", group: "Analyse" },
+  { key: "ventes", Icon: TrendingUp, label: "Ventes", group: "Analyse" },
+  { key: "avis", Icon: Star, label: "Avis & Évaluations", group: "Analyse" },
+  { key: "rapports", Icon: BarChart3, label: "Analyse & Rapports", group: "Analyse" },
+  { key: "stock", Icon: Boxes, label: "Stock & Approvisionnement", group: "Logistique" },
+  { key: "promotions", Icon: Tag, label: "Promotions", group: "Marketing" },
+  { key: "paiements", Icon: CreditCard, label: "Paiements & Transactions", group: "Finance" },
+  { key: "notifications", Icon: Bell, label: "Notifications", group: "Système" },
+  { key: "support", Icon: HelpCircle, label: "Support & FAQ", group: "Système" },
+  { key: "logs", Icon: ShieldCheck, label: "Logs & Sécurité", group: "Système" },
+  { key: "parametres", Icon: Settings, label: "Paramètres", group: "Système" },
 ];
 
 const titles = {
@@ -325,7 +333,7 @@ const AdvancedAnalytics = React.memo(({ orders, products, clients }) => {
   return (
     <div className="advanced-analytics">
       <div className="card">
-        <h3>📊 Métriques avancées</h3>
+        <h3><BarChart3 size={18} style={{display:'inline',verticalAlign:'middle',marginRight:6}} /> Métriques avancées</h3>
         <div className="metrics-grid">
           <div className="metric-item">
             <span className="metric-label">Valeur moyenne commande</span>
@@ -382,8 +390,8 @@ const AdvancedSearch = React.memo(({ onSearch, onClose }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
-          <h3>🔍 Recherche avancée</h3>
-          <button className="close" onClick={onClose}>✕</button>
+          <h3><Search size={18} style={{display:'inline',verticalAlign:'middle',marginRight:6}} /> Recherche avancée</h3>
+          <button className="close" onClick={onClose}><X size={18} /></button>
         </div>
         <div className="modal-body">
           <div className="field">
@@ -459,7 +467,7 @@ const AdvancedSearch = React.memo(({ onSearch, onClose }) => {
           </div>
           <div className="modal-foot">
             <button className="btn btn-light" onClick={onClose}>Annuler</button>
-            <button className="btn btn-red" onClick={handleSearch}>🔍 Rechercher</button>
+            <button className="btn btn-red" onClick={handleSearch}><Search size={15} style={{display:'inline',verticalAlign:'middle',marginRight:4}} /> Rechercher</button>
           </div>
         </div>
       </div>
@@ -522,8 +530,8 @@ const ExportModal = React.memo(({ onExport, onClose, orders }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
-          <h3>📤 Exporter les données</h3>
-          <button className="close" onClick={onClose}>✕</button>
+          <h3><Download size={18} style={{display:'inline',verticalAlign:'middle',marginRight:6}} /> Exporter les données</h3>
+          <button className="close" onClick={onClose}><X size={18} /></button>
         </div>
         <div className="modal-body">
           <div className="field">
@@ -574,7 +582,7 @@ const ExportModal = React.memo(({ onExport, onClose, orders }) => {
           </div>
           <div className="modal-foot">
             <button className="btn btn-light" onClick={onClose}>Annuler</button>
-            <button className="btn btn-red" onClick={handleExport}>📥 Exporter</button>
+            <button className="btn btn-red" onClick={handleExport}><Download size={15} style={{display:'inline',verticalAlign:'middle',marginRight:4}} /> Exporter</button>
           </div>
         </div>
       </div>
@@ -585,7 +593,7 @@ const ExportModal = React.memo(({ onExport, onClose, orders }) => {
 const ProductCard = React.memo(({ product, onView, onEdit, onDelete }) => {
   return (
     <div className="card product-card-admin">
-      <div className="product-img">{product.emoji}</div>
+      <div className="product-img"><Shirt size={32} /></div>
       <div>
         <h3>{product.name}</h3>
         <p className="muted">{product.brand} · {product.cat}</p>
@@ -603,9 +611,9 @@ const ProductCard = React.memo(({ product, onView, onEdit, onDelete }) => {
       </div>
       <div className="product-actions-admin">
         <div className="actions">
-          <button className="icon-btn view" title="Voir" onClick={() => onView("product", product)}>👁️</button>
-          <button className="icon-btn" title="Modifier" onClick={() => onEdit("product", product)}>✏️</button>
-          <button className="icon-btn danger" title="Supprimer" onClick={() => onDelete("product", product.id)}>🗑️</button>
+          <button className="icon-btn view" title="Voir" onClick={() => onView("product", product)}><Eye size={14} /></button>
+          <button className="icon-btn" title="Modifier" onClick={() => onEdit("product", product)}><Edit size={14} /></button>
+          <button className="icon-btn danger" title="Supprimer" onClick={() => onDelete("product", product.id)}><Trash2 size={14} /></button>
         </div>
       </div>
     </div>
@@ -645,7 +653,7 @@ const Sales = React.memo(({ runExport, orders = [], products = [] }) => {
       <div className="card sales-card">
         <div className="card-title">
           <h3>Rapport commercial</h3>
-          <button className="btn btn-red" onClick={() => runExport("pdf")}>Exporter PDF</button>
+          <button className="btn btn-red" onClick={() => runExport("pdf")}><Download size={15} style={{display:'inline',verticalAlign:'middle',marginRight:4}} /> Exporter PDF</button>
         </div>
         {data.categories.length ? data.categories.map((category) => (
           <HBar key={category.label} label={category.label} width={category.width} value={category.value} />
@@ -680,7 +688,7 @@ const Modal = React.memo(({ modal, close, save, loading }) => {
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <h3>{isEdit ? "Modifier" : "Ajouter"} {getTypeLabel()}</h3>
-          <button className="close" onClick={close}>✕</button>
+          <button className="close" onClick={close}><X size={18} /></button>
         </div>
 
         <form className="modal-body" onSubmit={save}>
@@ -745,7 +753,6 @@ const Modal = React.memo(({ modal, close, save, loading }) => {
                 name="image"
                 accept="image/*"
               />
-              <Field label="Emoji" name="emoji" defaultValue={item.emoji || "👗"} />
               <div className="card soft-card">
                 <h4>Tailles et stocks</h4>
 
@@ -992,7 +999,7 @@ const ViewModal = React.memo(({ view, close }) => {
         <div className="modal-box view-modal" onClick={(e) => e.stopPropagation()}>
           <div className="modal-head">
             <h3>Détails {getTypeLabel()}</h3>
-            <button className="close" onClick={close}>✕</button>
+            <button className="close" onClick={close}><X size={18} /></button>
           </div>
 
           <div className="modal-body">
@@ -1043,7 +1050,7 @@ const ViewModal = React.memo(({ view, close }) => {
       <div className="modal-box view-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <h3>Détails {getTypeLabel()}</h3>
-          <button className="close" onClick={close}>✕</button>
+          <button className="close" onClick={close}><X size={18} /></button>
         </div>
 
         <div className="modal-body">
@@ -1292,7 +1299,6 @@ function Dashboard() {
 
         cat: p.target || p.categoryName || p.categorySlug || "Catalogue",
         image: p.image,
-        emoji: "👗",
       }));
 
       // ESSAYAGES
@@ -2606,7 +2612,7 @@ function Dashboard() {
               onClick={toggleMobileMenu}
               aria-label="Fermer le menu"
             >
-              ✕
+              <X size={18} />
             </button>
             <button 
               className="collapse-btn" 
@@ -2632,7 +2638,7 @@ function Dashboard() {
                   onClick={() => handleNavClick(item.key)} 
                   title={collapsed ? item.label : ""}
                 >
-                  <span className="ico">{item.icon}</span>
+                  <span className="ico"><item.Icon size={20} /></span>
                   <span className="nav-label">{item.label}</span>
                   {item.key === "notifications" && kpi.unreadNotifs > 0 && (
                     <span className="badge-notif">{kpi.unreadNotifs}</span>
@@ -2660,7 +2666,7 @@ function Dashboard() {
               style={{ width: '100%', margin: 0 }}
               onClick={(e) => { e.stopPropagation(); logout(); }}
             >
-              <span className="ico">🚪</span>
+              <span className="ico"><LogOut size={18} /></span>
               <span>Déconnexion</span>
             </button>
           ) : (
@@ -2705,8 +2711,8 @@ function Dashboard() {
               placeholder="Recherche rapide (Ctrl + F)"
               aria-label="Recherche"
             />
-            <button className="btn btn-light" onClick={() => setSearchModal(true)} title="Recherche avancée (Ctrl+Shift+F)">🔍 Avancée</button>
-            <button className="btn btn-red" onClick={() => setExportModal(true)} title="Export avancé (Ctrl+E)">📤 Export</button>
+            <button className="btn btn-light" onClick={() => setSearchModal(true)} title="Recherche avancée (Ctrl+Shift+F)"><Search size={15} style={{display:'inline',verticalAlign:'middle',marginRight:4}} /> Avancée</button>
+            <button className="btn btn-red" onClick={() => setExportModal(true)} title="Export avancé (Ctrl+E)"><Download size={15} style={{display:'inline',verticalAlign:'middle',marginRight:4}} /> Export</button>
           </div>
         </header>
 

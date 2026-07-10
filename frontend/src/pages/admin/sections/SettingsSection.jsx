@@ -1,4 +1,17 @@
 import React, { useEffect, useState } from "react";
+import {
+  Store,
+  Sparkles,
+  Package,
+  CreditCard,
+  Truck,
+  Bell,
+  Users,
+  Lock,
+  Database,
+  Settings,
+  Palette
+} from "lucide-react";
 import Field from "../components/Field";
 import SwitchLine from "../components/SwitchLine";
 import { adminService } from "../../../services/adminService";
@@ -154,7 +167,7 @@ const SettingsSection = React.memo(function SettingsSection({ darkMode, setDarkM
       <div className="settings-grid">
         <div className="card settings-card large">
           <div className="settings-head">
-            <span className="settings-icon">🏪</span>
+            <span className="settings-icon"><Store size={24} /></span>
             <div>
               <h3>1. Paramètres de la boutique</h3>
               <p className="muted">Informations visibles et configuration commerciale.</p>
@@ -184,7 +197,7 @@ const SettingsSection = React.memo(function SettingsSection({ darkMode, setDarkM
 
         <div className="card settings-card">
           <div className="settings-head">
-            <span className="settings-icon">✨</span>
+            <span className="settings-icon"><Sparkles size={24} /></span>
             <div>
               <h3>2. Essayage virtuel IA</h3>
               <p className="muted">Réglages de la cabine virtuelle et de CatVTON.</p>
@@ -203,7 +216,7 @@ const SettingsSection = React.memo(function SettingsSection({ darkMode, setDarkM
 
         <div className="card settings-card">
           <div className="settings-head">
-            <span className="settings-icon">📦</span>
+            <span className="settings-icon"><Package size={24} /></span>
             <div>
               <h3>3. Commandes</h3>
               <p className="muted">Règles de validation, annulation et minimum d'achat.</p>
@@ -222,7 +235,7 @@ const SettingsSection = React.memo(function SettingsSection({ darkMode, setDarkM
 
         <div className="card settings-card">
           <div className="settings-head">
-            <span className="settings-icon">💳</span>
+            <span className="settings-icon"><CreditCard size={24} /></span>
             <div>
               <h3>4. Paiements</h3>
               <p className="muted">Moyens de paiement disponibles sur la plateforme.</p>
@@ -245,7 +258,7 @@ const SettingsSection = React.memo(function SettingsSection({ darkMode, setDarkM
 
         <div className="card settings-card">
           <div className="settings-head">
-            <span className="settings-icon">🚚</span>
+            <span className="settings-icon"><Truck size={24} /></span>
             <div>
               <h3>5. Livraison</h3>
               <p className="muted">Zones desservies, délais et frais de livraison.</p>
@@ -262,7 +275,7 @@ const SettingsSection = React.memo(function SettingsSection({ darkMode, setDarkM
 
         <div className="card settings-card">
           <div className="settings-head">
-            <span className="settings-icon">🔔</span>
+            <span className="settings-icon"><Bell size={24} /></span>
             <div>
               <h3>6. Notifications</h3>
               <p className="muted">Canaux et alertes automatiques.</p>
@@ -279,7 +292,7 @@ const SettingsSection = React.memo(function SettingsSection({ darkMode, setDarkM
 
         <div className="card settings-card">
           <div className="settings-head">
-            <span className="settings-icon">👥</span>
+            <span className="settings-icon"><Users size={24} /></span>
             <div>
               <h3>7. Administrateurs</h3>
               <p className="muted">Gestion des rôles et accès admin.</p>
@@ -308,7 +321,7 @@ const SettingsSection = React.memo(function SettingsSection({ darkMode, setDarkM
 
         <div className="card settings-card">
           <div className="settings-head">
-            <span className="settings-icon">🔒</span>
+            <span className="settings-icon"><Lock size={24} /></span>
             <div>
               <h3>8. Sécurité</h3>
               <p className="muted">Protection des sessions et journalisation.</p>
@@ -326,7 +339,7 @@ const SettingsSection = React.memo(function SettingsSection({ darkMode, setDarkM
 
         <div className="card settings-card">
           <div className="settings-head">
-            <span className="settings-icon">💾</span>
+            <span className="settings-icon"><Database size={24} /></span>
             <div>
               <h3>9. Sauvegardes système</h3>
               <p className="muted">Préparation des sauvegardes et restaurations.</p>
@@ -347,7 +360,7 @@ const SettingsSection = React.memo(function SettingsSection({ darkMode, setDarkM
 
         <div className="card settings-card">
           <div className="settings-head">
-            <span className="settings-icon">⚙️</span>
+            <span className="settings-icon"><Settings size={24} /></span>
             <div>
               <h3>10. API & Backend</h3>
               <p className="muted">État des services techniques de TryOn.</p>
@@ -367,7 +380,7 @@ const SettingsSection = React.memo(function SettingsSection({ darkMode, setDarkM
         </div>
         <div className="card settings-card">
           <div className="settings-head">
-            <span className="settings-icon">🎨</span>
+            <span className="settings-icon"><Palette size={24} /></span>
             <div>
               <h3>11. Apparence</h3>
               <p className="muted">Personnalisation de l'interface du back-office.</p>

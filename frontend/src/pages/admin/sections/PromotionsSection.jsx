@@ -1,4 +1,5 @@
 import React from "react";
+import { Pause, Play } from "lucide-react";
 import Toolbar from "../components/Toolbar";
 import Table from "../components/Table";
 import Actions from "../components/Actions";
@@ -64,7 +65,7 @@ export default React.memo(function PromotionsSection({
               title={promotion.active ? "Désactiver" : "Activer"}
               onClick={() => togglePromotionStatus?.(promotion)}
             >
-              {promotion.active ? "⏸️" : "▶️"}
+              {promotion.active ? <Pause size={14} /> : <Play size={14} />}
             </button>
           </div>,
         ])}

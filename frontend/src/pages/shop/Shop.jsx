@@ -8,6 +8,7 @@ import { adminService } from '../../services/adminService';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import MobileHeader from '../../components/layout/MobileHeader';
+import { ShoppingCart } from 'lucide-react';
 
 const FILTERS = ["Tous", "Femme", "Homme", "Robes", "Chemises", "Pantalons", "Vestes", "Accessoires"];
 const PER_PAGE = 8;
@@ -103,6 +104,26 @@ export default function Shop() {
   return (
     <div className="shop-page">
       <MobileHeader />
+
+      {/* ─── EN-TÊTE MOBILE ─── */}
+      <div className="mobile-shop-header">
+        <Link to="/" className="logo">TRY<span>ON</span></Link>
+        <div className="header-actions">
+          <Link to="/cart" aria-label="Panier" style={{ position: 'relative' }}>
+            <ShoppingCart size={20} />
+            {count > 0 && <span className="cart-badge-mobile">{count}</span>}
+          </Link>
+          {isAuthenticated ? (
+            <Link to="/notifications" aria-label="Notifications" style={{ position: 'relative' }}>
+              🔔
+              {unreadCount > 0 && <span className="notif-dot" />}
+            </Link>
+          ) : (
+            <Link to="/auth" aria-label="Connexion">👤</Link>
+          )}
+        </div>
+      </div>
+
       <style>{styles}</style>
 
       <section className="shop-hero">

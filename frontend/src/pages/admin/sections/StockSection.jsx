@@ -1,4 +1,5 @@
 import React from "react";
+import { Eye, Package, Shirt } from "lucide-react";
 import Kpi from "../components/Kpi";
 import Toolbar from "../components/Toolbar";
 import Pagination from "../components/Pagination";
@@ -49,7 +50,7 @@ export default React.memo(function StockSection({
           return (
             <div className="card stock-card" key={p.id}>
               <div className="stock-header">
-                <span className="stock-emoji">{p.emoji}</span>
+                <span className="stock-emoji"><Shirt size={24} /></span>
                 <h3>{p.name}</h3>
               </div>
 
@@ -87,7 +88,7 @@ export default React.memo(function StockSection({
                   title="Voir le produit"
                   onClick={() => openView("product", p)}
                 >
-                  👁️
+                  <Eye size={14} />
                 </button>
 
                 <button
@@ -95,7 +96,7 @@ export default React.memo(function StockSection({
                   title="Réapprovisionner"
                   onClick={() => openRestock(p)}
                 >
-                  📦
+                  <Package size={14} />
                 </button>
               </div>
               

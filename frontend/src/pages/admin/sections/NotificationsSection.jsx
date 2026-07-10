@@ -1,4 +1,5 @@
 import React from "react";
+import { MailCheck, Package, AlertTriangle, User, Star, Bell } from "lucide-react";
 import Actions from "../components/Actions";
 import Pagination from "../components/Pagination";
 
@@ -12,6 +13,21 @@ export default React.memo(function NotificationsSection({
   remove,
   setPageNumber,
 }) {
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case "order":
+        return <Package size={18} />;
+      case "stock":
+        return <AlertTriangle size={18} />;
+      case "client":
+        return <User size={18} />;
+      case "review":
+        return <Star size={18} />;
+      default:
+        return <Bell size={18} />;
+    }
+  };
+
   return (
     <>
       <div className="toolbar">
@@ -19,7 +35,8 @@ export default React.memo(function NotificationsSection({
 
         <div className="top-actions">
           <button className="btn btn-light" onClick={markAllNotificationsRead}>
-            📬 Tout marquer comme lu
+            <MailCheck size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+            Tout marquer comme lu
           </button>
 
           <button
@@ -39,15 +56,7 @@ export default React.memo(function NotificationsSection({
           >
             <div className="notif-header">
               <span className="notif-type">
-                {n.type === "order"
-                  ? "📦"
-                  : n.type === "stock"
-                  ? "⚠️"
-                  : n.type === "client"
-                  ? "👤"
-                  : n.type === "review"
-                  ? "⭐"
-                  : "📬"}
+                {getNotificationIcon(n.type)}
               </span>
 
               <div className="notif-content">

@@ -1,4 +1,5 @@
 import React from "react";
+import { Search, CheckCircle, Ban, Star } from "lucide-react";
 import Toolbar from "../components/Toolbar";
 import Table from "../components/Table";
 import Actions from "../components/Actions";
@@ -44,7 +45,8 @@ export default React.memo(function ReviewsSection({
         extra={
           onAdvancedSearch && (
             <button className="btn btn-light" onClick={onAdvancedSearch}>
-              🔍 Recherche avancée
+              <Search size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+              Recherche avancée
             </button>
           )
         }
@@ -56,7 +58,11 @@ export default React.memo(function ReviewsSection({
         rows={reviewsPage.items.map((review) => [
           review.product,
           review.client,
-          <span className="review-rating">{"⭐".repeat(Number(review.rating || 0))}</span>,
+          <span className="review-rating">
+            {Array.from({ length: Number(review.rating || 0) }, (_, i) => (
+              <Star key={i} size={12} fill="currentColor" />
+            ))}
+          </span>,
           <span className="comment-preview">{review.comment}</span>,
           <span className={`badge ${statusClass[review.status] || "warn"}`}>
             {statusLabel[review.status] || review.status}
@@ -68,7 +74,7 @@ export default React.memo(function ReviewsSection({
                 title="Approuver"
                 onClick={() => updateReviewStatus?.(review, "approved")}
               >
-                ✅
+                <CheckCircle size={14} />
               </button>
             )}
             {review.status !== "rejected" && (
@@ -77,7 +83,7 @@ export default React.memo(function ReviewsSection({
                 title="Rejeter"
                 onClick={() => updateReviewStatus?.(review, "rejected")}
               >
-                🚫
+                <Ban size={14} />
               </button>
             )}
             <Actions

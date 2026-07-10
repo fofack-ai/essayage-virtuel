@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
 import BottomNav from '../../components/layout/BottomNav';
 import MobileHeader from '../../components/layout/MobileHeader';
+import { User, Mail, Phone, Lock, KeyRound, Hash, Eye, EyeOff } from 'lucide-react';
 
 const DATA = {
   login: {
@@ -70,7 +71,6 @@ export default function Auth() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
-  // Gestion des effets secondaires pour le token de réinitialisation et la connexion Google
   useEffect(() => {
     if (token) {
       setResetToken(token);
@@ -78,7 +78,6 @@ export default function Auth() {
     }
   }, [token]);
 
-  // Gestion de la connexion Google après le redirection en passant par le formulaire d'OTP si nécessaire
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const data = params.get("data");
@@ -519,7 +518,7 @@ export default function Auth() {
               {pendingOtp ? (
                 <form onSubmit={handleVerifyOtp}>
                   <Input
-                    icon="🔢"
+                    icon={<Hash size={18} />}
                     label="Code OTP"
                     placeholder="Ex : 123456"
                     value={otp}
@@ -549,7 +548,7 @@ export default function Auth() {
                 <>
                   <form onSubmit={handleLogin}>
                     <Input
-                      icon="✉️"
+                      icon={<Mail size={18} />}
                       label="Email"
                       type="email"
                       placeholder="vous@exemple.cm"
@@ -563,7 +562,7 @@ export default function Auth() {
                     />
 
                     <Input
-                      icon="🔐"
+                      icon={<KeyRound size={18} />}
                       label="Mot de passe"
                       type="password"
                       placeholder="••••••••"
@@ -611,7 +610,7 @@ export default function Auth() {
               <form onSubmit={handleRegister}>
                 <div style={registerNameGridStyle} className="auth-name-grid">
                   <Input
-                    icon="👤"
+                   icon={<User size={18} />}
                     label="Prénom"
                     placeholder="Miranda"
                     value={registerForm.firstName}
@@ -624,7 +623,7 @@ export default function Auth() {
                   />
 
                   <Input
-                    icon="👤"
+                   icon={<User size={18} />}
                     label="Nom"
                     placeholder="Eko"
                     value={registerForm.lastName}
@@ -638,7 +637,7 @@ export default function Auth() {
                 </div>
 
                 <Input
-                  icon="✉️"
+                  icon={<Mail size={18} />}
                   label="Email"
                   type="email"
                   placeholder="vous@exemple.cm"
@@ -652,7 +651,7 @@ export default function Auth() {
                 />
 
                 <Input
-                  icon="📱"
+                  icon={<Phone size={18} />}
                   label="Téléphone"
                   placeholder="+237 6XX XXX XXX"
                   value={registerForm.phone}
@@ -665,7 +664,7 @@ export default function Auth() {
                 />
 
                 <Input
-                  icon="🔒"
+                  icon={<Lock size={18} />}
                   label="Mot de passe"
                   type="password"
                   placeholder="Minimum 6 caractères"
@@ -679,7 +678,7 @@ export default function Auth() {
                 />
 
                 <Input
-                  icon="🔐"
+                  icon={<KeyRound size={18} />}
                   label="Confirmer"
                   type="password"
                   placeholder="Répétez le mot de passe"
@@ -709,7 +708,7 @@ export default function Auth() {
 
               <form onSubmit={handleForgot}>
                 <Input
-                  icon="✉️"
+                  icon={<Mail size={18} />}
                   label="Email"
                   type="email"
                   placeholder="vous@exemple.cm"
@@ -748,7 +747,7 @@ export default function Auth() {
 
               <form onSubmit={handleResetPassword}>
                 <Input
-                  icon="🔒"
+                  icon={<Lock size={18} />}
                   label="Nouveau mot de passe"
                   type="password"
                   placeholder="********"
@@ -757,7 +756,7 @@ export default function Auth() {
                 />
 
                 <Input
-                  icon="🔐"
+                  icon={<KeyRound size={18} />}
                   label="Confirmer"
                   type="password"
                   placeholder="********"
@@ -828,7 +827,7 @@ function Input({ label, type = "text", placeholder, value, onChange, icon }) {
             onClick={() => setShowPassword(!showPassword)}
             style={eyeButtonStyle}
           >
-            {showPassword ? "🙈" : "👁️"}
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         )}
       </div>
