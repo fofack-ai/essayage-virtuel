@@ -416,6 +416,37 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
   };
 
   /* ── 7. Ajout au panier ── */
+  const resultFullUrl = () => aiResult && aiResult.resultImageUrl
+    ? `${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1').replace(/\/api(\/v1)?/, '')}${aiResult.resultImageUrl}`
+    : null;
+
+  const handleDownload = async () => {
+    const url = resultFullUrl();
+    if (!url) return;
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `essayage-${product?.name || 'tryon'}.png`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } catch (_) {
+      window.open(url, '_blank');
+    }
+  };
+
+  const handleShareResult = async () => {
+    const url = resultFullUrl();
+    if (!url) return;
+    if (navigator.share) {
+      try { await navigator.share({ title: `Mon essayage — ${product?.name}`, url }); } catch (_) {}
+    } else {
+      navigator.clipboard?.writeText(url);
+      alert('Lien du rendu copié !');
+    }
+  };
+
   const handleAddToCart = async () => {
     try {
       await addItem({
@@ -630,7 +661,7 @@ const handleAITryon = async () => {
         )}
         {/* ÉTAPE 1 : Upload + sélections */}
         {step === 1 && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 340px', gap: '32px', alignItems: 'start' }}>
+          <div className="tryon-grid-upload" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 340px', gap: '32px', alignItems: 'start' }}>
             {/* Colonne gauche : upload photo/webcam */}
             <div>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', fontWeight: 500, marginBottom: '6px' }}>
@@ -658,7 +689,7 @@ const handleAITryon = async () => {
                   <div style={{ position: 'relative', width: '100%', height: '340px' }}>
                     <video
                       ref={videoRef}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#EEF1F5' }}
                       autoPlay
                       playsInline
                     />
@@ -712,7 +743,7 @@ const handleAITryon = async () => {
                     <img
                       src={photoPreview}
                       alt="preview"
-                      style={{ width: '100%', height: '340px', objectFit: 'cover', borderRadius: '16px' }}
+                      style={{ width: '100%', height: '340px', objectFit: 'contain', background: '#EEF1F5', borderRadius: '16px' }}
                     />
                     <button
                       onClick={() => { setPhoto(null); setPhotoPreview(null); setUseWebcam(false); }}
@@ -887,8 +918,8 @@ const handleAITryon = async () => {
                         src={getImageUrl(product.image)}
                         alt={product.name}
                         style={{
-                          maxWidth: '220px',
-                          maxHeight: '260px',
+                          maxWidth: '100%',
+                          maxHeight: '420px',
                           objectFit: 'contain',
                           borderRadius: '14px',
                           marginBottom: '18px',
@@ -1073,7 +1104,7 @@ const handleAITryon = async () => {
               {/* Bouton LANCER */}
               <div style={{ padding: '20px' }}>
                 <button
-                  onClick={analyzePhoto}
+                  onClick={() => { setStep(3); handleAITryon(); }}
                   disabled={!photoPreview && !useWebcam}
                   style={{
                     width: '100%',
@@ -1183,89 +1214,73 @@ const handleAITryon = async () => {
         {/* ÉTAPE 3 : Résultats */}
         {step === 3 && (
           <div>
-            <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '48px', alignItems: 'start', marginBottom: '48px' }}>
-              {/* Colonne gauche : photo + mensurations */}
+            <div className="tryon-grid-result" style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: '32px', alignItems: 'start', marginBottom: '48px' }}>
+{/* Colonne gauche : photo + rendu côte à côte */}
               <div>
-                <div style={{ borderRadius: '18px', overflow: 'hidden', position: 'relative', marginBottom: '24px' }}>
-                  {photoPreview ? (
-                    <img src={photoPreview} alt="essayage" style={{ width: '100%', height: '380px', objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ height: '380px', background: T.blueLight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: '64px' }}>🧍</span>
+                <div className="tryon-photo-result" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+
+                  {/* Votre photo */}
+                  <div style={{ borderRadius: '18px', overflow: 'hidden', position: 'relative' }}>
+                    {photoPreview ? (
+                      <img src={photoPreview} alt="Votre photo" style={{ width: '100%', height: '460px', objectFit: 'contain', background: '#EEF1F5', display: 'block' }} />
+                    ) : (
+                      <div style={{ height: '460px', background: T.blueLight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: '64px' }}>🧍</span>
+                      </div>
+                    )}
+                    <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(26,26,26,0.7)', color: '#fff', fontSize: '10px', fontWeight: 600, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.5px' }}>
+                      VOTRE PHOTO
                     </div>
-                  )}
-                  <canvas
-                    ref={canvasRef}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      pointerEvents: 'none',
-                    }}
-                    width={640}
-                    height={480}
-                  />
-                  <div style={{
-                    position: 'absolute',
-                    top: '14px',
-                    right: '14px',
-                    background: 'rgba(249,249,249,0.96)',
-                    backdropFilter: 'blur(10px)',
-                    borderRadius: '12px',
-                    padding: '10px 14px',
-                    textAlign: 'center',
-                  }}>
-                    <div style={{ fontSize: '10px', color: T.muted, letterSpacing: '1px', textTransform: 'uppercase' }}>Score IA</div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: T.red, lineHeight: 1 }}>
-                      {score || 0}%
-                    </div>
-                    <div style={{ fontSize: '10px', color: T.blueDark }}>Taille {recommendedSize || selectedSize}</div>
                   </div>
-                </div>
 
-                {/* Mensurations détectées */}
-                <div style={{ background: T.white, borderRadius: '16px', border: `1px solid ${T.border}`, padding: '24px', boxShadow: '0 12px 34px rgba(26,26,26,0.075)' }}>
-                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '20px', fontWeight: 400, marginBottom: '20px' }}>
-                    Mensurations détectées
-                  </h3>
-                  {measurements ? (
-                    <>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '12px', marginBottom: '12px', borderBottom: `1px solid ${T.border}` }}>
-                        <span style={{ fontSize: '13px', color: T.muted }}>Épaules</span>
-                        <span style={{ fontSize: '14px', fontWeight: 500 }}>
-                          {((measurements.shoulderWidthNorm / measurements.heightNorm) * 100).toFixed(0)}% de la hauteur
-                        </span>
+                  {/* Rendu IA */}
+                  <div style={{ borderRadius: '18px', overflow: 'hidden', position: 'relative', border: `2px solid ${T.blueDark}`, background: T.blueLight }}>
+                    {aiGenerating ? (
+                      <div style={{ height: '460px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '16px', textAlign: 'center' }}>
+                        <div style={{ width: '44px', height: '44px', borderRadius: '50%', border: `3px solid rgba(53,92,134,0.2)`, borderTopColor: T.blueDark, animation: 'spin 1s linear infinite' }} />
+                        <p style={{ color: T.muted, fontSize: '13px', margin: 0 }}>Génération en cours…<br />(1-2 min)</p>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '12px', marginBottom: '12px', borderBottom: `1px solid ${T.border}` }}>
-                        <span style={{ fontSize: '13px', color: T.muted }}>Hanches</span>
-                        <span style={{ fontSize: '14px', fontWeight: 500 }}>
-                          {((measurements.hipWidthNorm / measurements.heightNorm) * 100).toFixed(0)}% de la hauteur
-                        </span>
+                    ) : aiResult && aiResult.resultImageUrl ? (
+                      <>
+                        <img
+                          src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1').replace(/\/api(\/v1)?/, '')}${aiResult.resultImageUrl}`}
+                          alt="Résultat de l'essayage"
+                          style={{ width: '100%', height: '460px', objectFit: 'contain', background: '#EEF1F5', display: 'block' }}
+                          onError={(e) => { e.target.src = photoPreview; }}
+                        />
+                        <div style={{ position: 'absolute', top: '12px', left: '12px', background: T.blueDark, color: '#fff', fontSize: '10px', fontWeight: 600, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.5px' }}>
+                          ✨ RENDU IA
+                        </div>
+                        {/* Boutons télécharger + partager (discrets, en haut à droite) */}
+                        <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px' }}>
+                          <button
+                            onClick={handleDownload}
+                            title="Télécharger"
+                            style={{ width: '34px', height: '34px', borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={T.blueDark} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                          </button>
+                          <button
+                            onClick={handleShareResult}
+                            title="Partager"
+                            style={{ width: '34px', height: '34px', borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={T.blueDark} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ height: '460px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.muted, fontSize: '13px', textAlign: 'center', padding: '16px' }}>
+                        Le rendu apparaîtra ici
                       </div>
-                    </>
-                  ) : (
-                    <p style={{ color: T.muted }}>Aucune donnée disponible</p>
-                  )}
-                </div>
+                    )}
+                  </div>
 
-                <button
-                  onClick={resetTryon}
-                  style={{
-                    width: '100%',
-                    marginTop: '16px',
-                    background: 'transparent',
-                    color: T.muted,
-                    border: `1px solid ${T.border}`,
-                    borderRadius: '10px',
-                    padding: '12px',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  ← Nouvelle photo
-                </button>
+                </div>
               </div>
 
               {/* Colonne droite : résultats détaillés */}
@@ -1351,128 +1366,18 @@ const handleAITryon = async () => {
                   </div>
                 </div>
 
-                {/* ── Section génération IA ── */}
-<div style={{ padding: '24px', borderBottom: `1px solid ${T.border}` }}>
-  <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>
-    Essayage IA
-  </div>
-
-  {/* Bouton principal */}
-  {!aiResult && !aiGenerating && (
-    <button
-      onClick={handleAITryon}
-      style={{
-        width: '100%',
-        padding: '16px',
-        borderRadius: '12px',
-        background: `linear-gradient(135deg, ${T.blue}, ${T.blueNavy})`,
-        color: '#fff',
-        border: 'none',
-        fontSize: '13px',
-        fontWeight: 600,
-        letterSpacing: '1.5px',
-        textTransform: 'uppercase',
-        cursor: 'pointer',
-        boxShadow: '0 10px 24px rgba(53,92,134,0.25)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '8px',
-      }}
-    >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-      </svg>
-      Générer avec l'IA
-    </button>
-  )}
-
-  {/* Loading */}
-  {aiGenerating && (
-    <div style={{ textAlign: 'center', padding: '24px 0' }}>
-      <div style={{
-        width: '48px', height: '48px', borderRadius: '50%',
-        border: `3px solid ${T.blueLight}`,
-        borderTop: `3px solid ${T.blueDark}`,
-        margin: '0 auto 16px',
-        animation: 'spin 1s linear infinite',
-      }} />
-      <p style={{ color: T.muted, fontSize: '13px', margin: 0 }}>
-        L'IA génère votre essayage…
-      </p>
-      <p style={{ color: T.blueDark, fontSize: '11px', marginTop: '6px', fontWeight: 500 }}>
-        Analyse morphologique → description du vêtement → rendu final
-      </p>
-      <p style={{ color: T.muted, fontSize: '11px', marginTop: '4px' }}>
-        ~30 à 60 secondes
-      </p>
-    </div>
-  )}
-
-  {/* Erreur */}
-  {aiError && !aiGenerating && (
-    <div style={{
-      padding: '14px 16px',
-      borderRadius: '10px',
-      background: 'rgba(192,57,43,0.07)',
-      border: `1px solid rgba(192,57,43,0.2)`,
-      marginBottom: '12px',
-    }}>
-      <p style={{ color: T.red, fontSize: '13px', margin: '0 0 8px', fontWeight: 500 }}>
-        ⚠ Génération échouée
-      </p>
-      <p style={{ color: T.muted, fontSize: '12px', margin: 0 }}>{aiError}</p>
-      <button
-        onClick={handleAITryon}
-        style={{ marginTop: '10px', background: 'transparent', border: `1px solid ${T.red}`, color: T.red, borderRadius: '8px', padding: '6px 14px', fontSize: '12px', cursor: 'pointer' }}
-      >
-        Réessayer
-      </button>
-    </div>
-  )}
-
-  {/* Résultat */}
-  {aiResult && !aiGenerating && (
-    <div>
-      <div style={{
-        borderRadius: '14px',
-        overflow: 'hidden',
-        marginBottom: '14px',
-        position: 'relative',
-        border: `1px solid ${T.border}`,
-      }}>
-        {/* Badge IA */}
-        <div style={{
-          position: 'absolute', top: '12px', left: '12px', zIndex: 2,
-          background: `linear-gradient(135deg, ${T.blue}, ${T.blueNavy})`,
-          color: '#fff', borderRadius: '100px', padding: '4px 12px',
-          fontSize: '10px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase',
-        }}>
-          ✦ Rendu IA
-        </div>
-        <img
-          src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1').replace(/\/api(\/v1)?/, '')}${aiResult.resultImageUrl}`}
-          alt="Essayage IA"
-          style={{ width: '100%', display: 'block', maxHeight: '380px', objectFit: 'cover' }}
-          onError={(e) => { e.target.src = photoPreview; }}
-        />
-      </div>
-
-      {/* Regénérer */}
-      <button
-        onClick={handleAITryon}
-        style={{
-          width: '100%', padding: '10px',
-          borderRadius: '8px', background: 'transparent',
-          color: T.blueDark, border: `1px solid ${T.border}`,
-          fontSize: '12px', cursor: 'pointer',
-        }}
-      >
-        ↻ Regénérer
-      </button>
-    </div>
-  )}
-</div>
+                {/* ── Erreur de génération (si échec) ── */}
+                {aiError && !aiGenerating && (
+                  <div style={{ padding: '20px 24px', borderBottom: `1px solid ${T.border}` }}>
+                    <div style={{ padding: '14px 16px', borderRadius: '10px', background: 'rgba(192,57,43,0.07)', border: `1px solid rgba(192,57,43,0.2)` }}>
+                      <p style={{ color: T.red, fontSize: '13px', margin: '0 0 8px', fontWeight: 500 }}>⚠ Génération échouée</p>
+                      <p style={{ color: T.muted, fontSize: '12px', margin: 0 }}>{aiError}</p>
+                      <button onClick={handleAITryon} style={{ marginTop: '10px', background: 'transparent', border: `1px solid ${T.red}`, color: T.red, borderRadius: '8px', padding: '6px 14px', fontSize: '12px', cursor: 'pointer' }}>
+                        Réessayer
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Actions */}
                 <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>

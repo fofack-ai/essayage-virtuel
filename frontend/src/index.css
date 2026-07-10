@@ -600,3 +600,57 @@ footer {
     display: none;
   }
 }
+
+/* ── Page produit : responsive ── */
+@media (max-width: 900px) {
+  /* Image + infos passent l'une sous l'autre au lieu de côte à côte */
+  .product-detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+  /* L'image ne reste plus "sticky" et prend une hauteur raisonnable */
+  .product-detail-grid > div:first-child {
+    position: relative !important;
+    top: 0 !important;
+    height: auto !important;
+    min-height: 60vh;
+  }
+}
+@media (max-width: 640px) {
+  /* Le bloc détails (marque/taille/matière) passe de 2 colonnes à 1 */
+  .product-detail-content {
+    grid-template-columns: 1fr !important;
+  }
+
+    .tryon-photo-result {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* ══════════════════════════════════════
+   CABINE D'ESSAYAGE — responsive
+   ══════════════════════════════════════ */
+
+/* Écran upload : 3 colonnes (photo | aperçu | options) → empilées dès la tablette */
+@media (max-width: 1024px) {
+  .tryon-grid-upload {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+}
+
+/* Écran résultat : (images | détails) → empilé sur tablette/mobile */
+@media (max-width: 1024px) {
+  .tryon-grid-result {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+}
+
+/* Photo + rendu côte à côte : restent côte à côte le plus longtemps possible
+   (la comparaison n'a de sens qu'à deux), s'empilent seulement sur petit mobile */
+@media (max-width: 480px) {
+  .tryon-photo-result {
+    grid-template-columns: 1fr !important;
+  }
+}
