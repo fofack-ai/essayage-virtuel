@@ -4,10 +4,13 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { api, getImageUrl } from '../../services/api';
 
+
 // MediaPipe
 import { Pose } from '@mediapipe/pose';
 import { Camera } from '@mediapipe/camera_utils';
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
+
+import { Sparkles, Shirt, User, Camera as CameraIcon, Info } from 'lucide-react';
 
 /* ── Constantes de style ── */
 const T = {
@@ -567,7 +570,7 @@ const handleAITryon = async () => {
       {/* En-tête */}
       <div style={{ padding: '48px 80px 36px', borderBottom: `1px solid ${T.border}` }}>
         <span style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '3px', textTransform: 'uppercase', color: T.blueDark }}>
-          <span style={{ color: T.red }}>✦</span> Technologie IA
+           Technologie IA
         </span>
         <h1 style={{
           fontFamily: "'Cormorant Garamond', serif",
@@ -642,7 +645,7 @@ const handleAITryon = async () => {
             gap: '12px',
           }}>
             <span style={{ fontSize: '20px', flexShrink: 0, lineHeight: 1.2 }}>
-              {pageMessage.type === 'error' ? '📷' : 'ℹ️'}
+              {pageMessage.type === 'error' ? <Camera size={18} /> : <Info size={18} />}
             </span>
             <p style={{ flex: 1, margin: 0, fontSize: '14px', lineHeight: 1.6, color: T.ink }}>
               {pageMessage.text}
@@ -735,7 +738,7 @@ const handleAITryon = async () => {
                       fontSize: '11px',
                       fontWeight: 600,
                     }}>
-                      📷 Webcam active
+                     <Camera size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Webcam active
                     </div>
                   </div>
                 ) : photoPreview ? (
@@ -907,7 +910,7 @@ const handleAITryon = async () => {
                         fontSize: '11px',
                         fontWeight: 700,
                       }}>
-                        ✨ IA
+                        <Sparkles size={12} style={{ display: 'inline', verticalAlign: 'middle' }} /> IA
                       </div>
                     </div>
                   </div>
@@ -1127,7 +1130,6 @@ const handleAITryon = async () => {
                     gap: '8px',
                   }}
                 >
-                  <span style={{ fontSize: '16px' }}>✨</span>
                   {!photoPreview && !useWebcam ? "Uploadez une photo d'abord" : "Lancer l'essayage IA"}
                 </button>
               </div>
@@ -1225,7 +1227,7 @@ const handleAITryon = async () => {
                       <img src={photoPreview} alt="Votre photo" style={{ width: '100%', height: '460px', objectFit: 'contain', background: '#EEF1F5', display: 'block' }} />
                     ) : (
                       <div style={{ height: '460px', background: T.blueLight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: '64px' }}>🧍</span>
+                        <User size={64} strokeWidth={1.2} />
                       </div>
                     )}
                     <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(26,26,26,0.7)', color: '#fff', fontSize: '10px', fontWeight: 600, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.5px' }}>
@@ -1249,7 +1251,7 @@ const handleAITryon = async () => {
                           onError={(e) => { e.target.src = photoPreview; }}
                         />
                         <div style={{ position: 'absolute', top: '12px', left: '12px', background: T.blueDark, color: '#fff', fontSize: '10px', fontWeight: 600, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.5px' }}>
-                          ✨ RENDU IA
+                           RENDU IA
                         </div>
                         {/* Boutons télécharger + partager (discrets, en haut à droite) */}
                         <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px' }}>

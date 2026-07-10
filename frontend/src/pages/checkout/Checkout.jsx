@@ -9,6 +9,8 @@ import orangeLogo from '../../assets/logos/orange-money.png';
 import mtnLogo from '../../assets/logos/mtn-momo.png';
 import deliveryLogo from '../../assets/logos/cash-on-delivery.png';
 
+import { Truck, AlertTriangle, Check, Loader2 } from 'lucide-react';
+
 /* ─── Constantes ─────────────────────────────────────────── */
 const PAYMENT = [
   { id: 'orange', label: 'Orange Money',     desc: 'Paiement via votre compte Orange Money', backend: 'orange_money' },
@@ -375,7 +377,7 @@ export default function Checkout() {
                     color: (done2 || active) ? '#fff' : '#9CA3AF',
                     fontSize: 13, fontWeight: 700, transition: 'background .2s',
                   }}>
-                    {done2 ? '✓' : n}
+                    {done2 ? <Check size={14} /> : n}
                   </div>
                   <span className="step-label" style={{ color: active ? '#B83228' : done2 ? '#06D6A0' : '#9CA3AF' }}>
                     {s}
@@ -435,7 +437,7 @@ export default function Checkout() {
                 />
 
                 <p style={{ fontSize: 12.5, color: '#6A6F78', margin: '0 0 28px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  🚚 Livraison à Douala : {fmt(DELIVERY_FEE)} FCFA (3-5 jours ouvrés).
+                  <Truck size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} /> Livraison à Douala : {fmt(DELIVERY_FEE)} FCFA (3-5 jours ouvrés).
                 </p>
 
                 <button
@@ -464,7 +466,7 @@ export default function Checkout() {
                       onClick={() => setPay(m.id)}
                       className={`pay-card${pay === m.id ? ' pay-card--active' : ''}`}
                     >
-                      {pay === m.id && <div className="pay-card__check">✓</div>}
+                      {pay === m.id && <div className="pay-card__check"><Check size={14} /></div>}
                       <PaymentLogo type={m.id} />
                       <div className="pay-card__label">{m.label}</div>
                       <div className="pay-card__desc">{m.desc}</div>
@@ -552,7 +554,7 @@ export default function Checkout() {
                 {/* Erreur de soumission */}
                 {submitError && (
                   <div style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 10, padding: '14px 18px', marginBottom: 20, color: '#B91C1C', fontSize: 14 }}>
-                    ⚠️ {submitError}
+                    <AlertTriangle size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} /> {submitError}
                   </div>
                 )}
 
@@ -569,7 +571,7 @@ export default function Checkout() {
                     disabled={submitting}
                     style={{ flex: 1, padding: 15, background: submitting ? '#6B7280' : 'linear-gradient(135deg,#059669,#047857)', color: '#fff', border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', borderRadius: 10, transition: 'background .2s' }}
                   >
-                    {submitting ? '⏳ En cours…' : '✓ Valider la commande'}
+                    {submitting ? (<><Loader2 size={16} className="spin-icon" style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} /> En cours…</>) : (<><Check size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} /> Valider la commande</>)}
                   </button>
                 </div>
               </div>
