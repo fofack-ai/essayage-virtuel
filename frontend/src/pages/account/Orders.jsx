@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { api, getImageUrl } from '../../services/api';
+import MobileHeader from '../../components/layout/MobileHeader';
 
 /* ─── Constantes ─────────────────────────────────────────── */
 const STATUS_MAP = {
@@ -326,7 +327,7 @@ export default function Orders() {
       `}</style>
 
       <div className="orders-page">
-
+        <MobileHeader />
         {/* Hero */}
         <div className="orders-hero">
           <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: 4, textTransform: 'uppercase', color: '#c9a96e', margin: '0 0 12px' }}>

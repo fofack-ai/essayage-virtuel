@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import MobileHeader from '../../components/layout/MobileHeader';
 
 export default function PrivacyPolicy() {
   return (
     <div className="static-page" style={{ paddingTop: '72px', minHeight: '100vh', background: '#F9F9F9' }}>
+      <MobileHeader />
       <style>{`
         /* ═══════════════════════════════════════
            RESPONSIVE — PAGES STATIQUES

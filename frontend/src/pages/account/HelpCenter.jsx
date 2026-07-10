@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { adminService } from "../../services/adminService";
 import "./account-pages.css";
+import MobileHeader from '../../components/layout/MobileHeader';
 
 const categories = [
   ["📦", "Commandes", "Suivi, modification et historique"],
@@ -90,6 +91,7 @@ export default function HelpCenter() {
 
   return (
     <div className="help-center-page" style={{ paddingTop: '72px', minHeight: '100vh', background: '#F0F2F5' }}>
+      <MobileHeader />
       <style>{`
         /* ═══════════════════════════════════════
            RESPONSIVE — CENTRE D'AIDE

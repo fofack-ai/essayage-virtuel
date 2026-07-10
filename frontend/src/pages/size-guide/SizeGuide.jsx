@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import MobileHeader from '../../components/layout/MobileHeader';
 
 const sizes = [
   { s: 'XS', chest: '76–81', waist: '58–63', hip: '84–89' },

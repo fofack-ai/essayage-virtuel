@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import MobileHeader from '../../components/layout/MobileHeader';
 
 const zones = ['Douala et ses environs', 'Yaoundé et ses environs', 'Bafoussam', 'Garoua', 'Maroua', 'Bamenda', 'Toutes les autres régions camerounaises'];
 
 export default function Shipping() {
   return (
     <div className="static-page" style={{ paddingTop: '72px', minHeight: '100vh', background: '#F9F9F9' }}>
+      <MobileHeader />
       <style>{`
         @media (max-width: 900px) {
           .static-hero { padding: 3rem 1.5rem 2.5rem !important; }

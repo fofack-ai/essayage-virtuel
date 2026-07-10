@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { adminService } from '../../services/adminService';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import MobileHeader from '../../components/layout/MobileHeader';
 
 const FILTERS = ["Tous", "Femme", "Homme", "Robes", "Chemises", "Pantalons", "Vestes", "Accessoires"];
 const PER_PAGE = 8;
@@ -101,28 +102,7 @@ export default function Shop() {
 
   return (
     <div className="shop-page">
-
-    {/* ─── EN-TÊTE MOBILE ─── */}
-      <div className="mobile-shop-header">
-        <Link to="/" className="logo">TRY<span>ON</span></Link>
-        <div className="header-actions">
-          {/* Notifications ou Connexion */}
-          {isAuthenticated ? (
-            <Link to="/notifications" aria-label="Notifications">
-              🔔
-              {unreadCount > 0 && <span className="notif-dot" />}
-            </Link>
-          ) : (
-            <Link to="/auth" aria-label="Connexion">👤</Link>
-          )}
-          {/* Panier */}
-          <Link to="/cart" aria-label="Panier" style={{ position: 'relative' }}>
-            🛒
-            {count > 0 && <span className="cart-badge-mobile">{count}</span>}
-          </Link>
-        </div>
-      </div>
-
+      <MobileHeader />
       <style>{styles}</style>
 
       <section className="shop-hero">

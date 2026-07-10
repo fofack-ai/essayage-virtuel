@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { adminService } from "../../services/adminService";
 import "./account-pages.css";
+import MobileHeader from '../../components/layout/MobileHeader';
 
 const icon = (type) => ({ order:"🛍️", stock:"📦", review:"⭐", product:"👗", payment:"💳", support:"🎧", info:"🔔" }[type] || "🔔");
 const norm = (n) => ({ id:n.id, type:n.type || "info", title:n.title || "Notification", message:n.message || n.description || "", read:Boolean(n.read || n.isRead || n.readAt), date:n.createdAt || n.date || new Date().toISOString() });
@@ -38,6 +39,7 @@ export default function Notifications() {
 
   return (
     <div className="notifications-page" style={{ paddingTop: '72px', minHeight: '100vh', background: '#F0F2F5' }}>
+      <MobileHeader />
       <style>{`
         /* ═══════════════════════════════════════
            RESPONSIVE — NOTIFICATIONS

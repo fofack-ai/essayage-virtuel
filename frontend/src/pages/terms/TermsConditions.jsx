@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import MobileHeader from '../../components/layout/MobileHeader';
 
 const sections = [
   {
@@ -255,6 +256,7 @@ const sections = [
 export default function TermsConditions() {
   return (
     <div className="static-page" style={{ paddingTop: '72px', minHeight: '100vh', background: '#F9F9F9' }}>
+      <MobileHeader />
       <style>{`
         @media (max-width: 900px) {
           .static-hero { padding: 3rem 1.5rem 2.5rem !important; }

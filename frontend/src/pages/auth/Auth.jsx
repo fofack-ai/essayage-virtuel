@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
 import BottomNav from '../../components/layout/BottomNav';
+import MobileHeader from '../../components/layout/MobileHeader';
 
 const DATA = {
   login: {
@@ -219,6 +220,7 @@ export default function Auth() {
 
   return (
     <div style={pageStyle} className="auth-page">
+      <MobileHeader />
       <style>{`
         /* ═══════════════════════════════════════
           RESPONSIVE — AUTH

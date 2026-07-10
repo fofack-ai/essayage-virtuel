@@ -626,31 +626,78 @@ footer {
   }
 }
 
-
-/* ══════════════════════════════════════
-   CABINE D'ESSAYAGE — responsive
-   ══════════════════════════════════════ */
-
-/* Écran upload : 3 colonnes (photo | aperçu | options) → empilées dès la tablette */
-@media (max-width: 1024px) {
-  .tryon-grid-upload {
-    grid-template-columns: 1fr !important;
-    gap: 24px !important;
-  }
+/* ─── EN-TÊTE MOBILE (pour toutes les pages) ─── */
+.mobile-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
-/* Écran résultat : (images | détails) → empilé sur tablette/mobile */
-@media (max-width: 1024px) {
-  .tryon-grid-result {
-    grid-template-columns: 1fr !important;
-    gap: 24px !important;
-  }
+.mobile-header .mobile-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: #1A1A1A;
+  text-decoration: none;
 }
 
-/* Photo + rendu côte à côte : restent côte à côte le plus longtemps possible
-   (la comparaison n'a de sens qu'à deux), s'empilent seulement sur petit mobile */
-@media (max-width: 480px) {
-  .tryon-photo-result {
-    grid-template-columns: 1fr !important;
+.mobile-header .mobile-logo span {
+  color: #E30613;
+}
+
+.mobile-header .mobile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-header .mobile-header-icon {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #1A1A1A;
+  text-decoration: none;
+  position: relative;
+  padding: 4px;
+  line-height: 1;
+}
+
+.mobile-header .notif-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  background: #E30613;
+  border-radius: 50%;
+}
+
+.mobile-header .cart-badge-mobile {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background: #E30613;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .mobile-header {
+    display: flex !important;
   }
 }

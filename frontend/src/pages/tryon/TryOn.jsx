@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { api, getImageUrl } from '../../services/api';
+import BottomNav from '../../components/layout/BottomNav';
 
 // MediaPipe
 import { Pose } from '@mediapipe/pose';
@@ -559,19 +560,514 @@ const handleAITryon = async () => {
   const colorOptions = colors.length ? colors : ['#1a1410'];
 
   return (
-    <div style={{
-      paddingTop: '72px',
-      minHeight: '100vh',
-      background: `radial-gradient(circle at 10% 8%, rgba(91,127,166,0.10), transparent 30%), linear-gradient(180deg,#F9F9F9,#F3F6FA)`
-    }}>
-      {/* En-tête */}
-      <div style={{ padding: '48px 80px 36px', borderBottom: `1px solid ${T.border}` }}>
+    <div
+      className="tryon-page"
+      style={{
+        background: `radial-gradient(circle at 10% 8%, rgba(91,127,166,0.10), transparent 30%), linear-gradient(180deg,#F9F9F9,#F3F6FA)`
+      }}
+    >
+      <style>{`
+/* ============ BASE (DESKTOP) ============ */
+
+.tryon-page {
+  padding-top: 72px;
+  min-height: 100vh;
+}
+
+/* ─── EN-TÊTE MOBILE (caché sur desktop) ─── */
+.tryon-mobile-header {
+  display: none;
+}
+
+/* ─── EN-TÊTE DESKTOP (visible sur desktop) ─── */
+.tryon-header {
+  padding: 48px 80px 36px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.tryon-header .tag {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #355C86;
+  text-align: center;
+}
+
+.tryon-header .tag span {
+  color: #C0392B;
+}
+
+.tryon-header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 300;
+  color: #1A1A1A;
+  margin-top: 8px;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.tryon-header h1 em {
+  font-style: italic;
+  color: #C0392B;
+}
+
+.tryon-header p {
+  color: #6A6F78;
+  margin-top: 10px;
+  font-size: 14px;
+  max-width: 560px;
+  line-height: 1.7;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tryon-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+  width: 100%;
+}
+
+.tryon-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tryon-step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.tryon-step-circle.active {
+  background: linear-gradient(135deg, #C0392B, #8E241D);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(192,57,43,0.20);
+}
+
+.tryon-step-circle.done {
+  background: linear-gradient(135deg, #C0392B, #8E241D);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(192,57,43,0.20);
+}
+
+.tryon-step-circle.inactive {
+  background: #E6EEF6;
+  color: #355C86;
+}
+
+.tryon-step-label {
+  font-size: 13px;
+  font-weight: 400;
+  color: #6A6F78;
+  white-space: nowrap;
+}
+
+.tryon-step-label.active {
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.tryon-step-label.done {
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.tryon-step-line {
+  height: 2px;
+  width: 48px;
+  background: rgba(26,26,26,0.105);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.tryon-step-line.done {
+  background: linear-gradient(90deg, #C0392B, #355C86);
+}
+
+.tryon-container {
+  padding: 40px 80px 80px;
+}
+
+.tryon-grid-upload {
+  display: grid;
+  grid-template-columns: 1fr 1fr 340px;
+  gap: 32px;
+  align-items: start;
+}
+
+.tryon-dropzone {
+  min-height: 340px;
+}
+
+.tryon-preview {
+  min-height: 340px;
+}
+
+.tryon-options {
+  position: sticky;
+  top: 88px;
+}
+
+.tryon-grid-result {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 32px;
+  align-items: start;
+  margin-bottom: 48px;
+}
+
+.tryon-photo-result {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.tryon-result-media {
+  width: 100%;
+  height: 460px;
+}
+
+/* ============ TABLETTE (< 1024px) ============ */
+@media (max-width: 1024px) {
+  .tryon-header {
+    padding: 40px 40px 30px;
+  }
+
+  .tryon-container {
+    padding: 32px 40px 60px;
+  }
+
+  .tryon-grid-upload {
+    grid-template-columns: 1fr;
+  }
+
+  .tryon-options {
+    position: static;
+    top: auto;
+  }
+
+  .tryon-grid-result {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============ MOBILE (< 768px) ============ */
+@media (max-width: 768px) {
+
+  .tryon-page {
+    padding-top: 0 !important;
+    padding-bottom: 84px;
+  }
+
+  /* ─── EN-TÊTE MOBILE (visible uniquement sur mobile) ─── */
+  .tryon-mobile-header {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: #fff;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .tryon-mobile-header .tryon-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: #1A1A1A;
+    text-decoration: none;
+  }
+
+  .tryon-mobile-header .tryon-logo span {
+    color: #E30613;
+  }
+
+  .tryon-mobile-header .tryon-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .tryon-mobile-header .tryon-header-actions a {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #1A1A1A;
+    text-decoration: none;
+    position: relative;
+    padding: 4px;
+    line-height: 1;
+  }
+
+  .tryon-mobile-header .tryon-header-actions a .notif-dot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    background: #E30613;
+    border-radius: 50%;
+  }
+
+  .tryon-mobile-header .tryon-header-actions a .cart-badge-mobile {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background: #E30613;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ─── CONTENU DE L'EN-TÊTE (visible sur mobile aussi) ─── */
+  .tryon-header {
+    display: flex !important;
+    padding: 20px 16px !important;
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-bottom: 1px solid rgba(26,26,26,0.105);
+    width: 100%;
+  }
+
+  .tryon-header .tag {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #355C86;
+    text-align: center;
+  }
+
+  .tryon-header .tag span {
+    color: #C0392B;
+  }
+
+  .tryon-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px !important;
+    font-weight: 300;
+    color: #1A1A1A;
+    margin-top: 8px;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  .tryon-header h1 em {
+    font-style: italic;
+    color: #C0392B;
+  }
+
+  .tryon-header p {
+    color: #6A6F78;
+    margin-top: 10px;
+    font-size: 13px !important;
+    max-width: 100% !important;
+    line-height: 1.7;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .tryon-stepper {
+    gap: 6px !important;
+    margin-top: 20px !important;
+    justify-content: space-between !important;
+    width: 100%;
+  }
+
+  /* Uniquement les chiffres sur mobile */
+  .tryon-step-label {
+    display: none !important;
+  }
+
+  .tryon-step-circle {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 13px !important;
+  }
+
+  .tryon-step-line {
+    flex: 1 !important;
+    width: auto !important;
+    min-width: 14px !important;
+  }
+
+  .tryon-container {
+    padding: 20px 16px 24px !important;
+  }
+
+  .tryon-message {
+    padding: 14px 16px !important;
+  }
+
+  .tryon-dropzone {
+    min-height: 220px;
+  }
+
+  .tryon-preview {
+    min-height: 220px;
+  }
+
+  .tryon-options {
+    position: static;
+  }
+
+  .tryon-photo-result {
+    gap: 8px;
+  }
+
+  .tryon-result-media {
+    height: 240px;
+  }
+
+  .tryon-details-card {
+    border-radius: 18px !important;
+  }
+}
+
+/* ============ TRÈS PETIT MOBILE (< 420px) ============ */
+@media (max-width: 420px) {
+
+  .tryon-page {
+    padding-bottom: 84px;
+  }
+
+  .tryon-mobile-header {
+    padding: 10px 14px;
+  }
+
+  .tryon-mobile-header .tryon-logo {
+    font-size: 20px;
+  }
+
+  .tryon-mobile-header .tryon-header-actions a {
+    font-size: 18px;
+  }
+
+  .tryon-header h1 {
+    font-size: 24px !important;
+  }
+
+  .tryon-header p {
+    font-size: 12px !important;
+  }
+
+  .tryon-container {
+    padding: 16px 12px 24px !important;
+  }
+
+  .tryon-dropzone {
+    min-height: 200px;
+  }
+
+  .tryon-preview {
+    min-height: 200px;
+  }
+
+  /* Photo + rendu IA passent en 1 colonne sur les très petits écrans */
+  .tryon-photo-result {
+    grid-template-columns: 1fr;
+  }
+
+  .tryon-result-media {
+    height: 260px;
+  }
+
+  .tryon-step-circle {
+    width: 26px !important;
+    height: 26px !important;
+    font-size: 11px !important;
+  }
+
+  .tryon-step-line {
+    min-width: 10px !important;
+  }
+}
+
+/* ─── FORCER LE CENTRAGE SUR DESKTOP ─── */
+@media (min-width: 769px) {
+  .tryon-header {
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .tryon-header .tag {
+    text-align: center !important;
+  }
+
+  .tryon-header h1 {
+    text-align: center !important;
+  }
+
+  .tryon-header p {
+    text-align: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .tryon-stepper {
+    justify-content: center !important;
+  }
+}
+`}</style>
+
+      {/* ─── EN-TÊTE MOBILE (comme sur Home et Shop) ─── */}
+      <div className="tryon-mobile-header">
+        <Link to="/" className="tryon-logo">TRY<span>ON</span></Link>
+        <div className="tryon-header-actions">
+          <Link to="/notifications" aria-label="Notifications" style={{ position: 'relative' }}>
+            🔔
+          </Link>
+          <Link to="/cart" aria-label="Panier" style={{ position: 'relative' }}>
+            🛒
+            {/* Le badge du panier si tu veux l'afficher */}
+          </Link>
+        </div>
+      </div>
+
+      {/* ─── CONTENU EN-DESSOUS (titre, description, stepper) ─── */}
+      <div className="tryon-content-header" style={{ padding: '20px 16px', borderBottom: `1px solid ${T.border}`, background: '#fff' }}>
         <span style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '3px', textTransform: 'uppercase', color: T.blueDark }}>
           <span style={{ color: T.red }}>✦</span> Technologie IA
         </span>
         <h1 style={{
           fontFamily: "'Cormorant Garamond', serif",
-          fontSize: 'clamp(32px,4vw,52px)',
+          fontSize: 'clamp(28px, 5vw, 42px)',
           fontWeight: 300,
           color: T.ink,
           marginTop: '8px',
@@ -584,15 +1080,15 @@ const handleAITryon = async () => {
         </p>
 
         {/* Stepper */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '28px' }}>
+        <div className="tryon-stepper">
           {[
             { n: 1, label: 'Photo & Taille' },
             { n: 2, label: 'Analyse' },
             { n: 3, label: 'Résultats' }
           ].map((s, i) => (
             <React.Fragment key={s.n}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{
+              <div className="tryon-step" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="tryon-step-circle" style={{
                   width: '32px',
                   height: '32px',
                   borderRadius: '50%',
@@ -607,7 +1103,7 @@ const handleAITryon = async () => {
                 }}>
                   {step > s.n ? '✓' : s.n}
                 </div>
-                <span style={{
+                <span className="tryon-step-label" style={{
                   fontSize: '13px',
                   fontWeight: step === s.n ? 600 : 400,
                   color: step >= s.n ? T.ink : T.muted
@@ -616,7 +1112,7 @@ const handleAITryon = async () => {
                 </span>
               </div>
               {i < 2 && (
-                <div style={{
+                <div className="tryon-step-line" style={{
                   height: '2px',
                   width: '48px',
                   background: step > s.n ? `linear-gradient(90deg, ${T.red}, ${T.blueDark})` : T.border,
@@ -628,9 +1124,9 @@ const handleAITryon = async () => {
         </div>
       </div>
 
-      <div style={{ padding: '40px 80px 80px' }}>
+      <div className="tryon-container">
         {pageMessage && (
-          <div style={{
+          <div className="tryon-message" style={{
             maxWidth: '720px',
             margin: '0 auto 24px',
             padding: '16px 20px',
@@ -661,7 +1157,7 @@ const handleAITryon = async () => {
         )}
         {/* ÉTAPE 1 : Upload + sélections */}
         {step === 1 && (
-          <div className="tryon-grid-upload" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 340px', gap: '32px', alignItems: 'start' }}>
+          <div className="tryon-grid-upload">
             {/* Colonne gauche : upload photo/webcam */}
             <div>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', fontWeight: 500, marginBottom: '6px' }}>
@@ -670,12 +1166,12 @@ const handleAITryon = async () => {
               <p style={{ fontSize: '12px', color: T.muted, marginBottom: '20px' }}>Glissez ou cliquez pour importer</p>
 
               <div
+                className="tryon-dropzone"
                 onClick={() => !photo && !useWebcam && fileInputRef.current.click()}
                 style={{
                   border: `2px dashed ${photo || useWebcam ? T.red : 'rgba(26,26,26,0.20)'}`,
                   borderRadius: '18px',
                   background: photo || useWebcam ? 'rgba(192,57,43,0.02)' : T.white,
-                  minHeight: '340px',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -686,7 +1182,7 @@ const handleAITryon = async () => {
                 }}
               >
                 {useWebcam && webcamActive ? (
-                  <div style={{ position: 'relative', width: '100%', height: '340px' }}>
+                  <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                     <video
                       ref={videoRef}
                       style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#EEF1F5' }}
@@ -743,7 +1239,7 @@ const handleAITryon = async () => {
                     <img
                       src={photoPreview}
                       alt="preview"
-                      style={{ width: '100%', height: '340px', objectFit: 'contain', background: '#EEF1F5', borderRadius: '16px' }}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#EEF1F5', borderRadius: '16px' }}
                     />
                     <button
                       onClick={() => { setPhoto(null); setPhotoPreview(null); setUseWebcam(false); }}
@@ -860,10 +1356,9 @@ const handleAITryon = async () => {
               </h2>
               <p style={{ fontSize: '12px', color: T.muted, marginBottom: '20px' }}>Prévisualisation de l'essayage virtuel</p>
 
-              <div style={{
+              <div className="tryon-preview" style={{
                 borderRadius: '18px',
                 overflow: 'hidden',
-                minHeight: '340px',
                 position: 'relative',
                 background: `linear-gradient(145deg, #F0F4F9, #E6EEF6)`,
                 border: `1px solid ${T.border}`,
@@ -874,11 +1369,11 @@ const handleAITryon = async () => {
               }}>
                 {aiResult ? (
                   /* Le vrai rendu IA est prêt : on affiche le résultat généré */
-                  <div style={{ position: 'relative', width: '100%', height: '340px' }}>
+                  <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                     <img
                       src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1').replace(/\/api(\/v1)?/, '')}${aiResult.resultImageUrl}`}
                       alt="Rendu de l'essayage"
-                      style={{ width: '100%', height: '340px', objectFit: 'contain', background: '#EEF1F5' }}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#EEF1F5' }}
                       onError={(e) => { e.target.src = photoPreview; }}
                     />
                     <div style={{
@@ -919,7 +1414,7 @@ const handleAITryon = async () => {
                         alt={product.name}
                         style={{
                           maxWidth: '100%',
-                          maxHeight: '420px',
+                          maxHeight: '100%',
                           objectFit: 'contain',
                           borderRadius: '14px',
                           marginBottom: '18px',
@@ -952,33 +1447,18 @@ const handleAITryon = async () => {
             </div>
 
             {/* Colonne droite : sélections + lancement */}
-            <div style={{
+            <div className="tryon-options" style={{
               background: T.white,
               borderRadius: '20px',
               border: `1px solid ${T.border}`,
               overflow: 'hidden',
               boxShadow: '0 14px 40px rgba(26,26,26,0.08)',
-              position: 'sticky',
-              top: '88px',
             }}>
               <div style={{ padding: '20px', borderBottom: `1px solid ${T.border}` }}>
                 <div style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '12px' }}>
                   Article sélectionné
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <div style={{
-                    width: '52px',
-                    height: '64px',
-                    borderRadius: '10px',
-                    background: `linear-gradient(145deg, #F8F9FB, ${T.blueLight})`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '28px',
-                    flexShrink: 0,
-                  }}>
-                    👕
-                  </div>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {product.name}
@@ -1043,7 +1523,7 @@ const handleAITryon = async () => {
                         height: '24px',
                         borderRadius: '50%',
                         background: color,
-                        border: `2px solid ${selectedColor === color ? T.blueDark : T.borderLight}`,
+                        border: `2px solid ${selectedColor === color ? T.blueDark : T.border}`,
                         cursor: 'pointer',
                         position: 'relative',
                       }}
@@ -1106,6 +1586,7 @@ const handleAITryon = async () => {
                 <button
                   onClick={() => { setStep(3); handleAITryon(); }}
                   disabled={!photoPreview && !useWebcam}
+                  className="tryon-launch-btn"
                   style={{
                     width: '100%',
                     padding: '16px',
@@ -1137,7 +1618,7 @@ const handleAITryon = async () => {
 
         {/* ÉTAPE 2 : Analyse */}
         {step === 2 && (
-          <div style={{ maxWidth: '560px', margin: '0 auto', textAlign: 'center', padding: '40px 0' }}>
+          <div className="tryon-analysis" style={{ maxWidth: '560px', margin: '0 auto', textAlign: 'center', padding: '40px 0' }}>
             <div style={{
               width: '100px',
               height: '100px',
@@ -1214,17 +1695,17 @@ const handleAITryon = async () => {
         {/* ÉTAPE 3 : Résultats */}
         {step === 3 && (
           <div>
-            <div className="tryon-grid-result" style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: '32px', alignItems: 'start', marginBottom: '48px' }}>
+            <div className="tryon-grid-result">
 {/* Colonne gauche : photo + rendu côte à côte */}
               <div>
-                <div className="tryon-photo-result" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+                <div className="tryon-photo-result">
 
                   {/* Votre photo */}
                   <div style={{ borderRadius: '18px', overflow: 'hidden', position: 'relative' }}>
                     {photoPreview ? (
-                      <img src={photoPreview} alt="Votre photo" style={{ width: '100%', height: '460px', objectFit: 'contain', background: '#EEF1F5', display: 'block' }} />
+                      <img src={photoPreview} alt="Votre photo" className="tryon-result-media" style={{ width: '100%', objectFit: 'contain', background: '#EEF1F5', display: 'block' }} />
                     ) : (
-                      <div style={{ height: '460px', background: T.blueLight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div className="tryon-result-media" style={{ background: T.blueLight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <span style={{ fontSize: '64px' }}>🧍</span>
                       </div>
                     )}
@@ -1236,7 +1717,7 @@ const handleAITryon = async () => {
                   {/* Rendu IA */}
                   <div style={{ borderRadius: '18px', overflow: 'hidden', position: 'relative', border: `2px solid ${T.blueDark}`, background: T.blueLight }}>
                     {aiGenerating ? (
-                      <div style={{ height: '460px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '16px', textAlign: 'center' }}>
+                      <div className="tryon-result-media" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '16px', textAlign: 'center' }}>
                         <div style={{ width: '44px', height: '44px', borderRadius: '50%', border: `3px solid rgba(53,92,134,0.2)`, borderTopColor: T.blueDark, animation: 'spin 1s linear infinite' }} />
                         <p style={{ color: T.muted, fontSize: '13px', margin: 0 }}>Génération en cours…<br />(1-2 min)</p>
                       </div>
@@ -1245,7 +1726,8 @@ const handleAITryon = async () => {
                         <img
                           src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1').replace(/\/api(\/v1)?/, '')}${aiResult.resultImageUrl}`}
                           alt="Résultat de l'essayage"
-                          style={{ width: '100%', height: '460px', objectFit: 'contain', background: '#EEF1F5', display: 'block' }}
+                          className="tryon-result-media"
+                          style={{ width: '100%', objectFit: 'contain', background: '#EEF1F5', display: 'block' }}
                           onError={(e) => { e.target.src = photoPreview; }}
                         />
                         <div style={{ position: 'absolute', top: '12px', left: '12px', background: T.blueDark, color: '#fff', fontSize: '10px', fontWeight: 600, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.5px' }}>
@@ -1274,7 +1756,7 @@ const handleAITryon = async () => {
                         </div>
                       </>
                     ) : (
-                      <div style={{ height: '460px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.muted, fontSize: '13px', textAlign: 'center', padding: '16px' }}>
+                      <div className="tryon-result-media" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.muted, fontSize: '13px', textAlign: 'center', padding: '16px' }}>
                         Le rendu apparaîtra ici
                       </div>
                     )}
@@ -1284,24 +1766,40 @@ const handleAITryon = async () => {
               </div>
 
               {/* Colonne droite : résultats détaillés */}
-              <div style={{ background: T.white, borderRadius: '24px', border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 18px 50px rgba(26,26,26,0.08)' }}>
+              <div className="tryon-details-card" style={{ background: T.white, borderRadius: '24px', border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 18px 50px rgba(26,26,26,0.08)' }}>
                 <div style={{ padding: '24px', borderBottom: `1px solid ${T.border}` }}>
                   <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>
                     Article essayé
                   </div>
                   <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                    <div style={{
-                      width: '60px',
-                      height: '75px',
-                      borderRadius: '12px',
-                      background: `linear-gradient(145deg, #F8F9FB, #E9EFF6)`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '32px',
-                    }}>
-                      👕
-                    </div>
+                    {product?.image ? (
+                      <img
+                        src={getImageUrl(product.image)}
+                        alt={product.name}
+                        style={{
+                          width: '60px',
+                          height: '75px',
+                          borderRadius: '12px',
+                          objectFit: 'cover',
+                          background: '#F8F9FB',
+                          flexShrink: 0,
+                        }}
+                      />
+                    ) : (
+                      <div style={{
+                        width: '60px',
+                        height: '75px',
+                        borderRadius: '12px',
+                        background: `linear-gradient(145deg, #F8F9FB, #E9EFF6)`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '32px',
+                        flexShrink: 0,
+                      }}>
+                        👕
+                      </div>
+                    )}
                     <div>
                       <div style={{ fontSize: '15px', fontWeight: 500 }}>{product.name}</div>
                       <div style={{ fontSize: '12px', color: T.muted }}>{product.brand || 'TryOn'}</div>
@@ -1349,7 +1847,7 @@ const handleAITryon = async () => {
                   <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>
                     Score de compatibilité
                   </div>
-                  <div style={{ background: `linear-gradient(135deg, ${T.blueDark}, ${T.ink})`, borderRadius: '18px', padding: '20px', color: '#fff' }}>
+                  <div className="tryon-score-box" style={{ background: `linear-gradient(135deg, ${T.blueDark}, ${T.ink})`, borderRadius: '18px', padding: '20px', color: '#fff' }}>
                     <div style={{ fontSize: '12px', opacity: 0.7 }}>Correspondance morphologique</div>
                     <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: 300, lineHeight: 1 }}>
                       {score || 0}%
@@ -1368,7 +1866,7 @@ const handleAITryon = async () => {
 
                 {/* ── Erreur de génération (si échec) ── */}
                 {aiError && !aiGenerating && (
-                  <div style={{ padding: '20px 24px', borderBottom: `1px solid ${T.border}` }}>
+                  <div className="tryon-error-box" style={{ padding: '20px 24px', borderBottom: `1px solid ${T.border}` }}>
                     <div style={{ padding: '14px 16px', borderRadius: '10px', background: 'rgba(192,57,43,0.07)', border: `1px solid rgba(192,57,43,0.2)` }}>
                       <p style={{ color: T.red, fontSize: '13px', margin: '0 0 8px', fontWeight: 500 }}>⚠ Génération échouée</p>
                       <p style={{ color: T.muted, fontSize: '12px', margin: 0 }}>{aiError}</p>
@@ -1380,7 +1878,7 @@ const handleAITryon = async () => {
                 )}
 
                 {/* Actions */}
-                <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div className="tryon-action-buttons" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <button
                     onClick={handleAddToCart}
                     style={{
@@ -1424,6 +1922,8 @@ const handleAITryon = async () => {
           </div>
         )}
       </div>
+
+      <BottomNav />
     </div>
   );
 }
