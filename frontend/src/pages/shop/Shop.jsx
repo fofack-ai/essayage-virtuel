@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { adminService } from '../../services/adminService';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { ShoppingCart } from 'lucide-react';
 
 const FILTERS = ["Tous", "Femme", "Homme", "Robes", "Chemises", "Pantalons", "Vestes", "Accessoires"];
 const PER_PAGE = 8;
@@ -117,7 +118,7 @@ export default function Shop() {
           )}
           {/* Panier */}
           <Link to="/cart" aria-label="Panier" style={{ position: 'relative' }}>
-            🛒
+            <ShoppingCart size={20} />
             {count > 0 && <span className="cart-badge-mobile">{count}</span>}
           </Link>
         </div>

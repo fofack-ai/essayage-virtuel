@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { adminService } from '../services/adminService';
 import { useCart } from '../context/CartContext';
 
+import { ShoppingCart, Sparkles } from 'lucide-react';
 
 /* ── Design tokens ── */
 const T = {
@@ -716,7 +717,7 @@ export default function Home() {
           )}
           {/* Panier */}
           <Link to="/cart" aria-label="Panier" style={{ position: 'relative' }}>
-            🛒
+            <ShoppingCart size={20} />
             {count > 0 && <span className="cart-badge-mobile">{count}</span>}
           </Link>
         </div>
@@ -736,7 +737,7 @@ export default function Home() {
       >
         <div style={HERO_CONTENT_STYLE}>
           <span style={HERO_TAG_STYLE}>
-            <span style={{ color: T.red }}>✦</span> Essayage virtuel par IA
+            <Sparkles size={14} style={{ color: T.red, display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} /> Essayage virtuel par IA
           </span>
 
           <h1 style={HERO_TITLE_STYLE}>
@@ -819,7 +820,7 @@ export default function Home() {
               }}
               aria-hidden="true"
             >
-              ✨
+              <Sparkles size={28} />
             </div>
             <div>
               <div
@@ -962,7 +963,7 @@ export default function Home() {
       {/* ── BANNIÈRE IA ── */}
       <section style={IA_BANNER_SECTION_STYLE} aria-label="IA banner section">
         <div style={IA_BANNER_CONTENT_STYLE}>
-          <span style={IA_BADGE_STYLE}>✦ Technologie IA</span>
+          <span style={IA_BADGE_STYLE}><Sparkles size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} /> Technologie IA</span>
           <h2 style={IA_TITLE_STYLE}>
             Votre cabine d'essayage<br />
             <em style={{ fontStyle: 'italic', color: '#f5b7b1' }}>virtuelle</em>

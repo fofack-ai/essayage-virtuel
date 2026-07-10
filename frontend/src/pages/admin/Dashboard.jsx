@@ -30,22 +30,29 @@ import Field from "./components/Field";
 import { useAuth } from "../../context/AuthContext";
 import DashboardSkeleton from "./components/DashboardSkeleton";
 
+import {
+  LayoutDashboard, Package, Shirt, Users, Sparkles, TrendingUp,
+  Star, BarChart3, Boxes, Tag, CreditCard, Bell, HelpCircle,
+  ShieldCheck, Settings, Search, LogOut
+} from 'lucide-react';
+
+
 const nav = [
-  { key: "dashboard", icon: "📊", label: "Tableau de bord", group: "Gestion" },
-  { key: "commandes", icon: "📦", label: "Commandes", group: "Gestion" },
-  { key: "produits", icon: "👗", label: "Produits", group: "Gestion" },
-  { key: "clients", icon: "👥", label: "Clients", group: "Gestion" },
-  { key: "essayages", icon: "✨", label: "Essayages", group: "Analyse" },
-  { key: "ventes", icon: "📈", label: "Ventes", group: "Analyse" },
-  { key: "avis", icon: "⭐", label: "Avis & Évaluations", group: "Analyse" },
-  { key: "rapports", icon: "📊", label: "Analyse & Rapports", group: "Analyse" },
-  { key: "stock", icon: "📦", label: "Stock & Approvisionnement", group: "Logistique" },
-  { key: "promotions", icon: "🏷️", label: "Promotions", group: "Marketing" },
-  { key: "paiements", icon: "💳", label: "Paiements & Transactions", group: "Finance" },
-  { key: "notifications", icon: "🔔", label: "Notifications", group: "Système" },
-  { key: "support", icon: "❓", label: "Support & FAQ", group: "Système" },
-  { key: "logs", icon: "🔒", label: "Logs & Sécurité", group: "Système" },
-  { key: "parametres", icon: "⚙️", label: "Paramètres", group: "Système" },
+{ key: "dashboard", Icon: LayoutDashboard, label: "Tableau de bord", group: "Gestion" },
+  { key: "commandes", Icon: Package, label: "Commandes", group: "Gestion" },
+  { key: "produits", Icon: Shirt, label: "Produits", group: "Gestion" },
+  { key: "clients", Icon: Users, label: "Clients", group: "Gestion" },
+  { key: "essayages", Icon: Sparkles, label: "Essayages", group: "Analyse" },
+  { key: "ventes", Icon: TrendingUp, label: "Ventes", group: "Analyse" },
+  { key: "avis", Icon: Star, label: "Avis & Évaluations", group: "Analyse" },
+  { key: "rapports", Icon: BarChart3, label: "Analyse & Rapports", group: "Analyse" },
+  { key: "stock", Icon: Boxes, label: "Stock & Approvisionnement", group: "Logistique" },
+  { key: "promotions", Icon: Tag, label: "Promotions", group: "Marketing" },
+  { key: "paiements", Icon: CreditCard, label: "Paiements & Transactions", group: "Finance" },
+  { key: "notifications", Icon: Bell, label: "Notifications", group: "Système" },
+  { key: "support", Icon: HelpCircle, label: "Support & FAQ", group: "Système" },
+  { key: "logs", Icon: ShieldCheck, label: "Logs & Sécurité", group: "Système" },
+  { key: "parametres", Icon: Settings, label: "Paramètres", group: "Système" },
 ];
 
 const titles = {
@@ -325,7 +332,7 @@ const AdvancedAnalytics = React.memo(({ orders, products, clients }) => {
   return (
     <div className="advanced-analytics">
       <div className="card">
-        <h3>📊 Métriques avancées</h3>
+        <h3><BarChart3 size={18} style={{display:'inline',verticalAlign:'middle',marginRight:6}} /> Métriques avancées</h3>
         <div className="metrics-grid">
           <div className="metric-item">
             <span className="metric-label">Valeur moyenne commande</span>
@@ -382,7 +389,7 @@ const AdvancedSearch = React.memo(({ onSearch, onClose }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
-          <h3>🔍 Recherche avancée</h3>
+          <h3><Search size={18} style={{display:'inline',verticalAlign:'middle',marginRight:6}} /> Recherche avancée</h3>
           <button className="close" onClick={onClose}>✕</button>
         </div>
         <div className="modal-body">
@@ -459,7 +466,7 @@ const AdvancedSearch = React.memo(({ onSearch, onClose }) => {
           </div>
           <div className="modal-foot">
             <button className="btn btn-light" onClick={onClose}>Annuler</button>
-            <button className="btn btn-red" onClick={handleSearch}>🔍 Rechercher</button>
+            <button className="btn btn-red" onClick={handleSearch}><Search size={15} style={{display:'inline',verticalAlign:'middle',marginRight:4}} /> Rechercher</button>
           </div>
         </div>
       </div>
@@ -2660,7 +2667,7 @@ function Dashboard() {
               style={{ width: '100%', margin: 0 }}
               onClick={(e) => { e.stopPropagation(); logout(); }}
             >
-              <span className="ico">🚪</span>
+              <span className="ico"><LogOut size={18} /></span>
               <span>Déconnexion</span>
             </button>
           ) : (
@@ -2705,7 +2712,7 @@ function Dashboard() {
               placeholder="Recherche rapide (Ctrl + F)"
               aria-label="Recherche"
             />
-            <button className="btn btn-light" onClick={() => setSearchModal(true)} title="Recherche avancée (Ctrl+Shift+F)">🔍 Avancée</button>
+            <button className="btn btn-light" onClick={() => setSearchModal(true)} title="Recherche avancée (Ctrl+Shift+F)"><Search size={15} style={{display:'inline',verticalAlign:'middle',marginRight:4}} /> Avancée</button>
             <button className="btn btn-red" onClick={() => setExportModal(true)} title="Export avancé (Ctrl+E)">📤 Export</button>
           </div>
         </header>
