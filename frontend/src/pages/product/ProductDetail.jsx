@@ -4,6 +4,7 @@ import { useCart } from "../../context/CartContext";
 import { api, getImageUrl } from "../../services/api";
 import { FaWhatsapp } from "react-icons/fa";
 
+import { Heart, Share2, Sparkles, ShoppingBag, ShieldCheck, AlertTriangle, Check, X } from 'lucide-react';
 const ALL_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
 // Numéro WhatsApp de la boutique (format international sans + ni espaces)
@@ -337,11 +338,11 @@ const handleAdd = async () => {
                 border: `1.5px solid ${favorite ? '#B83228' : T.border}`,
                 background: favorite ? 'rgba(184,50,40,.08)' : '#fff',
                 fontSize: 20, color: favorite ? '#B83228' : T.muted,
-              }}>{favorite ? '♥' : '♡'}</button>
+              }}><Heart size={18} fill={favorite ? '#B83228' : 'none'} /></button>
               <button type="button" onClick={handleShare} aria-label="Partager" style={{
                 width: 46, height: 46, borderRadius: 12, cursor: 'pointer',
                 border: `1.5px solid ${T.border}`, background: '#fff', fontSize: 18, color: T.muted,
-              }}>↗</button>
+              }}><Share2 size={17} /></button>
             </div>
           </div>
 
@@ -416,7 +417,7 @@ const handleAdd = async () => {
               border: `1px solid ${message.type === 'error' ? 'rgba(192,57,43,.25)' : 'rgba(6,214,160,.35)'}`,
               color: message.type === 'error' ? '#B83228' : '#0a8a68',
             }}>
-              <span style={{ fontSize: 16 }}>{message.type === 'error' ? '⚠️' : '✓'}</span>
+              <span style={{ display: 'flex', alignItems: 'center' }}>{message.type === 'error' ? <AlertTriangle size={16} /> : <Check size={16} />}</span>
               <span style={{ flex: 1 }}>{message.text}</span>
               <button type="button" onClick={() => setMessage(null)} style={{
                 background: 'none', border: 'none', cursor: 'pointer', fontSize: 18,
@@ -435,7 +436,7 @@ const handleAdd = async () => {
               fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
             }}>
-              <span style={{ fontSize: 18 }}>✨</span> Essayer virtuellement
+              Essayer virtuellement
             </button>
 
             {/* Ajouter au panier */}
@@ -446,7 +447,7 @@ const handleAdd = async () => {
               border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
               fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase',
             }}>
-              {isOutOfStock ? '✕ Épuisé' : (added ? '✓ Ajouté au panier' : '🛍 Ajouter au panier')}
+              {isOutOfStock ? (<><X size={16} /> Épuisé</>) : (added ? (<><Check size={16} /> Ajouté au panier</>) : (<><ShoppingBag size={16} /> Ajouter au panier</>))}
             </button>
 
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" style={{
@@ -463,7 +464,7 @@ const handleAdd = async () => {
 
             {/* Réassurance */}
             <div className="product-reassurance" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: T.muted, justifyContent: 'center' }}>
-              <span style={{ color: '#2E7C4F' }}>🛡</span>
+              <span style={{ color: '#2E7C4F', display: 'flex', alignItems: 'center' }}><ShieldCheck size={16} /></span>
               Paiement à la livraison ou Mobile Money sécurisé
             </div>
           </div>

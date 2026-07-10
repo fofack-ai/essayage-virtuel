@@ -5,10 +5,13 @@ import { useCart } from '../../context/CartContext';
 import { api, getImageUrl } from '../../services/api';
 import BottomNav from '../../components/layout/BottomNav';
 
+
 // MediaPipe
 import { Pose } from '@mediapipe/pose';
 import { Camera } from '@mediapipe/camera_utils';
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
+
+import { Sparkles, Shirt, User, Camera as CameraIcon, Info } from 'lucide-react';
 
 /* ── Constantes de style ── */
 const T = {
@@ -1063,7 +1066,7 @@ const handleAITryon = async () => {
       {/* ─── CONTENU EN-DESSOUS (titre, description, stepper) ─── */}
       <div className="tryon-content-header" style={{ padding: '20px 16px', borderBottom: `1px solid ${T.border}`, background: '#fff' }}>
         <span style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '3px', textTransform: 'uppercase', color: T.blueDark }}>
-          <span style={{ color: T.red }}>✦</span> Technologie IA
+           Technologie IA
         </span>
         <h1 style={{
           fontFamily: "'Cormorant Garamond', serif",
@@ -1138,7 +1141,7 @@ const handleAITryon = async () => {
             gap: '12px',
           }}>
             <span style={{ fontSize: '20px', flexShrink: 0, lineHeight: 1.2 }}>
-              {pageMessage.type === 'error' ? '📷' : 'ℹ️'}
+              {pageMessage.type === 'error' ? <CameraIcon size={18} /> : <Info size={18} />}
             </span>
             <p style={{ flex: 1, margin: 0, fontSize: '14px', lineHeight: 1.6, color: T.ink }}>
               {pageMessage.text}
@@ -1231,7 +1234,7 @@ const handleAITryon = async () => {
                       fontSize: '11px',
                       fontWeight: 600,
                     }}>
-                      📷 Webcam active
+                     <CameraIcon size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Webcam active
                     </div>
                   </div>
                 ) : photoPreview ? (
@@ -1389,7 +1392,7 @@ const handleAITryon = async () => {
                       alignItems: 'center',
                       gap: '10px',
                     }}>
-                      <span style={{ fontSize: '22px' }}>👕</span>
+                      <Shirt size={22} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: '12px', fontWeight: 600, color: T.ink }}>{product.name}</div>
                         <div style={{ fontSize: '11px', color: T.muted }}>Taille {selectedSize} · Rendu IA</div>
@@ -1402,7 +1405,7 @@ const handleAITryon = async () => {
                         fontSize: '11px',
                         fontWeight: 700,
                       }}>
-                        ✨ IA
+                        <Sparkles size={12} style={{ display: 'inline', verticalAlign: 'middle' }} /> IA
                       </div>
                     </div>
                   </div>
@@ -1430,7 +1433,7 @@ const handleAITryon = async () => {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         margin: '0 auto 20px', fontSize: '36px',
                       }}>
-                        👗
+                        <Shirt size={36} />
                       </div>
                     )}
                     <p style={{ fontWeight: 500, color: T.ink, fontSize: '14px', marginBottom: '4px' }}>
@@ -1608,7 +1611,6 @@ const handleAITryon = async () => {
                     gap: '8px',
                   }}
                 >
-                  <span style={{ fontSize: '16px' }}>✨</span>
                   {!photoPreview && !useWebcam ? "Uploadez une photo d'abord" : "Lancer l'essayage IA"}
                 </button>
               </div>
@@ -1706,7 +1708,7 @@ const handleAITryon = async () => {
                       <img src={photoPreview} alt="Votre photo" className="tryon-result-media" style={{ width: '100%', objectFit: 'contain', background: '#EEF1F5', display: 'block' }} />
                     ) : (
                       <div className="tryon-result-media" style={{ background: T.blueLight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: '64px' }}>🧍</span>
+                        <User size={64} strokeWidth={1.2} />
                       </div>
                     )}
                     <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(26,26,26,0.7)', color: '#fff', fontSize: '10px', fontWeight: 600, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.5px' }}>
@@ -1731,7 +1733,7 @@ const handleAITryon = async () => {
                           onError={(e) => { e.target.src = photoPreview; }}
                         />
                         <div style={{ position: 'absolute', top: '12px', left: '12px', background: T.blueDark, color: '#fff', fontSize: '10px', fontWeight: 600, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.5px' }}>
-                          ✨ RENDU IA
+                           RENDU IA
                         </div>
                         {/* Boutons télécharger + partager (discrets, en haut à droite) */}
                         <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px' }}>
@@ -1797,7 +1799,7 @@ const handleAITryon = async () => {
                         fontSize: '32px',
                         flexShrink: 0,
                       }}>
-                        👕
+                        <Shirt size={32} />
                       </div>
                     )}
                     <div>
