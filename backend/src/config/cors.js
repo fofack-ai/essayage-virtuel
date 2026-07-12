@@ -1,6 +1,7 @@
-const mysql = require("mysql2/promise");
 require("dotenv").config();
 
+// Origines autorisées à appeler l'API.
+// En production, définir FRONTEND_URL sur l'URL réelle du site (https://...).
 const allowedOrigins = [
   process.env.FRONTEND_URL || "http://localhost:3000",
   "http://localhost:3000",
@@ -9,7 +10,7 @@ const allowedOrigins = [
 
 module.exports = {
   origin: function (origin, callback) {
-    // Autorise aussi les requêtes sans origine (Postman, curl, l'app mobile, etc.)
+    // Autorise aussi les requêtes sans origine (Postman, curl, app mobile, etc.)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {

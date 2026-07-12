@@ -9,11 +9,17 @@ export function getImageUrl(path) {
 
 export async function apiRequest(endpoint, options = {}) {
   const token =
-  sessionStorage.getItem("tryon_token") ||
-  localStorage.getItem("tryon_token");
+    sessionStorage.getItem("tryon_token") ||
+    localStorage.getItem("tryon_token");
+
+  // Si le body est un FormData (upload de fichier), on NE force PAS le
+  // Content-Type : le navigateur doit poser lui-même le boundary multipart.
+  // Forcer "application/json" ici casserait tout upload (photo essayage,
+  // image produit, etc.).
+  const isFormData = options.body instanceof FormData;
 
   const headers = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(options.headers || {}),
   };
 
@@ -21,15 +27,37 @@ export async function apiRequest(endpoint, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  let res;
+  try {
+    res = await fetch(`${BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+  } catch (networkError) {
+    // Coupure réseau / serveur injoignable : message clair au lieu d'un
+    // "Failed to fetch" cryptique.
+    throw new Error(
+      "Impossible de joindre le serveur. Vérifiez votre connexion internet."
+    );
+  }
 
-  const data = await res.json();
+  // Certaines réponses n'ont pas de corps JSON (204 No Content, erreur proxy…).
+  // On parse défensivement pour ne jamais planter sur res.json().
+  let data = null;
+  const text = await res.text();
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { success: false, message: text };
+    }
+  }
 
-  if (!res.ok || data.success === false) {
-    throw new Error(data.message || "Erreur API");
+  if (!res.ok || (data && data.success === false)) {
+    const message =
+      (data && data.message) ||
+      `Erreur ${res.status}${res.statusText ? " — " + res.statusText : ""}`;
+    throw new Error(message);
   }
 
   return data;
@@ -50,9 +78,27 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
+  // PATCH manquait : les appels api.patch(...) (marquer une notification lue,
+  // "tout marquer comme lu") plantaient avec "api.patch is not a function".
+  patch: (endpoint, data) =>
+    apiRequest(endpoint, {
+      method: "PATCH",
+      body: data !== undefined ? JSON.stringify(data) : undefined,
+    }),
+
   delete: (endpoint) =>
     apiRequest(endpoint, {
       method: "DELETE",
+    }),
+
+  // Upload de fichier : "formData" doit être une instance de FormData.
+  // Cette méthode manquait dans ce fichier : l'upload de la photo d'essayage
+  // (TryOn.jsx) ET l'upload d'image produit (dashboard admin) plantaient avec
+  // "api.upload is not a function".
+  upload: (endpoint, formData) =>
+    apiRequest(endpoint, {
+      method: "POST",
+      body: formData,
     }),
 };
 

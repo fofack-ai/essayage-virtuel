@@ -1,19 +1,5 @@
 const authService = require("../../services/v1/authService");
 
-function sendAuthRedirect(res, result) {
-  const payload = encodeURIComponent(
-    JSON.stringify({
-      token: result.token,
-      user: result.user,
-    })
-  );
-
-  const target = result.user?.role === "admin" ? "/admin" : "/";
-  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-
-  return res.redirect(`${frontendUrl}/auth/google/success?data=${payload}&redirect=${target}`);
-}
-
 async function register(req, res) {
   try {
     const result = await authService.register(req.body);
@@ -55,16 +41,6 @@ async function verifyOtp(req, res) {
     });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });
-  }
-}
-
-async function googleCallback(req, res) {
-  try {
-    const result = await authService.googleLogin(req.user);
-    return sendAuthRedirect(res, result);
-  } catch (error) {
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-    return res.redirect(`${frontendUrl}/auth?error=${encodeURIComponent(error.message)}`);
   }
 }
 
@@ -114,23 +90,23 @@ async function resetPassword(req, res) {
   }
 }
 
+// Callback appelé par Passport après authentification Google réussie.
+// (Une seule définition : l'ancien fichier en déclarait deux, la première
+// était du code mort écrasé par la seconde.)
 async function googleCallback(req, res) {
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
   try {
     const result = await authService.handleGoogleUser(req.user);
 
-    const redirect =
-      result.user?.role === "admin"
-        ? "/admin"
-        : "/";
-
+    const redirect = result.user?.role === "admin" ? "/admin" : "/";
     const data = encodeURIComponent(JSON.stringify(result));
 
     return res.redirect(
-      `${process.env.FRONTEND_URL}/auth/google/success?data=${data}&redirect=${redirect}`
+      `${frontendUrl}/auth/google/success?data=${data}&redirect=${redirect}`
     );
   } catch (error) {
     return res.redirect(
-      `${process.env.FRONTEND_URL}/auth?error=${encodeURIComponent(error.message)}`
+      `${frontendUrl}/auth?error=${encodeURIComponent(error.message)}`
     );
   }
 }
@@ -144,5 +120,4 @@ module.exports = {
   updateProfile,
   forgotPassword,
   resetPassword,
-  googleCallback,
 };
