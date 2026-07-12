@@ -4,8 +4,8 @@ async function createOrder(connection, data) {
   const [result] = await connection.query(
     `INSERT INTO orders
      (userId, orderNumber, total, status, paymentMethod, paymentStatus,
-      deliveryAddress, deliveryCity, deliveryPhone, deliveryType, deliveryFee, promoCode, promoDiscount)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      deliveryAddress, deliveryCity, deliveryPhone, deliveryType, deliveryFee)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       data.userId,
       data.orderNumber,
@@ -18,8 +18,6 @@ async function createOrder(connection, data) {
       data.deliveryPhone    || null,
       data.deliveryType     || "std",
       data.deliveryFee      ?? 0,
-      data.promoCode        || null,
-      data.promoDiscount    ?? 0,
     ]
   );
   return result.insertId;
@@ -56,7 +54,7 @@ async function getUserOrders(userId) {
   const [rows] = await db.query(
     `SELECT id, orderNumber, total, status, paymentMethod, paymentStatus,
             deliveryAddress, deliveryCity, deliveryPhone,
-            deliveryType, deliveryFee, promoCode, promoDiscount,
+            deliveryType, deliveryFee,
             createdAt, updatedAt
      FROM orders
      WHERE userId = ?

@@ -223,6 +223,40 @@ async function getOrderItems(orderId) {
   return rows;
 }
 
+async function archiveOrder(orderId) {
+  const [result] = await db.query(
+    "UPDATE orders SET status = 'archived', updatedAt = CURRENT_TIMESTAMP WHERE id = ?",
+    [orderId]
+  );
+  
+  return result.affectedRows > 0;
+}
+
+// Ajouter aussi la fonction pour récupérer les commandes non archivées
+async function getAllOrders() {
+  const [rows] = await db.query(`
+    SELECT
+      o.id,
+      o.orderNumber,
+      o.total,
+      o.status,
+      o.paymentMethod,
+      o.paymentStatus,
+      o.deliveryCity,
+      o.deliveryPhone,
+      o.createdAt,
+      u.firstName,
+      u.lastName,
+      u.email
+    FROM orders o
+    LEFT JOIN users u ON o.userId = u.id
+    WHERE o.status != 'archived' -- 👈 EXCLURE LES COMMANDES ARCHIVÉES
+    ORDER BY o.createdAt DESC
+  `);
+
+  return rows;
+}
+
 module.exports = {
   countUsers,
   countOrders,
@@ -238,4 +272,5 @@ module.exports = {
   deleteClient,
   getOrderById,
   getOrderItems,
+  archiveOrder,
 };

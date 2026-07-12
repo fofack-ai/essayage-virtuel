@@ -28,6 +28,38 @@ export default React.memo(function NotificationsSection({
     }
   };
 
+  // 👇 Fonction pour formater la date
+  const formatDate = (dateString) => {
+    if (!dateString) return "Date inconnue";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return dateString;
+    }
+  };
+
+  // 👇 Fonction pour transformer les données de l'API
+  const transformNotification = (notification) => ({
+    id: notification.id || notification.notificationId,
+    type: notification.type || 'info',
+    title: notification.title || 'Notification',
+    message: notification.message || '',
+    date: notification.date || formatDate(notification.createdAt),
+    read: notification.isRead || notification.read || false,
+    createdAt: notification.createdAt,
+    adminId: notification.adminId
+  });
+
+  const items = notificationsPage.items?.map(transformNotification) || [];
+  const hasItems = items.length > 0;
+
   return (
     <>
       <div className="toolbar">
@@ -38,61 +70,53 @@ export default React.memo(function NotificationsSection({
             <MailCheck size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
             Tout marquer comme lu
           </button>
-
-          <button
-            className="btn btn-primary"
-            onClick={() => openAdd("notification")}
-          >
-            + Nouvelle notification
-          </button>
         </div>
       </div>
 
       <div className="notifications-list">
-        {notificationsPage.items.map((n) => (
-          <div
-            className={`card notification-item ${n.read ? "read" : "unread"}`}
-            key={n.id}
-          >
-            <div className="notif-header">
-              <span className="notif-type">
-                {getNotificationIcon(n.type)}
-              </span>
+        {hasItems ? (
+          items.map((n) => (
+            <div
+              className={`card notification-item ${n.read ? "read" : "unread"}`}
+              key={n.id}
+            >
+              <div className="notif-header">
+                <span className="notif-type">
+                  {getNotificationIcon(n.type)}
+                </span>
 
-              <div className="notif-content">
-                <h4>{n.title}</h4>
-                <p>{n.message}</p>
-                <span className="notif-date">{n.date}</span>
-              </div>
+                <div className="notif-content">
+                  <h4>{n.title}</h4>
+                  <p>{n.message}</p>
+                  <span className="notif-date">{n.date}</span>
+                </div>
 
-              <div className="notif-actions">
-                {!n.read && (
-                  <button
-                    className="btn btn-light"
-                    onClick={() => markNotificationRead(n.id)}
-                  >
-                    Marquer lu
-                  </button>
-                )}
+                <div className="notif-actions">
+                  {!n.read && (
+                    <button
+                      className="btn btn-light"
+                      onClick={() => markNotificationRead(n.id)}
+                    >
+                      Marquer lu
+                    </button>
+                  )}
 
-                <Actions
-                  view={() => openView("notification", n)}
-                  edit={() => openEdit("notification", n)}
-                  del={() => remove("notification", n.id)}
-                />
+                  <Actions
+                    view={() => openView("notification", n)}
+                    del={() => remove("notification", n.id)}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-
-        {!notificationsPage.items.length && (
+          ))
+        ) : (
           <div className="empty">Aucune notification.</div>
         )}
       </div>
 
       <Pagination
-        current={notificationsPage.currentPage}
-        total={notificationsPage.totalPages}
+        current={notificationsPage.currentPage || 1}
+        total={notificationsPage.totalPages || 1}
         onChange={(n) => setPageNumber("notifications", n)}
       />
     </>

@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
+import { useSettings } from '../../context/SettingsContext';
 import BottomNav from '../../components/layout/BottomNav';
 import MobileHeader from '../../components/layout/MobileHeader';
 import { User, Mail, Phone, Lock, KeyRound, Hash, Eye, EyeOff } from 'lucide-react';
@@ -30,26 +31,28 @@ const DATA = {
     tags: ["Email sécurisé", "Nouveau mot de passe", "Retour rapide", "Compte protégé"],
   },
   reset: {
-  image: "/auth-reset.jpg",
-  title: "Choisissez un nouveau",
-  red: "mot de passe",
-  end: "pour sécuriser votre compte.",
-  tags: [
-    "Lien sécurisé",
-    "Nouveau mot de passe",
-    "Protection renforcée",
-    "Accès restauré"
-  ],
-},
+    image: "/auth-reset.jpg",
+    title: "Choisissez un nouveau",
+    red: "mot de passe",
+    end: "pour sécuriser votre compte.",
+    tags: [
+      "Lien sécurisé",
+      "Nouveau mot de passe",
+      "Protection renforcée",
+      "Accès restauré"
+    ],
+  },
 };
 
 export default function Auth() {
   const { token } = useParams();
   const { login, register, verifyOtp, pendingOtp, loginWithGoogle, completeGoogleLogin } = useAuth();
+  const { getSetting, loading: settingsLoading } = useSettings();
 
   const [screen, setScreen] = useState("login");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [registrationEnabled, setRegistrationEnabled] = useState(true);
 
   const [loginForm, setLoginForm] = useState({
     email: "",
@@ -72,6 +75,7 @@ export default function Auth() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
+  // Effet pour le token de réinitialisation
   useEffect(() => {
     if (token) {
       setResetToken(token);
@@ -79,6 +83,7 @@ export default function Auth() {
     }
   }, [token]);
 
+  // Effet pour Google OAuth
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const data = params.get("data");
@@ -99,6 +104,12 @@ export default function Auth() {
     }
   }, [completeGoogleLogin]);
 
+  // Effet pour vérifier si l'inscription est ouverte
+  useEffect(() => {
+    const enabled = getSetting('registrationEnabled', true);
+    setRegistrationEnabled(enabled);
+  }, [getSetting]);
+
   const active = DATA[screen];
 
   const changeScreen = (value) => {
@@ -108,29 +119,45 @@ export default function Auth() {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      setError("");
-      setMessage("");
+  try {
+    setError("");
+    setMessage("");
 
-      const result = await login(
-        loginForm.email,
-        loginForm.password
-      );
+    console.log('🔄 handleLogin appelé avec:', { email: loginForm.email });
 
-      if (result?.requiresOtp) {
-        setMessage(
-          "Un code OTP a été envoyé. Vérifiez votre email ou le terminal backend."
-        );
-        return;
-      }
+    const result = await login(
+      loginForm.email,
+      loginForm.password
+    );
 
-      window.location.href = "/";
-    } catch (err) {
-      setError(err.message);
+    console.log('🔐 Résultat handleLogin:', result);
+
+    if (result?.requiresOtp) {
+      setMessage("Un code OTP a été envoyé.");
+      return;
     }
-  };
+
+    if (result?.user) {
+      console.log('✅ Redirection vers l\'accueil');
+      window.location.href = "/";
+    } else {
+      console.error('❌ Pas d\'utilisateur dans le résultat');
+      setError("Erreur de connexion");
+    }
+  } catch (err) {
+    console.error('❌ Erreur handleLogin:', err);
+    
+    // Gérer la redirection vers la page de maintenance
+    if (err.redirect === "/maintenance") {
+      window.location.href = "/maintenance";
+      return;
+    }
+    
+    setError(err.message || "Erreur de connexion");
+  }
+};
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
@@ -217,6 +244,34 @@ export default function Auth() {
       setError(err.message);
     }
   };
+
+  // Si les paramètres sont en chargement
+  if (settingsLoading) {
+    return <div className="auth-loading">Chargement...</div>;
+  }
+
+  // Si l'inscription est fermée
+  if (screen === "register" && !registrationEnabled) {
+    return (
+      <div className="auth-page">
+        <div className="auth-container">
+          <div className="auth-card">
+            <div className="auth-header">
+              <div className="auth-icon">🔒</div>
+              <h1>Inscriptions fermées</h1>
+              <p>Les inscriptions sont temporairement fermées par l'administrateur.</p>
+              <p className="auth-sub">Veuillez réessayer plus tard ou contacter le support.</p>
+              <div className="auth-footer">
+                <a href="/auth?mode=login" className="btn btn-primary">
+                  Se connecter
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={pageStyle} className="auth-page">
@@ -529,21 +584,7 @@ export default function Auth() {
                   <HoverButton type="submit">
                     Vérifier le code
                   </HoverButton>
-
-                  <p style={{ textAlign: "center", marginTop: 18 }}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOtp("");
-                        setMessage("");
-                        setError("");
-                      }}
-                      style={inlineButtonStyle}
-                      className="auth-back-link"
-                    >
-                      Je vais vérifier le terminal backend
-                    </button>
-                  </p>
+                  
                 </form>
               ) : (
                 <>
@@ -613,7 +654,7 @@ export default function Auth() {
               <form onSubmit={handleRegister}>
                 <div style={registerNameGridStyle} className="auth-name-grid">
                   <Input
-                   icon={<User size={18} />}
+                    icon={<User size={18} />}
                     label="Prénom"
                     placeholder="Miranda"
                     value={registerForm.firstName}
@@ -626,7 +667,7 @@ export default function Auth() {
                   />
 
                   <Input
-                   icon={<User size={18} />}
+                    icon={<User size={18} />}
                     label="Nom"
                     placeholder="Eko"
                     value={registerForm.lastName}

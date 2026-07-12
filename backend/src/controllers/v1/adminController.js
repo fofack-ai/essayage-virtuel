@@ -133,6 +133,32 @@ async function getOrderDetails(req, res) {
   }
 }
 
+async function archiveOrder(req, res) {
+  try {
+    const orderId = req.params.id;
+    
+    if (!orderId) {
+      return res.status(400).json({
+        success: false,
+        message: "ID de la commande requis"
+      });
+    }
+
+    const result = await adminService.archiveOrder(orderId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Commande archivée avec succès",
+      data: result,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
 module.exports = {
   dashboard,
   getOrders,
@@ -142,4 +168,5 @@ module.exports = {
   updateClient,
   deleteClient,
   getOrderDetails,
+  archiveOrder,
 };

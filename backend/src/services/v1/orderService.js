@@ -3,11 +3,9 @@ const cartModel  = require("../../models/v1/cartModel");
 const orderModel = require("../../models/v1/orderModel");
 const productModel = require("../../models/v1/productModel");
 const paymentModel = require("../../models/v1/paymentModel");
+const notificationService = require("./notificationService");
 
 const DELIVERY_FEES = { std: 0, exp: 2000 };
-
-// Le backend est la source de vérité pour les codes promo
-const VALID_PROMOS = { TRYON10: 10, BIENVENUE: 15 };
 
 function generateOrderNumber() {
   const date   = Date.now().toString().slice(-6);
@@ -22,19 +20,13 @@ async function createOrderFromCart(userId, data) {
   const items = await cartModel.getCartItems(cart.id);
   if (!items.length) throw new Error("Votre panier est vide");
 
-  // Total calculé depuis la DB (on ne fait pas confiance au client)
   const cartSubtotal = items.reduce((sum, item) => sum + Number(item.subtotal), 0);
 
-  // Frais de livraison
   const deliveryType = ["std", "exp"].includes(data.deliveryType) ? data.deliveryType : "std";
   const deliveryFee  = DELIVERY_FEES[deliveryType];
 
-  // Code promo (revalidé côté serveur)
-  const promoCode = data.promoCode ? data.promoCode.toUpperCase().trim() : null;
-  const promoPct  = (promoCode && VALID_PROMOS[promoCode]) ? VALID_PROMOS[promoCode] : 0;
-  const promoDiscount = Math.round(cartSubtotal * promoPct / 100);
-
-  const total = cartSubtotal + deliveryFee - promoDiscount;
+  // ✅ PLUS DE PROMO CODE
+  const total = cartSubtotal + deliveryFee;
 
   const connection = await db.getConnection();
   try {
@@ -51,12 +43,12 @@ async function createOrderFromCart(userId, data) {
       deliveryPhone:   data.deliveryPhone   || null,
       deliveryType,
       deliveryFee,
-      promoCode,
-      promoDiscount,
     });
 
-    for (const item of items) {
+    const order = await orderModel.getOrderById(orderId, userId);
+    const orderNumber = order?.orderNumber || `#${orderId}`;
 
+    for (const item of items) {
       await orderModel.createOrderItem(connection, {
         orderId,
         productId:    item.productId,
@@ -84,27 +76,39 @@ async function createOrderFromCart(userId, data) {
     await paymentModel.createPayment(connection, {
       orderId: orderId,
       paymentMethod: data.paymentMethod || "cash_on_delivery",
-
-      provider:
-        data.paymentMethod === "cash_on_delivery"
-          ? "manual"
-          : "paydunya",
-
+      provider: data.paymentMethod === "cash_on_delivery" ? "manual" : "paydunya",
       transactionId: null,
-
       amount: total,
-
       currency: "XAF",
-
-      status:
-        data.paymentMethod === "cash_on_delivery"
-          ? "pending"
-          : "processing",
-
+      status: data.paymentMethod === "cash_on_delivery" ? "pending" : "processing",
       paymentUrl: null,
     });
 
     await connection.commit();
+
+    try {
+      await notificationService.createUserNotification({
+        userId: userId,
+        type: "order",
+        title: "Commande confirmée",
+        message: `Votre commande ${orderNumber} a été validée avec succès. Montant : ${total.toLocaleString()} FCFA.`,
+        isRead: false,
+      });
+    } catch (err) {
+      console.error("Erreur création notification commande:", err.message);
+    }
+
+    try {
+      await notificationService.createAdminNotification({
+        adminId: 1,
+        type: "order",
+        title: "Nouvelle commande",
+        message: `Nouvelle commande ${orderNumber} de ${total.toLocaleString()} FCFA.`,
+        isRead: false,
+      });
+    } catch (err) {
+      console.error("Erreur création notification admin:", err.message);
+    }
 
     return getOrderDetails(orderId, userId);
   } catch (error) {

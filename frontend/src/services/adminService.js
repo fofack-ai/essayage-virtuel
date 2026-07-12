@@ -12,12 +12,16 @@ export const adminService = {
     return api.get("/admin/orders");
   },
 
-    getOrder(id) {
-      return api.get(`/admin/orders/${id}`);
-    },
+  getOrder(id) {
+    return api.get(`/admin/orders/${id}`);
+  },
 
   updateOrderStatus(id, status) {
     return api.put(`/admin/orders/${id}/status`, { status });
+  },
+
+  archiveOrder(id) {
+    return api.delete(`/admin/orders/${id}/archive`);
   },
 
   // Product Management
@@ -102,8 +106,17 @@ export const adminService = {
     return api.get("/notifications");
   },
 
-  createNotification(data) {
-    return api.post("/notifications", data);
+  createNotification: async (data) => {
+    const payload = {
+      adminId: data.adminId || 21,
+      type: data.type || 'info',
+      title: data.title,
+      message: data.message,
+    };
+    
+    console.log("📝 Envoi notification:", payload);
+    
+    return api.post('/notifications', payload); // ✅ Utilise payload
   },
 
   markNotificationRead(id) {
@@ -149,27 +162,6 @@ export const adminService = {
 
   deleteFaq(id) {
     return api.delete(`/support/faqs/${id}`);
-  },
-  
-  // Promotions Management
-  getPromotions() {
-    return api.get("/promotions");
-  },
-
-  createPromotion(data) {
-    return api.post("/promotions", data);
-  },
-
-  updatePromotion(id, data) {
-    return api.put(`/promotions/${id}`, data);
-  },
-
-  togglePromotion(id, active) {
-    return api.put(`/promotions/${id}/toggle`, { active });
-  },
-
-  deletePromotion(id) {
-    return api.delete(`/promotions/${id}`);
   },
 
   // Reviews Management

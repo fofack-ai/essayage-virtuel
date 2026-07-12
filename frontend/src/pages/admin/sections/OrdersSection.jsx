@@ -20,6 +20,14 @@ export default React.memo(function OrdersSection({
   setPageNumber,
   onAdvancedSearch,
 }) {
+  // 👇 Fonction pour archiver une commande
+  const handleArchive = async (orderId) => {
+    if (window.confirm("Voulez-vous vraiment archiver cette commande ?")) {
+      // La fonction remove va appeler adminService.archiveOrder
+      remove("order", orderId);
+    }
+  };
+
   return (
     <>
       <Toolbar
@@ -28,6 +36,7 @@ export default React.memo(function OrdersSection({
           ["pending", "En cours"],
           ["delivered", "Livrées"],
           ["cancelled", "Annulées"],
+          ["archived", "Archivées"], // 👈 AJOUTER LE FILTRE
         ]}
         active={orderFilter}
         setActive={setOrderFilter}
@@ -39,8 +48,8 @@ export default React.memo(function OrdersSection({
         ]}
         dateActive={dateFilter}
         setDateActive={setDateFilter}
-        button="+ Nouvelle commande"
-        onAdd={() => openAdd("order")}
+        // button="+ Nouvelle commande" ❌ SUPPRIMÉ
+        // onAdd={() => openAdd("order")}
         onAdvancedSearch={onAdvancedSearch}
       />
 
@@ -55,7 +64,9 @@ export default React.memo(function OrdersSection({
           <Actions
             view={() => openView("order", o)}
             edit={() => openEdit("order", o)}
-            del={() => remove("order", o.id)}
+            // 👇 MODIFIER LA SUPPRESSION POUR L'ARCHIVAGE
+            del={() => handleArchive(o.id)}
+            // del={() => remove("order", o.id)} ❌ ANCIEN
           />,
         ])}
       />

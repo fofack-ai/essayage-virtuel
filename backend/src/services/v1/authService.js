@@ -4,6 +4,7 @@ const { hashPassword, comparePassword } = require("../../utils/crypto");
 const { generateToken } = require("../../utils/jwt");
 const { sendOtpEmail, sendResetPasswordEmail } = require("./emailService");
 const crypto = require("crypto");
+const notificationService = require("./notificationService");
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -39,6 +40,20 @@ async function register(data) {
     role: "client",
   });
 
+  // Notification de bienvenue
+  try {
+    await notificationService.createUserNotification({
+      userId: userId,
+      type: "info",
+      title: "Bienvenue sur TryOn !",
+      message: "Votre compte a été créé avec succès.",
+      isRead: false,
+    });
+    console.log("✅ Notification de bienvenue créée pour l'utilisateur:", userId);
+  } catch (err) {
+    console.error("❌ Erreur création notification bienvenue:", err.message);
+  }
+
   const user = cleanUser(await userModel.findById(userId));
   const token = generateToken(user);
 
@@ -51,6 +66,7 @@ async function login(email, password) {
   }
 
   const user = await userModel.findByEmail(email);
+  console.log('🔍 Utilisateur trouvé:', user ? user.id : 'Non trouvé');
 
   if (!user) {
     throw new Error("Email ou mot de passe incorrect");
@@ -70,6 +86,11 @@ async function login(email, password) {
     throw new Error("Email ou mot de passe incorrect");
   }
 
+  // 👇 CRÉER L'OBJET UTILISATEUR NETTOYÉ UNE FOIS
+  const cleanUserData = cleanUser(user);
+  console.log('👤 cleanUserData:', cleanUserData);
+
+  // 👇 SI C'EST UN ADMIN → OTP
   if (user.role === "admin") {
     const otp = generateOtp();
     const hashedOtp = await hashPassword(otp);
@@ -82,13 +103,18 @@ async function login(email, password) {
       requiresOtp: true,
       message: "Code OTP envoyé par email",
       userId: user.id,
+      user: cleanUserData, // 👈 AJOUTER user DANS LE RETOUR
     };
   }
 
-  const clean = cleanUser(user);
-  const token = generateToken(clean);
+  // 👇 POUR LE CLIENT → TOKEN DIRECT
+  const token = generateToken(cleanUserData);
 
-  return { token, user: clean };
+  return {
+    token,
+    user: cleanUserData, // 👈 RETOURNER user
+    requiresOtp: false,
+  };
 }
 
 async function verifyOtp(email, otp) {
@@ -118,6 +144,23 @@ async function verifyOtp(email, otp) {
   }
 
   await userModel.clearOtp(user.id);
+
+  // ─── ✅ Notification de connexion admin APRÈS l'OTP ───
+  try {
+    console.log("🔔 Création notification admin pour userId:", user.id);
+    
+    await notificationService.createAdminNotification({
+      adminId: user.id,
+      type: "info",
+      title: "Connexion admin",
+      message: `Vous vous êtes connecté en tant qu'administrateur le ${new Date().toLocaleString('fr-FR')}.`,
+      isRead: false,
+    });
+    
+    console.log("✅ Notification admin créée avec succès");
+  } catch (err) {
+    console.error("❌ Erreur création notification admin:", err.message);
+  }
 
   const clean = cleanUser(await userModel.findById(user.id));
   const token = generateToken(clean);

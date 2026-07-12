@@ -15,7 +15,6 @@ import NotificationsSection from "./sections/NotificationsSection";
 import SupportSection from "./sections/SupportSection";
 import SupportModal from "./sections/SupportModal";
 import FaqModal from "./sections/FaqModal";
-import PromotionsSection from "./sections/PromotionsSection";
 import ReviewsSection from "./sections/ReviewsSection";
 import SalesSection from "./sections/SalesSection";
 import ClientsSection from "./sections/ClientsSection";
@@ -32,14 +31,14 @@ import DashboardSkeleton from "./components/DashboardSkeleton";
 
 import {
   LayoutDashboard, Package, Shirt, Users, Sparkles, TrendingUp,
-  Star, BarChart3, Boxes, Tag, CreditCard, Bell, HelpCircle,
+  Star, BarChart3, Boxes, CreditCard, Bell, HelpCircle,
   ShieldCheck, Settings, Search, LogOut,
   Eye, Edit, Trash2, Download, X
 } from 'lucide-react';
 
 
 const nav = [
-{ key: "dashboard", Icon: LayoutDashboard, label: "Tableau de bord", group: "Gestion" },
+  { key: "dashboard", Icon: LayoutDashboard, label: "Tableau de bord", group: "Gestion" },
   { key: "commandes", Icon: Package, label: "Commandes", group: "Gestion" },
   { key: "produits", Icon: Shirt, label: "Produits", group: "Gestion" },
   { key: "clients", Icon: Users, label: "Clients", group: "Gestion" },
@@ -48,7 +47,6 @@ const nav = [
   { key: "avis", Icon: Star, label: "Avis & Évaluations", group: "Analyse" },
   { key: "rapports", Icon: BarChart3, label: "Analyse & Rapports", group: "Analyse" },
   { key: "stock", Icon: Boxes, label: "Stock & Approvisionnement", group: "Logistique" },
-  { key: "promotions", Icon: Tag, label: "Promotions", group: "Marketing" },
   { key: "paiements", Icon: CreditCard, label: "Paiements & Transactions", group: "Finance" },
   { key: "notifications", Icon: Bell, label: "Notifications", group: "Système" },
   { key: "support", Icon: HelpCircle, label: "Support & FAQ", group: "Système" },
@@ -65,7 +63,6 @@ const titles = {
   ventes: ["Ventes", "Analyse commerciale"],
   stock: ["Stock & Approvisionnement", "Gestion des stocks et réapprovisionnement"],
   avis: ["Avis & Évaluations", "Modération et gestion des avis clients"],
-  promotions: ["Promotions", "Gestion des codes promo et offres spéciales"],
   paiements: ["Paiements & Transactions", "Suivi des transactions financières"],
   rapports: ["Analyse & Rapports", "Rapports détaillés de l'activité"],
   notifications: ["Notifications", "Centre de gestion des notifications"],
@@ -674,7 +671,6 @@ const Modal = React.memo(({ modal, close, save, loading }) => {
       order: "une commande",
       tryon: "un essayage",
       review: "un avis",
-      promotion: "une promotion",
       notification: "une notification",
       support: "un ticket",
       client: "un client",
@@ -892,33 +888,6 @@ const Modal = React.memo(({ modal, close, save, loading }) => {
             </>
           )}
 
-          {type === "promotion" && (
-            <>
-              <Field label="Code promo" name="code" defaultValue={item.code || ""} required />
-              <div className="form-grid">
-                <div className="field">
-                  <label className="label">Type</label>
-                  <select className="select" name="type" defaultValue={item.type || "percentage"}>
-                    <option value="percentage">Pourcentage</option>
-                    <option value="fixed">Montant fixe</option>
-                  </select>
-                </div>
-                <Field label="Valeur" type="number" name="value" defaultValue={item.value || ""} required />
-              </div>
-              <div className="form-grid">
-                <Field label="Date d'expiration" type="date" name="expires" defaultValue={item.expires || ""} />
-                <Field label="Utilisation max" type="number" name="maxUsage" defaultValue={item.maxUsage || 100} />
-              </div>
-              <div className="field">
-                <label className="label">Actif</label>
-                <select className="select" name="active" defaultValue={item.active ? "true" : "false"}>
-                  <option value="true">Oui</option>
-                  <option value="false">Non</option>
-                </select>
-              </div>
-            </>
-          )}
-
           {type === "notification" && (
             <>
               <Field label="Titre" name="title" defaultValue={item.title || ""} required />
@@ -981,7 +950,6 @@ const ViewModal = React.memo(({ view, close }) => {
       product: "du produit",
       client: "du client",
       review: "de l'avis",
-      promotion: "de la promotion",
       notification: "de la notification",
       support: "du ticket",
       log: "du log",
@@ -1075,7 +1043,6 @@ const ViewModal = React.memo(({ view, close }) => {
 // ==================== DASHBOARD PRINCIPAL ====================
 
 function Dashboard() {
-  //const { user } = useAuth();
   const { user, logout: authLogout } = useAuth();
   const navigate = useNavigate();
   const [page, setPage] = useState("dashboard");
@@ -1091,7 +1058,6 @@ function Dashboard() {
   const [catFilter, setCatFilter] = useState("all");
   const [reviewFilter, setReviewFilter] = useState("all");
   const [stockFilter, setStockFilter] = useState("all");
-  const [promoFilter, setPromoFilter] = useState("all");
   const [logFilter, setLogFilter] = useState("all");
   const [notifFilter, setNotifFilter] = useState("all");
   const [supportFilter, setSupportFilter] = useState("all");
@@ -1103,7 +1069,7 @@ function Dashboard() {
   const [showLogout, setShowLogout] = useState(false);
   const [pagination, setPagination] = useState({ 
     commandes: 1, produits: 1, clients: 1, stock: 1, essayages: 1,
-    reviews: 1, promotions: 1, transactions: 1, logs: 1,
+    reviews: 1, transactions: 1, logs: 1,
     notifications: 1, support: 1, faq: 1
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -1131,26 +1097,22 @@ function Dashboard() {
         const touch = e.touches[0];
         touchStartX = touch.clientX;
         touchStartY = touch.clientY;
-        // le geste ne compte que s'il démarre tout près du bord gauche
         startedFromEdge = touchStartX <= 24;
       };
 
       const handleTouchEnd = (e) => {
-        if (window.innerWidth > 820) return; // uniquement en mode mobile
+        if (window.innerWidth > 820) return;
 
         const touch = e.changedTouches[0];
         const deltaX = touch.clientX - touchStartX;
         const deltaY = touch.clientY - touchStartY;
 
-        // on ignore si c'est plutôt un scroll vertical qu'un glissement horizontal
         if (Math.abs(deltaX) < Math.abs(deltaY) * 1.5) return;
 
-        // glisser vers la droite depuis le bord gauche → ouvre la sidebar
         if (!mobileMenuOpen && startedFromEdge && deltaX > 60) {
           setMobileMenuOpen(true);
         }
 
-        // petit bonus : glisser vers la gauche pendant qu'elle est ouverte → la ferme
         if (mobileMenuOpen && deltaX < -60) {
           setMobileMenuOpen(false);
         }
@@ -1171,7 +1133,6 @@ function Dashboard() {
     clients: [],
     tryons: [],
     reviews: [],
-    promotions: [],
     transactions: [],
     logs: [],
     notifications: [],
@@ -1228,50 +1189,37 @@ function Dashboard() {
         notificationsRes,
         supportRes,
         faqRes,
-        promotionsRes,
         reviewsRes,
         settingsRes,
         reportsRes,
       ] = await Promise.all([
-          adminService.getDashboard(),
-          adminService.getOrders(),
-          adminService.getProducts(),
-          adminService.getTryons(),
-          adminService.getClients(),
-          adminService.getLogs(),
-          adminService.getNotifications(),
-          adminService.getSupportTickets(),
-          adminService.getFaqs(),
-          adminService.getPromotions(),
-          adminService.getReviews(),
-          adminService.getSettings(),
-          adminService.getReports("month"),
-        ]);
+        adminService.getDashboard(),
+        adminService.getOrders(),
+        adminService.getProducts(),
+        adminService.getTryons(),
+        adminService.getClients(),
+        adminService.getLogs(),
+        adminService.getNotifications(),
+        adminService.getSupportTickets(),
+        adminService.getFaqs(),
+        adminService.getReviews(),
+        adminService.getSettings(),
+        adminService.getReports("month"),
+      ]);
 
-      //Limite de requêtes simultanées pour éviter les erreurs de surcharge du serveur
-      /*const dashboardRes = await adminService.getDashboard();
-      const ordersRes = await adminService.getOrders();
-      const productsRes = await adminService.getProducts();
-      const tryonsRes = await adminService.getTryons();
-      const clientsRes = await adminService.getClients();*/
-
-        console.log("Dashboard:", dashboardRes);
-        console.log("Orders:", ordersRes);
-        console.log("Products:", productsRes);
-        console.log("Try-ons:", tryonsRes);
-        console.log("Clients:", clientsRes);
-        console.log("Logs:", logsRes);
-        console.log("Notifications:", notificationsRes);
-        console.log("Support Tickets:", supportRes);
-        console.log("FAQs:", faqRes);
-        console.log("Promotions:", promotionsRes);
-        console.log("Reviews:", reviewsRes);
-        console.log("Settings:", settingsRes);
+      console.log("Dashboard:", dashboardRes);
+      console.log("Orders:", ordersRes);
+      console.log("Products:", productsRes);
+      console.log("Try-ons:", tryonsRes);
+      console.log("Clients:", clientsRes);
+      console.log("Logs:", logsRes);
+      console.log("Notifications:", notificationsRes);
+      console.log("Support Tickets:", supportRes);
+      console.log("FAQs:", faqRes);
+      console.log("Reviews:", reviewsRes);
+      console.log("Settings:", settingsRes);
 
       // Transformation des données pour le frontend
-      // Ici on mappe les données reçues du backend pour les adapter à l'interface admin
-      // Commande, produit, essayage, client, avis, promotion, transaction, log, notification, support
-
       // COMMANDES
       const orders = ordersRes.data.map((o) => ({
         id: o.id,
@@ -1293,12 +1241,9 @@ function Dashboard() {
         name: p.name,
         brand: p.brand || "TryOn",
         price: Number(p.price || 0),
-
-        // Ici on utilise le stock total calculé par le backend
         stock: Number(p.totalStock || p.stock || 0),
-
         cat: p.target || p.categoryName || p.categorySlug || "Catalogue",
-        image: p.image,
+        image: p.image || null,
       }));
 
       // ESSAYAGES
@@ -1333,9 +1278,29 @@ function Dashboard() {
         notificationsRes?.data ||
         [];
 
-      const notifications = Array.isArray(notificationsPayload)
+      const rawNotifications = Array.isArray(notificationsPayload)
         ? notificationsPayload
         : [];
+
+      const notifications = rawNotifications.map((notif) => ({
+        id: notif.id || notif.notificationId,
+        type: notif.type || 'info',
+        title: notif.title || 'Notification',
+        message: notif.message || '',
+        read: notif.isRead || notif.read || false,
+        date: notif.createdAt 
+          ? new Date(notif.createdAt).toLocaleString('fr-FR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          : notif.date || 'Date inconnue',
+        createdAt: notif.createdAt,
+        adminId: notif.adminId,
+        isRead: notif.isRead,
+      }));
 
       // PAIEMENTS ET TRANSACTIONS
       const transactions = orders.map((order) => ({
@@ -1350,7 +1315,6 @@ function Dashboard() {
       }));
 
       // LOGS & SÉCURITÉ
-      // Le backend peut renvoyer soit { success, data }, soit directement un tableau selon la configuration du service API.
       const logsPayload = logsRes?.data?.data || logsRes?.data || logsRes || [];
       const logs = Array.isArray(logsPayload) ? logsPayload : [];        
       
@@ -1368,27 +1332,6 @@ function Dashboard() {
       }));
 
       const faqs = faqRes.data.data || [];
-
-      // PROMOTIONS
-      const promotionsPayload =
-        promotionsRes?.data?.data ||
-        promotionsRes?.data ||
-        [];
-
-      const promotions = Array.isArray(promotionsPayload)
-        ? promotionsPayload.map((promo) => ({
-            id: promo.id,
-            code: promo.code,
-            title: promo.title || promo.code,
-            type: promo.type || "percentage",
-            value: Number(promo.value || 0),
-            maxUsage: Number(promo.maxUsage || 0),
-            usedCount: Number(promo.usedCount || 0),
-            expires: promo.expires || promo.expiresAt || "",
-            active: Boolean(promo.active),
-            date: promo.date || "",
-          }))
-        : [];
 
       // AVIS & ÉVALUATIONS
       const reviewsPayload =
@@ -1428,7 +1371,6 @@ function Dashboard() {
         tryons,
         clients,
         reviews,
-        promotions,
         transactions,
         logs,
         notifications,
@@ -1467,8 +1409,6 @@ function Dashboard() {
   }, [darkMode]);
   
   const safeDb = db;
-  // Source de vérité unique du dashboard : toutes les sections lisent et modifient uniquement safeDb/db.
-  // Les constantes filtrées ci-dessous sont seulement des vues calculées pour l'affichage.
 
   const saveDb = (updater) => {
     setDb((prev) => {
@@ -1517,13 +1457,33 @@ function Dashboard() {
         response ||
         [];
 
-      const backendNotifications = Array.isArray(notificationsPayload)
+      const rawNotifications = Array.isArray(notificationsPayload)
         ? notificationsPayload
         : [];
 
+      const transformedNotifications = rawNotifications.map((notif) => ({
+        id: notif.id || notif.notificationId,
+        type: notif.type || 'info',
+        title: notif.title || 'Notification',
+        message: notif.message || '',
+        read: notif.isRead || notif.read || false,
+        date: notif.createdAt 
+          ? new Date(notif.createdAt).toLocaleString('fr-FR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          : notif.date || 'Date inconnue',
+        createdAt: notif.createdAt,
+        adminId: notif.adminId,
+        isRead: notif.isRead,
+      }));
+
       setDb((prev) => ({
         ...prev,
-        notifications: backendNotifications,
+        notifications: transformedNotifications,
       }));
     } catch (error) {
       console.error(
@@ -1631,7 +1591,6 @@ function Dashboard() {
     } catch (error) {
       console.error("Erreur ajout log :", error.message);
 
-      // Sauvegarde locale de secours si l'API logs est momentanément indisponible.
       const currentUser =
         JSON.parse(sessionStorage.getItem("tryon_user") || "null") ||
         JSON.parse(localStorage.getItem("tryon_user") || "null");
@@ -1662,8 +1621,6 @@ function Dashboard() {
           commandes: 'order',
           produits: 'product',
           clients: 'client',
-          promotions: 'promotion',
-          notifications: 'notification',
           support: 'support'
         };
         if (addMap[page]) openAdd(addMap[page]);
@@ -1831,12 +1788,6 @@ function Dashboard() {
       `${r.product || ""} ${r.client || ""} ${r.comment || ""}`.toLowerCase().includes(q)
   );
 
-  const promotions = (safeDb.promotions || []).filter(
-    (p) =>
-      (promoFilter === "all" || p.active === (promoFilter === "active")) &&
-      `${p.code || ""} ${p.type || ""}`.toLowerCase().includes(q)
-  );
-
   const transactions = (safeDb.transactions || []).filter((t) =>
     `${t.id || ""} ${t.orderNumber || ""} ${t.client || ""} ${t.method || ""} ${t.status || ""}`.toLowerCase().includes(q)
   );
@@ -1882,7 +1833,6 @@ function Dashboard() {
   );
   const tryonsPage = paginate(tryons, pagination.essayages, 5);
   const reviewsPage = paginate(reviews, pagination.reviews, 5);
-  const promotionsPage = paginate(promotions, pagination.promotions, 4);
   const logsPage = paginate(logs, pagination.logs, 5);
   const notificationsPage = paginate(notifications, pagination.notifications, 5);
   const supportPage = paginate(support, pagination.support, 5);
@@ -1923,7 +1873,7 @@ function Dashboard() {
   };
 
   const logout = () => {
-    authLogout(); // ← vide le localStorage ET fait setUser(null)
+    authLogout();
     navigate("/auth");
   };
 
@@ -1991,6 +1941,9 @@ function Dashboard() {
     try {
       setLoading(true);
 
+      // ============================================================
+      // LOGS - Suppression définitive
+      // ============================================================
       if (kind === "log") {
         await adminService.deleteLog(id);
         await loadLogsFromBackend();
@@ -1998,6 +1951,9 @@ function Dashboard() {
         return;
       }
 
+      // ============================================================
+      // NOTIFICATIONS - Suppression définitive
+      // ============================================================
       if (kind === "notification") {
         await adminService.deleteNotification(id);
         await loadNotificationsFromBackend();
@@ -2006,6 +1962,20 @@ function Dashboard() {
         return;
       }
 
+      // ============================================================
+      // COMMANDES - ARCHIVAGE (soft delete)
+      // ============================================================
+      if (kind === "order") {
+        await adminService.archiveOrder(id);
+        await loadAdminData();
+        notify("Commande archivée avec succès", "success");
+        await addAudit(`Commande archivée : ${id}`, "info");
+        return;
+      }
+
+      // ============================================================
+      // SUPPORT - Suppression définitive
+      // ============================================================
       if (kind === "support") {
         const ticket = (safeDb.support || []).find((item) => item.id === id);
 
@@ -2017,6 +1987,9 @@ function Dashboard() {
         return;
       }
 
+      // ============================================================
+      // FAQ - Suppression définitive
+      // ============================================================
       if (kind === "faq") {
         const faq = (safeDb.faqs || []).find((item) => item.id === id);
 
@@ -2028,17 +2001,9 @@ function Dashboard() {
         return;
       }
 
-      if (kind === "promotion") {
-        const promotion = (safeDb.promotions || []).find((item) => item.id === id);
-
-        await adminService.deletePromotion(id);
-        await loadAdminData();
-
-        notify("Promotion supprimée avec succès", "success");
-        await addAudit(`Promotion supprimée : ${promotion?.code || id}`, "warning");
-        return;
-      }
-
+      // ============================================================
+      // AVIS - Suppression définitive
+      // ============================================================
       if (kind === "review") {
         const review = (safeDb.reviews || []).find((item) => item.id === id);
 
@@ -2050,53 +2015,54 @@ function Dashboard() {
         return;
       }
 
+      // ============================================================
+      // PRODUITS - Suppression définitive (HARD DELETE)
+      // ============================================================
       if (kind === "product") {
         const productToDelete = (safeDb.products || []).find((product) => product.id === id);
         const productName = productToDelete?.name || `Produit ${id}`;
 
         await adminService.deleteProduct(id);
 
-        await createAdminNotification({
-          type: "info",
-          title: "Produit supprimé",
-          message: `${productName} a été supprimé du catalogue.`,
-        });
+      await loadAdminData();
 
-        await loadAdminData();
-
-        notify("Produit supprimé avec succès", "success");
-        await addAudit(`Produit supprimé : ${productName}`, "critical");
-        return;
-      }
-
-      if (kind === "tryon") {
-        await adminService.deleteTryon(id);
-        await loadAdminData();
-        notify(
-          "Essayage supprimé avec succès",
-          "success"
-        );
-        addAudit(`Essayage supprimé : ${id}`, "warning");
-        return;
-      }
-
-      if (kind === "client") {
-        await adminService.deleteClient(id);
-
-        await loadAdminData();
-
-        notify("Client désactivé avec succès", "success");
-        addAudit(`Client désactivé : ${id}`, "warning");
-        return;
-      }
-
-      notify(`Suppression ${kind} à connecter au backend`, "info");
-    } catch (error) {
-      notify(error.message || "Erreur lors de la suppression", "error");
-    } finally {
-      setLoading(false);
+      notify("Produit supprimé avec succès", "success");
+      await addAudit(`Produit supprimé : ${productName}`, "critical");
+      return;
     }
-  };
+
+    // ============================================================
+    // ESSAYAGES - Suppression définitive
+    // ============================================================
+    if (kind === "tryon") {
+      await adminService.deleteTryon(id);
+      await loadAdminData();
+      notify("Essayage supprimé avec succès", "success");
+      addAudit(`Essayage supprimé : ${id}`, "warning");
+      return;
+    }
+
+    // ============================================================
+    // CLIENTS - Désactivation (soft delete)
+    // ============================================================
+    if (kind === "client") {
+      await adminService.deleteClient(id);
+      await loadAdminData();
+      notify("Client désactivé avec succès", "success");
+      addAudit(`Client désactivé : ${id}`, "warning");
+      return;
+    }
+
+    // ============================================================
+    // AUTRES - Non implémenté
+    // ============================================================
+    notify(`Suppression ${kind} à connecter au backend`, "info");
+  } catch (error) {
+    notify(error.message || "Erreur lors de la suppression", "error");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const openEdit = (type, item) => {
     setModal({ type, mode: "edit", item });
@@ -2352,33 +2318,6 @@ function Dashboard() {
         return;
       }
 
-      // PROMOTIONS
-      if (modal?.type === "promotion") {
-        const payload = {
-          code: String(form.code || "").trim().toUpperCase(),
-          title: form.title || form.code,
-          type: form.type || "percentage",
-          value: Number(form.value || 0),
-          expires: form.expires || null,
-          maxUsage: Number(form.maxUsage || 100),
-          active: form.active === "true",
-        };
-
-        if (modal.mode === "edit" && modal.item?.id) {
-          await adminService.updatePromotion(modal.item.id, payload);
-          await addAudit(`Promotion modifiée : ${payload.code}`, "info");
-          notify("Promotion mise à jour avec succès", "success");
-        } else {
-          await adminService.createPromotion(payload);
-          await addAudit(`Promotion créée : ${payload.code}`, "info");
-          notify("Promotion créée avec succès", "success");
-        }
-
-        await loadAdminData();
-        setModal(null);
-        return;
-      }
-
       // AVIS & ÉVALUATIONS
       if (modal?.type === "review") {
         const payload = {
@@ -2404,24 +2343,20 @@ function Dashboard() {
         return;
       }
 
-      // NOTIFICATIONS
+      // ============================================================
+      // NOTIFICATIONS - DÉSACTIVÉ (lecture seule)
+      // L'admin ne peut que voir, marquer comme lu et supprimer
+      // ============================================================
       if (modal?.type === "notification") {
+        // Désactiver la modification
         if (modal.mode === "edit") {
-          notify("La modification des notifications sera connectée au backend dans une prochaine étape", "info");
+          notify("La modification des notifications n'est pas autorisée", "error");
           setModal(null);
           return;
         }
 
-        await adminService.createNotification({
-          type: form.type || "info",
-          title: form.title,
-          message: form.message,
-        });
-
-        await loadNotificationsFromBackend();
-        await addAudit(`Notification créée : ${form.title}`, "info");
-
-        notify("Notification créée avec succès", "success");
+        // Désactiver l'ajout
+        notify("L'ajout de notifications n'est pas autorisé", "error");
         setModal(null);
         return;
       }
@@ -2556,19 +2491,6 @@ function Dashboard() {
     }
   };
 
-  const togglePromotionStatus = async (promotion) => {
-    try {
-      await adminService.togglePromotion(promotion.id, !promotion.active);
-      await loadAdminData();
-      notify(
-        promotion.active ? "Promotion désactivée" : "Promotion activée",
-        "success"
-      );
-    } catch (error) {
-      notify(error.message || "Erreur lors du changement de statut", "error");
-    }
-  };
-
   const updateReviewStatus = async (review, status) => {
     try {
       await adminService.updateReviewStatus(review.id, status);
@@ -2586,7 +2508,7 @@ function Dashboard() {
     notify('Recherche avancée appliquée', 'success');
   };
 
-    return (
+  return (
     <div className={`tryon-admin ${collapsed ? "collapsed" : ""} ${darkMode ? "dark" : ""}`}>
       {!isOnline && (
         <div className="offline-banner">
@@ -2594,7 +2516,6 @@ function Dashboard() {
         </div>
       )}
 
-      {/* Overlay pour le menu mobile - ajouté AVANT la sidebar */}
       <div 
         className={`sidebar-overlay ${mobileMenuOpen ? 'visible' : ''}`} 
         onClick={toggleMobileMenu}
@@ -2606,7 +2527,6 @@ function Dashboard() {
             <div className="brand-title">TryOn</div>
           </div>
           <div className="brand-actions">
-            {/* Bouton de fermeture pour mobile */}
             <button 
               className="mobile-close-btn" 
               onClick={toggleMobileMenu}
@@ -2827,22 +2747,6 @@ function Dashboard() {
               setPageNumber={setPageNumber}
               onAdvancedSearch={() => setSearchModal(true)}
               updateReviewStatus={updateReviewStatus}
-            />
-          )}
-
-          {/* PROMOTIONS */}
-          {page === "promotions" && (
-            <PromotionsSection
-              promotionsPage={promotionsPage}
-              promoFilter={promoFilter}
-              setPromoFilter={setPromoFilter}
-              openAdd={openAdd}
-              openView={openView}
-              openEdit={openEdit}
-              remove={remove}
-              setPageNumber={setPageNumber}
-              onAdvancedSearch={() => setSearchModal(true)}
-              togglePromotionStatus={togglePromotionStatus}
             />
           )}
 

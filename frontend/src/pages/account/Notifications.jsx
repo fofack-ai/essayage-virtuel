@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { adminService } from "../../services/adminService";
 import "./account-pages.css";
 
 // ─── ICÔNES LUCIDE ───
@@ -19,11 +18,12 @@ import {
   X,
   Trash2,
   ChevronLeft,
-  Eye,
-  EyeOff,
-  Loader2,
   Sparkles,
+  Loader2,
 } from 'lucide-react';
+
+// ─── SERVICE ───
+import { notificationService } from "../../services/notificationService";
 
 const iconMap = {
   order: Package,
@@ -76,7 +76,7 @@ export default function Notifications() {
     try {
       setLoading(true);
       setError("");
-      const res = await adminService.getNotifications();
+      const res = await notificationService.getNotifications();
       const payload = res?.data?.data || res?.data || [];
       setItems(Array.isArray(payload) ? payload.map(norm) : []);
     } catch (e) {
@@ -102,7 +102,7 @@ export default function Notifications() {
 
   const markRead = async (id) => {
     try {
-      await adminService.markNotificationRead(id);
+      await notificationService.markAsRead(id);
       setItems((p) => p.map((n) => n.id === id ? { ...n, read: true } : n));
     } catch (e) {
       console.error(e);
@@ -111,7 +111,7 @@ export default function Notifications() {
 
   const markAllRead = async () => {
     try {
-      await adminService.markAllNotificationsRead();
+      await notificationService.markAllAsRead();
       setItems((p) => p.map((n) => ({ ...n, read: true })));
     } catch (e) {
       console.error(e);
@@ -120,7 +120,7 @@ export default function Notifications() {
 
   const remove = async (id) => {
     try {
-      await adminService.deleteNotification(id);
+      await notificationService.deleteNotification(id);
       setItems((p) => p.filter((n) => n.id !== id));
     } catch (e) {
       console.error(e);
@@ -312,7 +312,7 @@ export default function Notifications() {
 
       <div className="notifications-container" style={{ maxWidth: '680px', margin: '0 auto', padding: '24px 16px 90px' }}>
 
-        {/* En-tête */}
+        {/* En-tête avec retour */}
         <div className="notifications-header" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '22px' }}>
           <button className="back-btn" onClick={() => navigate(-1)} style={{
             width: '44px', height: '44px', borderRadius: '14px',
@@ -328,7 +328,10 @@ export default function Notifications() {
               Notifications
             </h1>
             <p style={{ margin: '4px 0 0', color: '#6A6F78', fontSize: '14px' }}>
-              {unreadCount ? `${unreadCount} notification(s) non lue(s)` : "Tout est à jour"}
+              {unreadCount > 0 
+                ? <><BellDot size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} /> {unreadCount} notification(s) non lue(s)</>
+                : "Tout est à jour"
+              }
             </p>
           </div>
         </div>
@@ -345,7 +348,7 @@ export default function Notifications() {
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
             }}
           >
-            {filter === 'all' ? <Bell size={16} strokeWidth={2} /> : <Bell size={16} strokeWidth={2} />}
+            <Bell size={16} strokeWidth={2} />
             Toutes
           </button>
           <button
@@ -358,7 +361,7 @@ export default function Notifications() {
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
             }}
           >
-            {filter === 'unread' ? <BellDot size={16} strokeWidth={2} /> : <BellOff size={16} strokeWidth={2} />}
+            <BellDot size={16} strokeWidth={2} />
             Non lues {unreadCount > 0 && `(${unreadCount})`}
           </button>
           <button
@@ -402,16 +405,18 @@ export default function Notifications() {
           </div>
         )}
 
-        {/* Vide */}
+        {/* Vide - Message plus chaleureux */}
         {!loading && !visible.length && (
           <div className="notifications-empty" style={{
-            background: '#fff', borderRadius: '18px', padding: '24px',
+            background: '#fff', borderRadius: '18px', padding: '40px 24px',
             textAlign: 'center', border: '1px solid rgba(0,0,0,0.06)',
             color: '#6A6F78'
           }}>
             <Bell size={48} strokeWidth={1.5} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.3 }} />
             <h3 style={{ margin: '8px 0 4px', color: '#1A1A1A', fontSize: '20px' }}>Aucune notification</h3>
-            <p style={{ margin: 0, fontSize: '14px', color: '#6A6F78' }}>Les informations importantes apparaîtront ici.</p>
+            <p style={{ margin: 0, fontSize: '14px', color: '#6A6F78' }}>
+              Nous vous informerons lorsque quelque chose d'important se passera.
+            </p>
           </div>
         )}
 

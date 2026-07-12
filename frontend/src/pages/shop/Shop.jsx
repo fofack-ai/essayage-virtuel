@@ -105,6 +105,7 @@ export default function Shop() {
     <div className="shop-page">
       <MobileHeader />
 
+
       <style>{styles}</style>
 
       <section className="shop-hero">

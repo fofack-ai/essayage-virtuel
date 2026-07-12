@@ -130,10 +130,28 @@ async function update(id, productData) {
 }
 
 async function remove(id) {
-  const [result] = await db.query(
-    "UPDATE products SET status = 'inactive' WHERE id = ?",
+  // Vérifier si le produit a des commandes
+  const [orderItems] = await db.query(
+    "SELECT COUNT(*) as count FROM order_items WHERE productId = ?",
     [id]
   );
+  
+  if (orderItems[0].count > 0) {
+    throw new Error("Impossible de supprimer un produit qui a des commandes");
+  }
+  
+  // Supprimer d'abord les images
+  await db.query("DELETE FROM product_images WHERE productId = ?", [id]);
+  
+  // Supprimer les tailles
+  await db.query("DELETE FROM product_sizes WHERE productId = ?", [id]);
+  
+  // Supprimer le produit
+  const [result] = await db.query(
+    "DELETE FROM products WHERE id = ?",
+    [id]
+  );
+  
   return result.affectedRows > 0;
 }
 
@@ -222,7 +240,7 @@ async function findById(id) {
       (SELECT imageUrl FROM product_images WHERE productId = p.id AND isMain = 1 LIMIT 1) AS image
     FROM products p
     LEFT JOIN categories c ON p.categoryId = c.id
-    WHERE p.id = ? AND p.status = 'active'
+    WHERE p.id = ?
     `,
     [id]
   );
