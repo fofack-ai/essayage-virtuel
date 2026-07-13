@@ -212,7 +212,7 @@ export default function HelpCenter() {
               Centre d'aide
             </h1>
             <p style={{ margin: '4px 0 0', color: '#6A6F78', fontSize: '14px' }}>
-              Retrouvez les réponses aux questions fréquentes sur TryOn.
+              Retrouvez les réponses aux questions fréquentes sur CFPD TryOn.
             </p>
           </div>
         </div>
@@ -361,7 +361,7 @@ export default function HelpCenter() {
           <div>
             <h3 style={{ margin: '0 0 5px', fontSize: '18px', color: '#1A1A1A' }}>Toujours besoin d'aide ?</h3>
             <p style={{ margin: 0, color: '#6A6F78', fontSize: '14px' }}>
-              Envoyez une demande au support TryOn. Nous vous répondrons dès que possible.
+              Envoyez une demande au support CFPD TryOn. Nous vous répondrons dès que possible.
             </p>
           </div>
           <button

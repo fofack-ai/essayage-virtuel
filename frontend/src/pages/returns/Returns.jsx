@@ -147,7 +147,7 @@ export default function Returns() {
           fontSize: '1rem', color: '#6A6F78',
           maxWidth: '560px', margin: '0 auto', lineHeight: '1.7'
         }}>
-          Toutes les conditions pour retourner ou échanger vos articles chez TryOn.
+          Toutes les conditions pour retourner ou échanger vos articles chez CFPD TryOn.
         </p>
       </section>
 
@@ -281,7 +281,7 @@ export default function Returns() {
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <Mail size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Email : <strong>returns@tryon.cm</strong>
+              Email : <strong>tryon.douala@gmail.com</strong>
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />

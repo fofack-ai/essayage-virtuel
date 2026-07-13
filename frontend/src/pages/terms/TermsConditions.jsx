@@ -28,7 +28,7 @@ const sections = [
     content: (
       <>
         <p className="static-p" style={{ fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.75', marginBottom: '1rem' }}>
-          En accédant au site web de TryOn et en effectuant un achat, vous acceptez sans réserve les présentes CGV. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre site.
+          En accédant au site web de CFPD TryOn et en effectuant un achat, vous acceptez sans réserve les présentes CGV. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre site.
         </p>
         <div className="static-note" style={{
           fontSize: '0.875rem', color: '#6A6F78', fontStyle: 'italic',
@@ -56,7 +56,7 @@ const sections = [
         </li>
         <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          Les produits demeurent la propriété de TryOn jusqu'au paiement complet du prix.
+          Les produits demeurent la propriété de CFPD TryOn jusqu'au paiement complet du prix.
         </li>
       </ul>
     )
@@ -172,12 +172,12 @@ const sections = [
         <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
           <Mail size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-          Email : <strong>legal@tryon.cm</strong>
+          Email : <strong>tryon.douala@gmail.com</strong>
         </li>
         <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
           <MapPin size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-          Adresse : TryOn, Douala, Cameroun
+          Adresse : CFPD TryOn, Douala, Cameroun
         </li>
         <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
@@ -304,7 +304,7 @@ export default function TermsConditions() {
           fontSize: '1rem', color: '#6A6F78',
           maxWidth: '560px', margin: '0 auto', lineHeight: '1.7'
         }}>
-          En effectuant un achat sur TryOn, vous acceptez sans réserve les présentes Conditions Générales de Vente.
+          En effectuant un achat sur CFPD TryOn, vous acceptez sans réserve les présentes Conditions Générales de Vente.
         </p>
       </section>
 

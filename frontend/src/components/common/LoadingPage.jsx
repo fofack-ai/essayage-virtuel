@@ -6,7 +6,7 @@ export default function LoadingPage({ message = 'Chargement...' }) {
     <div className="loading-page">
       <div className="loading-content">
         <div className="loading-logo">
-          TRY<span>ON</span>
+          CFPD TRY<span>ON</span>
         </div>
 
         <div className="loading-spinner">

@@ -163,7 +163,7 @@ export default function PrivacyPolicy() {
             Introduction
           </h2>
           <p className="static-p" style={{ fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.75', marginBottom: '1rem' }}>
-            Chez TryOn, nous nous engageons à protéger votre vie privée. Cette politique décrit comment nous collectons, utilisons, divulguons et sécurisons vos informations lorsque vous visitez notre site ou utilisez nos services.
+            Chez CFPD TryOn, nous nous engageons à protéger votre vie privée. Cette politique décrit comment nous collectons, utilisons, divulguons et sécurisons vos informations lorsque vous visitez notre site ou utilisez nos services.
           </p>
           <div className="static-note" style={{
             fontSize: '0.875rem', color: '#6A6F78', fontStyle: 'italic',
@@ -375,12 +375,12 @@ export default function PrivacyPolicy() {
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <Mail size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Email : <strong>privacy@tryon.cm</strong>
+              Email : <strong>tryon.douala@gmail.com</strong>
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <MapPin size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Adresse : TryOn, Douala, Cameroun
+              Adresse : CFPD TryOn, Douala, Cameroun
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />

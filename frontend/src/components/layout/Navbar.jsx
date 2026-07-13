@@ -60,7 +60,7 @@ export default function Navbar() {
     <nav className="vesti-header">
       <Link to="/" className="nav-logo cfpd-logo-link">
         <span className="cfpd-logo-word">
-          <span className="cfpd-logo-cf">Try</span>
+          <span className="cfpd-logo-cf">CFPD Try</span>
           <span className="cfpd-logo-pd">On</span>
         </span>
       </Link>

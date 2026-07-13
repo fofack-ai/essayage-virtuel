@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="footer-grid">
         <div>
           <div className="footer-brand cfpd-footer-brand">
-            <span>TryOn</span>
+            <span>CFPD TryOn</span>
           </div>
           <p className="footer-desc">
             Plateforme e-commerce avec cabine d'essayage virtuelle au Cameroun. Développée sous la charte du TryOn.
@@ -43,7 +43,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="footer-bottom">
-        <span>© 2026 TryOn — Application de mode africaine et cabine d’essayage virtuelle. Tous droits réservés.</span>
+        <span>© 2026 CFPD TryOn — Application de mode africaine et cabine d’essayage virtuelle. Tous droits réservés.</span>
         <span>
           <Link to="/privacy-policy">Politique de confidentialité</Link> · <Link to="/terms">CGV</Link>
         </span>

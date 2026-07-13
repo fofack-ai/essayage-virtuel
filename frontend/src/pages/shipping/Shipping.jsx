@@ -111,7 +111,7 @@ export default function Shipping() {
           fontSize: '1rem', color: '#6A6F78',
           maxWidth: '560px', margin: '0 auto', lineHeight: '1.7'
         }}>
-          Toutes les informations concernant la livraison de vos commandes chez TryOn.
+          Toutes les informations concernant la livraison de vos commandes chez CFPD TryOn.
         </p>
       </section>
 
@@ -280,7 +280,7 @@ export default function Shipping() {
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <Mail size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Par email : support@tryon.cm
+              Par email : tryon.douala@gmail.com
             </li>
           </ul>
         </section>
