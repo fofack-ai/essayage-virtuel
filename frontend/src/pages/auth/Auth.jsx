@@ -49,7 +49,11 @@ export default function Auth() {
   const { login, register, verifyOtp, pendingOtp, loginWithGoogle, completeGoogleLogin } = useAuth();
   const { getSetting, loading: settingsLoading } = useSettings();
 
-  const [screen, setScreen] = useState("login");
+  const [screen, setScreen] = useState(() => {
+    // Vérifier si le mode "register" est demandé dans l'URL
+    const params = new URLSearchParams(window.location.search);
+    return params.get('mode') === 'register' ? 'register' : 'login';
+  });
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [registrationEnabled, setRegistrationEnabled] = useState(true);
@@ -104,60 +108,60 @@ export default function Auth() {
     }
   }, [completeGoogleLogin]);
 
-  // Effet pour vérifier si l'inscription est ouverte
+  // 👇 EFFET POUR VÉRIFIER SI L'INSCRIPTION EST OUVERTE
   useEffect(() => {
-    const enabled = getSetting('registrationEnabled', true);
-    setRegistrationEnabled(enabled);
-  }, [getSetting]);
+    const checkRegistration = async () => {
+      const enabled = getSetting('registrationEnabled', true);
+      console.log('📝 Inscription ouverte:', enabled);
+      setRegistrationEnabled(enabled);
+      
+      // Si l'inscription est fermée et qu'on est sur l'écran register, basculer vers login
+      if (!enabled && screen === 'register') {
+        setScreen('login');
+      }
+    };
+    checkRegistration();
+  }, [getSetting, screen]);
 
   const active = DATA[screen];
 
   const changeScreen = (value) => {
+    // 👇 EMPÊCHER LE PASSAGE VERS REGISTER SI L'INSCRIPTION EST FERMÉE
+    if (value === "register" && !registrationEnabled) {
+      setError("Les inscriptions sont temporairement fermées.");
+      return;
+    }
     setScreen(value);
     setError("");
     setMessage("");
   };
 
   const handleLogin = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    setError("");
-    setMessage("");
+    try {
+      setError("");
+      setMessage("");
 
-    console.log('🔄 handleLogin appelé avec:', { email: loginForm.email });
+      const result = await login(
+        loginForm.email,
+        loginForm.password
+      );
 
-    const result = await login(
-      loginForm.email,
-      loginForm.password
-    );
+      if (result?.requiresOtp) {
+        setMessage("Un code OTP a été envoyé.");
+        return;
+      }
 
-    console.log('🔐 Résultat handleLogin:', result);
-
-    if (result?.requiresOtp) {
-      setMessage("Un code OTP a été envoyé.");
-      return;
-    }
-
-    if (result?.user) {
-      console.log('✅ Redirection vers l\'accueil');
       window.location.href = "/";
-    } else {
-      console.error('❌ Pas d\'utilisateur dans le résultat');
-      setError("Erreur de connexion");
+    } catch (err) {
+      if (err.redirect === "/maintenance") {
+        window.location.href = "/maintenance";
+        return;
+      }
+      setError(err.message);
     }
-  } catch (err) {
-    console.error('❌ Erreur handleLogin:', err);
-    
-    // Gérer la redirection vers la page de maintenance
-    if (err.redirect === "/maintenance") {
-      window.location.href = "/maintenance";
-      return;
-    }
-    
-    setError(err.message || "Erreur de connexion");
-  }
-};
+  };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
@@ -183,6 +187,12 @@ export default function Auth() {
     try {
       setError("");
       setMessage("");
+
+      // 👇 VÉRIFICATION SUPPLÉMENTAIRE AVANT L'INSCRIPTION
+      if (!registrationEnabled) {
+        setError("Les inscriptions sont temporairement fermées.");
+        return;
+      }
 
       if (registerForm.password !== registerForm.confirmPassword) {
         setError("Les mots de passe ne correspondent pas.");
@@ -245,34 +255,65 @@ export default function Auth() {
     }
   };
 
-  // Si les paramètres sont en chargement
+  // ✅ PENDANT LE CHARGEMENT
   if (settingsLoading) {
     return <div className="auth-loading">Chargement...</div>;
   }
 
-  // Si l'inscription est fermée
+  // ✅ SI L'INSCRIPTION EST FERMÉE ET QU'ON ESSAIE D'Y ACCÉDER
   if (screen === "register" && !registrationEnabled) {
     return (
-      <div className="auth-page">
-        <div className="auth-container">
-          <div className="auth-card">
-            <div className="auth-header">
-              <div className="auth-icon">🔒</div>
-              <h1>Inscriptions fermées</h1>
-              <p>Les inscriptions sont temporairement fermées par l'administrateur.</p>
-              <p className="auth-sub">Veuillez réessayer plus tard ou contacter le support.</p>
-              <div className="auth-footer">
-                <a href="/auth?mode=login" className="btn btn-primary">
+      <div style={pageStyle} className="auth-page">
+        <MobileHeader />
+        <section
+          style={{
+            ...leftStyle,
+            backgroundImage: `linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.50)), url(${DATA.register.image})`,
+          }}
+          className="auth-left"
+        >
+          <div style={leftContentStyle}>
+            <h1 style={leftTitleStyle}>
+              Inscriptions<br />
+              <span style={redWordStyle}>fermées</span>
+            </h1>
+            <div style={tagsBoxStyle} className="auth-tags">
+              <span style={tagStyle}>🔒 Sécurisé</span>
+              <span style={tagStyle}>📧 Contact support</span>
+              <span style={tagStyle}>⏳ Réessayer plus tard</span>
+            </div>
+          </div>
+        </section>
+
+        <section style={rightStyle} className="auth-right">
+          <div style={cardStyle} className="auth-card">
+            <div className="auth-header" style={{ textAlign: 'center', marginBottom: 30 }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
+              <h2 style={titleStyle}>Inscriptions fermées</h2>
+              <p style={descStyle}>
+                Les inscriptions sont temporairement fermées par l'administrateur.
+              </p>
+              <p style={{ ...descStyle, color: '#888', fontSize: 14 }}>
+                Veuillez réessayer plus tard ou contacter le support.
+              </p>
+              <div style={{ marginTop: 24 }}>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => changeScreen("login")}
+                  style={{ width: '100%', justifyContent: 'center' }}
+                >
                   Se connecter
-                </a>
+                </button>
               </div>
             </div>
           </div>
-        </div>
+        </section>
+        <BottomNav />
       </div>
     );
   }
 
+  // ... LE RESTE DU RENDU (inchangé)
   return (
     <div style={pageStyle} className="auth-page">
       <MobileHeader />
@@ -827,11 +868,14 @@ export default function Auth() {
           )}
         </div>
       </section>
-      {/* ─── BOTTOM NAV (mobile uniquement) ─── */}
       <BottomNav />
     </div>
   );
 }
+
+// ============================================================
+// COMPOSANTS ET STYLES
+// ============================================================
 
 function Input({ label, type = "text", placeholder, value, onChange, icon }) {
   const [focused, setFocused] = useState(false);
@@ -1101,12 +1145,6 @@ const eyeButtonStyle = {
   background: "transparent",
   cursor: "pointer",
   fontSize: 18,
-};
-
-const gridStyle = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: 14,
 };
 
 const mainButtonStyle = {
