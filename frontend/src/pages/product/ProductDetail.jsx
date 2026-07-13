@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { api, getImageUrl } from "../../services/api";
 import { FaWhatsapp } from "react-icons/fa";
+import LoadingPage from '../../components/common/LoadingPage';
 
 import { Heart, Share2, Sparkles, ShoppingBag, ShieldCheck, AlertTriangle, Check, X } from 'lucide-react';
 const ALL_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
@@ -82,7 +83,7 @@ export default function ProductDetail() {
   }, [id]);
 
   if (loading) {
-    return <div style={{ paddingTop: 140, textAlign: "center" }}>Chargement...</div>;
+    return <LoadingPage message="Chargement du produit..." />;
   }
 
   if (!product) {

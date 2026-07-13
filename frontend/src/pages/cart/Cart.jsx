@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import LoadingPage from '../../components/common/LoadingPage';
 
 export default function Cart() {
   const navigate = useNavigate();

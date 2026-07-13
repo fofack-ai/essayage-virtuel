@@ -10,6 +10,7 @@ import BottomNav from '../../components/layout/BottomNav';
 import { Pose } from '@mediapipe/pose';
 import { Camera } from '@mediapipe/camera_utils';
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
+import LoadingPage from '../../components/common/LoadingPage';
 
 import { Sparkles, Shirt, User, Camera as CameraIcon, Info } from 'lucide-react';
 
@@ -552,7 +553,7 @@ const handleAITryon = async () => {
 
   /* ── Rendu ── */
   if (loadingProduct) {
-    return <div style={{ paddingTop: '72px', textAlign: 'center' }}>Chargement du produit...</div>;
+    return <LoadingPage message="Chargement de l'essayage..." />;
   }
 
   if (!product) {

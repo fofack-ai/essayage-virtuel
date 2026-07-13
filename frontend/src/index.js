@@ -1,4 +1,3 @@
-// Dans index.js, juste après les imports
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -8,18 +7,26 @@ import { AuthProvider } from './context/AuthContext';
 import './index.css';
 import './App.css';
 
-// ─── IGNORER L'ERREUR RESIZEOBSERVER ───
-const originalError = console.error;
+// ─── IGNORER L'ERREUR RESIZEOBSERVER (une seule fois) ───
+const originalConsoleError = console.error;
 console.error = (...args) => {
   if (args[0]?.includes?.('ResizeObserver loop completed with undelivered notifications')) {
     return;
   }
-  originalError(...args);
+  if (args[0]?.includes?.('ResizeObserver loop limit exceeded')) {
+    return;
+  }
+  originalConsoleError(...args);
 };
 
 // Ignorer également l'erreur au niveau global
 window.addEventListener('error', (e) => {
   if (e.message?.includes?.('ResizeObserver loop completed with undelivered notifications')) {
+    e.stopPropagation();
+    e.preventDefault();
+    return false;
+  }
+  if (e.message?.includes?.('ResizeObserver loop limit exceeded')) {
     e.stopPropagation();
     e.preventDefault();
     return false;

@@ -7,6 +7,7 @@ import Footer from "./components/layout/Footer";
 import BottomNav from "./components/layout/BottomNav";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import useMobile from "./hooks/useMobile";
+import LoadingPage from './components/common/LoadingPage';
 
 import Home from "./pages/Home";
 import ProductDetail from "./pages/product/ProductDetail";
@@ -28,14 +29,22 @@ import TermsConditions from "./pages/terms/TermsConditions";
 import MaintenancePage from "./pages/MaintenancePage";
 
 import { SettingsProvider } from "./context/SettingsContext";
-import { AuthProvider } from "./context/AuthContext";
+// ✅ CORRECTION : Importer AuthProvider ET useAuth
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 import "./index.css";
 
 function AppLayout() {
+  // ✅ ÉTAPE 1 : TOUS les Hooks sont appelés AVANT tout return conditionnel
   const location = useLocation();
   const { pathname } = location;
   const isMobile = useMobile();
+  const { loading: authLoading } = useAuth();
+
+  // ✅ ÉTAPE 2 : VÉRIFICATION après tous les hooks
+  if (authLoading) {
+    return <LoadingPage message="Vérification de votre session..." />;
+  }
 
   const isAdminPage = pathname === "/admin";
   const isAuthPage =

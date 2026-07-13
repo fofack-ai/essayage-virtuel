@@ -198,5 +198,11 @@ export const adminService = {
   getReports(period = "month") {
     return api.get(`/reports/overview?period=${period}`);
   },
+
+  // Categories Management
+  // src/services/adminService.js
+  getCategories() {
+    return api.get("/categories");
+  },
   
 };

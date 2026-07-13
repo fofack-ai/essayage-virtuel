@@ -1192,6 +1192,7 @@ function Dashboard() {
         reviewsRes,
         settingsRes,
         reportsRes,
+        categoriesRes,
       ] = await Promise.all([
         adminService.getDashboard(),
         adminService.getOrders(),
@@ -1205,6 +1206,7 @@ function Dashboard() {
         adminService.getReviews(),
         adminService.getSettings(),
         adminService.getReports("month"),
+        adminService.getCategories(),
       ]);
 
       console.log("Dashboard:", dashboardRes);
@@ -1236,15 +1238,28 @@ function Dashboard() {
       }));
 
       // PRODUITS
-      const products = productsRes.data.map((p) => ({
-        id: p.id,
-        name: p.name,
-        brand: p.brand || "TryOn",
-        price: Number(p.price || 0),
-        stock: Number(p.totalStock || p.stock || 0),
-        cat: p.target || p.categoryName || p.categorySlug || "Catalogue",
-        image: p.image || null,
-      }));
+      const categoriesData = categoriesRes?.data || [];
+
+      const products = productsRes.data.map((p) => {
+        // Trouver la catégorie du produit
+        const category = categoriesData.find(c => c.id === p.categoryId);
+        
+        return {
+          id: p.id,
+          name: p.name,
+          brand: p.brand || "TryOn",
+          price: Number(p.price || 0),
+          stock: Number(p.totalStock || p.stock || 0),
+          cat: p.target || category?.name || p.categoryName || "Catalogue",
+          categoryName: category?.name || p.categoryName || "",
+          categorySlug: category?.slug || p.categorySlug || "",
+          // 👇 Pour le filtrage comme dans Shop.jsx
+          categorySlugs: category?.slug ? [category.slug] : (p.categorySlugs || []),
+          categoryNames: category?.name || p.categoryNames || "",
+          target: p.target || "",
+          image: p.image || null,
+        };
+      });
 
       // ESSAYAGES
       const tryons = (tryonsRes.data || []).map((t) => ({

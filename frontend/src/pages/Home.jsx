@@ -850,70 +850,83 @@ export default function Home() {
         </div>
         <div style={CATEGORIES_GRID_STYLE}>
           {categories.length > 0 ? (
-            categories.map((cat) => (
-              <Link
-                key={cat.id}
-                to={`/catalogue?category=${cat.slug || cat.id}`}
-                style={{ textDecoration: 'none' }}
-                aria-label={`Découvrir la catégorie ${cat.name}`}
-              >
-                <div
-                  style={{
-                    position: 'relative',
-                    borderRadius: '18px',
-                    overflow: 'hidden',
-                    height: '320px',
-                    cursor: 'pointer',
-                    transition: 'transform .3s ease, box-shadow .3s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-6px)';
-                    e.currentTarget.style.boxShadow = '0 20px 50px rgba(26,26,26,0.15)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
+            categories.map((cat) => {
+              // ✅ Construire le slug pour le filtre
+              const categorySlug = cat.slug || cat.id || cat.name?.toLowerCase();
+              return (
+                <Link
+                  key={cat.id}
+                  to={`/catalogue?category=${categorySlug}`}
+                  style={{ textDecoration: 'none' }}
+                  aria-label={`Découvrir la catégorie ${cat.name}`}
                 >
-                  <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${DEFAULT_CATEGORY_IMAGE})`, backgroundSize: 'cover', backgroundPosition: 'center' }} aria-hidden="true" />
                   <div
                     style={{
-                      position: 'absolute',
-                      inset: 0,
-                      background: 'linear-gradient(to top, rgba(26,26,26,0.75) 0%, transparent 55%)',
+                      position: 'relative',
+                      borderRadius: '18px',
+                      overflow: 'hidden',
+                      height: '320px',
+                      cursor: 'pointer',
+                      transition: 'transform .3s ease, box-shadow .3s ease',
                     }}
-                    aria-hidden="true"
-                  />
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: '24px',
-                      left: '24px',
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-6px)';
+                      e.currentTarget.style.boxShadow = '0 20px 50px rgba(26,26,26,0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'none';
+                      e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
+                    <div 
+                      style={{ 
+                        position: 'absolute', 
+                        inset: 0, 
+                        backgroundImage: `url(${DEFAULT_CATEGORY_IMAGE})`, 
+                        backgroundSize: 'cover', 
+                        backgroundPosition: 'center' 
+                      }} 
+                      aria-hidden="true" 
+                    />
                     <div
                       style={{
-                        color: '#fff',
-                        fontSize: '20px',
-                        fontFamily: "'Cormorant Garamond', serif",
-                        fontWeight: 600,
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'linear-gradient(to top, rgba(26,26,26,0.75) 0%, transparent 55%)',
                       }}
-                    >
-                      {cat.name}
-                    </div>
+                      aria-hidden="true"
+                    />
                     <div
                       style={{
-                        color: 'rgba(255,255,255,0.7)',
-                        fontSize: '12px',
-                        marginTop: '4px',
+                        position: 'absolute',
+                        bottom: '24px',
+                        left: '24px',
                       }}
                     >
-                      {cat.productsCount || 'Découvrir'}
+                      <div
+                        style={{
+                          color: '#fff',
+                          fontSize: '20px',
+                          fontFamily: "'Cormorant Garamond', serif",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {cat.name}
+                      </div>
+                      <div
+                        style={{
+                          color: 'rgba(255,255,255,0.7)',
+                          fontSize: '12px',
+                          marginTop: '4px',
+                        }}
+                      >
+                        {cat.productsCount || 'Découvrir →'}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))
+                </Link>
+              );
+            })
           ) : (
             <p>Aucune catégorie disponible</p>
           )}
@@ -1014,7 +1027,8 @@ function ProductCard({ product }) {
         }}
       >
         <div style={{ position: 'relative', height: '280px', overflow: 'hidden' }}>
-          <ImageWithFallback            src={product.image}
+          <ImageWithFallback            
+            src={product.image}
             alt={product.name}
             label={product.brand || product.name}
             style={{ transform: pressed ? 'scale(1.05)' : 'scale(1)', transition: 'transform .4s ease' }}
