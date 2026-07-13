@@ -763,7 +763,7 @@ export default function Home() {
 
         {/* Image hero droite */}
         <div style={{ position: 'relative', overflow: 'hidden' }} aria-hidden="true">
-          <ImageWithFallback src={DEFAULT_HERO_IMAGE} alt="" label="TryOn" />
+          <ImageWithFallback src={DEFAULT_HERO_IMAGE} alt="" label="CFPD TryOn" />
           <div
             style={{
               position: 'absolute',

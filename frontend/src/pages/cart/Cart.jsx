@@ -13,7 +13,7 @@ export default function Cart() {
       <style>{styles}</style>
 
       <section className="cart-hero">
-        <span>Panier TryOn</span>
+        <span>Panier CFPD TryOn</span>
         <h1>Votre sélection</h1>
         <p>Finalisez vos articles avant de passer commande.</p>
       </section>

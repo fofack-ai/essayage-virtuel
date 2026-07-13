@@ -34,7 +34,7 @@ export default function MobileHeader() {
 
   return (
     <div className="mobile-header">
-      <Link to="/" className="mobile-logo">TRY<span>ON</span></Link>
+      <Link to="/" className="mobile-logo">CFPD TRY<span>ON</span></Link>
       <div className="mobile-header-actions">
         {isAuthenticated ? (
           <Link to="/notifications" className="mobile-header-icon" aria-label="Notifications">
