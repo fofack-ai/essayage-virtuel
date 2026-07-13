@@ -21,8 +21,6 @@ export default React.memo(function ClientsSection({
         filters={[["all", "Tous"]]}
         active="all"
         setActive={() => {}}
-        button="+ Nouveau client"
-        onAdd={() => openAdd("client")}
         onAdvancedSearch={onAdvancedSearch}
       />
 

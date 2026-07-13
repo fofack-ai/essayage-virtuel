@@ -1,6 +1,8 @@
 const tryonModel = require("../../models/v1/tryonModel");
 const userModel = require("../../models/v1/userModel");
 const productModel = require("../../models/v1/productModel");
+const notificationModel = require("../../models/v1/notificationModel");
+const notificationService = require("./notificationService");
 
 async function getTryons(filters = {}) {
   // Validate userId if provided
@@ -73,7 +75,28 @@ async function createTryon(tryonData) {
 
   // If this is set as latest, the model will handle unsetting others
   const tryonId = await tryonModel.create(tryonData);
-  return await tryonModel.findById(tryonId);
+  const newTryon = await tryonModel.findById(tryonId);
+
+  // ─── AJOUT : Notification d'essayage créé ───
+  try {
+    const scoreDisplay = tryonData.score !== undefined && tryonData.score !== null
+      ? ` avec un score de ${tryonData.score}%`
+      : "";
+
+    // Notification pour le client
+    await notificationService.createUserNotification({
+      userId: tryonData.userId,
+      type: "product",
+      title: "Nouvel essayage virtuel",
+      message: `Vous avez essayé "${product.name}"${scoreDisplay}.`,
+      isRead: false,
+    });
+  } catch (err) {
+    console.error("Erreur création notification essayage:", err.message);
+    // Non bloquant
+  }
+
+  return newTryon;
 }
 
 async function updateTryon(id, tryonData) {

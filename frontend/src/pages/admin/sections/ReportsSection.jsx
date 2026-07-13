@@ -1,6 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { adminService } from "../../../services/adminService";
 import generateReportPDF from "../../../utils/pdfReport";
+import {
+  TrendingUp, ShoppingBag, ShoppingCart, Users, Package,
+  AlertTriangle, Star, Headphones, RefreshCw,
+  FileSpreadsheet, FileJson, Printer, BarChart3,
+  CheckCircle, Clock, XCircle, Award, DollarSign,
+  Calendar, Eye, Heart, MessageCircle
+} from "lucide-react";
 
 const fmt = (n) => `${Number(n || 0).toLocaleString("fr-FR")} FCFA`;
 
@@ -11,56 +18,74 @@ const periodLabels = {
   year: "12 derniers mois",
 };
 
-function ReportKpi({ label, value, sub, icon, tone = "red" }) {
+// ============================================================
+// COMPOSANTS
+// ============================================================
+
+function ReportKpi({ label, value, sub, icon, color = "red" }) {
   return (
     <div className="report-kpi">
-      <div>
-        <p>{label}</p>
-        <span className={`report-kpi-icon ${tone}`}>{icon}</span>
+      <div className="report-kpi-top">
+        <span className="report-kpi-label">{label}</span>
+        <span className={`report-kpi-icon ${color}`}>{icon}</span>
       </div>
-      <h3>{value}</h3>
-      <b>{sub}</b>
+      <div className="report-kpi-value">{value}</div>
+      <span className="report-kpi-sub">{sub}</span>
     </div>
   );
 }
 
-function Card({ title, side, children, className = "" }) {
+function ReportCard({ title, icon, side, children }) {
   return (
-    <div className={`report-card ${className}`}>
+    <div className="report-card">
       <div className="report-card-head">
-        <h3>{title}</h3>
-        {side && <span>{side}</span>}
+        <h3>
+          {icon && <span className="report-card-icon">{icon}</span>}
+          {title}
+        </h3>
+        {side && <span className="report-card-side">{side}</span>}
       </div>
-      {children}
+      <div className="report-card-body">
+        {children}
+      </div>
     </div>
   );
 }
 
-function ProgressRow({ label, value, max, amount }) {
+function ProgressBar({ label, value, max, amount, color = "red" }) {
   const percent = max ? Math.round((Number(value || 0) / max) * 100) : 0;
 
   return (
-    <div className="report-progress-row">
-      <span>{label}</span>
-      <div className="report-progress-track">
-        <div style={{ width: `${Math.max(percent, 5)}%` }} />
+    <div className="progress-row">
+      <span className="progress-label">{label}</span>
+      <div className="progress-track">
+        <div 
+          className={`progress-fill ${color}`} 
+          style={{ width: `${Math.max(percent, 4)}%` }} 
+        />
       </div>
-      <b>{amount}</b>
+      <span className="progress-amount">{amount}</span>
     </div>
   );
 }
 
-function StatusLabel(status) {
-  const labels = {
-    pending: "En cours",
-    processing: "Traitement",
-    shipped: "Expédiées",
-    delivered: "Livrées",
-    cancelled: "Annulées",
+function StatusBadge({ status }) {
+  const config = {
+    pending: { label: "En cours", color: "orange" },
+    processing: { label: "Traitement", color: "blue" },
+    shipped: { label: "Expédiées", color: "purple" },
+    delivered: { label: "Livrées", color: "green" },
+    cancelled: { label: "Annulées", color: "red" },
   };
 
-  return labels[status] || status || "Non défini";
+  const { label, color } = config[status] || { label: status || "Non défini", color: "gray" };
+
+  return <span className={`status-badge ${color}`}>{label}</span>;
 }
+
+// ============================================================
+// COMPOSANT PRINCIPAL
+// ============================================================
 
 export default function ReportsSection() {
   const [period, setPeriod] = useState("month");
@@ -187,157 +212,291 @@ export default function ReportsSection() {
     });
   };
 
+  // ============================================================
+  // RENDU
+  // ============================================================
+
   return (
-    <div className="reports-page">
-      <div className="report-hero">
-        <span>Analyse & Rapports</span>
-        <h2>Vue complète des performances TryOn</h2>
-        <p>
-          Statistiques détaillées, chiffre d'affaires, top produits, top clients,
-          commandes, paiements, stock, support et avis clients.
-        </p>
-
-        <div className="report-toolbar">
-          <select value={period} onChange={(e) => setPeriod(e.target.value)}>
-            <option value="today">Aujourd'hui</option>
-            <option value="week">7 derniers jours</option>
-            <option value="month">30 derniers jours</option>
-            <option value="year">12 derniers mois</option>
+    <div className="reports-section">
+      {/* HEADER */}
+      <div className="reports-header">
+        <div className="reports-header-left">
+          <h1>
+            <BarChart3 size={28} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 12 }} />
+            Analyse & Rapports
+          </h1>
+          <p>Vue complète des performances TryOn</p>
+        </div>
+        <div className="reports-header-right">
+          <select 
+            className="reports-period-select" 
+            value={period} 
+            onChange={(e) => setPeriod(e.target.value)}
+          >
+            <option value="today">📅 Aujourd'hui</option>
+            <option value="week">📅 7 derniers jours</option>
+            <option value="month">📅 30 derniers jours</option>
+            <option value="year">📅 12 derniers mois</option>
           </select>
-
-          <button onClick={loadReports}>↻ Actualiser</button>
-          <button onClick={exportCsv}>CSV</button>
-          <button onClick={exportJson}>JSON</button>
-          <button className="red" onClick={exportPdf}>PDF</button>
+          <button className="btn btn-light" onClick={loadReports}>
+            <RefreshCw size={16} /> Actualiser
+          </button>
+          <button className="btn btn-light" onClick={exportCsv}>
+            <FileSpreadsheet size={16} /> CSV
+          </button>
+          <button className="btn btn-light" onClick={exportJson}>
+            <FileJson size={16} /> JSON
+          </button>
+          <button className="btn btn-red" onClick={exportPdf}>
+            <Printer size={16} /> PDF
+          </button>
         </div>
       </div>
 
-      {error && <div className="report-error">{error}</div>}
-      {loading && <div className="report-loading">Chargement des rapports...</div>}
+      {/* ERREUR / CHARGEMENT */}
+      {error && <div className="reports-error">{error}</div>}
+      {loading && <div className="reports-loading">Chargement des rapports...</div>}
 
-      <div className="report-kpi-grid">
-        <ReportKpi label="Chiffre d'affaires" value={fmt(summary.revenue)} sub={periodLabels[period]} icon="💰" />
-        <ReportKpi label="Commandes" value={summary.totalOrders || 0} sub={`${summary.deliveredOrders || 0} livrées`} icon="🛍️" tone="blue" />
-        <ReportKpi label="Panier moyen" value={fmt(summary.averageOrder)} sub="Par commande" icon="🛒" />
-        <ReportKpi label="Clients" value={summary.totalClients || 0} sub="Base client" icon="👥" tone="green" />
-        <ReportKpi label="Produits" value={summary.totalProducts || 0} sub="Catalogue" icon="📦" tone="blue" />
-        <ReportKpi label="Stock faible" value={stock.lowStock || 0} sub={`${stock.outOfStock || 0} ruptures`} icon="⚠️" tone="orange" />
-        <ReportKpi label="Avis en attente" value={reviews.pendingReviews || 0} sub={`Moyenne ${Number(reviews.averageRating || 0).toFixed(1)}/5`} icon="⭐" tone="purple" />
-        <ReportKpi label="Tickets ouverts" value={support.openTickets || 0} sub={`${support.totalTickets || 0} tickets`} icon="🎧" tone="green" />
+      {/* KPI GRID */}
+      <div className="reports-kpi-grid">
+        <ReportKpi 
+          label="Chiffre d'affaires" 
+          value={fmt(summary.revenue)} 
+          sub={periodLabels[period]} 
+          icon={<TrendingUp size={20} />} 
+          color="red"
+        />
+        <ReportKpi 
+          label="Commandes" 
+          value={summary.totalOrders || 0} 
+          sub={`${summary.deliveredOrders || 0} livrées`} 
+          icon={<ShoppingBag size={20} />} 
+          color="blue"
+        />
+        <ReportKpi 
+          label="Panier moyen" 
+          value={fmt(summary.averageOrder)} 
+          sub="Par commande" 
+          icon={<ShoppingCart size={20} />} 
+          color="purple"
+        />
+        <ReportKpi 
+          label="Clients" 
+          value={summary.totalClients || 0} 
+          sub="Base client" 
+          icon={<Users size={20} />} 
+          color="green"
+        />
+        <ReportKpi 
+          label="Produits" 
+          value={summary.totalProducts || 0} 
+          sub="Catalogue" 
+          icon={<Package size={20} />} 
+          color="blue"
+        />
+        <ReportKpi 
+          label="Stock faible" 
+          value={stock.lowStock || 0} 
+          sub={`${stock.outOfStock || 0} ruptures`} 
+          icon={<AlertTriangle size={20} />} 
+          color="orange"
+        />
+        <ReportKpi 
+          label="Avis en attente" 
+          value={reviews.pendingReviews || 0} 
+          sub={`${Number(reviews.averageRating || 0).toFixed(1)} / 5 ⭐`} 
+          icon={<Star size={20} />} 
+          color="purple"
+        />
+        <ReportKpi 
+          label="Tickets ouverts" 
+          value={support.openTickets || 0} 
+          sub={`${support.totalTickets || 0} tickets`} 
+          icon={<Headphones size={20} />} 
+          color="green"
+        />
       </div>
 
-      <div className="report-grid-2">
-        <Card title="Évolution du chiffre d'affaires" side={periodLabels[period]}>
+      {/* LIGNE 1 : Ventes & Commandes */}
+      <div className="reports-row-2">
+        <ReportCard 
+          title="Évolution du CA" 
+          icon={<TrendingUp size={18} />}
+          side={periodLabels[period]}
+        >
           {(report?.salesEvolution || []).length ? (
-            <div className="report-line-bars">
+            <div className="chart-bars">
               {report.salesEvolution.map((item) => (
-                <div className="report-line-item" key={item.label}>
-                  <span>{String(item.label).slice(5)}</span>
-                  <div>
-                    <i style={{ height: `${Math.max((Number(item.revenue || 0) / salesMax) * 100, 5)}%` }} />
+                <div className="chart-bar-item" key={item.label}>
+                  <span className="chart-bar-label">{String(item.label).slice(5)}</span>
+                  <div className="chart-bar-track">
+                    <div 
+                      className="chart-bar-fill" 
+                      style={{ height: `${Math.max((Number(item.revenue || 0) / salesMax) * 100, 4)}%` }} 
+                    />
                   </div>
-                  <b>{Number(item.revenue || 0).toLocaleString("fr-FR")}</b>
+                  <span className="chart-bar-value">
+                    {Number(item.revenue || 0).toLocaleString("fr-FR")}
+                  </span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="report-empty">Aucune donnée de ventes pour cette période.</div>
+            <div className="reports-empty">Aucune donnée de ventes.</div>
           )}
-        </Card>
+        </ReportCard>
 
-        <Card title="Statuts commandes" side="Répartition">
+        <ReportCard 
+          title="Statuts commandes" 
+          icon={<ShoppingBag size={18} />}
+          side="Répartition"
+        >
           {(report?.orderStatus || []).length ? (
-            <div className="report-status-list">
+            <div className="status-list">
               {report.orderStatus.map((item) => (
-                <ProgressRow
-                  key={item.status}
-                  label={StatusLabel(item.status)}
-                  value={item.total}
-                  max={summary.totalOrders || 1}
-                  amount={item.total}
-                />
+                <div className="status-item" key={item.status}>
+                  <StatusBadge status={item.status} />
+                  <div className="status-count">{item.total}</div>
+                  <div className="status-bar">
+                    <div 
+                      className={`status-bar-fill ${item.status === 'delivered' ? 'green' : item.status === 'cancelled' ? 'red' : 'orange'}`}
+                      style={{ width: `${Math.max((item.total / (summary.totalOrders || 1)) * 100, 4)}%` }}
+                    />
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
-            <div className="report-empty">Aucune commande.</div>
+            <div className="reports-empty">Aucune commande.</div>
           )}
-        </Card>
+        </ReportCard>
       </div>
 
-      <div className="report-grid-2">
-        <Card title="Top produits" side="Quantité & CA">
+      {/* LIGNE 2 : Top produits & Top clients */}
+      <div className="reports-row-2">
+        <ReportCard 
+          title="Top produits" 
+          icon={<Award size={18} />}
+          side="CA"
+        >
           {(report?.topProducts || []).length ? (
-            <div className="report-list">
-              {report.topProducts.map((p) => (
-                <ProgressRow
+            <div className="ranking-list">
+              {report.topProducts.map((p, index) => (
+                <ProgressBar
                   key={p.name}
-                  label={`${p.name} · ${p.quantity} ventes`}
+                  label={`#${index + 1} ${p.name}`}
                   value={p.revenue}
                   max={topProductsMax}
                   amount={fmt(p.revenue)}
+                  color="red"
                 />
               ))}
             </div>
           ) : (
-            <div className="report-empty">Aucun produit vendu.</div>
+            <div className="reports-empty">Aucun produit vendu.</div>
           )}
-        </Card>
+        </ReportCard>
 
-        <Card title="Top clients" side="Dépenses">
+        <ReportCard 
+          title="Top clients" 
+          icon={<Users size={18} />}
+          side="Dépenses"
+        >
           {(report?.topClients || []).length ? (
-            <div className="report-list">
-              {report.topClients.map((c) => (
-                <ProgressRow
+            <div className="ranking-list">
+              {report.topClients.map((c, index) => (
+                <ProgressBar
                   key={`${c.email}-${c.name}`}
-                  label={`${c.name || "Client"} · ${c.orders} cmd`}
+                  label={`#${index + 1} ${c.name || "Client"}`}
                   value={c.totalSpent}
                   max={topClientsMax}
-                  amount={fmt(c.totalSpent)}
+                  amount={`${c.orders} cmd · ${fmt(c.totalSpent)}`}
+                  color="blue"
                 />
               ))}
             </div>
           ) : (
-            <div className="report-empty">Aucun client sur cette période.</div>
+            <div className="reports-empty">Aucun client.</div>
           )}
-        </Card>
+        </ReportCard>
       </div>
 
-      <div className="report-grid-3">
-        <Card title="Paiements par méthode" side="Montant">
+      {/* LIGNE 3 : Paiements, Stock, Support */}
+      <div className="reports-row-3">
+        <ReportCard 
+          title="Paiements" 
+          icon={<DollarSign size={18} />}
+          side="Méthodes"
+        >
           {(report?.paymentMethods || []).length ? (
-            <div className="report-list compact">
+            <div className="payment-list">
               {report.paymentMethods.map((p) => (
-                <ProgressRow
-                  key={p.method}
-                  label={p.method || "Non défini"}
-                  value={p.amount}
-                  max={paymentMax}
-                  amount={fmt(p.amount)}
-                />
+                <div className="payment-item" key={p.method}>
+                  <span className="payment-label">{p.method || "Non défini"}</span>
+                  <div className="payment-bar">
+                    <div 
+                      className="payment-bar-fill purple"
+                      style={{ width: `${Math.max((p.amount / paymentMax) * 100, 4)}%` }}
+                    />
+                  </div>
+                  <span className="payment-amount">{fmt(p.amount)}</span>
+                </div>
               ))}
             </div>
           ) : (
-            <div className="report-empty">Aucun paiement.</div>
+            <div className="reports-empty">Aucun paiement.</div>
           )}
-        </Card>
+        </ReportCard>
 
-        <Card title="Stock" side="Disponibilité">
-          <div className="report-simple-list">
-            <p><span>Total produits</span><b>{stock.totalProducts || 0}</b></p>
-            <p><span>Disponibles</span><b className="green">{stock.availableStock || 0}</b></p>
-            <p><span>Stock faible</span><b className="orange">{stock.lowStock || 0}</b></p>
-            <p><span>Rupture de stock</span><b className="red-text">{stock.outOfStock || 0}</b></p>
+        <ReportCard 
+          title="Stock" 
+          icon={<Package size={18} />}
+          side="Disponibilité"
+        >
+          <div className="stock-list">
+            <div className="stock-item">
+              <span className="stock-label">Total produits</span>
+              <span className="stock-value">{stock.totalProducts || 0}</span>
+            </div>
+            <div className="stock-item">
+              <span className="stock-label"><span className="dot green" /> Disponibles</span>
+              <span className="stock-value green">{stock.availableStock || 0}</span>
+            </div>
+            <div className="stock-item">
+              <span className="stock-label"><span className="dot orange" /> Stock faible</span>
+              <span className="stock-value orange">{stock.lowStock || 0}</span>
+            </div>
+            <div className="stock-item">
+              <span className="stock-label"><span className="dot red" /> Rupture</span>
+              <span className="stock-value red">{stock.outOfStock || 0}</span>
+            </div>
           </div>
-        </Card>
+        </ReportCard>
 
-        <Card title="Support & Avis" side="Qualité">
-          <div className="report-simple-list">
-            <p><span>Total avis</span><b>{reviews.totalReviews || 0}</b></p>
-            <p><span>Note moyenne</span><b className="purple">{Number(reviews.averageRating || 0).toFixed(1)} / 5</b></p>
-            <p><span>Tickets ouverts</span><b className="orange">{support.openTickets || 0}</b></p>
-            <p><span>Tickets résolus</span><b className="green">{support.resolvedTickets || 0}</b></p>
+        <ReportCard 
+          title="Support & Avis" 
+          icon={<MessageCircle size={18} />}
+          side="Qualité"
+        >
+          <div className="support-list">
+            <div className="support-item">
+              <span className="support-label">⭐ Total avis</span>
+              <span className="support-value">{reviews.totalReviews || 0}</span>
+            </div>
+            <div className="support-item">
+              <span className="support-label">📊 Note moyenne</span>
+              <span className="support-value purple">{Number(reviews.averageRating || 0).toFixed(1)} / 5</span>
+            </div>
+            <div className="support-item">
+              <span className="support-label"><Clock size={14} /> Tickets ouverts</span>
+              <span className="support-value orange">{support.openTickets || 0}</span>
+            </div>
+            <div className="support-item">
+              <span className="support-label"><CheckCircle size={14} /> Tickets résolus</span>
+              <span className="support-value green">{support.resolvedTickets || 0}</span>
+            </div>
           </div>
-        </Card>
+        </ReportCard>
       </div>
     </div>
   );

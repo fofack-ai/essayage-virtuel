@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
+import { useSettings } from '../../context/SettingsContext';
 import BottomNav from '../../components/layout/BottomNav';
 import MobileHeader from '../../components/layout/MobileHeader';
 import { User, Mail, Phone, Lock, KeyRound, Hash, Eye, EyeOff } from 'lucide-react';
@@ -30,26 +31,32 @@ const DATA = {
     tags: ["Email sécurisé", "Nouveau mot de passe", "Retour rapide", "Compte protégé"],
   },
   reset: {
-  image: "/auth-reset.jpg",
-  title: "Choisissez un nouveau",
-  red: "mot de passe",
-  end: "pour sécuriser votre compte.",
-  tags: [
-    "Lien sécurisé",
-    "Nouveau mot de passe",
-    "Protection renforcée",
-    "Accès restauré"
-  ],
-},
+    image: "/auth-reset.jpg",
+    title: "Choisissez un nouveau",
+    red: "mot de passe",
+    end: "pour sécuriser votre compte.",
+    tags: [
+      "Lien sécurisé",
+      "Nouveau mot de passe",
+      "Protection renforcée",
+      "Accès restauré"
+    ],
+  },
 };
 
 export default function Auth() {
   const { token } = useParams();
   const { login, register, verifyOtp, pendingOtp, loginWithGoogle, completeGoogleLogin } = useAuth();
+  const { getSetting, loading: settingsLoading } = useSettings();
 
-  const [screen, setScreen] = useState("login");
+  const [screen, setScreen] = useState(() => {
+    // Vérifier si le mode "register" est demandé dans l'URL
+    const params = new URLSearchParams(window.location.search);
+    return params.get('mode') === 'register' ? 'register' : 'login';
+  });
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [registrationEnabled, setRegistrationEnabled] = useState(true);
 
   const [loginForm, setLoginForm] = useState({
     email: "",
@@ -72,6 +79,7 @@ export default function Auth() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
+  // Effet pour le token de réinitialisation
   useEffect(() => {
     if (token) {
       setResetToken(token);
@@ -79,6 +87,7 @@ export default function Auth() {
     }
   }, [token]);
 
+  // Effet pour Google OAuth
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const data = params.get("data");
@@ -99,9 +108,29 @@ export default function Auth() {
     }
   }, [completeGoogleLogin]);
 
+  // 👇 EFFET POUR VÉRIFIER SI L'INSCRIPTION EST OUVERTE
+  useEffect(() => {
+    const checkRegistration = async () => {
+      const enabled = getSetting('registrationEnabled', true);
+      console.log('📝 Inscription ouverte:', enabled);
+      setRegistrationEnabled(enabled);
+      
+      // Si l'inscription est fermée et qu'on est sur l'écran register, basculer vers login
+      if (!enabled && screen === 'register') {
+        setScreen('login');
+      }
+    };
+    checkRegistration();
+  }, [getSetting, screen]);
+
   const active = DATA[screen];
 
   const changeScreen = (value) => {
+    // 👇 EMPÊCHER LE PASSAGE VERS REGISTER SI L'INSCRIPTION EST FERMÉE
+    if (value === "register" && !registrationEnabled) {
+      setError("Les inscriptions sont temporairement fermées.");
+      return;
+    }
     setScreen(value);
     setError("");
     setMessage("");
@@ -120,14 +149,16 @@ export default function Auth() {
       );
 
       if (result?.requiresOtp) {
-        setMessage(
-          "Un code OTP a été envoyé. Vérifiez votre email ou le terminal backend."
-        );
+        setMessage("Un code OTP a été envoyé.");
         return;
       }
 
       window.location.href = "/";
     } catch (err) {
+      if (err.redirect === "/maintenance") {
+        window.location.href = "/maintenance";
+        return;
+      }
       setError(err.message);
     }
   };
@@ -156,6 +187,12 @@ export default function Auth() {
     try {
       setError("");
       setMessage("");
+
+      // 👇 VÉRIFICATION SUPPLÉMENTAIRE AVANT L'INSCRIPTION
+      if (!registrationEnabled) {
+        setError("Les inscriptions sont temporairement fermées.");
+        return;
+      }
 
       if (registerForm.password !== registerForm.confirmPassword) {
         setError("Les mots de passe ne correspondent pas.");
@@ -218,6 +255,65 @@ export default function Auth() {
     }
   };
 
+  // ✅ PENDANT LE CHARGEMENT
+  if (settingsLoading) {
+    return <div className="auth-loading">Chargement...</div>;
+  }
+
+  // ✅ SI L'INSCRIPTION EST FERMÉE ET QU'ON ESSAIE D'Y ACCÉDER
+  if (screen === "register" && !registrationEnabled) {
+    return (
+      <div style={pageStyle} className="auth-page">
+        <MobileHeader />
+        <section
+          style={{
+            ...leftStyle,
+            backgroundImage: `linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.50)), url(${DATA.register.image})`,
+          }}
+          className="auth-left"
+        >
+          <div style={leftContentStyle}>
+            <h1 style={leftTitleStyle}>
+              Inscriptions<br />
+              <span style={redWordStyle}>fermées</span>
+            </h1>
+            <div style={tagsBoxStyle} className="auth-tags">
+              <span style={tagStyle}>🔒 Sécurisé</span>
+              <span style={tagStyle}>📧 Contact support</span>
+              <span style={tagStyle}>⏳ Réessayer plus tard</span>
+            </div>
+          </div>
+        </section>
+
+        <section style={rightStyle} className="auth-right">
+          <div style={cardStyle} className="auth-card">
+            <div className="auth-header" style={{ textAlign: 'center', marginBottom: 30 }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
+              <h2 style={titleStyle}>Inscriptions fermées</h2>
+              <p style={descStyle}>
+                Les inscriptions sont temporairement fermées par l'administrateur.
+              </p>
+              <p style={{ ...descStyle, color: '#888', fontSize: 14 }}>
+                Veuillez réessayer plus tard ou contacter le support.
+              </p>
+              <div style={{ marginTop: 24 }}>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => changeScreen("login")}
+                  style={{ width: '100%', justifyContent: 'center' }}
+                >
+                  Se connecter
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  // ... LE RESTE DU RENDU (inchangé)
   return (
     <div style={pageStyle} className="auth-page">
       <MobileHeader />
@@ -529,21 +625,7 @@ export default function Auth() {
                   <HoverButton type="submit">
                     Vérifier le code
                   </HoverButton>
-
-                  <p style={{ textAlign: "center", marginTop: 18 }}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOtp("");
-                        setMessage("");
-                        setError("");
-                      }}
-                      style={inlineButtonStyle}
-                      className="auth-back-link"
-                    >
-                      Je vais vérifier le terminal backend
-                    </button>
-                  </p>
+                  
                 </form>
               ) : (
                 <>
@@ -613,7 +695,7 @@ export default function Auth() {
               <form onSubmit={handleRegister}>
                 <div style={registerNameGridStyle} className="auth-name-grid">
                   <Input
-                   icon={<User size={18} />}
+                    icon={<User size={18} />}
                     label="Prénom"
                     placeholder="Miranda"
                     value={registerForm.firstName}
@@ -626,7 +708,7 @@ export default function Auth() {
                   />
 
                   <Input
-                   icon={<User size={18} />}
+                    icon={<User size={18} />}
                     label="Nom"
                     placeholder="Eko"
                     value={registerForm.lastName}
@@ -786,11 +868,14 @@ export default function Auth() {
           )}
         </div>
       </section>
-      {/* ─── BOTTOM NAV (mobile uniquement) ─── */}
       <BottomNav />
     </div>
   );
 }
+
+// ============================================================
+// COMPOSANTS ET STYLES
+// ============================================================
 
 function Input({ label, type = "text", placeholder, value, onChange, icon }) {
   const [focused, setFocused] = useState(false);
@@ -1060,12 +1145,6 @@ const eyeButtonStyle = {
   background: "transparent",
   cursor: "pointer",
   fontSize: 18,
-};
-
-const gridStyle = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: 14,
 };
 
 const mainButtonStyle = {

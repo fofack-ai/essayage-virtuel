@@ -168,6 +168,14 @@ async function clearResetToken(userId) {
   );
 }
 
+async function findByRole(role) {
+  const [rows] = await db.query(
+    "SELECT * FROM users WHERE role = ? LIMIT 1",
+    [role]
+  );
+  return rows[0];
+}
+
 module.exports = {
   findByEmail,
   findByGoogleId,
@@ -182,4 +190,5 @@ module.exports = {
   findByResetToken,
   updatePassword,
   clearResetToken,
+  findByRole,
 };

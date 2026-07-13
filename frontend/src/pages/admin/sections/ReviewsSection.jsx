@@ -40,8 +40,6 @@ export default React.memo(function ReviewsSection({
         ]}
         active={reviewFilter}
         setActive={setReviewFilter}
-        button="+ Nouvel avis"
-        onAdd={() => openAdd("review")}
         extra={
           onAdvancedSearch && (
             <button className="btn btn-light" onClick={onAdvancedSearch}>

@@ -1,10 +1,11 @@
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api/v1";
-const FILES_BASE_URL = BASE_URL.replace(/\/api(\/v1)?\/?$/, "");
 
 export function getImageUrl(path) {
-  if (!path) return null; // null => le composant ImageWithFallback affichera le placeholder
+  if (!path) return null;
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
-  return `${FILES_BASE_URL}${path}`;
+  if (path.startsWith("/uploads")) return `http://localhost:5000${path}`;
+  if (path.startsWith("uploads/")) return `http://localhost:5000/${path}`;
+  return `http://localhost:5000/uploads/products/${path}`;
 }
 
 export async function apiRequest(endpoint, options = {}) {
@@ -14,8 +15,6 @@ export async function apiRequest(endpoint, options = {}) {
 
   // Si le body est un FormData (upload de fichier), on NE force PAS le
   // Content-Type : le navigateur doit poser lui-même le boundary multipart.
-  // Forcer "application/json" ici casserait tout upload (photo essayage,
-  // image produit, etc.).
   const isFormData = options.body instanceof FormData;
 
   const headers = {
@@ -34,15 +33,12 @@ export async function apiRequest(endpoint, options = {}) {
       headers,
     });
   } catch (networkError) {
-    // Coupure réseau / serveur injoignable : message clair au lieu d'un
-    // "Failed to fetch" cryptique.
     throw new Error(
       "Impossible de joindre le serveur. Vérifiez votre connexion internet."
     );
   }
 
-  // Certaines réponses n'ont pas de corps JSON (204 No Content, erreur proxy…).
-  // On parse défensivement pour ne jamais planter sur res.json().
+  // Certaines réponses n'ont pas de corps JSON
   let data = null;
   const text = await res.text();
   if (text) {
@@ -53,11 +49,29 @@ export async function apiRequest(endpoint, options = {}) {
     }
   }
 
+  // ── Mode maintenance : rediriger le client ──
+  if (res.status === 503 && data?.redirect) {
+    const error = new Error("maintenance_redirect");
+    error.redirect = data.redirect;
+    throw error;
+  }
+
+  // ── Token invalide : déconnecter proprement ──
+  if (res.status === 401 && endpoint !== '/auth/login') {
+    localStorage.removeItem('tryon_token');
+    localStorage.removeItem('tryon_user');
+    sessionStorage.removeItem('tryon_token');
+    sessionStorage.removeItem('tryon_user');
+  }
+
   if (!res.ok || (data && data.success === false)) {
     const message =
       (data && data.message) ||
       `Erreur ${res.status}${res.statusText ? " — " + res.statusText : ""}`;
-    throw new Error(message);
+    const error = new Error(message);
+    error.status = res.status;
+    error.redirect = data?.redirect;
+    throw error;
   }
 
   return data;
@@ -78,8 +92,6 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
-  // PATCH manquait : les appels api.patch(...) (marquer une notification lue,
-  // "tout marquer comme lu") plantaient avec "api.patch is not a function".
   patch: (endpoint, data) =>
     apiRequest(endpoint, {
       method: "PATCH",
@@ -91,10 +103,6 @@ export const api = {
       method: "DELETE",
     }),
 
-  // Upload de fichier : "formData" doit être une instance de FormData.
-  // Cette méthode manquait dans ce fichier : l'upload de la photo d'essayage
-  // (TryOn.jsx) ET l'upload d'image produit (dashboard admin) plantaient avec
-  // "api.upload is not a function".
   upload: (endpoint, formData) =>
     apiRequest(endpoint, {
       method: "POST",

@@ -1,16 +1,20 @@
 export default function FilterSidebar({ filters, activeFilter, onChangeFilter }) {
   return (
     <div className="filters">
-      {filters.map((item) => (
-        <button
-          key={item}
-          type="button"
-          className={activeFilter === item ? "active" : ""}
-          onClick={() => onChangeFilter(item)}
-        >
-          {item}
-        </button>
-      ))}
+      {filters.map((item) => {
+        const label = typeof item === 'object' ? item.label : item;
+        const value = typeof item === 'object' ? item.value : item;
+        return (
+          <button
+            key={value}
+            type="button"
+            className={activeFilter === value ? "active" : ""}
+            onClick={() => onChangeFilter(value)}
+          >
+            {label}
+          </button>
+        );
+      })}
     </div>
   );
 }

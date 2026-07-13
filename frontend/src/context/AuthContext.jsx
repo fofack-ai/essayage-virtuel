@@ -1,138 +1,144 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { api } from "../services/api";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { api } from '../services/api';
 
-const AuthContext = createContext(null);
-
-function unwrapAuthResponse(response) {
-  return response?.data?.data || response?.data || response;
-}
+const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [pendingOtp, setPendingOtp] = useState(null);
   const [loading, setLoading] = useState(true);
+  // ── pendingOtp persisté en sessionStorage pour survivre aux re-renders ──
+  const [pendingOtp, setPendingOtpState] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('tryon_pending_otp') || 'null');
+    } catch { return null; }
+  });
+
+  const setPendingOtp = (value) => {
+    if (value) {
+      sessionStorage.setItem('tryon_pending_otp', JSON.stringify(value));
+    } else {
+      sessionStorage.removeItem('tryon_pending_otp');
+    }
+    setPendingOtpState(value);
+  };
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("tryon_user");
-    const savedToken = localStorage.getItem("tryon_token");
-
-    if (savedUser && savedToken) {
-      setUser(JSON.parse(savedUser));
+    const token = localStorage.getItem('tryon_token') || sessionStorage.getItem('tryon_token');
+    const storedUser = JSON.parse(localStorage.getItem('tryon_user') || 'null');
+    if (token && storedUser) {
+      setUser(storedUser);
     }
-
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === "tryon_token" && !e.newValue) {
-        setUser(null);
-      }
-
-      if (e.key === "tryon_user" && e.newValue) {
-        setUser(JSON.parse(e.newValue));
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
-
-  const saveSession = (data) => {
-    const payload = data?.data || data;
-
-    if (!payload?.token || !payload?.user) {
-      throw new Error("Session invalide");
-    }
-
-    localStorage.setItem("tryon_token", payload.token);
-    localStorage.setItem("tryon_user", JSON.stringify(payload.user));
-    setUser(payload.user);
-  };
-
-  const register = async (formData) => {
-    const response = await api.post("/auth/register", formData);
-    const payload = unwrapAuthResponse(response);
-    saveSession(payload);
-    return payload.user;
-  };
-
+  // ── Login ──
   const login = async (email, password) => {
-    const response = await api.post("/auth/login", { email, password });
-    const payload = unwrapAuthResponse(response);
+    const response = await api.post('/auth/login', { email, password });
 
-    if (payload.requiresOtp) {
-      setPendingOtp({ email, userId: payload.userId });
-      return { requiresOtp: true, email };
-    }
+    if (!response.success) throw new Error(response.message || 'Erreur de connexion');
 
-    saveSession(payload);
-    return payload.user;
-  };
+    const result = response.data;
+    if (!result) throw new Error('Données de connexion manquantes');
 
-  const verifyOtp = async (email, otp) => {
-    const response = await api.post("/auth/verify-otp", { email, otp });
-    const payload = unwrapAuthResponse(response);
-    saveSession(payload);
-    setPendingOtp(null);
-    return payload.user;
-  };
-
-  const loginWithGoogle = () => {
-    const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api/v1";
-    window.location.href = `${baseUrl}/auth/google`;
-  };
-
-  const completeGoogleLogin = (data) => {
-    if (data.requiresOtp) {
-      setPendingOtp({
-        email: data.email,
-        userId: data.userId,
-      });
+    // Admin → OTP requis
+    if (result.requiresOtp) {
+      setPendingOtp({ email, userId: result.userId });
       return { requiresOtp: true };
     }
 
-    saveSession(data);
-    return data.user;
+    // Client → connexion directe
+    if (result.token && result.user) {
+      localStorage.setItem('tryon_token', result.token);
+      localStorage.setItem('tryon_user', JSON.stringify(result.user));
+      setUser(result.user);
+      return { user: result.user };
+    }
+
+    throw new Error('Réponse de connexion invalide');
   };
 
-  const updateProfile = async (data) => {
-    const response = await api.put("/auth/profile", data);
-    const updatedUser = response?.data?.data || response?.data;
-    localStorage.setItem("tryon_user", JSON.stringify(updatedUser));
-    setUser(updatedUser);
-    return updatedUser;
-  };
-
+  // ── Logout ──
   const logout = () => {
-    localStorage.removeItem("tryon_token");
-    localStorage.removeItem("tryon_user");
+    localStorage.removeItem('tryon_token');
+    localStorage.removeItem('tryon_user');
+    sessionStorage.removeItem('tryon_token');
+    sessionStorage.removeItem('tryon_user');
+    sessionStorage.removeItem('tryon_pending_otp');
     setUser(null);
+    setPendingOtpState(null);
+  };
+
+  // ── Register ──
+  const register = async (data) => {
+    const response = await api.post('/auth/register', data);
+    if (!response.success) throw new Error(response.message);
+    // Auto-login après inscription
+    if (response.data?.token && response.data?.user) {
+      localStorage.setItem('tryon_token', response.data.token);
+      localStorage.setItem('tryon_user', JSON.stringify(response.data.user));
+      setUser(response.data.user);
+    }
+    return response;
+  };
+
+  // ── Verify OTP (admin) ──
+  const verifyOtp = async (email, otp) => {
+    const response = await api.post('/auth/verify-otp', { email, otp });
+    if (!response.success) throw new Error(response.message || 'Code OTP invalide');
+
+    const { token, user } = response.data;
+    localStorage.setItem('tryon_token', token);
+    localStorage.setItem('tryon_user', JSON.stringify(user));
+    setUser(user);
     setPendingOtp(null);
+
+    return { user };
+  };
+
+  // ── Google Login ──
+  const loginWithGoogle = () => {
+    const base = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1';
+    window.location.href = `${base}/auth/google`;
+  };
+
+  // ── Compléter login Google depuis /auth/google/success ──
+  const completeGoogleLogin = (payload) => {
+    // Cas OTP requis pour admin Google
+    if (payload.requiresOtp) {
+      setPendingOtp({ email: payload.email, userId: payload.userId });
+      return { requiresOtp: true };
+    }
+
+    const { token, user } = payload;
+    if (!token || !user) return { error: 'Données Google invalides' };
+
+    localStorage.setItem('tryon_token', token);
+    localStorage.setItem('tryon_user', JSON.stringify(user));
+    setUser(user);
+    return { user };
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        pendingOtp,
-        register,
-        login,
-        verifyOtp,
-        loginWithGoogle,
-        completeGoogleLogin,
-        updateProfile,
-        logout,
-        isAuthenticated: !!user,
-        isAdmin: user?.role === "admin",
-      }}
-    >
+    <AuthContext.Provider value={{
+      user,
+      loading,
+      isAuthenticated: !!user,
+      isAdmin: user?.role === 'admin',
+      login,
+      logout,
+      register,
+      verifyOtp,
+      pendingOtp,
+      loginWithGoogle,
+      completeGoogleLogin,
+    }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  return context;
 }

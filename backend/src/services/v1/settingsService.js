@@ -25,6 +25,18 @@ function getUserName(user) {
   return user?.name || user?.fullName || "Administrateur";
 }
 
+// 👇 NOUVEAU : Récupérer un paramètre spécifique
+async function getSetting(key, defaultValue = null) {
+  const rows = await settingsModel.getSettings();
+  const settings = {};
+  
+  rows.forEach((row) => {
+    settings[row.settingKey] = parseValue(row.settingValue, row.settingType);
+  });
+  
+  return settings[key] !== undefined ? settings[key] : defaultValue;
+}
+
 async function getSettings() {
   const rows = await settingsModel.getSettings();
 
@@ -62,15 +74,10 @@ async function saveSettings(body, user) {
     severity: "info",
     ipAddress: null,
   });
-
-  await notificationModel.createNotification({
-    type: "info",
-    title: "Paramètres mis à jour",
-    message: "La configuration du dashboard TryOn a été enregistrée.",
-  });
 }
 
 module.exports = {
   getSettings,
   saveSettings,
+  getSetting, 
 };

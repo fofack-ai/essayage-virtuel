@@ -107,6 +107,37 @@ async function getOrderDetails(orderId) {
   };
 }
 
+async function getNotificationsForUser(userId) {
+  return notificationModel.getNotifications({ userId });
+}
+
+async function getUnreadNotificationCount(userId) {
+  return notificationModel.getUnreadCount(userId);
+}
+
+async function archiveOrder(orderId) {
+  // Vérifier si la commande existe
+  const order = await adminModel.getOrderById(orderId);
+  
+  if (!order) {
+    throw new Error("Commande introuvable");
+  }
+
+  // Vérifier si la commande n'est pas déjà archivée
+  if (order.status === 'archived') {
+    throw new Error("Cette commande est déjà archivée");
+  }
+
+  // Archiver la commande (soft delete)
+  await adminModel.archiveOrder(orderId);
+
+  return {
+    success: true,
+    orderId,
+    message: "Commande archivée avec succès"
+  };
+}
+
 module.exports = {
   getDashboardStats,
   getOrders,
@@ -116,4 +147,5 @@ module.exports = {
   updateClient,
   deleteClient,
   getOrderDetails,
+  archiveOrder,
 };

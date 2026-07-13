@@ -1,34 +1,45 @@
 const db = require("../../config/database");
 
+// ── findAll avec catégories multiples ──
 async function findAll(filters = {}) {
   let query = `
     SELECT
-    p.*,
-    c.name as categoryName,
-    c.slug as categorySlug,
-
-    (
-      SELECT imageUrl
-      FROM product_images
-      WHERE productId = p.id
-      AND isMain = 1
-      LIMIT 1
-    ) AS image,
-
-    (
-      SELECT COALESCE(SUM(stock),0)
-      FROM product_sizes
-      WHERE productId = p.id
-    ) AS totalStock
+      p.*,
+      (
+        SELECT imageUrl
+        FROM product_images
+        WHERE productId = p.id AND isMain = 1
+        LIMIT 1
+      ) AS image,
+      (
+        SELECT COALESCE(SUM(stock), 0)
+        FROM product_sizes
+        WHERE productId = p.id
+      ) AS totalStock,
+      GROUP_CONCAT(DISTINCT c.name ORDER BY c.name SEPARATOR ', ') AS categoryNames,
+      GROUP_CONCAT(DISTINCT c.slug ORDER BY c.slug SEPARATOR ',') AS categorySlugs,
+      GROUP_CONCAT(DISTINCT c.id ORDER BY c.id SEPARATOR ',') AS categoryIds
     FROM products p
-    LEFT JOIN categories c ON p.categoryId = c.id
+    LEFT JOIN product_categories pc ON pc.productId = p.id
+    LEFT JOIN categories c ON c.id = pc.categoryId
     WHERE p.status = 'active'
   `;
   const params = [];
 
   if (filters.categoryId) {
-    query += " AND p.categoryId = ?";
+    query += ` AND p.id IN (
+      SELECT productId FROM product_categories WHERE categoryId = ?
+    )`;
     params.push(filters.categoryId);
+  }
+
+  if (filters.categorySlug) {
+    query += ` AND p.id IN (
+      SELECT pc2.productId FROM product_categories pc2
+      JOIN categories c2 ON c2.id = pc2.categoryId
+      WHERE c2.slug = ?
+    )`;
+    params.push(filters.categorySlug);
   }
 
   if (filters.target) {
@@ -38,11 +49,13 @@ async function findAll(filters = {}) {
 
   if (filters.search) {
     query += " AND (p.name LIKE ? OR p.brand LIKE ? OR p.description LIKE ?)";
-    const searchTerm = `%${filters.search}%`;
-    params.push(searchTerm, searchTerm, searchTerm);
+    const s = `%${filters.search}%`;
+    params.push(s, s, s);
   }
 
-  query += " ORDER BY p.createdAt DESC";
+  // ── Ordre entrelacé (Homme/Femme/Unisexe) via displayOrder ──
+  // Voir la migration SQL : ALTER TABLE products ADD COLUMN displayOrder ...
+  query += " GROUP BY p.id ORDER BY p.displayOrder ASC";
 
   if (filters.limit !== undefined && filters.offset !== undefined) {
     query += " LIMIT ? OFFSET ?";
@@ -53,34 +66,78 @@ async function findAll(filters = {}) {
   }
 
   const [rows] = await db.query(query, params);
-  return rows;
+
+  // Parser les slugs en tableau
+  return rows.map((r) => ({
+    ...r,
+    categorySlugs: r.categorySlugs ? r.categorySlugs.split(",") : [],
+    categoryIds: r.categoryIds ? r.categoryIds.split(",").map(Number) : [],
+  }));
 }
 
+// ── findFeatured avec catégories multiples ──
 async function findFeatured(limit = 8) {
   const [rows] = await db.query(
     `
     SELECT
       p.*,
-      c.name as categoryName,
-      c.slug as categorySlug
+      (
+        SELECT imageUrl FROM product_images
+        WHERE productId = p.id AND isMain = 1 LIMIT 1
+      ) AS image,
+      GROUP_CONCAT(DISTINCT c.name ORDER BY c.name SEPARATOR ', ') AS categoryNames,
+      GROUP_CONCAT(DISTINCT c.slug ORDER BY c.slug SEPARATOR ',') AS categorySlugs
     FROM products p
-    LEFT JOIN categories c ON p.categoryId = c.id
+    LEFT JOIN product_categories pc ON pc.productId = p.id
+    LEFT JOIN categories c ON c.id = pc.categoryId
     WHERE p.status = 'active'
-    ORDER BY p.createdAt DESC
+    GROUP BY p.id
+    ORDER BY p.displayOrder ASC
     LIMIT ?
     `,
     [limit]
   );
-  return rows;
+
+  return rows.map((r) => ({
+    ...r,
+    categorySlugs: r.categorySlugs ? r.categorySlugs.split(",") : [],
+  }));
 }
 
+// ── findById avec catégories multiples ──
+async function findById(id) {
+  const [rows] = await db.query(
+    `
+    SELECT
+      p.*,
+      (SELECT imageUrl FROM product_images WHERE productId = p.id AND isMain = 1 LIMIT 1) AS image,
+      GROUP_CONCAT(DISTINCT c.name ORDER BY c.name SEPARATOR ', ') AS categoryNames,
+      GROUP_CONCAT(DISTINCT c.slug ORDER BY c.slug SEPARATOR ',') AS categorySlugs,
+      GROUP_CONCAT(DISTINCT c.id ORDER BY c.id SEPARATOR ',') AS categoryIds
+    FROM products p
+    LEFT JOIN product_categories pc ON pc.productId = p.id
+    LEFT JOIN categories c ON c.id = pc.categoryId
+    WHERE p.id = ?
+    GROUP BY p.id
+    `,
+    [id]
+  );
+
+  if (!rows[0]) return null;
+
+  return {
+    ...rows[0],
+    categorySlugs: rows[0].categorySlugs ? rows[0].categorySlugs.split(",") : [],
+    categoryIds: rows[0].categoryIds ? rows[0].categoryIds.split(",").map(Number) : [],
+  };
+}
+
+// ── create ──
 async function create(productData) {
   const [result] = await db.query(
-    `
-    INSERT INTO products
+    `INSERT INTO products
     (categoryId, name, brand, description, price, stock, color, target, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `,
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       productData.categoryId || null,
       productData.name,
@@ -89,18 +146,27 @@ async function create(productData) {
       productData.price,
       productData.stock || 0,
       productData.color || null,
-      productData.target || 'unisexe',
-      productData.status || 'active'
+      productData.target || "unisexe",
+      productData.status || "active",
     ]
   );
-  return result.insertId;
+
+  const productId = result.insertId;
+
+  // Insérer dans product_categories si categoryIds fournis
+  if (productData.categoryIds && productData.categoryIds.length > 0) {
+    await setCategories(productId, productData.categoryIds);
+  } else if (productData.categoryId) {
+    await setCategories(productId, [productData.categoryId]);
+  }
+
+  return productId;
 }
 
+// ── update ──
 async function update(id, productData) {
   const [result] = await db.query(
-    `
-    UPDATE products
-    SET
+    `UPDATE products SET
       categoryId = ?,
       name = ?,
       brand = ?,
@@ -111,8 +177,7 @@ async function update(id, productData) {
       target = ?,
       status = ?,
       updatedAt = CURRENT_TIMESTAMP
-    WHERE id = ?
-    `,
+    WHERE id = ?`,
     [
       productData.categoryId || null,
       productData.name,
@@ -121,37 +186,70 @@ async function update(id, productData) {
       productData.price,
       productData.stock || 0,
       productData.color || null,
-      productData.target || 'unisexe',
-      productData.status || 'active',
-      id
+      productData.target || "unisexe",
+      productData.status || "active",
+      id,
     ]
   );
-  return result.affectedRows > 0;
-}
 
-async function remove(id) {
-  const [result] = await db.query(
-    "UPDATE products SET status = 'inactive' WHERE id = ?",
-    [id]
-  );
-  return result.affectedRows > 0;
-}
-
-// Product Images
-async function addImage(productId, imageUrl, isMain = false) {
-  // If setting as main image, unset other main images for this product
-  if (isMain) {
-    await db.query(
-      "UPDATE product_images SET isMain = FALSE WHERE productId = ?",
-      [productId]
-    );
+  // Mettre à jour product_categories si fournis
+  if (productData.categoryIds && productData.categoryIds.length > 0) {
+    await setCategories(id, productData.categoryIds);
+  } else if (productData.categoryId) {
+    await setCategories(id, [productData.categoryId]);
   }
 
+  return result.affectedRows > 0;
+}
+
+// ── setCategories : remplace toutes les catégories d'un produit ──
+async function setCategories(productId, categoryIds) {
+  await db.query("DELETE FROM product_categories WHERE productId = ?", [productId]);
+  if (categoryIds.length === 0) return;
+  const values = categoryIds.map((cId) => [productId, cId]);
+  await db.query(
+    "INSERT INTO product_categories (productId, categoryId) VALUES ?",
+    [values]
+  );
+}
+
+// ── getCategories d'un produit ──
+async function getCategories(productId) {
+  const [rows] = await db.query(
+    `SELECT c.* FROM categories c
+     JOIN product_categories pc ON pc.categoryId = c.id
+     WHERE pc.productId = ?
+     ORDER BY c.name`,
+    [productId]
+  );
+  return rows;
+}
+
+// ── remove ──
+async function remove(id) {
+  const [orderItems] = await db.query(
+    "SELECT COUNT(*) as count FROM order_items WHERE productId = ?",
+    [id]
+  );
+  if (orderItems[0].count > 0) {
+    throw new Error("Impossible de supprimer un produit qui a des commandes");
+  }
+
+  await db.query("DELETE FROM product_categories WHERE productId = ?", [id]);
+  await db.query("DELETE FROM product_images WHERE productId = ?", [id]);
+  await db.query("DELETE FROM product_sizes WHERE productId = ?", [id]);
+
+  const [result] = await db.query("DELETE FROM products WHERE id = ?", [id]);
+  return result.affectedRows > 0;
+}
+
+// ── Images ──
+async function addImage(productId, imageUrl, isMain = false) {
+  if (isMain) {
+    await db.query("UPDATE product_images SET isMain = FALSE WHERE productId = ?", [productId]);
+  }
   const [result] = await db.query(
-    `
-    INSERT INTO product_images (productId, imageUrl, isMain)
-    VALUES (?, ?, ?)
-    `,
+    "INSERT INTO product_images (productId, imageUrl, isMain) VALUES (?, ?, ?)",
     [productId, imageUrl, isMain]
   );
   return result.insertId;
@@ -166,21 +264,16 @@ async function getImages(productId) {
 }
 
 async function deleteImage(imageId) {
-  const [result] = await db.query(
-    "DELETE FROM product_images WHERE id = ?",
-    [imageId]
-  );
+  const [result] = await db.query("DELETE FROM product_images WHERE id = ?", [imageId]);
   return result.affectedRows > 0;
 }
 
-// Product Sizes
+// ── Tailles ──
 async function addSize(productId, sizeId, stock = 0) {
   const [result] = await db.query(
-    `
-    INSERT INTO product_sizes (productId, sizeId, stock)
-    VALUES (?, ?, ?)
-    ON DUPLICATE KEY UPDATE stock = VALUES(stock)
-    `,
+    `INSERT INTO product_sizes (productId, sizeId, stock)
+     VALUES (?, ?, ?)
+     ON DUPLICATE KEY UPDATE stock = VALUES(stock)`,
     [productId, sizeId, stock]
   );
   return result.insertId;
@@ -188,13 +281,11 @@ async function addSize(productId, sizeId, stock = 0) {
 
 async function getSizes(productId) {
   const [rows] = await db.query(
-    `
-    SELECT ps.*, s.label as sizeLabel
-    FROM product_sizes ps
-    JOIN sizes s ON ps.sizeId = s.id
-    WHERE ps.productId = ?
-    ORDER BY s.sortOrder
-    `,
+    `SELECT ps.*, s.label as sizeLabel
+     FROM product_sizes ps
+     JOIN sizes s ON ps.sizeId = s.id
+     WHERE ps.productId = ?
+     ORDER BY s.sortOrder`,
     [productId]
   );
   return rows;
@@ -202,57 +293,22 @@ async function getSizes(productId) {
 
 async function updateSizeStock(productId, sizeId, stock) {
   const [result] = await db.query(
-    `
-    UPDATE product_sizes
-    SET stock = ?
-    WHERE productId = ? AND sizeId = ?
-    `,
+    "UPDATE product_sizes SET stock = ? WHERE productId = ? AND sizeId = ?",
     [stock, productId, sizeId]
   );
   return result.affectedRows > 0;
 }
 
-async function findById(id) {
-  const [rows] = await db.query(
-    `
-    SELECT
-      p.*,
-      c.name as categoryName,
-      c.slug as categorySlug,
-      (SELECT imageUrl FROM product_images WHERE productId = p.id AND isMain = 1 LIMIT 1) AS image
-    FROM products p
-    LEFT JOIN categories c ON p.categoryId = c.id
-    WHERE p.id = ? AND p.status = 'active'
-    `,
-    [id]
-  );
-  return rows[0];
-}
-
 async function decreaseSizeStock(productId, sizeLabel, quantity, connection = db) {
   const [result] = await connection.query(
-    `
-    UPDATE product_sizes ps
-    JOIN sizes s ON s.id = ps.sizeId
-    SET ps.stock = ps.stock - ?
-    WHERE ps.productId = ?
-      AND s.label = ?
-      AND ps.stock >= ?
-    `,
-    [
-      quantity,
-      productId,
-      sizeLabel,
-      quantity,
-    ]
+    `UPDATE product_sizes ps
+     JOIN sizes s ON s.id = ps.sizeId
+     SET ps.stock = ps.stock - ?
+     WHERE ps.productId = ? AND s.label = ? AND ps.stock >= ?`,
+    [quantity, productId, sizeLabel, quantity]
   );
-
-  // Si aucune ligne n'a été modifiée : stock insuffisant (ou taille inexistante).
-  // On lève une erreur explicite -> la transaction de commande est annulée (rollback).
   if (result.affectedRows === 0) {
-    throw new Error(
-      `Stock insuffisant pour la taille ${sizeLabel} (quantité demandée : ${quantity})`
-    );
+    throw new Error(`Stock insuffisant pour la taille ${sizeLabel} (quantité demandée : ${quantity})`);
   }
 }
 
@@ -263,6 +319,8 @@ module.exports = {
   create,
   update,
   remove,
+  setCategories,
+  getCategories,
   addImage,
   getImages,
   deleteImage,
