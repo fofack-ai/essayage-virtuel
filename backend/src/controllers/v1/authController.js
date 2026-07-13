@@ -82,14 +82,32 @@ async function verifyOtp(req, res) {
   }
 }
 
-// ── Google Callback (une seule fois) ──
+// ── Google Callback ──
 async function googleCallback(req, res) {
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
   try {
     const result = await authService.handleGoogleUser(req.user);
-    return sendAuthRedirect(res, result);
+
+    // Si l'utilisateur est admin et a besoin d'OTP
+    if (result.requiresOtp) {
+      const payload = encodeURIComponent(JSON.stringify({
+        requiresOtp: true,
+        email: result.email,
+        userId: result.userId,
+      }));
+      return res.redirect(`${frontendUrl}/auth/google/success?data=${payload}&redirect=/auth`);
+    }
+
+    const redirect = result.user?.role === "admin" ? "/admin" : "/";
+    const data = encodeURIComponent(JSON.stringify(result));
+
+    return res.redirect(
+      `${frontendUrl}/auth/google/success?data=${data}&redirect=${redirect}`
+    );
   } catch (error) {
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-    return res.redirect(`${frontendUrl}/auth?error=${encodeURIComponent(error.message)}`);
+    return res.redirect(
+      `${frontendUrl}/auth?error=${encodeURIComponent(error.message)}`
+    );
   }
 }
 
