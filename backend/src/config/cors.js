@@ -1,9 +1,14 @@
 require("dotenv").config();
 
-// Origines autorisées à appeler l'API.
-// En production, définir FRONTEND_URL sur l'URL réelle du site (https://...).
+// FRONTEND_URL peut contenir une ou plusieurs origines séparées par des virgules,
+// par exemple : "https://www.votredomaine.com,https://votredomaine.com"
+const configuredOrigins = (process.env.FRONTEND_URL || "")
+  .split(",")
+  .map((url) => url.trim())
+  .filter(Boolean);
+
 const allowedOrigins = [
-  process.env.FRONTEND_URL || "http://localhost:3000",
+  ...configuredOrigins,
   "http://localhost:3000",
   "http://127.0.0.1:3000",
 ];

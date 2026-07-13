@@ -1,3 +1,15 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+# Pages privées / sans intérêt SEO : on évite qu'elles soient indexées
+Disallow: /auth
+Disallow: /checkout
+Disallow: /cart
+Disallow: /orders
+Disallow: /profile
+Disallow: /notifications
+Disallow: /admin
+Disallow: /reset-password
+
+Sitemap: https://www.votredomaine.com/sitemap.xml
