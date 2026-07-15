@@ -32,67 +32,7 @@
     "copyright": "© 2026 CFPD TryOn — Application de mode africaine et cabine d'essayage virtuelle. Tous droits réservés.",
     "privacyPolicy": "Politique de confidentialité",
     "terms": "CGV"
-  },
-  "home": {
-    "hero": {
-      "badge": "Nouvelle expérience d'essayage",
-      "titleLine1": "Essayez vos vêtements",
-      "titleHighlight": "virtuellement",
-      "titleLine2": "avant d'acheter",
-      "description": "Notre cabine d'essayage virtuelle utilise l'intelligence artificielle pour vous aider à trouver la taille et la coupe parfaites, où que vous soyez.",
-      "ctaTryOn": "Essayer maintenant",
-      "ctaTryOnAria": "Commencer l'essayage virtuel",
-      "ctaCatalogue": "Voir le catalogue",
-      "ctaCatalogueAria": "Voir tous les produits",
-      "statOutfits": "Tenues disponibles",
-      "statSatisfaction": "Taux de satisfaction",
-      "statTryOns": "Essayages réalisés"
-    },
-    "categories": {
-      "subtitle": "Collections",
-      "title": "Explorez nos",
-      "titleHighlight": "catégories",
-      "discover": "Découvrir →"
-    },
-    "featured": {
-      "subtitle": "Sélection",
-      "title": "Produits",
-      "titleHighlight": "vedettes",
-      "viewAll": "Voir tout →"
-    },
-    "iaBanner": {
-      "badge": "Technologie IA",
-      "title": "Votre cabine d'essayage",
-      "titleHighlight": "virtuelle",
-      "description": "Uploadez votre photo, notre IA analyse votre morphologie et vous propose les tailles et coupes les plus adaptées.",
-      "cta": "Essayer gratuitement →",
-      "step1": {
-        "title": "Uploadez votre photo",
-        "description": "Une photo de face en tenue ajustée suffit."
-      },
-      "step2": {
-        "title": "Analyse morphologique",
-        "description": "Notre IA détecte vos mesures en quelques secondes."
-      },
-      "step3": {
-        "title": "Score de compatibilité",
-        "description": "Chaque vêtement reçoit un score d'adéquation."
-      },
-      "step4": {
-        "title": "Commandez en confiance",
-        "description": "Ajustements de taille inclus automatiquement."
-      }
-    },
-    "states": {
-      "loading": "Chargement...",
-      "error": "Erreur : {{message}}",
-      "noCategories": "Aucune catégorie disponible",
-      "noProducts": "Aucun produit disponible"
-    },
-    "product": {
-      "tryOn": "Essayer virtuellement",
-      "brand": "Marque",
-      "price": "FCFA"
-    }
   }
+
+  
 }
