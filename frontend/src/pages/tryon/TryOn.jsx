@@ -116,9 +116,14 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
   const [tryonId, setTryonId] = useState(null);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [measurements, setMeasurements] = useState(null);
+  // Téléphone/tablette : pointeur grossier => appareil photo natif
+  const [isMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
+  );
 
   // Refs
   const fileInputRef = useRef();
+  const cameraInputRef = useRef();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const cameraRef = useRef(null);
@@ -203,7 +208,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
         initializePoseDetection(stream);
       }
     } catch (err) {
-      alert("Impossible d'accéder à la webcam : " + err.message);
+      alert("Impossible d'accéder à la caméra : " + err.message);
     }
   };
 
@@ -1235,7 +1240,7 @@ const handleAITryon = async () => {
                       fontSize: '11px',
                       fontWeight: 600,
                     }}>
-                     <CameraIcon size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Webcam active
+                     <CameraIcon size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Caméra active
                     </div>
                   </div>
                 ) : photoPreview ? (
@@ -1305,11 +1310,13 @@ const handleAITryon = async () => {
               </div>
 
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} />
+              {/* capture="user" => ouvre directement l'appareil photo frontal sur mobile */}
+              <input ref={cameraInputRef} type="file" accept="image/*" capture="user" onChange={handleFileUpload} style={{ display: 'none' }} />
 
               <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
                 {!useWebcam && !photo && (
                   <button
-                    onClick={startWebcam}
+                    onClick={() => (isMobile ? cameraInputRef.current.click() : startWebcam())}
                     style={{
                       flex: 1,
                       background: T.blueLight,
@@ -1327,9 +1334,34 @@ const handleAITryon = async () => {
                     }}
                   >
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
                     </svg>
-                    Utiliser la webcam
+                    Prendre une photo
+                  </button>
+                )}
+                {!useWebcam && !photo && (
+                  <button
+                    onClick={() => fileInputRef.current.click()}
+                    style={{
+                      flex: 1,
+                      background: '#f1f1f1',
+                      color: T.ink,
+                      border: 'none',
+                      borderRadius: '10px',
+                      padding: '11px',
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Importer une photo
                   </button>
                 )}
                 {(useWebcam || photo) && (
