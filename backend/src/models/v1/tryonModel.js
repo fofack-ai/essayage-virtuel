@@ -28,6 +28,12 @@ async function findAll(filters = {}) {
     params.push(filters.userId);
   }
 
+  // ✅ AJOUT : filtre par guestId (pour les invités)
+  if (filters.guestId) {
+    query += " AND t.guestId = ?";
+    params.push(filters.guestId);
+  }
+
   if (filters.productId) {
     query += " AND t.productId = ?";
     params.push(filters.productId);
@@ -111,24 +117,30 @@ async function findByUserId(userId, limit = 10) {
 async function create(tryonData) {
   // If this is set as latest, unset other latest tryons for this user and product
   if (tryonData.isLatest) {
-    await db.query(
-      `
-      UPDATE tryons
-      SET isLatest = FALSE
-      WHERE userId = ? AND productId = ? AND isLatest = TRUE
-      `,
-      [tryonData.userId, tryonData.productId]
-    );
+    // On ne peut pas unset pour un invité (pas de userId), on gère seulement si userId existe
+    if (tryonData.userId) {
+      await db.query(
+        `
+        UPDATE tryons
+        SET isLatest = FALSE
+        WHERE userId = ? AND productId = ? AND isLatest = TRUE
+        `,
+        [tryonData.userId, tryonData.productId]
+      );
+    }
+    // Optionnel : pour un invité, on pourrait unset par guestId + productId
+    // mais ce n'est pas critique car invité = session unique
   }
 
   const [result] = await db.query(
     `
     INSERT INTO tryons
-    (userId, productId, userPhoto, resultImage, score, recommendedSize, notes, isLatest)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    (userId, guestId, productId, userPhoto, resultImage, score, recommendedSize, notes, isLatest)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     [
-      tryonData.userId,
+      tryonData.userId || null,
+      tryonData.guestId || null,
       tryonData.productId,
       tryonData.userPhoto || null,
       tryonData.resultImage || null,
@@ -144,14 +156,30 @@ async function create(tryonData) {
 async function update(id, tryonData) {
   // If this is set as latest, unset other latest tryons for this user and product
   if (tryonData.isLatest) {
-    await db.query(
-      `
-      UPDATE tryons
-      SET isLatest = FALSE
-      WHERE userId = ? AND productId = ? AND isLatest = TRUE AND id != ?
-      `,
-      [tryonData.userId, tryonData.productId, id]
-    );
+    // Récupérer l'essai existant pour connaître le userId ou guestId
+    const existing = await findById(id);
+    if (existing) {
+      if (existing.userId) {
+        await db.query(
+          `
+          UPDATE tryons
+          SET isLatest = FALSE
+          WHERE userId = ? AND productId = ? AND isLatest = TRUE AND id != ?
+          `,
+          [existing.userId, existing.productId, id]
+        );
+      } else if (existing.guestId) {
+        // Pour un invité, on peut aussi unset les autres essais du même guestId + productId
+        await db.query(
+          `
+          UPDATE tryons
+          SET isLatest = FALSE
+          WHERE guestId = ? AND productId = ? AND isLatest = TRUE AND id != ?
+          `,
+          [existing.guestId, existing.productId, id]
+        );
+      }
+    }
   }
 
   const [result] = await db.query(

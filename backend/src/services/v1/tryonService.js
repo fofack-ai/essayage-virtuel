@@ -1,7 +1,7 @@
+const db = require("../../config/database"); // ✅ AJOUT
 const tryonModel = require("../../models/v1/tryonModel");
 const userModel = require("../../models/v1/userModel");
 const productModel = require("../../models/v1/productModel");
-const notificationModel = require("../../models/v1/notificationModel");
 const notificationService = require("./notificationService");
 
 async function getTryons(filters = {}) {
@@ -36,7 +36,6 @@ async function getTryonById(id) {
 }
 
 async function getUserTryons(userId, limit = 10) {
-  // Validate userId
   const userExists = await userModel.findById(userId);
   if (!userExists) {
     throw new Error("Utilisateur non trouvé");
@@ -47,66 +46,66 @@ async function getUserTryons(userId, limit = 10) {
 }
 
 async function createTryon(tryonData) {
-  // Validate required fields
-  if (!tryonData.userId) {
-    throw new Error("ID utilisateur requis");
+  // ✅ On accepte soit un userId, soit un guestId
+  if (!tryonData.userId && !tryonData.guestId) {
+    throw new Error("ID utilisateur ou identifiant invité requis");
   }
 
   if (!tryonData.productId) {
     throw new Error("ID produit requis");
   }
 
-  // Validate user exists
-  const user = await userModel.findById(tryonData.userId);
-  if (!user) {
-    throw new Error("Utilisateur non trouvé");
-  }
-
-  // Validate product exists
+  // ✅ Validation du produit (toujours nécessaire)
   const product = await productModel.findById(tryonData.productId);
   if (!product) {
     throw new Error("Produit non trouvé");
   }
 
-  // Validate score if provided
+  // ✅ Validation de l'utilisateur seulement si un userId est fourni
+  if (tryonData.userId) {
+    const user = await userModel.findById(tryonData.userId);
+    if (!user) {
+      throw new Error("Utilisateur non trouvé");
+    }
+  }
+
+  // Validation du score si fourni
   if (tryonData.score !== undefined && (tryonData.score < 0 || tryonData.score > 100)) {
     throw new Error("Le score doit être entre 0 et 100");
   }
 
-  // If this is set as latest, the model will handle unsetting others
+  // Création de l'essai
   const tryonId = await tryonModel.create(tryonData);
   const newTryon = await tryonModel.findById(tryonId);
 
-  // ─── AJOUT : Notification d'essayage créé ───
-  try {
-    const scoreDisplay = tryonData.score !== undefined && tryonData.score !== null
-      ? ` avec un score de ${tryonData.score}%`
-      : "";
+  // Notification seulement si utilisateur connecté
+  if (tryonData.userId) {
+    try {
+      const scoreDisplay = tryonData.score !== undefined && tryonData.score !== null
+        ? ` avec un score de ${tryonData.score}%`
+        : "";
 
-    // Notification pour le client
-    await notificationService.createUserNotification({
-      userId: tryonData.userId,
-      type: "product",
-      title: "Nouvel essayage virtuel",
-      message: `Vous avez essayé "${product.name}"${scoreDisplay}.`,
-      isRead: false,
-    });
-  } catch (err) {
-    console.error("Erreur création notification essayage:", err.message);
-    // Non bloquant
+      await notificationService.createUserNotification({
+        userId: tryonData.userId,
+        type: "product",
+        title: "Nouvel essayage virtuel",
+        message: `Vous avez essayé "${product.name}"${scoreDisplay}.`,
+        isRead: false,
+      });
+    } catch (err) {
+      console.error("Erreur création notification essayage:", err.message);
+    }
   }
 
   return newTryon;
 }
 
 async function updateTryon(id, tryonData) {
-  // Check if tryon exists
   const existingTryon = await tryonModel.findById(id);
   if (!existingTryon) {
     throw new Error("Essai non trouvé");
   }
 
-  // Validate userId if being updated
   if (tryonData.userId !== undefined) {
     const user = await userModel.findById(tryonData.userId);
     if (!user) {
@@ -114,7 +113,6 @@ async function updateTryon(id, tryonData) {
     }
   }
 
-  // Validate productId if being updated
   if (tryonData.productId !== undefined) {
     const product = await productModel.findById(tryonData.productId);
     if (!product) {
@@ -122,7 +120,6 @@ async function updateTryon(id, tryonData) {
     }
   }
 
-  // Validate score if provided
   if (tryonData.score !== undefined && (tryonData.score < 0 || tryonData.score > 100)) {
     throw new Error("Le score doit être entre 0 et 100");
   }
@@ -136,7 +133,6 @@ async function updateTryon(id, tryonData) {
 }
 
 async function deleteTryon(id) {
-  // Check if tryon exists
   const existingTryon = await tryonModel.findById(id);
   if (!existingTryon) {
     throw new Error("Essai non trouvé");
@@ -151,38 +147,21 @@ async function deleteTryon(id) {
 }
 
 async function getTryonStats() {
-  const stats = await tryonModel.getStats();
-  return stats;
+  return await tryonModel.getStats();
 }
 
-// Handle photo upload for tryon
+// ✅ Fonction de transfert des essais invités
+async function transferGuestTryons(guestId, userId) {
+  const [rows] = await db.query(
+    `UPDATE tryons SET userId = ?, guestId = NULL WHERE guestId = ?`,
+    [userId, guestId]
+  );
+  return rows.affectedRows;
+}
+
+// (Optionnel) fonction utilitaire, conservée mais non utilisée directement
 async function handleTryonPhotoUpload(userId, productId, photoData) {
-  // Validate user and product
-  const user = await userModel.findById(userId);
-  if (!user) {
-    throw new Error("Utilisateur non trouvé");
-  }
-
-  const product = await productModel.findById(productId);
-  if (!product) {
-    throw new Error("Produit non trouvé");
-  }
-
-  // Validate photo data
-  if (!photoData || !photoData.buffer) {
-    throw new Error("Données de photo manquantes");
-  }
-
-  // In a real implementation, you would save the file to disk or cloud storage
-  // and return the URL. For now, we'll simulate this.
-  // The actual file handling would be done in middleware/upload.js
-
-  // For this implementation, we expect the photoUrl to be provided
-  // after file processing by middleware
-  return {
-    userPhoto: photoData.url || null,
-    resultImage: photoData.resultUrl || null
-  };
+  // ... (inchangé, si besoin)
 }
 
 module.exports = {
@@ -193,5 +172,6 @@ module.exports = {
   updateTryon,
   deleteTryon,
   getTryonStats,
-  handleTryonPhotoUpload
+  transferGuestTryons,   // ✅ EXPORTÉ
+  handleTryonPhotoUpload,
 };

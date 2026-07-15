@@ -21,6 +21,43 @@ async function assertOwnerOrAdmin(req, tryonId) {
   }
 }
 
+/**
+ * Transfère les essayages d'un invité vers un compte utilisateur après connexion
+ */
+async function transferGuestTryons(req, res) {
+  try {
+    const guestId = req.cookies?.guestId;
+    if (!guestId) {
+      return res.status(400).json({ success: false, message: 'Aucun essai invité à transférer' });
+    }
+    await tryonService.transferGuestTryons(guestId, req.user.id);
+    res.clearCookie('guestId');
+    return res.status(200).json({ success: true, message: 'Essayages transférés avec succès' });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+/**
+ * Récupère les essayages d'un invité via son guestId (cookie)
+ */
+async function getGuestTryons(req, res) {
+  try {
+    const guestId = req.guestId;
+    if (!guestId) {
+      return res.status(400).json({ success: false, message: 'Aucun identifiant invité' });
+    }
+    const tryons = await tryonService.getTryons({ guestId });
+    return res.status(200).json({
+      success: true,
+      count: tryons.length,
+      data: tryons
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+}
+
 async function getTryons(req, res) {
   try {
     const filters = {
@@ -134,8 +171,11 @@ async function getUserTryons(req, res) {
 
 async function createTryon(req, res) {
   try {
-
     let tryonData = req.body;
+
+    // Si l'utilisateur est connecté, on utilise son id, sinon guestId
+    tryonData.userId = req.user?.id || null;
+    tryonData.guestId = req.user?.id ? null : req.guestId;
 
     const tryon = await tryonService.createTryon(tryonData);
 
@@ -270,9 +310,9 @@ async function getTryonStats(req, res) {
 }
 
 // Photo upload handler (used with multer middleware)
+// Cette route est conservée mais peut être retirée si vous utilisez uniquement /ai-generate
 async function uploadTryonPhoto(req, res) {
   try {
-    // Check if file was uploaded
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -280,24 +320,23 @@ async function uploadTryonPhoto(req, res) {
       });
     }
 
-    const { userId, productId, score, recommendedSize, notes, isLatest } = req.body;
+    const { productId, score, recommendedSize, notes, isLatest } = req.body;
 
-    // Validate required fields
-    if (!userId || !productId) {
+    if (!productId) {
       return res.status(400).json({
         success: false,
-        message: "ID utilisateur et ID produit requis"
+        message: "ID produit requis"
       });
     }
 
-    // Construct photo URLs
+    // Construire les URLs
     const userPhotoUrl = `/uploads/tryons/${req.file.filename}`;
-    // For result image, we could process it differently or use the same for now
-    const resultImageUrl = `/uploads/tryons/${req.file.filename}`; // In real app, this might be processed
+    const resultImageUrl = `/uploads/tryons/${req.file.filename}`; // À adapter si traitement
 
-    // Create tryon record with photo URLs
+    // Créer l'objet tryon avec userId ou guestId
     const tryonData = {
-      userId: parseInt(userId),
+      userId: req.user?.id || null,
+      guestId: req.user?.id ? null : req.guestId,
       productId: parseInt(productId),
       userPhoto: userPhotoUrl,
       resultImage: resultImageUrl,
@@ -307,7 +346,7 @@ async function uploadTryonPhoto(req, res) {
       isLatest: isLatest === 'true'
     };
 
-    // Validate score range
+    // Valider le score
     if (tryonData.score !== null && (tryonData.score < 0 || tryonData.score > 100)) {
       return res.status(400).json({
         success: false,
@@ -323,7 +362,7 @@ async function uploadTryonPhoto(req, res) {
       data: tryon
     });
   } catch (error) {
-    if (error.message === "Utilisateur non trouvé" || error.message === "Produit non trouvé") {
+    if (error.message === "Produit non trouvé") {
       return res.status(404).json({
         success: false,
         message: error.message
@@ -341,10 +380,10 @@ async function uploadTryonPhoto(req, res) {
   }
 }
 
-
 /**
  * POST /api/v1/tryons/ai-generate
  * Reçoit la photo utilisateur (multipart) + productId, renvoie l'image générée par l'IA.
+ * Sauvegarde l'essai même pour les invités (guestId)
  */
 async function aiGenerateTryon(req, res) {
   try {
@@ -362,9 +401,8 @@ async function aiGenerateTryon(req, res) {
       return res.status(404).json({ success: false, message: 'Produit non trouvé' });
     }
 
-    // ✅ FIX : le SQL retourne "AS image" — fallback sur getImages() si null
+    // Récupérer l'image du produit
     let imageField = product.image || product.image_url || product.imageUrl;
-
     if (!imageField) {
       const images = await productModel.getImages(productId);
       const mainImg = images.find(img => img.isMain === 1 || img.isMain === true) || images[0];
@@ -393,7 +431,7 @@ async function aiGenerateTryon(req, res) {
 
     const userPhotoPath = req.file.path;
 
-    console.log(`[aiGenerateTryon] userId=${req.user?.id} productId=${productId} image=${productImagePath}`);
+    console.log(`[aiGenerateTryon] userId=${req.user?.id || 'guest'} guestId=${req.guestId} productId=${productId}`);
 
     const aiResult = await aiTryonService.generateVirtualTryon(
       userPhotoPath,
@@ -401,25 +439,27 @@ async function aiGenerateTryon(req, res) {
       { name: product.name, description: product.description }
     );
 
+    // --- SAUVEGARDE SYSTÉMATIQUE (même pour les invités) ---
+    const tryonData = {
+      userId: req.user?.id || null,
+      guestId: req.user?.id ? null : req.guestId,
+      productId,
+      userPhoto: `/uploads/tryons/${path.basename(userPhotoPath)}`,
+      resultImage: aiResult.servedPath,
+      score: req.body.score ? parseInt(req.body.score) : null,
+      recommendedSize: req.body.recommendedSize || null,
+      notes: `IA (${aiResult.strategy}) — ${new Date().toLocaleDateString('fr-FR')}`,
+      isLatest: true,
+    };
+
     let tryon = null;
-    if (req.user?.id) {
-      const tryonData = {
-        userId:          req.user.id,
-        productId,
-        userPhoto:       `/uploads/tryons/${path.basename(userPhotoPath)}`,
-        resultImage:     aiResult.servedPath,
-        score:           req.body.score ? parseInt(req.body.score) : null,
-        recommendedSize: req.body.recommendedSize || null,
-        notes:           `IA (${aiResult.strategy}) — ${new Date().toLocaleDateString('fr-FR')}`,
-        isLatest:        true,
-      };
-      try {
-        const tryonId = await tryonModel.create(tryonData);
-        tryon = await tryonModel.findById(tryonId);
-      } catch (dbErr) {
-        console.warn('[aiGenerateTryon] Sauvegarde DB non bloquante :', dbErr.message);
-      }
+    try {
+      const tryonId = await tryonModel.create(tryonData);
+      tryon = await tryonModel.findById(tryonId);
+    } catch (dbErr) {
+      console.warn('[aiGenerateTryon] Sauvegarde DB non bloquante :', dbErr.message);
     }
+    // --- FIN SAUVEGARDE ---
 
     return res.status(200).json({
       success: true,
@@ -430,7 +470,7 @@ async function aiGenerateTryon(req, res) {
         generatedAt:    aiResult.generatedAt,
         personDesc:     aiResult.personDesc,
         garmentDesc:    aiResult.garmentDesc,
-        tryon,
+        tryon,          // peut être null si la sauvegarde a échoué
       }
     });
 
@@ -445,6 +485,7 @@ async function aiGenerateTryon(req, res) {
     return res.status(500).json({ success: false, message: 'Erreur génération IA : ' + error.message });
   }
 }
+
 module.exports = {
   getTryons,
   getTryon,
@@ -455,4 +496,6 @@ module.exports = {
   getTryonStats,
   uploadTryonPhoto,
   aiGenerateTryon,
+  transferGuestTryons,
+  getGuestTryons,   // Nouvelle fonction exportée
 };
