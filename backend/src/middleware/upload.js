@@ -30,8 +30,33 @@ const uploadTryonImage = (req, res, next) => {
   });
 };
 
+// Compatibilité avec les anciennes routes
+const uploadSingle = (fieldName) => {
+  return (req, res, next) => {
+    uploadProduct.single(fieldName)(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({ success: false, message: err.message });
+      }
+      next();
+    });
+  };
+};
+
+const uploadMultiple = (fieldName, maxCount) => {
+  return (req, res, next) => {
+    uploadProduct.array(fieldName, maxCount)(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({ success: false, message: err.message });
+      }
+      next();
+    });
+  };
+};
+
 module.exports = {
   uploadProductImage,
   uploadUserAvatar,
   uploadTryonImage,
+  uploadSingle,
+  uploadMultiple,
 };
