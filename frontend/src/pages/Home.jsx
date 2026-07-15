@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { api, getImageUrl } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -318,7 +317,6 @@ function ImageWithFallback({ src, alt = '', label = 'TryOn', style = {} }) {
 }
 
 export default function Home() {
-  const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -383,7 +381,7 @@ export default function Home() {
           name: p.name,
           brand: p.brand || 'TryOn',
           price: parseFloat(p.price) || 0,
-          tag: p.stock > 0 ? 'new' : 'out',
+          tag: p.stock > 0 ? 'Nouveau' : 'Rupture',
           colors: p.color ? [p.color] : ['#1a1410'],
           image: getImageUrl(p.image),
         }));
@@ -432,11 +430,11 @@ export default function Home() {
   const featured = useMemo(() => products, [products]);
 
   if (loading) {
-    return <div style={{ paddingTop: '72px', textAlign: 'center', color: '#6A6F78' }}>{t('home.states.loading')}</div>;
+    return <div style={{ paddingTop: '72px', textAlign: 'center', color: '#6A6F78' }}>Chargement...</div>;
   }
 
   if (error) {
-    return <div style={{ paddingTop: '72px', textAlign: 'center', color: T.red }}>{t('home.states.error', { message: error })}</div>;
+    return <div style={{ paddingTop: '72px', textAlign: 'center', color: T.red }}>Erreur : {error}</div>;
   }
 
   const mobileStyles = `
@@ -721,28 +719,28 @@ export default function Home() {
       >
         <div style={HERO_CONTENT_STYLE}>
           <span style={HERO_TAG_STYLE}>
-            <Sparkles size={14} style={{ color: T.red, display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} /> {t('home.hero.badge')}
+            <Sparkles size={14} style={{ color: T.red, display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} /> Essayage virtuel par IA
           </span>
 
           <h1 style={HERO_TITLE_STYLE}>
-            {t('home.hero.titleLine1')}<br />
-            <em style={{ fontStyle: 'italic', color: T.red }}>{t('home.hero.titleHighlight')}</em><br />
-            {t('home.hero.titleLine2')}
+            La mode africaine<br />
+            <em style={{ fontStyle: 'italic', color: T.red }}>réinventée</em><br />
+            pour vous
           </h1>
 
           <p style={HERO_DESCRIPTION_STYLE}>
-            {t('home.hero.description')}
+            Essayez virtuellement des tenues wax, bogolan et ankara grâce à notre cabine IA. Commandez avec confiance.
           </p>
 
           <div style={HERO_BUTTONS_STYLE} className="hero-buttons-wrap">
-            <Link to="/tryon" className="btn-primary" aria-label={t('home.hero.ctaTryOnAria')}>
-              {t('home.hero.ctaTryOn')}
+            <Link to="/tryon" className="btn-primary" aria-label="Essayer l'essayage virtuel">
+              Essayer maintenant
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </Link>
-            <Link to="/catalogue" className="btn-outline" aria-label={t('home.hero.ctaCatalogueAria')}>
-              {t('home.hero.ctaCatalogue')}
+            <Link to="/catalogue" className="btn-outline" aria-label="Voir le catalogue produits">
+              Voir le catalogue
             </Link>
           </div>
 
@@ -750,15 +748,15 @@ export default function Home() {
           <div style={HERO_STATS_STYLE} aria-label="Statistics section">
             <div style={STAT_ITEM_STYLE}>
               <div style={STAT_NUMBER_STYLE}>{stats.totalProducts}+</div>
-              <div style={STAT_LABEL_STYLE}>{t('home.hero.statOutfits')}</div>
+              <div style={STAT_LABEL_STYLE}>Tenues disponibles</div>
             </div>
             <div style={STAT_ITEM_STYLE}>
               <div style={STAT_NUMBER_STYLE}>{stats.satisfaction}%</div>
-              <div style={STAT_LABEL_STYLE}>{t('home.hero.statSatisfaction')}</div>
+              <div style={STAT_LABEL_STYLE}>Satisfaction client</div>
             </div>
             <div style={STAT_ITEM_STYLE}>
               <div style={STAT_NUMBER_STYLE}>{stats.totalTryons || 0}+</div>
-              <div style={STAT_LABEL_STYLE}>{t('home.hero.statTryOns')}</div>
+              <div style={STAT_LABEL_STYLE}>Essayages réalisés</div>
             </div>
           </div>
         </div>

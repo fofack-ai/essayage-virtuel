@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { adminService } from '../../services/adminService';
-import LanguageSwitcher from '../LanguageSwitcher';
 
 // ─── ICÔNES LUCIDE ───
 import {
@@ -15,13 +13,15 @@ import {
   Settings,
   Package,
   LogOut,
+  Home,
+  ShoppingBag,
+  ChevronDown,
 } from 'lucide-react';
 
 export default function Navbar() {
   const location = useLocation();
   const { count } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
-  const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -66,23 +66,16 @@ export default function Navbar() {
       </Link>
 
       <div className="header-pages clean-header-links">
-        <Link to="/" className={`header-page-btn ${isActive('/') ? 'active' : ''}`}>
-          {t('navbar.home')}
-        </Link>
-        <Link to="/catalogue" className={`header-page-btn ${isActive('/catalogue') ? 'active' : ''}`}>
-          {t('navbar.catalogue')}
-        </Link>
+        <Link to="/" className={`header-page-btn ${isActive('/') ? 'active' : ''}`}>Accueil</Link>
+        <Link to="/catalogue" className={`header-page-btn ${isActive('/catalogue') ? 'active' : ''}`}>Catalogue</Link>
       </div>
 
       <div className="nav-icons header-actions">
-        {/* ─── SÉLECTEUR DE LANGUE ─── */}
-        <LanguageSwitcher />
-
         {isAuthenticated ? (
           <div className="user-dropdown relative">
             <button
               className="header-icon-btn"
-              aria-label={t('navbar.account')}
+              aria-label="Compte utilisateur"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
               {user?.avatar || user?.picture ? (
@@ -115,13 +108,13 @@ export default function Navbar() {
                     <span className="user-dropdown-link-icon">
                       <Settings size={16} strokeWidth={2} />
                     </span>
-                    {t('navbar.settings')}
+                    Paramètres
                   </Link>
                   <Link to="/orders" className="user-dropdown-link" onClick={() => setIsDropdownOpen(false)}>
                     <span className="user-dropdown-link-icon">
                       <Package size={16} strokeWidth={2} />
                     </span>
-                    {t('navbar.myOrders')}
+                    Mes commandes
                   </Link>
                 </div>
 
@@ -137,23 +130,24 @@ export default function Navbar() {
                   <span className="user-dropdown-link-icon">
                     <LogOut size={16} strokeWidth={2} />
                   </span>
-                  {t('navbar.logout')}
+                  Se déconnecter
                 </button>
               </div>
             )}
           </div>
         ) : (
-          <Link to="/auth" className="header-icon-btn" aria-label={t('navbar.account')}>
+          <Link to="/auth" className="header-icon-btn">
             <User size={20} strokeWidth={2} />
           </Link>
         )}
 
+        {/* 🔔 Icône notifications — visible seulement si connecté */}
         {isAuthenticated && (
           <Link
             to="/notifications"
             className="header-icon-btn"
             style={{ position: 'relative' }}
-            aria-label={t('navbar.notifications')}
+            aria-label="Notifications"
             onClick={() => setUnreadCount(0)}
           >
             {unreadCount > 0 ? (

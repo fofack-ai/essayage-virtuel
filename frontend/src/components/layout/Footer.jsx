@@ -1,10 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+
 
 export default function Footer() {
-  const { t } = useTranslation();
-
   return (
     <footer>
       <div className="footer-grid">
@@ -12,40 +10,42 @@ export default function Footer() {
           <div className="footer-brand cfpd-footer-brand">
             <span>CFPD TryOn</span>
           </div>
-          <p className="footer-desc">{t('footer.description')}</p>
+          <p className="footer-desc">
+            Plateforme e-commerce avec cabine d'essayage virtuelle au Cameroun. Développée sous la charte du TryOn.
+          </p>
         </div>
         <div>
-          <div className="footer-col-title">{t('footer.shop.title')}</div>
+          <div className="footer-col-title">Boutique</div>
           <ul className="footer-links">
-            <li><Link to="/catalogue">{t('footer.shop.new')}</Link></li>
-            <li><Link to="/catalogue?cat=femme">{t('footer.shop.women')}</Link></li>
-            <li><Link to="/catalogue?cat=homme">{t('footer.shop.men')}</Link></li>
-            <li><Link to="/catalogue?cat=accessoires">{t('footer.shop.accessories')}</Link></li>
-            <li><Link to="/catalogue?cat=promo">{t('footer.shop.promotions')}</Link></li>
+            <li><Link to="/catalogue">Nouveautés</Link></li>
+            <li><Link to="/catalogue?cat=femme">Femme</Link></li>
+            <li><Link to="/catalogue?cat=homme">Homme</Link></li>
+            <li><Link to="/catalogue?cat=accessoires">Accessoires</Link></li>
+            <li><Link to="/catalogue?cat=promo">Promotions</Link></li>
           </ul>
         </div>
         <div>
-          <div className="footer-col-title">{t('footer.services.title')}</div>
+          <div className="footer-col-title">Services</div>
           <ul className="footer-links">
-            <li><Link to="/catalogue">{t('footer.services.virtualTryOn')}</Link></li>
-            <li><Link to="/size-guide">{t('footer.services.sizeGuide')}</Link></li>
-            <li><Link to="/shipping">{t('footer.services.shipping')}</Link></li>
-            <li><Link to="/returns">{t('footer.services.returns')}</Link></li>
+            <li><Link to="/catalogue">Essayage Virtuel</Link></li>
+            <li><Link to="/size-guide">Guide des tailles</Link></li>
+            <li><Link to="/shipping">Livraison</Link></li>
+            <li><Link to="/returns">Retours</Link></li>
           </ul>
         </div>
         <div>
-          <div className="footer-col-title">{t('footer.contact.title')}</div>
+          <div className="footer-col-title">Contact</div>
           <ul className="footer-links">
             <li><a href="https://cfpd-isgd.com/">CFPD</a></li>
             <li><a href="tel:+2376XXXXXXX">+237 671 207 375</a></li>
-            <li>{t('footer.contact.location')}</li>
+            <li>Douala, Cameroun</li>
           </ul>
         </div>
       </div>
       <div className="footer-bottom">
-        <span>{t('footer.copyright')}</span>
+        <span>© 2026 CFPD TryOn — Application de mode africaine et cabine d’essayage virtuelle. Tous droits réservés.</span>
         <span>
-          <Link to="/privacy-policy">{t('footer.privacyPolicy')}</Link> · <Link to="/terms">{t('footer.terms')}</Link>
+          <Link to="/privacy-policy">Politique de confidentialité</Link> · <Link to="/terms">CGV</Link>
         </span>
       </div>
     </footer>
