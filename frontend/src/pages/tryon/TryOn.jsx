@@ -1687,27 +1687,27 @@ const handleAITryon = async () => {
             </div>
             <div style={{ fontSize: '13px', color: T.red, marginBottom: '40px', fontWeight: 600 }}>{analysisProgress}%</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
-              {['Détection du corps', 'Analyse morphologique', 'Calcul des mensurations', 'Score de compatibilité'].map((label, i) => (
+              {['Détection du corps', 'Analyse morphologique', 'Calcul des mensurations'].map((label, i, arr) => (
                 <div key={i} style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '14px',
                   padding: '14px 18px',
                   borderRadius: '12px',
-                  background: analysisProgress >= (i + 1) * 25 ? T.blueLight : T.white,
-                  border: `1px solid ${analysisProgress >= (i + 1) * 25 ? 'rgba(53,92,134,0.30)' : T.border}`,
+                  background: analysisProgress >= ((i + 1) * 100) / arr.length ? T.blueLight : T.white,
+                  border: `1px solid ${analysisProgress >= ((i + 1) * 100) / arr.length ? 'rgba(53,92,134,0.30)' : T.border}`,
                 }}>
                   <div style={{
                     width: '22px',
                     height: '22px',
                     borderRadius: '50%',
-                    background: analysisProgress >= (i + 1) * 25 ? `linear-gradient(135deg, ${T.red}, ${T.redDark})` : 'rgba(26,26,26,0.1)',
+                    background: analysisProgress >= ((i + 1) * 100) / arr.length ? `linear-gradient(135deg, ${T.red}, ${T.redDark})` : 'rgba(26,26,26,0.1)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
                   }}>
-                    {analysisProgress >= (i + 1) * 25 && (
+                    {analysisProgress >= ((i + 1) * 100) / arr.length && (
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
@@ -1715,8 +1715,8 @@ const handleAITryon = async () => {
                   </div>
                   <span style={{
                     fontSize: '14px',
-                    fontWeight: analysisProgress >= (i + 1) * 25 ? 500 : 400,
-                    color: analysisProgress >= (i + 1) * 25 ? T.ink : T.muted,
+                    fontWeight: analysisProgress >= ((i + 1) * 100) / arr.length ? 500 : 400,
+                    color: analysisProgress >= ((i + 1) * 100) / arr.length ? T.ink : T.muted,
                   }}>
                     {label}
                   </span>
@@ -1875,28 +1875,6 @@ const handleAITryon = async () => {
                       ✓ Taille {recommendedSize} recommandée par l'IA
                     </div>
                   )}
-                </div>
-
-                {/* Score détaillé */}
-                <div style={{ padding: '24px', borderBottom: `1px solid ${T.border}` }}>
-                  <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>
-                    Score de compatibilité
-                  </div>
-                  <div className="tryon-score-box" style={{ background: `linear-gradient(135deg, ${T.blueDark}, ${T.ink})`, borderRadius: '18px', padding: '20px', color: '#fff' }}>
-                    <div style={{ fontSize: '12px', opacity: 0.7 }}>Correspondance morphologique</div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: 300, lineHeight: 1 }}>
-                      {score || 0}%
-                    </div>
-                    <div style={{ fontSize: '12px', opacity: 0.7 }}>Excellente compatibilité</div>
-                    <div style={{ height: '4px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px', marginTop: '12px', overflow: 'hidden' }}>
-                      <div style={{
-                        width: `${score || 0}%`,
-                        height: '100%',
-                        background: `linear-gradient(90deg, ${T.red}, ${T.blue})`,
-                        borderRadius: '2px',
-                      }} />
-                    </div>
-                  </div>
                 </div>
 
                 {/* ── Erreur de génération (si échec) ── */}
