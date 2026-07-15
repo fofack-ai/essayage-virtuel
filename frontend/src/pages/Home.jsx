@@ -706,6 +706,7 @@ export default function Home() {
         }
       `}</style>
 
+
       <style>{mobileStyles}</style>
 
       {/* ── HERO ── */}
@@ -788,7 +789,7 @@ export default function Home() {
               boxShadow: '0 18px 50px rgba(26,26,26,0.13)',
             }}
             role="img"
-            aria-label={t('home.hero.statTryOns')}
+            aria-label="Badge indiquant un score IA de 94% pour la compatibilité morphologique"
           >
             <div
               style={{
@@ -814,7 +815,7 @@ export default function Home() {
                   textTransform: 'uppercase',
                 }}
               >
-                {t('home.iaBanner.badge')}
+                Score IA
               </div>
               <div
                 style={{
@@ -834,7 +835,7 @@ export default function Home() {
                   marginTop: '2px',
                 }}
               >
-                {t('home.iaBanner.step3.title')}
+                Compatibilité morphologique
               </div>
             </div>
           </div>
@@ -844,14 +845,15 @@ export default function Home() {
       {/* ── CATÉGORIES DYNAMIQUES ── */}
       <section style={CATEGORIES_SECTION_STYLE} aria-label="Product categories section">
         <div style={CATEGORIES_HEADER_STYLE}>
-          <div style={CATEGORIES_SUBHEADER_STYLE}>{t('home.categories.subtitle')}</div>
+          <div style={CATEGORIES_SUBHEADER_STYLE}>Collections</div>
           <h2 style={CATEGORIES_TITLE_STYLE}>
-            {t('home.categories.title')} <em style={{ fontStyle: 'italic', color: T.red }}>{t('home.categories.titleHighlight')}</em>
+            Explorez nos <em style={{ fontStyle: 'italic', color: T.red }}>catégories</em>
           </h2>
         </div>
         <div style={CATEGORIES_GRID_STYLE}>
           {categories.length > 0 ? (
             categories.map((cat) => {
+              // ✅ Construire le slug pour le filtre
               const categorySlug = cat.slug || cat.id || cat.name?.toLowerCase();
               return (
                 <Link
@@ -920,7 +922,7 @@ export default function Home() {
                           marginTop: '4px',
                         }}
                       >
-                        {cat.productsCount || t('home.categories.discover')}
+                        {cat.productsCount || 'Découvrir →'}
                       </div>
                     </div>
                   </div>
@@ -928,7 +930,7 @@ export default function Home() {
               );
             })
           ) : (
-            <p>{t('home.states.noCategories')}</p>
+            <p>Aucune catégorie disponible</p>
           )}
         </div>
       </section>
@@ -937,20 +939,20 @@ export default function Home() {
       <section style={FEATURED_SECTION_STYLE} aria-label="Featured products section">
         <div style={FEATURED_HEADER_STYLE}>
           <div style={FEATURED_TITLE_LEFT_STYLE}>
-            <div style={FEATURED_SUBTITLE_STYLE}>{t('home.featured.subtitle')}</div>
+            <div style={FEATURED_SUBTITLE_STYLE}>Sélection</div>
             <h2 style={FEATURED_TITLE_STYLE}>
-              {t('home.featured.title')} <em style={{ fontStyle: 'italic', color: T.red }}>{t('home.featured.titleHighlight')}</em>
+              Produits <em style={{ fontStyle: 'italic', color: T.red }}>vedettes</em>
             </h2>
           </div>
-          <Link to="/catalogue" style={FEATURED_LINK_STYLE} aria-label={t('home.featured.viewAll')}>
-            {t('home.featured.viewAll')}
+          <Link to="/catalogue" style={FEATURED_LINK_STYLE} aria-label="Voir tous les produits vedettes">
+            Voir tout →
           </Link>
         </div>
         <div style={FEATURED_GRID_STYLE}>
           {products.length > 0 ? (
             products.map((product) => <ProductCard key={product.id} product={product} />)
           ) : (
-            <p>{t('home.states.noProducts')}</p>
+            <p>Aucun produit disponible</p>
           )}
         </div>
       </section>
@@ -958,42 +960,25 @@ export default function Home() {
       {/* ── BANNIÈRE IA ── */}
       <section style={IA_BANNER_SECTION_STYLE} aria-label="IA banner section">
         <div style={IA_BANNER_CONTENT_STYLE}>
-          <span style={IA_BADGE_STYLE}>
-            <Sparkles size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} /> {t('home.iaBanner.badge')}
-          </span>
+          <span style={IA_BADGE_STYLE}><Sparkles size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} /> Technologie IA</span>
           <h2 style={IA_TITLE_STYLE}>
-            {t('home.iaBanner.title')}<br />
-            <em style={{ fontStyle: 'italic', color: '#f5b7b1' }}>{t('home.iaBanner.titleHighlight')}</em>
+            Votre cabine d'essayage<br />
+            <em style={{ fontStyle: 'italic', color: '#f5b7b1' }}>virtuelle</em>
           </h2>
           <p style={IA_DESCRIPTION_STYLE}>
-            {t('home.iaBanner.description')}
+            Uploadez votre photo, notre IA analyse votre morphologie et vous propose les tailles et coupes les plus
+            adaptées.
           </p>
-          <Link to="/catalogue" style={IA_BUTTON_STYLE} aria-label={t('home.iaBanner.cta')}>
-            {t('home.iaBanner.cta')}
+          <Link to="/catalogue" style={IA_BUTTON_STYLE} aria-label="Commencer l'essayage virtuel gratuitement">
+            Essayer gratuitement →
           </Link>
         </div>
         <div style={IA_STEPS_STYLE}>
           {[
-            { 
-              n: '01', 
-              t: t('home.iaBanner.step1.title'), 
-              d: t('home.iaBanner.step1.description') 
-            },
-            { 
-              n: '02', 
-              t: t('home.iaBanner.step2.title'), 
-              d: t('home.iaBanner.step2.description') 
-            },
-            { 
-              n: '03', 
-              t: t('home.iaBanner.step3.title'), 
-              d: t('home.iaBanner.step3.description') 
-            },
-            { 
-              n: '04', 
-              t: t('home.iaBanner.step4.title'), 
-              d: t('home.iaBanner.step4.description') 
-            },
+            { n: '01', t: 'Uploadez votre photo', d: 'Une photo de face en tenue ajustée suffit.' },
+            { n: '02', t: 'Analyse morphologique', d: 'Notre IA détecte vos mesures en quelques secondes.' },
+            { n: '03', t: 'Score de compatibilité', d: "Chaque vêtement reçoit un score d'adéquation." },
+            { n: '04', t: 'Commandez en confiance', d: 'Ajustements de taille inclus automatiquement.' },
           ].map((s) => (
             <div key={s.n} style={IA_STEP_ITEM_STYLE}>
               <span style={IA_STEP_NUMBER_STYLE}>{s.n}</span>
@@ -1012,7 +997,6 @@ export default function Home() {
 // ── ProductCard ──
 
 function ProductCard({ product }) {
-  const { t } = useTranslation();
   const [pressed, setPressed] = useState(false);
   const pressTimer = useRef(null);
   const navigate = useNavigate();
@@ -1023,15 +1007,6 @@ function ProductCard({ product }) {
 
   const handlePressEnd = () => {
     clearTimeout(pressTimer.current);
-  };
-
-  const T = {
-    ink: '#1A1A1A',
-    blueDark: '#355C86',
-    blueNavy: '#26384D',
-    blueLight: '#E6EEF6',
-    border: 'rgba(0,0,0,0.08)',
-    red: '#C0392B',
   };
 
   return (
@@ -1072,6 +1047,7 @@ function ProductCard({ product }) {
             </span>
           )}
 
+          {/* ← button au lieu de Link pour éviter <a> dans <a> */}
           {pressed && (
             <button
               onClick={(e) => {
@@ -1089,7 +1065,7 @@ function ProductCard({ product }) {
                 whiteSpace: 'nowrap', boxShadow: '0 4px 16px rgba(26,26,26,0.12)',
               }}
             >
-              {t('home.product.tryOn')}
+              Essayer virtuellement
             </button>
           )}
         </div>
@@ -1104,7 +1080,7 @@ function ProductCard({ product }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '15px', fontWeight: 600, color: T.ink }}>
               {product.price.toLocaleString()}{' '}
-              <small style={{ fontSize: '11px', fontWeight: 400 }}>{t('home.product.price')}</small>
+              <small style={{ fontSize: '11px', fontWeight: 400 }}>FCFA</small>
             </span>
             <div style={{ display: 'flex', gap: '6px' }}>
               {product.colors.slice(0, 3).map((c, i) => (
