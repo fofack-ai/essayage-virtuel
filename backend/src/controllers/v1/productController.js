@@ -173,7 +173,7 @@ async function addProductImage(req, res) {
     }
 
     // Construct image URL
-    const imageUrl = `/uploads/products/${req.file.filename}`;
+    const imageUrl = req.file.path; // Cloudinary retourne l'URL directement dans req.file.path
     const isMain = req.body.isMain === 'true';
 
     const image = await productService.addProductImage(
