@@ -1,4 +1,3 @@
-// src/middleware/guest.js
 const { v4: uuidv4 } = require('uuid');
 
 function guest(req, res, next) {
@@ -9,4 +8,6 @@ function guest(req, res, next) {
   }
   req.guestId = guestId;
   next();
-} 
+}
+
+module.exports = guest;

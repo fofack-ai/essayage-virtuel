@@ -7,18 +7,16 @@ const uploadMiddleware = require("../../middleware/upload");
 const tryonController = require("../../controllers/v1/tryonController");
 
 // ============================================================
-// ROUTES PUBLIQUES (pas d'authentification requise)
+// ROUTES PUBLIQUES (pas d'authentification)
 // ============================================================
 
-// Statistiques (publiques)
+// Statistiques
 router.get("/stats", tryonController.getTryonStats);
 
 // Création d'un essayage (invité ou connecté)
-// Le middleware guest génère un guestId si l'utilisateur n'est pas connecté
-// Le contrôleur utilisera req.user.id ou req.guestId
 router.post("/", guest, tryonController.createTryon);
 
-// Génération IA d'essayage (invité ou connecté)
+// Génération IA
 router.post(
   "/ai-generate",
   guest,
@@ -26,23 +24,23 @@ router.post(
   tryonController.aiGenerateTryon
 );
 
-// Récupération des essais d'un invité (via le cookie guestId)
+// Récupération des essais d'un invité
 router.get("/guest", guest, tryonController.getGuestTryons);
 
-// Récupération d'un essayage par son ID (public, car un invité peut vouloir voir le résultat)
+// Récupération d'un essayage par ID (public)
 router.get("/:id", tryonController.getTryon);
 
 // ============================================================
 // ROUTES PROTÉGÉES (authentification requise)
 // ============================================================
 
-// Récupération des essais d'un utilisateur (seulement ses propres essais ou admin)
+// Récupération des essais d'un utilisateur
 router.get("/user/:userId", auth, tryonController.getUserTryons);
 
-// Transfert des essais invités vers le compte connecté
+// Transfert des essais invités vers le compte
 router.post("/transfer", auth, tryonController.transferGuestTryons);
 
-// Upload d'une photo pour essayage (version manuelle, si utilisée)
+// Upload photo manuel (si utilisé)
 router.post(
   "/upload",
   auth,
@@ -50,16 +48,13 @@ router.post(
   tryonController.uploadTryonPhoto
 );
 
-// Modification d'un essayage (seulement le propriétaire ou admin)
+// Modification / suppression
 router.put("/:id", auth, tryonController.updateTryon);
-
-// Suppression d'un essayage (seulement le propriétaire ou admin)
 router.delete("/:id", auth, tryonController.deleteTryon);
 
 // ============================================================
-// ROUTES ADMIN (accès restreint aux administrateurs)
+// ROUTES ADMIN (accès restreint)
 // ============================================================
-// Récupération de tous les essayages (admin)
 router.get("/", auth, admin, tryonController.getTryons);
 
 module.exports = router;
