@@ -191,6 +191,12 @@ export default function Shop() {
     <div className="shop-page">
       <MobileHeader />
       <style>{`
+        .product-card { cursor: pointer; }
+        .product-info-below { cursor: pointer; }
+
+        @media (max-width: 768px) {
+          .action-voir { display: none; }
+        }
         .shop-page {
           padding-top: 72px;
           min-height: 100vh;
