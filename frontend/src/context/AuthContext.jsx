@@ -97,8 +97,7 @@ export function AuthProvider({ children }) {
 
   // ── Google Login ──
   const loginWithGoogle = () => {
-    const base = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1';
-    window.location.href = `${base}/auth/google`;
+    window.location.href = 'https://tryon-backend-1gps.onrender.com/api/v1/auth/google';
   };
 
   // ── Compléter login Google depuis /auth/google/success ──
