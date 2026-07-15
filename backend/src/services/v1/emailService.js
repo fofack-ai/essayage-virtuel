@@ -5,6 +5,12 @@ function createTransporter() {
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT || 587),
     secure: false,
+    // Force IPv4 : Render ne route pas correctement les connexions
+    // sortantes en IPv6, ce qui fait planter la connexion vers
+    // smtp.gmail.com avec une erreur "connect ENETUNREACH 2607:f8b0:...".
+    // smtp.gmail.com répond aussi en IPv4, donc ce forçage règle le
+    // problème sans rien changer côté Gmail.
+    family: 4,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
