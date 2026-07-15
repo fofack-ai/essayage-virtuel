@@ -5,6 +5,12 @@ const productModel   = require('../../models/v1/productModel');
 const path           = require('path');
 const fs             = require('fs');
 
+
+const productImagePath = imageField; // déjà une URL Cloudinary
+const userPhotoPath = req.file.path;  // URL Cloudinary aussi, désormais
+
+// ...
+userPhoto: userPhotoPath, // on stocke l'URL réelle, plus un faux chemin local
 /**
  * Vérifie que l'utilisateur connecté est propriétaire de l'essayage
  * (ou administrateur). Lève une erreur 403 sinon.
@@ -416,19 +422,11 @@ async function aiGenerateTryon(req, res) {
       });
     }
 
-    const productImageFilename = path.basename(imageField);
-    const productImagePath = path.join('./uploads/products', productImageFilename);
+    // ✅ L'image produit est une URL Cloudinary : on la transmet telle quelle.
+    //    aiTryonService sait charger une URL comme un fichier local (dev).
+    const productImagePath = imageField;
 
-    if (!fs.existsSync(productImagePath)) {
-      const available = fs.existsSync('./uploads/products')
-        ? fs.readdirSync('./uploads/products').join(', ')
-        : 'dossier introuvable';
-      return res.status(400).json({
-        success: false,
-        message: `Fichier "${productImageFilename}" absent sur le serveur. Disponibles : ${available}`
-      });
-    }
-
+    // req.file.path = URL Cloudinary fournie par multer-storage-cloudinary
     const userPhotoPath = req.file.path;
 
     console.log(`[aiGenerateTryon] userId=${req.user?.id || 'guest'} guestId=${req.guestId} productId=${productId}`);
@@ -444,7 +442,7 @@ async function aiGenerateTryon(req, res) {
       userId: req.user?.id || null,
       guestId: req.user?.id ? null : req.guestId,
       productId,
-      userPhoto: `/uploads/tryons/${path.basename(userPhotoPath)}`,
+      userPhoto: userPhotoPath,   // URL Cloudinary
       resultImage: aiResult.servedPath,
       score: req.body.score ? parseInt(req.body.score) : null,
       recommendedSize: req.body.recommendedSize || null,

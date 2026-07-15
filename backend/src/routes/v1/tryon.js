@@ -20,7 +20,7 @@ router.post("/", guest, tryonController.createTryon);
 router.post(
   "/ai-generate",
   guest,
-  uploadMiddleware.uploadSingle("tryonPhoto"),
+  uploadMiddleware.uploadTryonSingle("tryonPhoto"),  // avant: uploadSingle
   tryonController.aiGenerateTryon
 );
 
