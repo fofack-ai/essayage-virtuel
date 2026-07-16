@@ -1,18 +1,27 @@
 const db = require("../../config/database");
 
-async function findActiveCartByUserId(userId) {
+/**
+ * Retrouve le panier actif d'un porteur.
+ * @param {{userId?: number, guestId?: string}} owner
+ */
+async function findActiveCartByOwner(owner) {
+  const [field, value] = owner.userId
+    ? ["userId", owner.userId]
+    : ["guestId", owner.guestId];
+
   const [rows] = await db.query(
-    "SELECT * FROM carts WHERE userId = ? AND status = 'active' LIMIT 1",
-    [userId]
+    `SELECT * FROM carts WHERE ${field} = ? AND status = 'active' LIMIT 1`,
+    [value]
   );
 
   return rows[0];
 }
 
-async function createCart(userId) {
+/** Crée un panier pour un compte OU un invité (l'autre colonne reste NULL). */
+async function createCart(owner) {
   const [result] = await db.query(
-    "INSERT INTO carts (userId, status) VALUES (?, 'active')",
-    [userId]
+    "INSERT INTO carts (userId, guestId, status) VALUES (?, ?, 'active')",
+    [owner.userId || null, owner.guestId || null]
   );
 
   return result.insertId;
@@ -71,6 +80,11 @@ async function clearCart(cartId) {
   await db.query('DELETE FROM cart_items WHERE cartId = ?', [cartId]);
 }
 
+/** Clôt un panier après fusion (on garde la trace au lieu de supprimer). */
+async function closeCart(cartId) {
+  await db.query("UPDATE carts SET status = 'merged' WHERE id = ?", [cartId]);
+}
+
 async function getCartItems(cartId) {
   const [rows] = await db.query(
     `
@@ -112,13 +126,14 @@ async function getItemById(itemId, cartId) {
 }
 
 module.exports = {
-  findActiveCartByUserId,
+  findActiveCartByOwner,
   createCart,
   findItem,
   addItem,
   updateItemQuantity,
   removeItem,
   clearCart,
+  closeCart,
   getCartItems,
   getItemById,
 };
