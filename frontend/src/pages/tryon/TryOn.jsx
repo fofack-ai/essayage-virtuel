@@ -587,6 +587,50 @@ const handleAITryon = async () => {
   const sizeOptions = sizes.length ? sizes : ['XS', 'S', 'M', 'L', 'XL'];
   const colorOptions = colors.length ? colors : ['#1a1410'];
 
+  // ── Moteur de taille : taille + poids + morphologie -> verdict par taille ──
+  const loadFit = async () => {
+    if (!heightCm || !weightKg) {
+      setFitError('Renseignez votre taille et votre poids.');
+      return;
+    }
+    setFitLoading(true);
+    setFitError(null);
+    try {
+      const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1';
+      const res = await fetch(`${BASE_URL}/measurements/fit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          heightCm: Number(heightCm),
+          weightKg: Number(weightKg),
+          morphology,
+          productId: product?.id,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.success === false) throw new Error(json.message || 'Erreur');
+
+      setFitData(json.data);
+      setRecommendedSize(json.data.recommendedSize);
+      if (!selectedSize) setSelectedSize(json.data.recommendedSize);
+    } catch (e) {
+      setFitError(e.message);
+    } finally {
+      setFitLoading(false);
+    }
+  };
+
+  const fitOf = (size) => fitData?.sizes?.find((x) => x.size === size);
+
+  const FIT_COLOR = {
+    ajuste: '#06D6A0',
+    serre: '#E8A33D',
+    ample: '#E8A33D',
+    tres_serre: '#C0392B',
+    tres_ample: '#C0392B',
+  };
+
   return (
     <div
       className="tryon-page"
@@ -1541,26 +1585,77 @@ const handleAITryon = async () => {
                   <span>3. Votre taille</span>
                   <span style={{ fontSize: '10px', color: T.blueDark, textTransform: 'none', letterSpacing: 0, cursor: 'pointer', fontWeight: 500 }}>Guide →</span>
                 </div>
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                  {sizeOptions.map(s => (
-                    <button
-                      key={s}
-                      onClick={() => setSelectedSize(s)}
-                      style={{
-                        padding: '7px 13px',
-                        borderRadius: '8px',
-                        border: `1.5px solid ${selectedSize === s ? T.blueDark : T.border}`,
-                        background: selectedSize === s ? T.blueDark : 'transparent',
-                        color: selectedSize === s ? '#fff' : T.ink,
-                        fontSize: '12px',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {s}
-                    </button>
-                  ))}
+                {/* Estimation : taille + poids + morphologie */}
+                <div style={{ display: 'flex', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
+                  <input type="number" placeholder="Taille (cm)" value={heightCm}
+                    onChange={(e) => setHeightCm(e.target.value)}
+                    style={{ flex: '1 1 90px', minWidth: 0, padding: '7px 9px', borderRadius: '8px', border: `1.5px solid ${T.border}`, fontSize: '12px' }} />
+                  <input type="number" placeholder="Poids (kg)" value={weightKg}
+                    onChange={(e) => setWeightKg(e.target.value)}
+                    style={{ flex: '1 1 90px', minWidth: 0, padding: '7px 9px', borderRadius: '8px', border: `1.5px solid ${T.border}`, fontSize: '12px' }} />
+                  <select value={morphology} onChange={(e) => setMorphology(e.target.value)}
+                    style={{ flex: '1 1 110px', minWidth: 0, padding: '7px 9px', borderRadius: '8px', border: `1.5px solid ${T.border}`, fontSize: '12px' }}>
+                    <option value="mince">Mince</option>
+                    <option value="normale">Normale</option>
+                    <option value="corpulent">Corpulent</option>
+                  </select>
+                  <button onClick={loadFit} disabled={fitLoading}
+                    style={{ flex: '1 1 100%', padding: '8px', borderRadius: '8px', border: 'none', background: T.blueDark, color: '#fff', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                    {fitLoading ? 'Calcul…' : 'Trouver ma taille'}
+                  </button>
                 </div>
+
+                {fitError && <p style={{ color: T.red, fontSize: '11px', margin: '0 0 8px' }}>{fitError}</p>}
+
+                {fitData && (
+                  <p style={{ fontSize: '12px', color: '#06D6A0', fontWeight: 600, margin: '0 0 8px' }}>
+                    ✓ Taille {fitData.recommendedSize} recommandée ({fitData.confidence}% de confiance)
+                  </p>
+                )}
+
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  {sizeOptions.map(s => {
+                    const f = fitOf(s);
+                    return (
+                      <div key={s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                        <button
+                          onClick={() => setSelectedSize(s)}
+                          style={{
+                            padding: '7px 13px',
+                            borderRadius: '8px',
+                            border: `1.5px solid ${selectedSize === s ? T.blueDark : (f ? FIT_COLOR[f.verdict] : T.border)}`,
+                            background: selectedSize === s ? T.blueDark : 'transparent',
+                            color: selectedSize === s ? '#fff' : T.ink,
+                            fontSize: '12px',
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {s}
+                        </button>
+                        {f && (
+                          <span style={{ fontSize: '8px', color: FIT_COLOR[f.verdict], fontWeight: 600, textAlign: 'center' }}>
+                            {f.label}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Le choix du client est respecté, mais il est informé au cm près */}
+                {fitData && selectedSize && fitOf(selectedSize) && !fitOf(selectedSize).wearable && (
+                  <div style={{ marginTop: '8px', padding: '8px 10px', borderRadius: '8px', background: 'rgba(192,57,43,0.07)', border: '1px solid rgba(192,57,43,0.2)' }}>
+                    <p style={{ margin: 0, fontSize: '11px', color: T.red, fontWeight: 600 }}>
+                      {fitOf(selectedSize).label} — nous recommandons {fitData.recommendedSize}
+                    </p>
+                    {fitOf(selectedSize).zones.filter(z => z.deltaCm !== 0).map(z => (
+                      <p key={z.zone} style={{ margin: '2px 0 0', fontSize: '10px', color: T.muted }}>
+                        {z.zone} : {Math.abs(z.deltaCm)} cm {z.deltaCm > 0 ? 'trop juste' : 'de trop'}
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Couleur */}
