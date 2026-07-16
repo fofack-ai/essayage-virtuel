@@ -1,284 +1,211 @@
-const measurementModel = require("../../models/v1/measurementModel");
+const measurementService = require("../../services/v1/measurementService");
+const productModel = require("../../models/v1/productModel");
 
-/**
- * Tableau des tailles, repris du guide des tailles du site (en cm).
- * Chaque entrée = plage [min, max] du tour de corps correspondant à la taille.
- */
-const SIZE_CHART = [
-  { size: "XS",  chest: [76, 81],   waist: [58, 63],  hip: [84, 89] },
-  { size: "S",   chest: [82, 87],   waist: [64, 69],  hip: [90, 95] },
-  { size: "M",   chest: [88, 93],   waist: [70, 75],  hip: [96, 101] },
-  { size: "L",   chest: [94, 99],   waist: [76, 81],  hip: [102, 107] },
-  { size: "XL",  chest: [100, 105], waist: [82, 87],  hip: [108, 113] },
-  { size: "XXL", chest: [106, 111], waist: [88, 93],  hip: [114, 119] },
-];
+/** POST /api/v1/measurements — enregistre une mensuration (photo_guided ou manual) */
+async function saveMeasurements(req, res) {
+  try {
+    const userId = req.user.id;
+    const measurement = await measurementService.saveMeasurements(userId, req.body);
 
-/**
- * Aisance (ease) en cm à ajouter/retirer selon le type de vêtement, avant
- * comparaison au tableau des tailles ci-dessus (qui reflète des mensurations
- * corporelles nues). Valeurs indicatives, à affiner avec le patronier.
- */
-const EASE_BY_CATEGORY = {
-  chemise: { fitted: -1, stretch: 1 },
-  costume: { fitted: -1.5, stretch: 0.5 },
-  veste:   { fitted: -1.5, stretch: 0.5 },
-  robe:    { fitted: -1, stretch: 1.5 },
-  pantalon:{ fitted: -0.5, stretch: 2 },
-  default: { fitted: -1, stretch: 1 },
-};
-
-function getEaseAdjustment(categoryName = "", isStretchFabric = false) {
-  const key = Object.keys(EASE_BY_CATEGORY).find((k) =>
-    (categoryName || "").toLowerCase().includes(k)
-  );
-  const table = EASE_BY_CATEGORY[key] || EASE_BY_CATEGORY.default;
-  return isStretchFabric ? table.stretch : table.fitted;
+    return res.status(201).json({
+      success: true,
+      message: "Mensurations enregistrées avec succès",
+      data: measurement,
+    });
+  } catch (error) {
+    return res.status(error.statusCode || 400).json({ success: false, message: error.message });
+  }
 }
 
-/** Bornes de plausibilité anatomique — rejette les saisies aberrantes */
-const PLAUSIBLE_RANGES = {
-  heightCm: [120, 220],
-  shoulderCm: [30, 60],
-  chestCm: [60, 160],
-  waistCm: [50, 150],
-  hipCm: [60, 160],
-  inseamCm: [50, 100],
-};
+/** GET /api/v1/measurements/latest — dernière mensuration de l'utilisateur connecté */
+async function getLatestMeasurements(req, res) {
+  try {
+    const measurement = await measurementService.getLatest(req.user.id);
+    return res.status(200).json({ success: true, data: measurement });
+  } catch (error) {
+    return res.status(error.statusCode || 400).json({ success: false, message: error.message });
+  }
+}
 
-function validateMeasurements(data) {
-  const errors = [];
-  for (const [field, [min, max]] of Object.entries(PLAUSIBLE_RANGES)) {
-    const val = data[field];
-    if (val === undefined || val === null || val === "") continue;
-    const num = Number(val);
-    if (Number.isNaN(num) || num < min || num > max) {
-      errors.push(`${field} doit être compris entre ${min} et ${max} cm`);
+/**
+ * POST /api/v1/measurements/recommend
+ * Body: { productId, chestCm?, waistCm?, hipCm?, isStretchFabric? }
+ * Si les mesures ne sont pas fournies, utilise la dernière mensuration enregistrée.
+ */
+async function recommendSize(req, res) {
+  try {
+    let { productId, chestCm, waistCm, hipCm, isStretchFabric } = req.body;
+
+    // Aucune mesure fournie : on retombe sur le profil enregistré, mais
+    // uniquement si le client est connecté (les invités n'en ont pas).
+    if (chestCm === undefined && waistCm === undefined && hipCm === undefined) {
+      if (!req.user) {
+        return res.status(400).json({
+          success: false,
+          message: "Renseignez vos mensurations ou votre taille et votre poids.",
+        });
+      }
+      const latest = await measurementService.getLatest(req.user.id);
+      chestCm = latest.chestCm;
+      waistCm = latest.waistCm;
+      hipCm = latest.hipCm;
+      isStretchFabric = latest.isStretchFabric;
     }
-  }
-  if (!data.chestCm && !data.waistCm && !data.hipCm) {
-    errors.push("Au moins une mesure (poitrine, taille ou hanches) est requise");
-  }
-  return errors;
-}
 
-/**
- * Estime les tours (poitrine, taille, hanches) en cm à partir des seules
- * données que le client connaît sans mètre-ruban : sa taille, son poids
- * et sa morphologie. Sert au mode "Express" de la page d'essayage.
- *
- * Basé sur l'IMC : un même poids réparti sur une grande taille donne un
- * tour plus petit que sur une petite taille. La morphologie décale ensuite
- * le résultat (les épaules/ossature varient d'une personne à l'autre).
- *
- * IMPORTANT : ce sont des ESTIMATIONS. Le résultat doit être enregistré avec
- * confidence "estimee", et le client peut toujours corriger la taille conseillée.
- */
-function estimateFromHeightWeight({ heightCm, weightKg, morphology = "normale" }) {
-  const h = Number(heightCm);
-  const w = Number(weightKg);
-
-  if (!h || !w || h < 120 || h > 220 || w < 30 || w > 200) {
-    const err = new Error("Taille (120-220 cm) et poids (30-200 kg) requis et réalistes");
-    err.statusCode = 400;
-    throw err;
-  }
-
-  const heightM = h / 100;
-  const bmi = w / (heightM * heightM);
-
-  // Le tour de poitrine croît avec l'IMC. Coefficients calés sur des
-  // moyennes de confection ; volontairement simples pour être lisibles
-  // et ajustables par la couturière (les 2 constantes ci-dessous).
-  let chest = 58 + bmi * 1.55;
-
-  // Décalage selon la morphologie déclarée par le client
-  const morphoShift = { mince: -4, normale: 0, corpulent: 4 };
-  chest += morphoShift[morphology] ?? 0;
-
-  // Taille et hanches dérivées du tour de poitrine.
-  // ⚠️ Ces deux écarts DOIVENT rester cohérents avec SIZE_CHART ci-dessus,
-  // qui suppose taille = poitrine - 18 et hanches = poitrine + 8 sur toutes
-  // les lignes. Avec -16/+4, l'estimation et le tableau se contredisaient :
-  // la taille recommandée pouvait être étiquetée "serrée" par evaluateFit.
-  const waist = chest - 18;
-  const hip = chest + 8;
-
-  const round = (n) => Math.round(n * 2) / 2; // arrondi au demi-cm
-  return {
-    chestCm: round(chest),
-    waistCm: round(waist),
-    hipCm: round(hip),
-    bmi: Math.round(bmi * 10) / 10,
-  };
-}
-
-/**
- * Calcule la taille recommandée à partir de mesures RÉELLES en cm.
- * Remplace l'ancien recommendSizeFromMeasurements() basé sur un ratio
- * épaule/hauteur issu d'une pose estimée — non exploitable pour un tailleur.
- */
-function recommendSize({ chestCm, waistCm, hipCm, categoryName, isStretchFabric }) {
-  const ease = getEaseAdjustment(categoryName, isStretchFabric);
-
-  const effective = {
-    chest: chestCm ? Number(chestCm) + ease : null,
-    waist: waistCm ? Number(waistCm) + ease : null,
-    hip: hipCm ? Number(hipCm) + ease : null,
-  };
-
-  let best = null;
-  let bestDistance = Infinity;
-
-  for (const row of SIZE_CHART) {
-    const distances = [];
-    if (effective.chest !== null) distances.push(distanceToRange(effective.chest, row.chest));
-    if (effective.waist !== null) distances.push(distanceToRange(effective.waist, row.waist));
-    if (effective.hip !== null) distances.push(distanceToRange(effective.hip, row.hip));
-
-    if (distances.length === 0) continue;
-    const avgDistance = distances.reduce((a, b) => a + b, 0) / distances.length;
-
-    if (avgDistance < bestDistance) {
-      bestDistance = avgDistance;
-      best = row.size;
+    let categoryName = "";
+    if (productId) {
+      const product = await productModel.findById(productId);
+      categoryName = product?.categoryName || "";
     }
-  }
 
-  // Score de confiance : 100% si toutes les mesures tombent pile dans la plage
-  const score = Math.max(0, Math.round(100 - bestDistance * 8));
-
-  return {
-    recommendedSize: best,
-    score,
-    easeAppliedCm: ease,
-    withinRange: bestDistance === 0,
-  };
-}
-
-
-/**
- * Évalue comment UNE taille donnée tombera sur le client.
- * Retourne un verdict chiffré par zone (poitrine, taille, hanches).
- * C'est ce qui permet de dire : "le S sera trop serré de 7 cm à la poitrine".
- */
-function evaluateFit({ size, chestCm, waistCm, hipCm, categoryName, isStretchFabric }) {
-  const row = SIZE_CHART.find((r) => r.size === String(size).toUpperCase());
-  if (!row) {
-    const err = new Error(`Taille inconnue : ${size}`);
-    err.statusCode = 400;
-    throw err;
-  }
-
-  const ease = getEaseAdjustment(categoryName, isStretchFabric);
-  const zones = [];
-
-  const check = (zone, value, [min, max]) => {
-    if (value === undefined || value === null || value === "") return;
-    const v = Number(value) + ease;
-    // Écart par rapport à la plage : négatif = vêtement large, positif = serré
-    let deltaCm = 0;
-    if (v < min) deltaCm = -(min - v);
-    else if (v > max) deltaCm = v - max;
-
-    // Tolérance de 2 cm de part et d'autre de la plage : en confection, un
-    // écart de 1 à 2 cm ne se ressent pas. Sans cette marge, la taille
-    // recommandée pouvait être étiquetée "ample" et contredire la reco.
-    const TOL = 2;
-    let verdict;
-    if (v > max + TOL + 4) verdict = "tres_serre";
-    else if (v > max + TOL) verdict = "serre";
-    else if (v >= min - TOL) verdict = "ajuste";
-    else if (v >= min - TOL - 4) verdict = "ample";
-    else verdict = "tres_ample";
-
-    zones.push({ zone, deltaCm: Math.round(deltaCm * 10) / 10, verdict });
-  };
-
-  check("poitrine", chestCm, row.chest);
-  check("taille", waistCm, row.waist);
-  check("hanches", hipCm, row.hip);
-
-  if (zones.length === 0) {
-    const err = new Error("Aucune mensuration fournie");
-    err.statusCode = 400;
-    throw err;
-  }
-
-  // Le verdict global est celui de la zone la plus contraignante :
-  // un vêtement qui bloque à la poitrine ne se porte pas, même si la taille passe.
-  const ORDER = { tres_serre: 4, serre: 3, ajuste: 0, ample: 1, tres_ample: 2 };
-  const worst = zones.reduce((a, b) => (ORDER[b.verdict] > ORDER[a.verdict] ? b : a));
-
-  const LABEL = {
-    tres_serre: "Trop petit",
-    serre: "Serré",
-    ajuste: "Taille idéale",
-    ample: "Ample",
-    tres_ample: "Trop grand",
-  };
-
-  return {
-    size: row.size,
-    verdict: worst.verdict,
-    label: LABEL[worst.verdict],
-    wearable: worst.verdict !== "tres_serre" && worst.verdict !== "tres_ample",
-    zones,
-    easeAppliedCm: ease,
-  };
-}
-
-/**
- * Évalue TOUTES les tailles d'un coup : permet à l'interface d'afficher
- * un verdict sous chaque bouton de taille (XS, S, M, L, XL, XXL).
- */
-function evaluateAllSizes({ chestCm, waistCm, hipCm, categoryName, isStretchFabric }) {
-  return SIZE_CHART.map((row) =>
-    evaluateFit({
-      size: row.size,
+    const result = measurementService.recommendSize({
       chestCm,
       waistCm,
       hipCm,
       categoryName,
       isStretchFabric,
-    })
-  );
-}
+    });
 
-/** Distance (en cm) d'une valeur à la plage la plus proche (0 si dedans) */
-function distanceToRange(value, [min, max]) {
-  if (value < min) return min - value;
-  if (value > max) return value - max;
-  return 0;
-}
-
-async function saveMeasurements(userId, rawData) {
-  const errors = validateMeasurements(rawData);
-  if (errors.length > 0) {
-    const err = new Error(errors.join("; "));
-    err.statusCode = 400;
-    throw err;
+    return res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    return res.status(error.statusCode || 400).json({ success: false, message: error.message });
   }
-  const id = await measurementModel.create(userId, rawData);
-  return measurementModel.findById(id);
 }
 
-async function getLatest(userId) {
-  const measurement = await measurementModel.findLatestByUserId(userId);
-  if (!measurement) {
-    const err = new Error("Aucune mensuration enregistrée pour cet utilisateur");
-    err.statusCode = 404;
-    throw err;
+/**
+ * POST /api/v1/measurements/estimate
+ * Body: { heightCm, weightKg, morphology, productId?, saveToProfile? }
+ *
+ * Mode "Express" : le client donne taille + poids + morphologie, on estime
+ * ses tours, on en déduit la taille recommandée, et on peut enregistrer
+ * le résultat dans son carnet de mesures.
+ */
+async function estimateSize(req, res) {
+  try {
+    const { heightCm, weightKg, morphology, productId, saveToProfile } = req.body;
+
+    // 1. Estimer les tours à partir de taille + poids + morphologie
+    const estimated = measurementService.estimateFromHeightWeight({
+      heightCm,
+      weightKg,
+      morphology,
+    });
+
+    // 2. Récupérer la catégorie du produit (pour l'aisance) si fournie
+    let categoryName = "";
+    if (productId) {
+      const product = await productModel.findById(productId);
+      categoryName = product?.categoryName || "";
+    }
+
+    // 3. En déduire la taille recommandée via le moteur existant
+    const recommendation = measurementService.recommendSize({
+      chestCm: estimated.chestCm,
+      waistCm: estimated.waistCm,
+      hipCm: estimated.hipCm,
+      categoryName,
+      isStretchFabric: false,
+    });
+
+    // 4. Optionnel : mémoriser dans le carnet de mesures du client
+    if (saveToProfile && req.user) {
+      await measurementService.saveMeasurements(req.user.id, {
+        method: "manual",
+        heightCm: heightCm,
+        chestCm: estimated.chestCm,
+        waistCm: estimated.waistCm,
+        hipCm: estimated.hipCm,
+        isStretchFabric: false,
+        notes: `Estimation express (${morphology}, ${weightKg} kg)`,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: { ...estimated, ...recommendation },
+    });
+  } catch (error) {
+    return res.status(error.statusCode || 400).json({ success: false, message: error.message });
   }
-  return measurement;
+}
+
+/**
+ * POST /api/v1/measurements/fit
+ * Renvoie le verdict d'ajustement pour TOUTES les tailles.
+ * Accepte soit des mensurations directes, soit taille + poids + morphologie.
+ * Accessible sans compte.
+ */
+async function evaluateFit(req, res) {
+  try {
+    let {
+      chestCm,
+      waistCm,
+      hipCm,
+      heightCm,
+      weightKg,
+      morphology,
+      productId,
+      isStretchFabric,
+    } = req.body;
+
+    let estimated = null;
+
+    // Si le client n'a donné que sa taille et son poids, on estime ses tours.
+    if (chestCm === undefined && waistCm === undefined && hipCm === undefined) {
+      estimated = measurementService.estimateFromHeightWeight({
+        heightCm,
+        weightKg,
+        morphology,
+      });
+      chestCm = estimated.chestCm;
+      waistCm = estimated.waistCm;
+      hipCm = estimated.hipCm;
+    }
+
+    // Catégorie du produit : sert à appliquer la bonne aisance
+    let categoryName = "";
+    if (productId) {
+      const product = await productModel.findById(productId);
+      categoryName = product?.categoryName || product?.category || "";
+    }
+
+    const sizes = measurementService.evaluateAllSizes({
+      chestCm,
+      waistCm,
+      hipCm,
+      categoryName,
+      isStretchFabric,
+    });
+
+    const recommendation = measurementService.recommendSize({
+      chestCm,
+      waistCm,
+      hipCm,
+      categoryName,
+      isStretchFabric,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        measurements: { chestCm, waistCm, hipCm },
+        estimated,
+        recommendedSize: recommendation.recommendedSize,
+        confidence: recommendation.score,
+        sizes,
+      },
+    });
+  } catch (error) {
+    return res
+      .status(error.statusCode || 400)
+      .json({ success: false, message: error.message });
+  }
 }
 
 module.exports = {
-  SIZE_CHART,
-  evaluateFit,
-  evaluateAllSizes,
-  validateMeasurements,
-  estimateFromHeightWeight,
-  recommendSize,
   saveMeasurements,
-  getLatest,
+  getLatestMeasurements,
+  recommendSize,
+  estimateSize,
+  evaluateFit,
 };

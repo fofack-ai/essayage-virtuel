@@ -1,6 +1,3 @@
-// ⚠️ À placer dans  frontend/src/services/measurementService.js  (services AU PLURIEL)
-//    L'ancien fichier était dans src/service/ (singulier) : dossier ORPHELIN,
-//    avec un api.js périmé. Supprime tout le dossier src/service/ après migration.
 import api from './api';
 
 export const measurementService = {
