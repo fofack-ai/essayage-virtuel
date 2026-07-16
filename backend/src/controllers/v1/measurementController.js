@@ -151,11 +151,9 @@ async function evaluateFit(req, res) {
     let estimated = null;
 
     // Si le client n'a donné que sa taille et son poids, on estime ses tours.
-    if (chestCm === undefined && waistCm === undefined && hipCm === undefined) {
-      estimated = measurementService.estimateFromHeightWeight({
-        heightCm,
-        weightKg,
-        morphology,
+if (chestCm === undefined && waistCm === undefined && hipCm === undefined) {
+      estimated = measurementService.estimateFromPhotoAndBody({
+        heightCm, weightKg, morphology, shoulderRatio, hipRatio,
       });
       chestCm = estimated.chestCm;
       waistCm = estimated.waistCm;

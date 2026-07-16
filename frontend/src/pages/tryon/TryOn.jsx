@@ -601,11 +601,19 @@ const handleAITryon = async () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({
+body: JSON.stringify({
           heightCm: Number(heightCm),
           weightKg: Number(weightKg),
           morphology,
           productId: product?.id,
+          // Ratios mesurés par MediaPipe sur la photo (sans unité).
+          // Convertis en cm côté serveur grâce à la taille saisie.
+          shoulderRatio: measurements
+            ? measurements.shoulderWidthNorm / measurements.heightNorm
+            : undefined,
+          hipRatio: measurements
+            ? measurements.hipWidthNorm / measurements.heightNorm
+            : undefined,
         }),
       });
       const json = await res.json();

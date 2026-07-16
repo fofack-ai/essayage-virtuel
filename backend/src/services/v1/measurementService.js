@@ -223,7 +223,42 @@ function evaluateFit({ size, chestCm, waistCm, hipCm, categoryName, isStretchFab
     label: LABEL[worst.verdict],
     wearable: worst.verdict !== "tres_serre" && worst.verdict !== "tres_ample",
     zones,
-    easeAppliedCm: ease,
+easeAppliedCm: ease,
+  };
+}        
+
+// ═══ COLLE LE NOUVEAU CODE ICI ═══
+
+/** Carrure moyenne (biacromial ÷ taille) chez l'adulte. */
+const REF_SHOULDER_RATIO = 0.225;
+const REF_HIP_RATIO = 0.19;
+
+function estimateFromPhotoAndBody({ heightCm, weightKg, morphology, shoulderRatio, hipRatio }) {
+  const base = estimateFromHeightWeight({ heightCm, weightKg, morphology });
+  if (!shoulderRatio && !hipRatio) return { ...base, photoUsed: false };
+
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const round = (n) => Math.round(n * 2) / 2;
+
+  let chest = base.chestCm;
+  let hip = base.hipCm;
+
+  if (shoulderRatio) {
+    const k = clamp(shoulderRatio / REF_SHOULDER_RATIO, 0.8, 1.25);
+    chest = chest * (0.5 + 0.5 * k);
+  }
+  if (hipRatio) {
+    const k = clamp(hipRatio / REF_HIP_RATIO, 0.8, 1.25);
+    hip = hip * (0.5 + 0.5 * k);
+  }
+
+  return {
+    chestCm: round(chest),
+    waistCm: round(chest - 18),
+    hipCm: round(hip),
+    shoulderCm: shoulderRatio ? round(shoulderRatio * Number(heightCm)) : null,
+    bmi: base.bmi,
+    photoUsed: true,
   };
 }
 
@@ -271,11 +306,53 @@ async function getLatest(userId) {
   }
   return measurement;
 }
+/** Carrure moyenne (biacromial ÷ taille) chez l'adulte. */
+const REF_SHOULDER_RATIO = 0.225;
+const REF_HIP_RATIO = 0.19;
 
+/**
+ * Estimation hybride : l'IMC donne la corpulence (profondeur du torse),
+ * la photo donne la carrure réelle (largeur). Une photo seule ne peut pas
+ * fournir de centimètres — elle n'a aucune échelle. C'est la taille saisie
+ * par le client qui convertit les ratios en cm.
+ *
+ * On pondère 50/50 : la photo corrige, l'IMC reste la référence calibrée.
+ */
+function estimateFromPhotoAndBody({ heightCm, weightKg, morphology, shoulderRatio, hipRatio }) {
+  const base = estimateFromHeightWeight({ heightCm, weightKg, morphology });
+  if (!shoulderRatio && !hipRatio) return { ...base, photoUsed: false };
+
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const round = (n) => Math.round(n * 2) / 2;
+
+  let chest = base.chestCm;
+  let hip = base.hipCm;
+
+  if (shoulderRatio) {
+    // Bornes 0.8–1.25 : au-delà, c'est une erreur de détection de pose,
+    // pas une morphologie réelle.
+    const k = clamp(shoulderRatio / REF_SHOULDER_RATIO, 0.8, 1.25);
+    chest = chest * (0.5 + 0.5 * k);
+  }
+  if (hipRatio) {
+    const k = clamp(hipRatio / REF_HIP_RATIO, 0.8, 1.25);
+    hip = hip * (0.5 + 0.5 * k);
+  }
+
+  return {
+    chestCm: round(chest),
+    waistCm: round(chest - 18),
+    hipCm: round(hip),
+    shoulderCm: shoulderRatio ? round(shoulderRatio * Number(heightCm)) : null,
+    bmi: base.bmi,
+    photoUsed: true,
+  };
+}
 module.exports = {
   SIZE_CHART,
   evaluateFit,
   evaluateAllSizes,
+  estimateFromPhotoAndBody,     // ← AJOUTE CETTE LIGNE
   validateMeasurements,
   estimateFromHeightWeight,
   recommendSize,
