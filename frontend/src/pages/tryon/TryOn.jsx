@@ -15,6 +15,15 @@ import LoadingPage from '../../components/common/LoadingPage';
 
 import { Sparkles, Shirt, User, Camera as CameraIcon, Info } from 'lucide-react';
 
+
+function resolveImageUrl(url) {
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url)) return url;
+  const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1')
+    .replace(/\/api(\/v1)?/, '');
+  return `${base}${url}`;
+}
+
 /* ── Constantes de style ── */
 const T = {
   ink: '#1A1A1A',
@@ -118,9 +127,14 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
   const [tryonId, setTryonId] = useState(null);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [measurements, setMeasurements] = useState(null);
+  // Téléphone/tablette : pointeur grossier => appareil photo natif
+  const [isMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
+  );
 
   // Refs
   const fileInputRef = useRef();
+  const cameraInputRef = useRef();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const cameraRef = useRef(null);
@@ -205,7 +219,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
         initializePoseDetection(stream);
       }
     } catch (err) {
-      alert(t('tryon.alerts.webcamError', { message: err.message }));
+      alert("Impossible d'accéder à la webcam : " + err.message);
     }
   };
 
@@ -424,7 +438,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
 
   /* ── 7. Ajout au panier ── */
   const resultFullUrl = () => aiResult && aiResult.resultImageUrl
-    ? `${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1').replace(/\/api(\/v1)?/, '')}${aiResult.resultImageUrl}`
+    ? resolveImageUrl(aiResult.resultImageUrl)
     : null;
 
   const handleDownload = async () => {
@@ -1237,7 +1251,7 @@ const handleAITryon = async () => {
                       fontSize: '11px',
                       fontWeight: 600,
                     }}>
-                     <CameraIcon size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> {t('tryon.step1.webcamActive')}
+                     <CameraIcon size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Webcam active
                     </div>
                   </div>
                 ) : photoPreview ? (
@@ -1307,11 +1321,13 @@ const handleAITryon = async () => {
               </div>
 
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} />
+              {/* capture="user" => ouvre directement l'appareil photo frontal sur mobile */}
+              <input ref={cameraInputRef} type="file" accept="image/*" capture="user" onChange={handleFileUpload} style={{ display: 'none' }} />
 
               <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
                 {!useWebcam && !photo && (
                   <button
-                    onClick={startWebcam}
+                    onClick={() => (isMobile ? cameraInputRef.current.click() : startWebcam())}
                     style={{
                       flex: 1,
                       background: T.blueLight,
@@ -1329,9 +1345,9 @@ const handleAITryon = async () => {
                     }}
                   >
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
                     </svg>
-                    {t('tryon.step1.useWebcam')}
+                    Utiliser la webcam
                   </button>
                 )}
                 {(useWebcam || photo) && (
@@ -1377,10 +1393,10 @@ const handleAITryon = async () => {
                   /* Le vrai rendu IA est prêt : on affiche le résultat généré */
                   <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                     <img
-                      src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1').replace(/\/api(\/v1)?/, '')}${aiResult.resultImageUrl}`}
+                      src={resolveImageUrl(aiResult.resultImageUrl)}
                       alt="Rendu de l'essayage"
                       style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#EEF1F5' }}
-                      onError={(e) => { e.target.src = photoPreview; }}
+                      
                     />
                     <div style={{
                       position: 'absolute',
@@ -1658,27 +1674,27 @@ const handleAITryon = async () => {
             </div>
             <div style={{ fontSize: '13px', color: T.red, marginBottom: '40px', fontWeight: 600 }}>{analysisProgress}%</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
-              {[t('tryon.step2.steps.bodyDetection'), t('tryon.step2.steps.morphAnalysis'), t('tryon.step2.steps.measurements'), t('tryon.step2.steps.compatibilityScore')].map((label, i) => (
+              {['Détection du corps', 'Analyse morphologique', 'Calcul des mensurations', 'Score de compatibilité'].map((label, i) => (
                 <div key={i} style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '14px',
                   padding: '14px 18px',
                   borderRadius: '12px',
-                  background: analysisProgress >= (i + 1) * 25 ? T.blueLight : T.white,
-                  border: `1px solid ${analysisProgress >= (i + 1) * 25 ? 'rgba(53,92,134,0.30)' : T.border}`,
+                  background: analysisProgress >= ((i + 1) * 100) / arr.length ? T.blueLight : T.white,
+                  border: `1px solid ${analysisProgress >= ((i + 1) * 100) / arr.length ? 'rgba(53,92,134,0.30)' : T.border}`,
                 }}>
                   <div style={{
                     width: '22px',
                     height: '22px',
                     borderRadius: '50%',
-                    background: analysisProgress >= (i + 1) * 25 ? `linear-gradient(135deg, ${T.red}, ${T.redDark})` : 'rgba(26,26,26,0.1)',
+                    background: analysisProgress >= ((i + 1) * 100) / arr.length ? `linear-gradient(135deg, ${T.red}, ${T.redDark})` : 'rgba(26,26,26,0.1)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
                   }}>
-                    {analysisProgress >= (i + 1) * 25 && (
+                    {analysisProgress >= ((i + 1) * 100) / arr.length && (
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
@@ -1686,8 +1702,8 @@ const handleAITryon = async () => {
                   </div>
                   <span style={{
                     fontSize: '14px',
-                    fontWeight: analysisProgress >= (i + 1) * 25 ? 500 : 400,
-                    color: analysisProgress >= (i + 1) * 25 ? T.ink : T.muted,
+                    fontWeight: analysisProgress >= ((i + 1) * 100) / arr.length ? 500 : 400,
+                    color: analysisProgress >= ((i + 1) * 100) / arr.length ? T.ink : T.muted,
                   }}>
                     {label}
                   </span>
@@ -1730,11 +1746,11 @@ const handleAITryon = async () => {
                     ) : aiResult && aiResult.resultImageUrl ? (
                       <>
                         <img
-                          src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1').replace(/\/api(\/v1)?/, '')}${aiResult.resultImageUrl}`}
+                          src={resolveImageUrl(aiResult.resultImageUrl)}
                           alt="Résultat de l'essayage"
                           className="tryon-result-media"
                           style={{ width: '100%', objectFit: 'contain', background: '#EEF1F5', display: 'block' }}
-                          onError={(e) => { e.target.src = photoPreview; }}
+                          
                         />
                         <div style={{ position: 'absolute', top: '12px', left: '12px', background: T.blueDark, color: '#fff', fontSize: '10px', fontWeight: 600, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.5px' }}>
                           {t('tryon.step3.aiRender')}
@@ -1851,14 +1867,14 @@ const handleAITryon = async () => {
                 {/* Score détaillé */}
                 <div style={{ padding: '24px', borderBottom: `1px solid ${T.border}` }}>
                   <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>
-                    {t('tryon.step3.compatibilityScore')}
+                    Score de compatibilité
                   </div>
                   <div className="tryon-score-box" style={{ background: `linear-gradient(135deg, ${T.blueDark}, ${T.ink})`, borderRadius: '18px', padding: '20px', color: '#fff' }}>
-                    <div style={{ fontSize: '12px', opacity: 0.7 }}>{t('tryon.step3.morphMatch')}</div>
+                    <div style={{ fontSize: '12px', opacity: 0.7 }}>Correspondance morphologique</div>
                     <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: 300, lineHeight: 1 }}>
                       {score || 0}%
                     </div>
-                    <div style={{ fontSize: '12px', opacity: 0.7 }}>{t('tryon.step3.excellentMatch')}</div>
+                    <div style={{ fontSize: '12px', opacity: 0.7 }}>Excellente compatibilité</div>
                     <div style={{ height: '4px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px', marginTop: '12px', overflow: 'hidden' }}>
                       <div style={{
                         width: `${score || 0}%`,

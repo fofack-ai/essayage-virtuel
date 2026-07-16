@@ -28,10 +28,11 @@ export async function apiRequest(endpoint, options = {}) {
 
   let res;
   try {
-    res = await fetch(`${BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
+res = await fetch(`${BASE_URL}${endpoint}`, {
+  ...options,
+  headers,
+  credentials: "include",
+});
   } catch (networkError) {
     throw new Error(
       "Impossible de joindre le serveur. Vérifiez votre connexion internet."

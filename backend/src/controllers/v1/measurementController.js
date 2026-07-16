@@ -36,7 +36,15 @@ async function recommendSize(req, res) {
   try {
     let { productId, chestCm, waistCm, hipCm, isStretchFabric } = req.body;
 
+    // Aucune mesure fournie : on retombe sur le profil enregistré, mais
+    // uniquement si le client est connecté (les invités n'en ont pas).
     if (chestCm === undefined && waistCm === undefined && hipCm === undefined) {
+      if (!req.user) {
+        return res.status(400).json({
+          success: false,
+          message: "Renseignez vos mensurations ou votre taille et votre poids.",
+        });
+      }
       const latest = await measurementService.getLatest(req.user.id);
       chestCm = latest.chestCm;
       waistCm = latest.waistCm;
@@ -70,7 +78,7 @@ async function recommendSize(req, res) {
  *
  * Mode "Express" : le client donne taille + poids + morphologie, on estime
  * ses tours, on en déduit la taille recommandée, et on peut enregistrer
- * le résultat dans son carnet de mesures (confidence "estimee").
+ * le résultat dans son carnet de mesures.
  */
 async function estimateSize(req, res) {
   try {
@@ -100,7 +108,7 @@ async function estimateSize(req, res) {
     });
 
     // 4. Optionnel : mémoriser dans le carnet de mesures du client
-    if (saveToProfile) {
+    if (saveToProfile && req.user) {
       await measurementService.saveMeasurements(req.user.id, {
         method: "manual",
         heightCm: heightCm,
@@ -121,4 +129,83 @@ async function estimateSize(req, res) {
   }
 }
 
-module.exports = { saveMeasurements, getLatestMeasurements, recommendSize, estimateSize };
+/**
+ * POST /api/v1/measurements/fit
+ * Renvoie le verdict d'ajustement pour TOUTES les tailles.
+ * Accepte soit des mensurations directes, soit taille + poids + morphologie.
+ * Accessible sans compte.
+ */
+async function evaluateFit(req, res) {
+  try {
+    let {
+      chestCm,
+      waistCm,
+      hipCm,
+      heightCm,
+      weightKg,
+      morphology,
+      productId,
+      isStretchFabric,
+    } = req.body;
+
+    let estimated = null;
+
+    // Si le client n'a donné que sa taille et son poids, on estime ses tours.
+    if (chestCm === undefined && waistCm === undefined && hipCm === undefined) {
+      estimated = measurementService.estimateFromHeightWeight({
+        heightCm,
+        weightKg,
+        morphology,
+      });
+      chestCm = estimated.chestCm;
+      waistCm = estimated.waistCm;
+      hipCm = estimated.hipCm;
+    }
+
+    // Catégorie du produit : sert à appliquer la bonne aisance
+    let categoryName = "";
+    if (productId) {
+      const product = await productModel.findById(productId);
+      categoryName = product?.categoryName || product?.category || "";
+    }
+
+    const sizes = measurementService.evaluateAllSizes({
+      chestCm,
+      waistCm,
+      hipCm,
+      categoryName,
+      isStretchFabric,
+    });
+
+    const recommendation = measurementService.recommendSize({
+      chestCm,
+      waistCm,
+      hipCm,
+      categoryName,
+      isStretchFabric,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        measurements: { chestCm, waistCm, hipCm },
+        estimated,
+        recommendedSize: recommendation.recommendedSize,
+        confidence: recommendation.score,
+        sizes,
+      },
+    });
+  } catch (error) {
+    return res
+      .status(error.statusCode || 400)
+      .json({ success: false, message: error.message });
+  }
+}
+
+module.exports = {
+  saveMeasurements,
+  getLatestMeasurements,
+  recommendSize,
+  estimateSize,
+  evaluateFit,
+};
