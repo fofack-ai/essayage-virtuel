@@ -135,16 +135,25 @@ def copy_result_to_output(result, output_path):
 
 def make_editor_payload(person_path):
     """
-    Construit directement le payload ImageEditor attendu par le Space
-    (format documenté par Gradio), sans passer par l'appel réseau
-    supplémentaire /person_example_fn_2 qui était fragile.
+    Construit le payload ImageEditor attendu par le Space.
+
+    Le Space fait `person_image["layers"][0]` dès sa première ligne : une
+    liste vide provoque un IndexError. On fournit donc un calque uni et
+    transparent — aucun masque dessiné. CatVTON teste ensuite
+    `len(np.unique(mask)) == 1` et bascule alors sur son masquage
+    automatique, ce qui est précisément ce que l'on veut.
     """
+    with Image.open(person_path) as im:
+        size = im.size
+
+    blank_path = person_path.with_name(person_path.stem + "_layer.png")
+    Image.new("RGBA", size, (0, 0, 0, 0)).save(blank_path)
+
     return {
         "background": handle_file(str(person_path)),
-        "layers": [],
+        "layers": [handle_file(str(blank_path))],
         "composite": None,
     }
-
 
 def run_fashn(person_path, garment_path, output_path):
     """
