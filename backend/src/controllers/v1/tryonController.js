@@ -5,12 +5,6 @@ const productModel   = require('../../models/v1/productModel');
 const path           = require('path');
 const fs             = require('fs');
 
-
-const productImagePath = imageField; // déjà une URL Cloudinary
-const userPhotoPath = req.file.path;  // URL Cloudinary aussi, désormais
-
-// ...
-userPhoto: userPhotoPath, // on stocke l'URL réelle, plus un faux chemin local
 /**
  * Vérifie que l'utilisateur connecté est propriétaire de l'essayage
  * (ou administrateur). Lève une erreur 403 sinon.
