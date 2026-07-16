@@ -3,5 +3,5 @@ uvicorn[standard]==0.34.0
 python-multipart==0.0.20
 pillow==11.1.0
 requests==2.32.3
-gradio_client==1.5.4
+gradio_client>=1.13,<2
 python-dotenv==1.0.1
