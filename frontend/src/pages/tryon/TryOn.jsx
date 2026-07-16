@@ -1419,7 +1419,7 @@ const handleAITryon = async () => {
                       src={resolveImageUrl(aiResult.resultImageUrl)}
                       alt="Rendu de l'essayage"
                       style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#EEF1F5' }}
-                      onError={(e) => { e.target.src = photoPreview; }}
+                      
                     />
                     <div style={{
                       position: 'absolute',
@@ -1772,7 +1772,7 @@ const handleAITryon = async () => {
                           alt="Résultat de l'essayage"
                           className="tryon-result-media"
                           style={{ width: '100%', objectFit: 'contain', background: '#EEF1F5', display: 'block' }}
-                          onError={(e) => { e.target.src = photoPreview; }}
+                          
                         />
                         <div style={{ position: 'absolute', top: '12px', left: '12px', background: T.blueDark, color: '#fff', fontSize: '10px', fontWeight: 600, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.5px' }}>
                            RENDU IA
