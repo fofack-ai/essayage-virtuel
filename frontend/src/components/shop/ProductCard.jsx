@@ -1,12 +1,18 @@
+<<<<<<<<< Temporary merge branch 1
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
+export default function ProductCard({ product }) {
+  const { t } = useTranslation();
+=========
 import { Link, useNavigate } from "react-router-dom";
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
 
-  // Redirige vers la page de détails du produit au clic sur l'image ou sur les textes
-  const handleOpenProduct = () => {
-    navigate(`/product/${product.id}`);
-  };
+  // Clic sur la carte → fiche produit
+  const openProduct = () => navigate(`/product/${product.id}`);
+>>>>>>>>> Temporary merge branch 2
 
   return (
     <article className="product-card-wrap">
@@ -18,9 +24,26 @@ export default function ProductCard({ product }) {
       >
         <div className="product-overlay" />
 
-        <div className="product-actions" onClick={(e) => e.stopPropagation()}>
-          <Link to={`/product/${product.id}`}>Voir</Link>
-          <Link to={`/tryon?productId=${product.id}`}>Essayer virtuellement</Link>
+        <div className="product-actions">
+<<<<<<<<< Temporary merge branch 1
+          <Link to={`/product/${product.id}`}>{t('shop.productCard.view')}</Link>
+          <Link to={`/tryon?productId=${product.id}`}>{t('shop.productCard.tryOn')}</Link>
+=========
+          {/* stopPropagation : sinon le clic déclenche AUSSI openProduct */}
+          <Link
+            to={`/product/${product.id}`}
+            className="action-voir"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Voir
+          </Link>
+          <Link
+            to={`/tryon?productId=${product.id}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            Essayer virtuellement
+          </Link>
+>>>>>>>>> Temporary merge branch 2
         </div>
       </div>
 

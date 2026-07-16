@@ -213,7 +213,11 @@ export default function TryOn() {
         initializePoseDetection(stream);
       }
     } catch (err) {
-      alert("Impossible d'accéder à la webcam : " + err.message);
+<<<<<<<<< Temporary merge branch 1
+      alert(t('tryon.alerts.webcamError', { message: err.message }));
+=========
+      alert("Impossible d'accéder à la caméra : " + err.message);
+>>>>>>>>> Temporary merge branch 2
     }
   };
 
@@ -1101,47 +1105,85 @@ export default function TryOn() {
         {/* ÉTAPE 1 : Import / Prise de Photo */}
         {step === 1 && (
           <div className="tryon-grid-upload">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {!photoPreview && !webcamActive ? (
-                <div 
-                  className="tryon-dropzone"
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{
-                    border: `2.5px dashed ${T.border}`,
-                    borderRadius: '24px',
-                    padding: '48px 24px',
-                    textAlign: 'center',
-                    background: T.white,
-                    cursor: 'pointer',
-                    transition: 'all .25s ease',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '16px'
-                  }}
-                >
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    onChange={handleFileUpload} 
-                    accept="image/*" 
-                    style={{ display: 'none' }} 
-                  />
-                  <div style={{
-                    width: '64px', height: '64px', borderRadius: '50%',
-                    background: T.blueLight, color: T.blueDark,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                  }}>
-                    <CameraIcon size={28} />
-                  </div>
-                  <div>
-                    <h3 style={{ margin: '0 0 6px', fontWeight: 600, color: T.ink }}>
-                      {t('tryon.upload.title')}
-                    </h3>
-                    <p style={{ margin: 0, fontSize: '13px', color: T.muted, lineHeight: 1.5 }}>
-                      {t('tryon.upload.subtitle')}
-                    </p>
+            {/* Colonne gauche : upload photo/webcam */}
+            <div>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', fontWeight: 500, marginBottom: '6px' }}>
+                {t('tryon.step1.photoTitle')}
+              </h2>
+              <p style={{ fontSize: '12px', color: T.muted, marginBottom: '20px' }}>{t('tryon.step1.photoHint')}</p>
+
+              <div
+                className="tryon-dropzone"
+                onClick={() => !photo && !useWebcam && fileInputRef.current.click()}
+                style={{
+                  border: `2px dashed ${photo || useWebcam ? T.red : 'rgba(26,26,26,0.20)'}`,
+                  borderRadius: '18px',
+                  background: photo || useWebcam ? 'rgba(192,57,43,0.02)' : T.white,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: photo || useWebcam ? 'default' : 'pointer',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                {useWebcam && webcamActive ? (
+                  <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                    <video
+                      ref={videoRef}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#EEF1F5' }}
+                      autoPlay
+                      playsInline
+                    />
+                    <canvas
+                      ref={canvasRef}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        pointerEvents: 'none',
+                      }}
+                      width={640}
+                      height={480}
+                    />
+                    <button
+                      onClick={stopWebcam}
+                      style={{
+                        position: 'absolute',
+                        top: '12px',
+                        right: '12px',
+                        background: 'rgba(26,26,26,0.75)',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '30px',
+                        height: '30px',
+                        cursor: 'pointer',
+                        fontSize: '15px',
+                      }}
+                    >
+                      ×
+                    </button>
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '12px',
+                      left: '12px',
+                      background: 'rgba(6,214,160,0.95)',
+                      color: '#fff',
+                      borderRadius: '8px',
+                      padding: '6px 12px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                    }}>
+<<<<<<<<< Temporary merge branch 1
+                     <CameraIcon size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> {t('tryon.step1.webcamActive')}
+=========
+                     <CameraIcon size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Caméra active
+>>>>>>>>> Temporary merge branch 2
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -1191,7 +1233,13 @@ export default function TryOn() {
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
                     }}
                   >
-                    <CameraIcon size={18} /> {t('tryon.actions.useCamera')}
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
+                    </svg>
+<<<<<<<<< Temporary merge branch 1
+                    {t('tryon.step1.useWebcam')}
+=========
+                    Prendre une photo
                   </button>
                 )}
                 
@@ -1204,7 +1252,11 @@ export default function TryOn() {
                       fontWeight: 600, cursor: 'pointer', boxShadow: '0 8px 20px rgba(192,57,43,0.2)'
                     }}
                   >
-                    {t('tryon.actions.captureAndAnalyze')}
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Importer une photo
+>>>>>>>>> Temporary merge branch 2
                   </button>
                 )}
 
@@ -1307,9 +1359,49 @@ export default function TryOn() {
                 transition: 'width 0.3s ease'
               }} />
             </div>
-            <span style={{ display: 'block', marginTop: '12px', fontSize: '13px', color: T.muted }}>
-              {analysisProgress}%
-            </span>
+            <div style={{ fontSize: '13px', color: T.red, marginBottom: '40px', fontWeight: 600 }}>{analysisProgress}%</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
+<<<<<<<<< Temporary merge branch 1
+              {[t('tryon.step2.steps.bodyDetection'), t('tryon.step2.steps.morphAnalysis'), t('tryon.step2.steps.measurements'), t('tryon.step2.steps.compatibilityScore')].map((label, i) => (
+=========
+              {['Détection du corps', 'Analyse morphologique', 'Calcul des mensurations'].map((label, i, arr) => (
+>>>>>>>>> Temporary merge branch 2
+                <div key={i} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '14px',
+                  padding: '14px 18px',
+                  borderRadius: '12px',
+                  background: analysisProgress >= ((i + 1) * 100) / arr.length ? T.blueLight : T.white,
+                  border: `1px solid ${analysisProgress >= ((i + 1) * 100) / arr.length ? 'rgba(53,92,134,0.30)' : T.border}`,
+                }}>
+                  <div style={{
+                    width: '22px',
+                    height: '22px',
+                    borderRadius: '50%',
+                    background: analysisProgress >= ((i + 1) * 100) / arr.length ? `linear-gradient(135deg, ${T.red}, ${T.redDark})` : 'rgba(26,26,26,0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    {analysisProgress >= ((i + 1) * 100) / arr.length && (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </div>
+                  <span style={{
+                    fontSize: '14px',
+                    fontWeight: analysisProgress >= ((i + 1) * 100) / arr.length ? 500 : 400,
+                    color: analysisProgress >= ((i + 1) * 100) / arr.length ? T.ink : T.muted,
+                  }}>
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
           </div>
         )}
 
@@ -1389,19 +1481,19 @@ export default function TryOn() {
                 )}
               </div>
 
-              {/* Colonne de droite : Détails */}
-              <div className="tryon-details-card" style={{ background: T.white, borderRadius: '24px', padding: '32px', border: `1px solid ${T.border}` }}>
-                <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, fontSize: '24px', marginBottom: '20px' }}>
-                  {t('tryon.results.title')}
-                </h2>
-
-                {score !== null && (
-                  <div style={{ marginBottom: '24px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <span style={{ color: T.muted }}>{t('tryon.results.compatibility')}</span>
-                      <span style={{ fontWeight: 700, fontSize: '20px', color: T.red }}>{score}%</span>
+<<<<<<<<< Temporary merge branch 1
+                {/* Score détaillé */}
+                <div style={{ padding: '24px', borderBottom: `1px solid ${T.border}` }}>
+                  <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>
+                    {t('tryon.step3.compatibilityScore')}
+                  </div>
+                  <div className="tryon-score-box" style={{ background: `linear-gradient(135deg, ${T.blueDark}, ${T.ink})`, borderRadius: '18px', padding: '20px', color: '#fff' }}>
+                    <div style={{ fontSize: '12px', opacity: 0.7 }}>{t('tryon.step3.morphMatch')}</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: 300, lineHeight: 1 }}>
+                      {score || 0}%
                     </div>
-                    <div style={{ width: '100%', height: '6px', background: T.border, borderRadius: '6px', overflow: 'hidden' }}>
+                    <div style={{ fontSize: '12px', opacity: 0.7 }}>{t('tryon.step3.excellentMatch')}</div>
+                    <div style={{ height: '4px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px', marginTop: '12px', overflow: 'hidden' }}>
                       <div style={{
                         width: `${score}%`,
                         height: '100%',
@@ -1412,33 +1504,19 @@ export default function TryOn() {
                       }} />
                     </div>
                   </div>
-                )}
+                </div>
 
-                {recommendedSize && (
-                  <div style={{ marginBottom: '24px', background: T.blueLight, borderRadius: '16px', padding: '16px 20px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', color: T.blueDark }}>
-                      {t('tryon.results.recommendedSize')}
-                    </span>
-                    <div style={{ fontSize: '32px', fontWeight: 700, color: T.blueNavy, marginTop: '4px' }}>
-                      {recommendedSize}
-                    </div>
-                  </div>
-                )}
-
-                {measurements && (
-                  <div style={{ marginBottom: '24px' }}>
-                    <h4 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', color: T.muted, marginBottom: '12px' }}>
-                      {t('tryon.results.measurements')}
-                    </h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                      <div style={{ background: T.cream, padding: '10px 14px', borderRadius: '10px' }}>
-                        <span style={{ fontSize: '11px', color: T.muted }}>{t('tryon.results.shoulders')}</span>
-                        <div style={{ fontWeight: 600 }}>{(measurements.shoulderWidthNorm * 100).toFixed(1)}%</div>
-                      </div>
-                      <div style={{ background: T.cream, padding: '10px 14px', borderRadius: '10px' }}>
-                        <span style={{ fontSize: '11px', color: T.muted }}>{t('tryon.results.hips')}</span>
-                        <div style={{ fontWeight: 600 }}>{(measurements.hipWidthNorm * 100).toFixed(1)}%</div>
-                      </div>
+=========
+>>>>>>>>> Temporary merge branch 2
+                {/* ── Erreur de génération (si échec) ── */}
+                {aiError && !aiGenerating && (
+                  <div className="tryon-error-box" style={{ padding: '20px 24px', borderBottom: `1px solid ${T.border}` }}>
+                    <div style={{ padding: '14px 16px', borderRadius: '10px', background: 'rgba(192,57,43,0.07)', border: `1px solid rgba(192,57,43,0.2)` }}>
+                      <p style={{ color: T.red, fontSize: '13px', margin: '0 0 8px', fontWeight: 500 }}>⚠ {t('tryon.step3.generationFailed')}</p>
+                      <p style={{ color: T.muted, fontSize: '12px', margin: 0 }}>{aiError}</p>
+                      <button onClick={handleAITryon} style={{ marginTop: '10px', background: 'transparent', border: `1px solid ${T.red}`, color: T.red, borderRadius: '8px', padding: '6px 14px', fontSize: '12px', cursor: 'pointer' }}>
+                        {t('tryon.step3.retry')}
+                      </button>
                     </div>
                   </div>
                 )}
