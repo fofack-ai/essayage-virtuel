@@ -95,10 +95,13 @@ function estimateFromHeightWeight({ heightCm, weightKg, morphology = "normale" }
   const morphoShift = { mince: -4, normale: 0, corpulent: 4 };
   chest += morphoShift[morphology] ?? 0;
 
-  // Taille et hanches dérivées du tour de poitrine (ratios de confection
-  // moyens). La couturière pourra affiner ces deux écarts.
-  const waist = chest - 16;
-  const hip = chest + 4;
+  // Taille et hanches dérivées du tour de poitrine.
+  // ⚠️ Ces deux écarts DOIVENT rester cohérents avec SIZE_CHART ci-dessus,
+  // qui suppose taille = poitrine - 18 et hanches = poitrine + 8 sur toutes
+  // les lignes. Avec -16/+4, l'estimation et le tableau se contredisaient :
+  // la taille recommandée pouvait être étiquetée "serrée" par evaluateFit.
+  const waist = chest - 18;
+  const hip = chest + 8;
 
   const round = (n) => Math.round(n * 2) / 2; // arrondi au demi-cm
   return {
@@ -152,6 +155,95 @@ function recommendSize({ chestCm, waistCm, hipCm, categoryName, isStretchFabric 
   };
 }
 
+
+/**
+ * Évalue comment UNE taille donnée tombera sur le client.
+ * Retourne un verdict chiffré par zone (poitrine, taille, hanches).
+ * C'est ce qui permet de dire : "le S sera trop serré de 7 cm à la poitrine".
+ */
+function evaluateFit({ size, chestCm, waistCm, hipCm, categoryName, isStretchFabric }) {
+  const row = SIZE_CHART.find((r) => r.size === String(size).toUpperCase());
+  if (!row) {
+    const err = new Error(`Taille inconnue : ${size}`);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const ease = getEaseAdjustment(categoryName, isStretchFabric);
+  const zones = [];
+
+  const check = (zone, value, [min, max]) => {
+    if (value === undefined || value === null || value === "") return;
+    const v = Number(value) + ease;
+    // Écart par rapport à la plage : négatif = vêtement large, positif = serré
+    let deltaCm = 0;
+    if (v < min) deltaCm = -(min - v);
+    else if (v > max) deltaCm = v - max;
+
+    // Tolérance de 2 cm de part et d'autre de la plage : en confection, un
+    // écart de 1 à 2 cm ne se ressent pas. Sans cette marge, la taille
+    // recommandée pouvait être étiquetée "ample" et contredire la reco.
+    const TOL = 2;
+    let verdict;
+    if (v > max + TOL + 4) verdict = "tres_serre";
+    else if (v > max + TOL) verdict = "serre";
+    else if (v >= min - TOL) verdict = "ajuste";
+    else if (v >= min - TOL - 4) verdict = "ample";
+    else verdict = "tres_ample";
+
+    zones.push({ zone, deltaCm: Math.round(deltaCm * 10) / 10, verdict });
+  };
+
+  check("poitrine", chestCm, row.chest);
+  check("taille", waistCm, row.waist);
+  check("hanches", hipCm, row.hip);
+
+  if (zones.length === 0) {
+    const err = new Error("Aucune mensuration fournie");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  // Le verdict global est celui de la zone la plus contraignante :
+  // un vêtement qui bloque à la poitrine ne se porte pas, même si la taille passe.
+  const ORDER = { tres_serre: 4, serre: 3, ajuste: 0, ample: 1, tres_ample: 2 };
+  const worst = zones.reduce((a, b) => (ORDER[b.verdict] > ORDER[a.verdict] ? b : a));
+
+  const LABEL = {
+    tres_serre: "Trop petit",
+    serre: "Serré",
+    ajuste: "Taille idéale",
+    ample: "Ample",
+    tres_ample: "Trop grand",
+  };
+
+  return {
+    size: row.size,
+    verdict: worst.verdict,
+    label: LABEL[worst.verdict],
+    wearable: worst.verdict !== "tres_serre" && worst.verdict !== "tres_ample",
+    zones,
+    easeAppliedCm: ease,
+  };
+}
+
+/**
+ * Évalue TOUTES les tailles d'un coup : permet à l'interface d'afficher
+ * un verdict sous chaque bouton de taille (XS, S, M, L, XL, XXL).
+ */
+function evaluateAllSizes({ chestCm, waistCm, hipCm, categoryName, isStretchFabric }) {
+  return SIZE_CHART.map((row) =>
+    evaluateFit({
+      size: row.size,
+      chestCm,
+      waistCm,
+      hipCm,
+      categoryName,
+      isStretchFabric,
+    })
+  );
+}
+
 /** Distance (en cm) d'une valeur à la plage la plus proche (0 si dedans) */
 function distanceToRange(value, [min, max]) {
   if (value < min) return min - value;
@@ -182,6 +274,8 @@ async function getLatest(userId) {
 
 module.exports = {
   SIZE_CHART,
+  evaluateFit,
+  evaluateAllSizes,
   validateMeasurements,
   estimateFromHeightWeight,
   recommendSize,
