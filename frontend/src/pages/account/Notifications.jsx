@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "./account-pages.css";
 
 // ─── ICÔNES LUCIDE ───
@@ -49,28 +50,33 @@ const norm = (n) => ({
   date: n.createdAt || n.date || new Date().toISOString()
 });
 
-const dayLabel = (date) => {
-  const d = new Date(date);
-  const t = new Date();
-  const y = new Date();
-  y.setDate(t.getDate() - 1);
-  if (Number.isNaN(d.getTime())) return "Aujourd'hui";
-  if (d.toDateString() === t.toDateString()) return "Aujourd'hui";
-  if (d.toDateString() === y.toDateString()) return "Hier";
-  return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
-};
-
-const hour = (date) => {
-  const d = new Date(date);
-  return Number.isNaN(d.getTime()) ? "" : d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-};
-
 export default function Notifications() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const currentLang = i18n.language?.slice(0, 2) || 'fr';
+
+  const dayLabel = (date) => {
+    const d = new Date(date);
+    const tToday = new Date();
+    const yYesterday = new Date();
+    yYesterday.setDate(tToday.getDate() - 1);
+    
+    if (Number.isNaN(d.getTime())) return t('notifications.date.today', "Aujourd'hui");
+    if (d.toDateString() === tToday.toDateString()) return t('notifications.date.today', "Aujourd'hui");
+    if (d.toDateString() === yYesterday.toDateString()) return t('notifications.date.yesterday', "Hier");
+    
+    return d.toLocaleDateString(currentLang === 'fr' ? "fr-FR" : "en-US", { day: "2-digit", month: "short", year: "numeric" });
+  };
+
+  const hour = (date) => {
+    const d = new Date(date);
+    return Number.isNaN(d.getTime()) ? "" : d.toLocaleTimeString(currentLang === 'fr' ? "fr-FR" : "en-US", { hour: "2-digit", minute: "2-digit" });
+  };
 
   const load = async () => {
     try {
@@ -81,7 +87,7 @@ export default function Notifications() {
       setItems(Array.isArray(payload) ? payload.map(norm) : []);
     } catch (e) {
       console.error(e);
-      setError("Impossible de charger les notifications.");
+      setError(t('notifications.errorLoad', 'Impossible de charger les notifications.'));
     } finally {
       setLoading(false);
     }
@@ -92,12 +98,14 @@ export default function Notifications() {
   }, []);
 
   const visible = useMemo(() => filter === "unread" ? items.filter((n) => !n.read) : items, [items, filter]);
+  
   const grouped = useMemo(() => visible.reduce((acc, n) => {
     const k = dayLabel(n.date);
     if (!acc[k]) acc[k] = [];
     acc[k].push(n);
     return acc;
   }, {}), [visible]);
+  
   const unreadCount = items.filter((n) => !n.read).length;
 
   const markRead = async (id) => {
@@ -311,186 +319,195 @@ export default function Notifications() {
       `}</style>
 
       <div className="notifications-container" style={{ maxWidth: '680px', margin: '0 auto', padding: '24px 16px 90px' }}>
-
         {/* En-tête avec retour */}
         <div className="notifications-header" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '22px' }}>
-          <button className="back-btn" onClick={() => navigate(-1)} style={{
-            width: '44px', height: '44px', borderRadius: '14px',
-            border: '1px solid rgba(0,0,0,0.08)', background: '#fff',
-            cursor: 'pointer',
-            boxShadow: '0 3px 14px rgba(0,0,0,0.06)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}>
+          <button className="back-btn" onClick={() => navigate(-1)} style={{ width: '44px', height: '44px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.08)', background: '#fff', cursor: 'pointer', boxShadow: '0 3px 14px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ChevronLeft size={22} strokeWidth={2} />
           </button>
           <div>
             <h1 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '38px', fontWeight: 600, color: '#1A1A1A' }}>
-              Notifications
+              {t('notifications.title', 'Notifications')}
             </h1>
             <p style={{ margin: '4px 0 0', color: '#6A6F78', fontSize: '14px' }}>
-              {unreadCount > 0 
-                ? <><BellDot size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} /> {unreadCount} notification(s) non lue(s)</>
-                : "Tout est à jour"
-              }
+              {unreadCount > 0 ? (
+                <>
+                  <BellDot size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+                  {t('notifications.unreadCount', '{{count}} notification(s) non lue(s)', { count: unreadCount })}
+                </>
+              ) : (
+                t('notifications.upToDate', 'Tout est à jour')
+              )}
             </p>
           </div>
         </div>
 
         {/* Tabs */}
         <div className="notifications-tabs" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '10px', marginBottom: '22px' }}>
-          <button
-            className={filter === "all" ? "active" : ""}
-            onClick={() => setFilter("all")}
-            style={{
-              border: '1px solid rgba(0,0,0,0.08)', background: filter === 'all' ? '#1A1A1A' : '#fff',
-              borderRadius: '14px', padding: '13px 14px', fontWeight: 700,
-              cursor: 'pointer', color: filter === 'all' ? '#fff' : '#1A1A1A',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+          <button 
+            className={filter === "all" ? "active" : ""} 
+            onClick={() => setFilter("all")} 
+            style={{ 
+              border: '1px solid rgba(0,0,0,0.08)', 
+              background: filter === 'all' ? '#1A1A1A' : '#fff', 
+              borderRadius: '14px', 
+              padding: '13px 14px', 
+              fontWeight: 700, 
+              cursor: 'pointer', 
+              color: filter === 'all' ? '#fff' : '#1A1A1A', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '8px', 
             }}
           >
             <Bell size={16} strokeWidth={2} />
-            Toutes
+            {t('notifications.filter.all', 'Toutes')}
           </button>
-          <button
-            className={filter === "unread" ? "active" : ""}
-            onClick={() => setFilter("unread")}
-            style={{
-              border: '1px solid rgba(0,0,0,0.08)', background: filter === 'unread' ? '#1A1A1A' : '#fff',
-              borderRadius: '14px', padding: '13px 14px', fontWeight: 700,
-              cursor: 'pointer', color: filter === 'unread' ? '#fff' : '#1A1A1A',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+
+          <button 
+            className={filter === "unread" ? "active" : ""} 
+            onClick={() => setFilter("unread")} 
+            style={{ 
+              border: '1px solid rgba(0,0,0,0.08)', 
+              background: filter === 'unread' ? '#1A1A1A' : '#fff', 
+              borderRadius: '14px', 
+              padding: '13px 14px', 
+              fontWeight: 700, 
+              cursor: 'pointer', 
+              color: filter === 'unread' ? '#fff' : '#1A1A1A', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '8px', 
             }}
           >
-            <BellDot size={16} strokeWidth={2} />
-            Non lues {unreadCount > 0 && `(${unreadCount})`}
+            <BellOff size={16} strokeWidth={2} />
+            {t('notifications.filter.unread', 'Non lues')}
           </button>
-          <button
-            onClick={markAllRead}
-            style={{
-              border: '1px solid rgba(0,0,0,0.08)', background: '#fff',
-              borderRadius: '14px', padding: '13px 14px', fontWeight: 700,
-              cursor: 'pointer', color: '#1A1A1A',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-            }}
-          >
-            <Check size={16} strokeWidth={2} />
-            Tout marquer lu
-          </button>
+
+          {unreadCount > 0 && (
+            <button 
+              onClick={markAllRead} 
+              style={{ 
+                border: 0, 
+                background: 'transparent', 
+                color: '#355C86', 
+                fontWeight: 700, 
+                fontSize: '13px', 
+                cursor: 'pointer', 
+                padding: '0 8px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px' 
+              }}
+            >
+              <Check size={16} strokeWidth={2} />
+              {t('notifications.action.markAllRead', 'Tout lire')}
+            </button>
+          )}
         </div>
 
-        {/* Erreur */}
-        {error && (
-          <div className="notifications-error" style={{
-            background: '#FEF2F2', border: '1px solid #FCA5A5',
-            borderRadius: '12px', padding: '14px 18px',
-            marginBottom: '14px', color: '#B91C1C', fontSize: '14px',
-            display: 'flex', alignItems: 'center', gap: '8px'
-          }}>
-            <X size={18} strokeWidth={2} />
-            {error}
+        {/* Liste */}
+        {loading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 0', gap: '12px' }}>
+            <Loader2 size={28} className="spinner" style={{ animation: 'spin 1s linear infinite', color: '#1A1A1A' }} />
+            <p style={{ margin: 0, color: '#6A6F78', fontSize: '14px' }}>{t('notifications.loading', 'Chargement de vos notifications…')}</p>
           </div>
-        )}
-
-        {/* Loading */}
-        {loading && (
-          <div className="notifications-skeleton" style={{ display: 'grid', gap: '12px' }}>
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} style={{
-                height: '96px', borderRadius: '18px',
-                background: 'linear-gradient(90deg, #fff 0%, #f2f2f2 45%, #fff 100%)',
-                backgroundSize: '220% 100%',
-                animation: 'skeletonPulse 1.2s infinite linear'
-              }} />
+        ) : error ? (
+          <div style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '16px', padding: '16px 20px', color: '#B91C1C', fontSize: '14px' }}>
+            ⚠️ {error}
+          </div>
+        ) : visible.length === 0 ? (
+          <div className="notifications-empty" style={{ background: '#fff', borderRadius: '20px', padding: '50px 24px', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.04)' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#F0F2F5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#9CA3AF' }}>
+              <BellOff size={28} strokeWidth={1.8} />
+            </div>
+            <h3 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: 600, color: '#1A1A1A' }}>
+              {t('notifications.empty.title', 'Aucune notification')}
+            </h3>
+            <p style={{ margin: 0, color: '#6A6F78', fontSize: '14px', lineHeight: '1.5' }}>
+              {filter === "unread" 
+                ? t('notifications.empty.unreadDesc', 'Vous n’avez aucune notification non lue.') 
+                : t('notifications.empty.allDesc', 'Vos notifications s’afficheront ici au fur et à mesure.')}
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {Object.entries(grouped).map(([day, list]) => (
+              <div key={day}>
+                <h2 className="notifications-section-title" style={{ margin: '0 0 10px', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', color: '#9CA3AF', letterSpacing: '1px' }}>
+                  {day}
+                </h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {list.map((n) => (
+                    <article 
+                      key={n.id} 
+                      className={`notification-card ${n.read ? "read" : "unread"}`} 
+                      style={{ 
+                        background: '#fff', 
+                        borderRadius: '16px', 
+                        overflow: 'hidden', 
+                        boxShadow: '0 2px 12px rgba(0,0,0,0.04)', 
+                        border: n.read ? '1.5px solid transparent' : '1.5px solid #1A1A1A' 
+                      }}
+                    >
+                      <button 
+                        onClick={() => !n.read && markRead(n.id)} 
+                        disabled={n.read}
+                        style={{ 
+                          width: '100%', 
+                          background: 'none', 
+                          border: 0, 
+                          textAlign: 'left', 
+                          padding: '16px', 
+                          cursor: n.read ? 'default' : 'pointer', 
+                          display: 'block' 
+                        }}
+                      >
+                        <div className="notification-main" style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                          <div className="notification-icon" style={{ width: '44px', height: '44px', borderRadius: '14px', background: n.read ? '#F0F2F5' : 'rgba(26,26,26,0.05)', color: '#1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {getIcon(n.type)}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }} className="notification-text">
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#1A1A1A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {n.title}
+                              </h3>
+                              {!n.read && <span className="unread-dot" style={{ 
+                                width: '8px', height: '8px', borderRadius: '50%',
+                                background: '#E30613', flexShrink: 0, display: 'inline-block'
+                              }} />}
+                            </div>
+                            <p style={{ margin: '5px 0 7px', color: '#6A6F78', fontSize: '13px', lineHeight: '1.45' }}>
+                              {n.message}
+                            </p>
+                            <small style={{ color: '#9CA3AF', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Sparkles size={12} strokeWidth={1.5} />
+                              {hour(n.date)}
+                            </small>
+                          </div>
+                        </div>
+                      </button>
+                      <button
+                        className="notification-delete"
+                        onClick={() => remove(n.id)}
+                        style={{
+                          width: '100%', border: 0, borderTop: '1px solid rgba(0,0,0,0.06)',
+                          background: '#fff', color: '#C0392B', padding: '11px',
+                          cursor: 'pointer', fontWeight: 700, fontSize: '13px',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+                        }}
+                      >
+                        <Trash2 size={14} strokeWidth={2} />
+                        {t('notifications.action.delete', 'Supprimer')}
+                      </button>
+                    </article>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         )}
-
-        {/* Vide - Message plus chaleureux */}
-        {!loading && !visible.length && (
-          <div className="notifications-empty" style={{
-            background: '#fff', borderRadius: '18px', padding: '40px 24px',
-            textAlign: 'center', border: '1px solid rgba(0,0,0,0.06)',
-            color: '#6A6F78'
-          }}>
-            <Bell size={48} strokeWidth={1.5} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.3 }} />
-            <h3 style={{ margin: '8px 0 4px', color: '#1A1A1A', fontSize: '20px' }}>Aucune notification</h3>
-            <p style={{ margin: 0, fontSize: '14px', color: '#6A6F78' }}>
-              Nous vous informerons lorsque quelque chose d'important se passera.
-            </p>
-          </div>
-        )}
-
-        {/* Liste des notifications */}
-        {!loading && Object.entries(grouped).map(([day, list]) => (
-          <section key={day} className="notifications-group" style={{ marginTop: '24px' }}>
-            <h3 className="notifications-section-title" style={{
-              margin: '0 0 10px 4px', fontSize: '12px',
-              color: '#9CA3AF', letterSpacing: '1.6px',
-              textTransform: 'uppercase', fontWeight: 800
-            }}>
-              {day}
-            </h3>
-            <div className="notifications-list" style={{ display: 'grid', gap: '12px' }}>
-              {list.map((n) => (
-                <article key={n.id} className={`notification-card ${!n.read ? 'unread' : ''}`} style={{
-                  background: '#fff', borderRadius: '18px',
-                  border: `1px solid ${!n.read ? 'rgba(227,6,19,0.24)' : 'rgba(0,0,0,0.06)'}`,
-                  boxShadow: '0 3px 16px rgba(0,0,0,0.06)',
-                  overflow: 'hidden', transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-                }}>
-                  <button
-                    className="notification-main"
-                    onClick={() => markRead(n.id)}
-                    style={{
-                      width: '100%', display: 'flex', gap: '14px',
-                      padding: '16px', textAlign: 'left',
-                      border: 0, background: 'transparent', cursor: 'pointer'
-                    }}
-                  >
-                    <div className="notification-icon" style={{
-                      width: '46px', height: '46px', borderRadius: '15px',
-                      background: 'rgba(227,6,19,0.08)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0,
-                      color: '#C0392B',
-                    }}>
-                      {getIcon(n.type)}
-                    </div>
-                    <div className="notification-text" style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <h3 style={{ margin: 0, fontSize: '15px', color: '#1A1A1A' }}>{n.title}</h3>
-                        {!n.read && <span className="unread-dot" style={{
-                          width: '8px', height: '8px', borderRadius: '50%',
-                          background: '#E30613', flexShrink: 0, display: 'inline-block'
-                        }} />}
-                      </div>
-                      <p style={{ margin: '5px 0 7px', color: '#6A6F78', fontSize: '13px', lineHeight: '1.45' }}>
-                        {n.message}
-                      </p>
-                      <small style={{ color: '#9CA3AF', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Sparkles size={12} strokeWidth={1.5} />
-                        {hour(n.date)}
-                      </small>
-                    </div>
-                  </button>
-                  <button
-                    className="notification-delete"
-                    onClick={() => remove(n.id)}
-                    style={{
-                      width: '100%', border: 0, borderTop: '1px solid rgba(0,0,0,0.06)',
-                      background: '#fff', color: '#C0392B', padding: '11px',
-                      cursor: 'pointer', fontWeight: 700, fontSize: '13px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
-                    }}
-                  >
-                    <Trash2 size={14} strokeWidth={2} />
-                    Supprimer
-                  </button>
-                </article>
-              ))}
-            </div>
-          </section>
-        ))}
       </div>
     </div>
   );

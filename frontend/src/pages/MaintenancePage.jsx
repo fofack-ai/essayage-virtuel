@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Settings, Clock, Phone, User } from 'lucide-react';
 
 const styles = {
@@ -123,6 +124,7 @@ const styles = {
 
 export default function MaintenancePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -143,16 +145,16 @@ export default function MaintenancePage() {
           </div>
 
           {/* Titre */}
-          <div style={styles.eyebrow}>Maintenance</div>
-          <h1 style={styles.title}>Site temporairement indisponible</h1>
+          <div style={styles.eyebrow}>{t('maintenance.eyebrow')}</div>
+          <h1 style={styles.title}>{t('maintenance.title')}</h1>
           <p style={styles.desc}>
-            Nos équipes effectuent une mise à jour planifiée. Le service sera rétabli très prochainement.
+            {t('maintenance.description')}
           </p>
 
           {/* Badge statut */}
           <div style={styles.badge}>
             <span style={styles.dot} />
-            Maintenance en cours
+            {t('maintenance.statusBadge')}
           </div>
 
           <hr style={styles.divider} />
@@ -163,19 +165,19 @@ export default function MaintenancePage() {
               <div style={styles.iconWrap}>
                 <Clock size={15} color="#6A6F78" strokeWidth={1.5} />
               </div>
-              Durée estimée : moins de 30 minutes
+              {t('maintenance.info.duration')}
             </div>
             <div style={styles.infoRow}>
               <div style={styles.iconWrap}>
                 <Phone size={15} color="#6A6F78" strokeWidth={1.5} />
               </div>
-              Vos données et commandes sont en sécurité
+              {t('maintenance.info.dataSafe')}
             </div>
             <div style={styles.infoRow}>
               <div style={styles.iconWrap}>
                 <User size={15} color="#6A6F78" strokeWidth={1.5} />
               </div>
-              Seuls les administrateurs peuvent se connecter
+              {t('maintenance.info.adminOnly')}
             </div>
           </div>
 
@@ -185,7 +187,7 @@ export default function MaintenancePage() {
             style={styles.btn}
             onClick={() => navigate('/')}
           >
-            Retour à l'accueil
+            {t('maintenance.backHome')}
           </button>
 
         </div>

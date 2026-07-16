@@ -1,22 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { api, getImageUrl } from '../../services/api';
 import MobileHeader from '../../components/layout/MobileHeader';
 
-/* ─── Constantes ─────────────────────────────────────────── */
-const STATUS_MAP = {
-  pending:    { label: 'En préparation', color: '#D97706', bg: '#FFFBEB' },
-  processing: { label: 'En cours',       color: '#2563EB', bg: '#EFF6FF' },
-  shipped:    { label: 'Expédiée',       color: '#7C3AED', bg: '#F5F3FF' },
-  delivered:  { label: 'Livrée',         color: '#059669', bg: '#ECFDF5' },
-  cancelled:  { label: 'Annulée',        color: '#DC2626', bg: '#FEF2F2' },
-};
-
-const PAY_LABELS = {
-  orange_money:     '🟠 Orange Money',
-  mtn_mobile_money: '🟡 MTN Mobile Money',
-  cash_on_delivery: '🤝 À la livraison',
+/* ─── Constantes (Statiques pour le style, labels gérés dynamiquement dans le composant) ─── */
+const STATUS_MAP_STYLES = {
+  pending:    { color: '#D97706', bg: '#FFFBEB' },
+  processing: { color: '#2563EB', bg: '#EFF6FF' },
+  shipped:    { color: '#7C3AED', bg: '#F5F3FF' },
+  delivered:  { color: '#059669', bg: '#ECFDF5' },
+  cancelled:  { color: '#DC2626', bg: '#FEF2F2' },
 };
 
 const LABEL_STYLE = {
@@ -25,6 +20,7 @@ const LABEL_STYLE = {
 };
 
 export default function Orders() {
+  const { t, i18n } = useTranslation();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -36,10 +32,24 @@ export default function Orders() {
   const [details, setDetails]         = useState({});
   const [loadingDetail, setLoadingDetail] = useState(null);
 
-  /* ── Auth guard ── */
-  //useEffect(() => {
-    //if (!authLoading && !isAuthenticated) navigate('/auth');
-  //}, [authLoading, isAuthenticated, navigate]);
+  /* ── Map des statuts traduits ── */
+  const getStatusLabel = (statusKey) => {
+    return t(`orders.status.${statusKey}`, statusKey);
+  };
+
+  /* ── Map des paiements traduits ── */
+  const getPaymentLabel = (payKey) => {
+    switch(payKey) {
+      case 'orange_money':
+        return `🟠 ${t('orders.payment.orange_money', 'Orange Money')}`;
+      case 'mtn_mobile_money':
+        return `🟡 ${t('orders.payment.mtn_mobile_money', 'MTN Mobile Money')}`;
+      case 'cash_on_delivery':
+        return `🤝 ${t('orders.payment.cash_on_delivery', 'À la livraison')}`;
+      default:
+        return payKey;
+    }
+  };
 
   /* ── Chargement de la liste ── */
   useEffect(() => {
@@ -50,12 +60,12 @@ export default function Orders() {
         const res = await api.get('/orders/my-orders');
         setOrders(res.data || []);
       } catch (err) {
-        setError(err.message || 'Impossible de charger vos commandes.');
+        setError(err.message || t('orders.errorLoad', 'Impossible de charger vos commandes.'));
       } finally {
         setLoading(false);
       }
     })();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, t]);
 
   /* ── Expand : charge les détails (articles) à la demande ── */
   const handleExpand = async (orderId) => {
@@ -78,8 +88,10 @@ export default function Orders() {
     }
   };
 
-  const fmt     = n => Number(n || 0).toLocaleString('fr-FR');
-  const fmtDate = d => new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  // Formatage adapté à la langue active
+  const currentLang = i18n.language?.slice(0, 2) || 'fr';
+  const fmt     = n => Number(n || 0).toLocaleString(currentLang === 'fr' ? 'fr-FR' : 'en-US');
+  const fmtDate = d => new Date(d).toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
 
   /* ── Loader ── */
   if (authLoading || loading) return (
@@ -87,7 +99,7 @@ export default function Orders() {
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <div style={{ paddingTop: 72, minHeight: '100vh', background: '#F9F9F9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
         <div style={{ width: 36, height: 36, border: '3px solid #E5E7EB', borderTopColor: '#B83228', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-        <p style={{ color: '#6A6F78', fontSize: 14, margin: 0 }}>Chargement…</p>
+        <p style={{ color: '#6A6F78', fontSize: 14, margin: 0 }}>{t('orders.loading', 'Chargement…')}</p>
       </div>
     </>
   );
@@ -328,18 +340,18 @@ export default function Orders() {
 
       <div className="orders-page">
         <MobileHeader />
+
         {/* Hero */}
         <div className="orders-hero">
           <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: 4, textTransform: 'uppercase', color: '#c9a96e', margin: '0 0 12px' }}>
-            Mon compte
+            {t('orders.myAccount', 'Mon compte')}
           </p>
           <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 'clamp(36px,6vw,68px)', fontWeight: 300, margin: 0 }}>
-            Mes commandes
+            {t('orders.title', 'Mes commandes')}
           </h1>
         </div>
 
         <div className="orders-container">
-
           {/* Erreur */}
           {error && (
             <div style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 12, padding: '16px 20px', marginBottom: 24, color: '#B91C1C', fontSize: 14 }}>
@@ -347,112 +359,114 @@ export default function Orders() {
             </div>
           )}
 
-          {/* État vide */}
-          {!error && orders.length === 0 && (
-            <div style={{ background: '#fff', borderRadius: 20, textAlign: 'center', padding: 'clamp(40px,6vw,70px) 32px', boxShadow: '0 4px 24px rgba(0,0,0,.07)' }}>
-              <div style={{ fontSize: 56, marginBottom: 16 }}>📦</div>
-              <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 'clamp(28px,4vw,42px)', fontWeight: 300, margin: '0 0 12px' }}>
-                Aucune commande
+          {/* Liste vide */}
+          {!loading && orders.length === 0 && (
+            <div className="orders-empty" style={{ background: '#fff', borderRadius: 16, padding: '50px 30px', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,.04)' }}>
+              <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 32, fontWeight: 400, margin: '0 0 12px', color: '#1A1A1A' }}>
+                {t('orders.empty.title', 'Aucune commande pour le moment')}
               </h2>
-              <p style={{ color: '#6A6F78', marginBottom: 28, fontSize: 15 }}>
-                Vous n'avez pas encore passé de commande.
+              <p style={{ fontSize: 15, color: '#6A6F78', margin: '0 0 28px', lineHeight: 1.6 }}>
+                {t('orders.empty.desc', 'Vos commandes apparaîtront ici dès qu’elles auront été passées.')}
               </p>
-              <Link to="/catalogue" style={{ display: 'inline-block', background: '#1A1A1A', color: '#fff', padding: '13px 28px', borderRadius: 999, textDecoration: 'none', fontWeight: 700, fontSize: 14 }}>
-                Découvrir la boutique
+              <Link to="/catalogue" style={{ display: 'inline-block', background: '#1A1A1A', color: '#fff', padding: '14px 32px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none', transition: 'background .2s' }}>
+                {t('orders.empty.btn', 'Découvrir la collection')}
               </Link>
             </div>
           )}
 
           {/* Liste des commandes */}
           {orders.map(order => {
-            const st       = STATUS_MAP[order.status] || STATUS_MAP.pending;
-            const isOpen   = expanded === order.id;
-            const delLabel = order.deliveryType === 'exp' ? 'Express' : 'Standard';
-            const orderDetails = details[order.id];
-            const isLoadingItems = loadingDetail === order.id;
+            const isExp = expanded === order.id;
+            const styleConf = STATUS_MAP_STYLES[order.status] || { color: '#6A6F78', bg: '#F3F4F6' };
+            const detailList = details[order.id] || [];
+            const isDetLoading = loadingDetail === order.id;
 
             return (
               <div key={order.id} className="order-card">
-
-                {/* En-tête cliquable */}
+                {/* Head */}
                 <div className="order-head" onClick={() => handleExpand(order.id)}>
-
                   {/* Badge statut */}
-                  <div style={{ background: st.bg, color: st.color, fontWeight: 700, fontSize: 11, letterSpacing: .5, textTransform: 'uppercase', padding: '6px 12px', borderRadius: 999, whiteSpace: 'nowrap', flexShrink: 0 }}>
-                    {st.label}
+                  <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, padding: '6px 12px', borderRadius: 30, color: styleConf.color, background: styleConf.bg }}>
+                    {getStatusLabel(order.status)}
                   </div>
 
                   {/* Infos commande */}
                   <div className="order-meta">
-                    <p style={{ margin: '0 0 3px', fontWeight: 700, fontSize: 15 }}>{order.orderNumber}</p>
-                    <p style={{ margin: 0, fontSize: 12, color: '#6A6F78' }}>
-                      {fmtDate(order.createdAt)} · {PAY_LABELS[order.paymentMethod] || order.paymentMethod} · {delLabel}
+                    <p style={{ margin: '0 0 3px', fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>
+                      {t('orders.orderId', 'Commande')} #{order.id.slice(-8).toUpperCase()}
+                    </p>
+                    <p style={{ margin: 0, fontSize: 12, color: '#9CA3AF' }}>
+                      {fmtDate(order.createdAt)}
                     </p>
                   </div>
 
-                  {/* Total */}
+                  {/* Prix total */}
                   <div className="order-total-col">
-                    <p style={{ margin: '0 0 2px', fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 600, lineHeight: 1 }}>
-                      {fmt(order.total)}
+                    <p style={{ margin: '0 0 3px', fontSize: 20, fontWeight: 800, color: '#1A1A1A' }}>
+                      {fmt(order.total)} <span style={{ fontSize: 13, fontWeight: 500 }}>FCFA</span>
                     </p>
-                    <p style={{ margin: 0, fontSize: 11, color: '#9CA3AF' }}>FCFA</p>
+                    <p style={{ margin: 0, fontSize: 11, color: '#9CA3AF', fontWeight: 600 }}>
+                      {getPaymentLabel(order.paymentMethod)}
+                    </p>
                   </div>
 
-                  {/* Chevron */}
-                  <div style={{ fontSize: 18, color: '#9CA3AF', flexShrink: 0, transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .22s' }}>
-                    ▾
+                  {/* Indicateur de développement */}
+                  <div style={{ fontSize: 18, color: '#9CA3AF', fontWeight: 300, transform: isExp ? 'rotate(90deg)' : 'none', transition: 'transform .2s' }}>
+                    ➔
                   </div>
                 </div>
 
-                {/* Détail dépliable */}
-                {isOpen && (
+                {/* Detail */}
+                {isExp && (
                   <div className="order-detail">
-
-                    {/* Loader articles */}
-                    {isLoadingItems && (
-                      <div style={{ textAlign: 'center', padding: '20px 0', color: '#6A6F78', fontSize: 13 }}>
-                        Chargement des articles…
+                    {isDetLoading ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0' }}>
+                        <div style={{ width: 18, height: 18, border: '2px solid #E5E7EB', borderTopColor: '#1A1A1A', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                        <span style={{ fontSize: 13, color: '#6A6F78' }}>{t('orders.loadingDetails', 'Chargement des articles…')}</span>
                       </div>
-                    )}
-
-                    {/* Articles */}
-                    {!isLoadingItems && (
+                    ) : (
                       <>
-                        <p style={{ ...LABEL_STYLE, marginBottom: 12 }}>Articles</p>
-                        {(orderDetails?.items || []).length === 0 ? (
-                          <p style={{ fontSize: 13, color: '#6A6F78', marginBottom: 16 }}>Aucun article trouvé.</p>
-                        ) : (
-                          (orderDetails?.items || []).map((item, i) => (
-                            <div
-                              key={i}
-                              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < orderDetails.items.length - 1 ? '1px solid rgba(26,26,26,.06)' : 'none' }}
-                            >
-                              {item.productImage
-                                ? <img src={getImageUrl(item.productImage)} alt={item.productName} style={{ width: 48, height: 60, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
-                                : <div style={{ width: 48, height: 60, background: '#F5F0E8', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>👗</div>
-                              }
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <p style={{ margin: '0 0 3px', fontSize: 14, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                  {item.productName}
-                                </p>
-                                <p style={{ margin: 0, fontSize: 12, color: '#6A6F78' }}>
-                                  {[item.size && `Taille ${item.size}`, item.color && `Couleur ${item.color}`, `Qté ${item.quantity}`].filter(Boolean).join(' · ')}
-                                </p>
-                              </div>
-                              <p style={{ margin: 0, fontSize: 14, fontWeight: 700, flexShrink: 0 }}>
-                                {fmt(item.subtotal)} <span style={{ fontSize: 11, fontWeight: 500, color: '#6A6F78' }}>FCFA</span>
-                              </p>
-                            </div>
-                          ))
-                        )}
+                        {/* Articles */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 18 }}>
+                          {detailList.map((item, idx) => {
+                            const name = item.productName || item.product?.name || t('orders.unnamedItem', 'Article sans nom');
+                            const size = item.size || 'N/A';
+                            const qty  = item.quantity || 1;
+                            const prc  = item.price || 0;
+                            const img  = getImageUrl(item.productImage || item.product?.images?.[0]);
 
-                        {/* Récapitulatif prix */}
-                        <div style={{ background: '#F9FAFB', borderRadius: 10, padding: '14px 16px', margin: '16px 0' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#4B5563', marginBottom: 8 }}>
-                            <span>Livraison ({delLabel})</span>
-                            <span style={{ fontWeight: 600, color: Number(order.deliveryFee) === 0 ? '#059669' : '#1A1A1A' }}>
-                              {Number(order.deliveryFee) === 0 ? 'Gratuite' : `${fmt(order.deliveryFee)} FCFA`}
-                            </span>
+                            return (
+                              <div key={idx} className="order-item-row" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 0', borderBottom: '1px solid rgba(26,26,26,.04)' }}>
+                                {img ? (
+                                  <img src={img} alt={name} style={{ width: 44, height: 56, objectFit: 'cover', borderRadius: 8 }} />
+                                ) : (
+                                  <div style={{ width: 44, height: 56, background: '#F3F4F6', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>📦</div>
+                                )}
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <p style={{ margin: '0 0 3px', fontSize: 14, fontWeight: 700, color: '#1A1A1A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {name}
+                                  </p>
+                                  <p style={{ margin: 0, fontSize: 12, color: '#6A6F78' }}>
+                                    {t('orders.itemSpec', 'Taille')} : <strong>{size}</strong> • {t('orders.itemQty', 'Qté')} : <strong>{qty}</strong>
+                                  </p>
+                                </div>
+                                <div style={{ fontSize: 15, fontWeight: 800, color: '#1A1A1A' }}>
+                                  {fmt(prc * qty)} FCFA
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Récapitulatif financier */}
+                        <div className="order-summary-box" style={{ background: '#F8F9FA', borderRadius: 12, padding: '14px 18px', marginBottom: 18 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#6A6F78', marginBottom: 8 }}>
+                            <span>{t('orders.subtotal', 'Sous-total')}</span>
+                            <span>{fmt(order.total)} FCFA</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#6A6F78', marginBottom: 8 }}>
+                            <span>{t('orders.deliveryFee', 'Livraison')}</span>
+                            <span style={{ color: '#059669', fontWeight: 600 }}>{t('orders.free', 'Gratuit')}</span>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 15, fontWeight: 800, paddingTop: 10, borderTop: '1px solid rgba(26,26,26,.09)' }}>
                             <span>Total</span>
@@ -462,8 +476,8 @@ export default function Orders() {
 
                         {/* Adresse */}
                         {order.deliveryAddress && (
-                          <div style={{ marginBottom: 14 }}>
-                            <p style={{ ...LABEL_STYLE, marginBottom: 8 }}>Adresse de livraison</p>
+                          <div style={{ marginBottom: 14 }} className="order-address">
+                            <p style={{ ...LABEL_STYLE, marginBottom: 8 }}>{t('orders.shippingAddress', 'Adresse de livraison')}</p>
                             <p style={{ margin: 0, fontSize: 14, color: '#374151', lineHeight: 1.6 }}>
                               {order.deliveryAddress}, {order.deliveryCity}
                               {order.deliveryPhone && (
@@ -473,8 +487,8 @@ export default function Orders() {
                           </div>
                         )}
 
-                        <Link to="/catalogue" style={{ fontSize: 13, color: '#355C86', textDecoration: 'none', fontWeight: 600 }}>
-                          ← Continuer mes achats
+                        <Link to="/catalogue" className="order-back-link" style={{ fontSize: 13, color: '#355C86', textDecoration: 'none', fontWeight: 600 }}>
+                          ← {t('orders.continueShopping', 'Continuer mes achats')}
                         </Link>
                       </>
                     )}

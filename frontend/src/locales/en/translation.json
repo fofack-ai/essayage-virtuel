@@ -1,0 +1,973 @@
+{
+  "navbar": {
+    "home": "Home",
+    "catalogue": "Catalogue",
+    "account": "User account",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "myOrders": "My orders",
+    "logout": "Log out"
+  },
+  "footer": {
+    "description": "E-commerce platform with a virtual fitting room in Cameroon. Built under the TryOn brand.",
+    "shop": {
+      "title": "Shop",
+      "new": "New arrivals",
+      "women": "Women",
+      "men": "Men",
+      "accessories": "Accessories",
+      "promotions": "Deals"
+    },
+    "services": {
+      "title": "Services",
+      "virtualTryOn": "Virtual Try-On",
+      "sizeGuide": "Size guide",
+      "shipping": "Shipping",
+      "returns": "Returns"
+    },
+    "contact": {
+      "title": "Contact",
+      "location": "Douala, Cameroon"
+    },
+    "copyright": "© 2026 CFPD TryOn — African fashion app and virtual fitting room. All rights reserved.",
+    "privacyPolicy": "Privacy policy",
+    "terms": "Terms & conditions"
+  },
+  "home": {
+    "states": {
+      "loading": "Loading...",
+      "error": "Error: {{message}}"
+    },
+    "hero": {
+      "badge": "AI-powered virtual try-on",
+      "titleLine1": "African fashion,",
+      "titleHighlight": "reinvented",
+      "titleLine2": "for you",
+      "description": "Virtually try on wax, bogolan and ankara outfits with our AI fitting room. Order with confidence.",
+      "ctaTryOn": "Try it now",
+      "ctaTryOnAria": "Try the virtual fitting room",
+      "ctaCatalogue": "View catalogue",
+      "ctaCatalogueAria": "View the product catalogue",
+      "statOutfits": "Outfits available",
+      "statSatisfaction": "Customer satisfaction",
+      "statTryOns": "Try-ons completed",
+      "aiScoreLabel": "AI Score",
+      "aiScoreCompat": "Body-fit compatibility",
+      "aiScoreBadgeAria": "Badge showing a 94% AI score for body-fit compatibility"
+    },
+    "categories": {
+      "subheader": "Collections",
+      "titleLine": "Explore our",
+      "titleHighlight": "categories",
+      "discoverAria": "Discover the {{name}} category",
+      "discoverFallback": "Discover →",
+      "empty": "No categories available"
+    },
+    "featured": {
+      "subtitle": "Selection",
+      "titleLine": "Featured",
+      "titleHighlight": "products",
+      "viewAll": "View all →",
+      "viewAllAria": "View all featured products",
+      "empty": "No products available"
+    },
+    "iaBanner": {
+      "badge": "AI Technology",
+      "titleLine1": "Your virtual",
+      "titleHighlight": "fitting room",
+      "description": "Upload your photo, our AI analyzes your body shape and suggests the sizes and cuts that fit you best.",
+      "cta": "Try it for free →",
+      "ctaAria": "Start the virtual try-on for free",
+      "step1Title": "Upload your photo",
+      "step1Desc": "A front-facing photo in fitted clothing is enough.",
+      "step2Title": "Body analysis",
+      "step2Desc": "Our AI detects your measurements in seconds.",
+      "step3Title": "Compatibility score",
+      "step3Desc": "Each garment gets a fit-compatibility score.",
+      "step4Title": "Order with confidence",
+      "step4Desc": "Size adjustments included automatically."
+    },
+    "productCard": {
+      "tryOnButton": "Try it on virtually",
+      "tagNew": "New",
+      "tagOut": "Out of stock"
+    }
+  },
+  "shop": {
+    "filters": {
+      "all": "All",
+      "women": "Women",
+      "men": "Men",
+      "dresses": "Dresses",
+      "shirts": "Shirts",
+      "pants": "Pants",
+      "jackets": "Jackets"
+    },
+    "loading": "Loading catalogue...",
+    "hero": {
+      "tag": "TryOn Collection",
+      "titleLine": "African",
+      "titleHighlight": "Boutique",
+      "description": "Discover our modern outfits and try them on virtually before you buy."
+    },
+    "header": {
+      "titleLine": "All",
+      "titleHighlight": "clothing"
+    },
+    "empty": "No products available right now.",
+    "endOfCatalogue": "You've seen it all ✨",
+    "search": {
+      "placeholder": "Search for an outfit..."
+    },
+    "sort": {
+      "popularity": "Popularity",
+      "priceAsc": "Price: low to high",
+      "priceDesc": "Price: high to low"
+    },
+    "productCard": {
+      "view": "View",
+      "tryOn": "Try it on virtually"
+    }
+  },
+  "auth": {
+  "loading": "Loading...",
+  "registrationClosed": {
+    "heroTitle": "Registrations",
+    "heroHighlight": "closed",
+    "tag1": "🔒 Secure",
+    "tag2": "📧 Contact support",
+    "tag3": "⏳ Try again later",
+    "title": "Registrations closed",
+    "desc1": "Registrations have been temporarily closed by the administrator.",
+    "desc2": "Please try again later or contact support.",
+    "loginButton": "Log in"
+  },
+  "errors": {
+    "registrationClosed": "Registrations are temporarily closed.",
+    "passwordMismatch": "Passwords do not match."
+  },
+  "messages": {
+    "otpSentAdmin": "An OTP code has been sent to your admin email.",
+    "otpSent": "An OTP code has been sent.",
+    "resetLinkSent": "A reset link has been sent to your email address.",
+    "passwordResetSuccess": "Password reset successfully."
+  },
+  "hero": {
+    "login": {
+      "title": "Sign in to your",
+      "highlight": "style",
+      "end": "and try before you buy.",
+      "tags": ["Customer account", "Orders", "Virtual try-ons", "Favorites"]
+    },
+    "register": {
+      "title": "Create your",
+      "highlight": "TryOn space",
+      "end": "and build your wardrobe.",
+      "tags": ["Body profile", "Saved sizes", "Private deals", "Order tracking"]
+    },
+    "forgot": {
+      "title": "Regain access to your",
+      "highlight": "account",
+      "end": "safely and securely.",
+      "tags": ["Secure email", "New password", "Quick return", "Protected account"]
+    },
+    "reset": {
+      "title": "Choose a new",
+      "highlight": "password",
+      "end": "to secure your account.",
+      "tags": ["Secure link", "New password", "Enhanced protection", "Access restored"]
+    },
+    "otp": {
+      "line1": "Verify your",
+      "highlight": "identity",
+      "line2": "administrator.",
+      "tags": ["Enhanced security", "OTP code", "Admin access", "Protected account"]
+    }
+  },
+  "tabs": {
+    "login": "Sign in",
+    "register": "Create account"
+  },
+  "login": {
+    "otpTitle": "OTP verification",
+    "title": "Welcome back",
+    "otpDesc": "Enter the verification code you received to access your admin space.",
+    "desc": "Access your personal space and find your try-ons.",
+    "otpLabel": "OTP code",
+    "otpPlaceholder": "E.g.: 123456",
+    "verifyButton": "Verify code",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.cm",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "forgotLink": "Forgot password?",
+    "submitButton": "Sign in",
+    "orContinueWith": "or continue with",
+    "googleButton": "Continue with Google"
+  },
+  "register": {
+    "title": "Create account",
+    "desc": "Create your profile to save your sizes, favorites and orders.",
+    "firstNameLabel": "First name",
+    "firstNamePlaceholder": "Miranda",
+    "lastNameLabel": "Last name",
+    "lastNamePlaceholder": "Eko",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.cm",
+    "phoneLabel": "Phone",
+    "phonePlaceholder": "+237 6XX XXX XXX",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Minimum 6 characters",
+    "confirmLabel": "Confirm",
+    "confirmPlaceholder": "Repeat the password",
+    "submitButton": "Create my account"
+  },
+  "forgot": {
+    "title": "Password reset",
+    "desc": "Enter your email to receive instructions and set a new secure password.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.cm",
+    "submitButton": "Request a new password",
+    "backLink": "← Back to sign in"
+  },
+  "reset": {
+    "title": "New password",
+    "desc": "Enter the token received by email, then choose your new password.",
+    "newPasswordLabel": "New password",
+    "passwordPlaceholder": "********",
+    "confirmLabel": "Confirm",
+    "submitButton": "Reset",
+    "backLink": "← Back to sign in"
+  }
+},
+"cart": {
+  "hero": {
+    "tag": "CFPD TryOn Cart",
+    "title": "Your selection",
+    "subtitle": "Finalize your items before checking out."
+  },
+  "empty": {
+    "title": "Your cart is empty",
+    "desc": "Add outfits from the catalogue to find them here.",
+    "cta": "Discover the shop"
+  },
+  "item": {
+    "categoryFallback": "TryOn",
+    "size": "Size: {{size}}",
+    "sizeFallback": "One size",
+    "color": "Color: {{color}}",
+    "colorFallback": "Standard",
+    "stock": "Available stock: {{stock}}",
+    "stockFallback": "not specified"
+  },
+  "stockAlert": "This product in size {{size}} is only available in {{stock}} unit(s) in stock.",
+  "remove": "Remove",
+  "summary": {
+    "tag": "Order",
+    "title": "Summary",
+    "items": "Items",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "shippingTBD": "To be confirmed",
+    "total": "Total",
+    "checkout": "Place order",
+    "clear": "Clear cart",
+    "continue": "← Continue shopping"
+  }
+},
+"checkout": {
+  "payment": {
+    "orange": { "label": "Orange Money", "desc": "Payment via your Orange Money account" },
+    "mtn": { "label": "MTN Mobile Money", "desc": "Payment via MTN Mobile Money" },
+    "cash": { "label": "Cash on delivery", "desc": "Cash paid upon receiving your package" }
+  },
+  "city": {
+    "label": "City *",
+    "onlyDoualaNote": "We currently deliver to Douala only.",
+    "choosePlaceholder": "-- Choose a city --"
+  },
+  "validation": {
+    "nameRequired": "Last name is required",
+    "firstNameRequired": "First name is required",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email",
+    "phoneRequired": "Phone number is required",
+    "phoneFormat": "Required format: 6XXXXXXXX (9 digits, e.g. 671207375)",
+    "addressRequired": "Address is required",
+    "cityRequired": "City is required",
+    "neighborhoodRequired": "Neighborhood is required so the courier can find you"
+  },
+  "errors": {
+    "onlinePaymentUnavailable": "Online payment is not available right now. Please choose cash on delivery.",
+    "generic": "An error occurred. Please try again."
+  },
+  "success": {
+    "titleLine": "Order",
+    "titleHighlight": "confirmed!",
+    "orderNumberLabel": "Order number",
+    "confirmedMessage": "Order successfully placed. We'll contact you at {{phone}} to confirm.",
+    "viewOrders": "View my orders",
+    "backHome": "Back to home"
+  },
+  "loading": "Loading…",
+  "breadcrumb": {
+    "home": "Home",
+    "cart": "Cart",
+    "payment": "Payment"
+  },
+  "steps": {
+    "delivery": "Delivery",
+    "payment": "Payment",
+    "confirmation": "Confirmation"
+  },
+  "step1": {
+    "title": "Delivery address",
+    "desc": "Where should we deliver your order?",
+    "lastNameLabel": "Last name *",
+    "lastNamePlaceholder": "Your last name",
+    "firstNameLabel": "First name *",
+    "firstNamePlaceholder": "Your first name",
+    "emailLabel": "Email *",
+    "emailPlaceholder": "you@example.cm",
+    "phoneLabel": "Phone * — format: 671207375",
+    "phonePlaceholder": "E.g.: 671207375",
+    "addressLabel": "Address *",
+    "addressPlaceholder": "Street number and name",
+    "neighborhoodLabel": "Neighborhood / Area *",
+    "neighborhoodPlaceholder": "E.g.: Bastos, Bonapriso",
+    "referenceLabel": "Landmark (optional)",
+    "referencePlaceholder": "E.g.: near the town hall, Casino supermarket…",
+    "deliveryNote": "Delivery to Douala: {{fee}} FCFA (3-5 business days).",
+    "continueButton": "Continue →"
+  },
+  "step2": {
+    "title": "Payment method",
+    "desc": "Choose your payment method.",
+    "backButton": "← Back",
+    "confirmButton": "Confirm →"
+  },
+  "step3": {
+    "title": "Final review",
+    "desc": "Review your information before confirming.",
+    "deliveryLabel": "Delivery",
+    "paymentLabel": "Payment",
+    "itemsLabel": "Ordered items",
+    "sizeLabel": "Size {{size}}",
+    "colorLabel": "Color {{color}}",
+    "qtyLabel": "Qty {{qty}}",
+    "backButton": "← Back",
+    "submitting": "Processing…",
+    "submitButton": "Place order"
+  },
+  "sidebar": {
+    "title": "Summary",
+    "subtotal": "Subtotal",
+    "delivery": "Delivery (Douala)",
+    "total": "Total"
+  },
+  "legal": {
+    "withdrawal": "In accordance with Cameroonian law n° 2011/012, you have a 7-day withdrawal period from the date of receipt.",
+    "pricesInfo": "Prices shown in FCFA, all taxes included."
+  }
+},
+"tryon": {
+  "loading": "Loading your try-on...",
+  "productUnavailable": "Product unavailable",
+  "alerts": {
+    "noProduct": "No product available for try-on",
+    "productNotFound": "Product not found",
+    "webcamError": "Unable to access the webcam: {{message}}",
+    "linkCopied": "Render link copied!",
+    "addedToCart": "Product added to cart!",
+    "addToCartError": "Error adding to cart."
+  },
+  "messages": {
+    "noPersonDetected": "We couldn't detect a person in this photo. Upload a full-body photo of yourself, facing forward, on a plain background.",
+    "photoNotClear": "The photo isn't clear enough for analysis. Try a well-lit photo showing your whole body.",
+    "loginToSave": "Sign in to save your try-on and find it again later.",
+    "saveError": "Your try-on couldn't be saved. Check your connection and try again."
+  },
+  "errors": { "unknown": "Unknown error" },
+  "aria": {
+    "notifications": "Notifications",
+    "cart": "Cart",
+    "closeMessage": "Close message"
+  },
+  "shareTitle": "My try-on — {{name}}",
+  "header": {
+    "tag": "AI Technology",
+    "titleStart": "Virtual fitting ",
+    "titleHighlight": "room",
+    "description": "Upload your photo, our AI analyzes your body shape and suggests the size that fits you best."
+  },
+  "stepper": { "step1": "Photo & Size", "step2": "Analysis", "step3": "Results" },
+  "step1": {
+    "photoTitle": "1. Your photo",
+    "photoHint": "Drag or click to upload",
+    "webcamActive": "Webcam active",
+    "dropzoneTitle": "Drop your photo here",
+    "dropzoneSubtitle": "or click to browse",
+    "fileHint": "JPG, PNG — Max 10 MB",
+    "photoReady": "Photo ready",
+    "useWebcam": "Use webcam",
+    "reset": "Reset",
+    "previewTitle": "2. Render preview",
+    "previewHint": "Virtual try-on preview",
+    "defaultGarment": "Your garment",
+    "readyToGenerate": "Photo ready — start the generation to see the render",
+    "addPhotoPrompt": "Add your photo to see it on you",
+    "selectedItem": "Selected item",
+    "sizeTitle": "3. Your size",
+    "sizeGuideLink": "Guide →",
+    "colorTitle": "4. Your color",
+    "checklist": {
+      "photoUploaded": "Photo uploaded",
+      "itemSelected": "Item selected",
+      "sizeChosen": "Size chosen",
+      "colorChosen": "Color chosen"
+    },
+    "renderInfo": "Size {{size}} · AI render",
+    "launchDisabled": "Upload a photo first",
+    "launch": "Start AI try-on"
+  },
+  "step2": {
+    "title": "Analyzing…",
+    "subtitle": "Our AI is analyzing your body shape",
+    "productSize": "{{name}} · Size {{size}}",
+    "steps": {
+      "bodyDetection": "Body detection",
+      "morphAnalysis": "Body shape analysis",
+      "measurements": "Calculating measurements",
+      "compatibilityScore": "Compatibility score"
+    }
+  },
+  "step3": {
+    "yourPhoto": "YOUR PHOTO",
+    "aiRender": "AI RENDER",
+    "download": "Download",
+    "share": "Share",
+    "generating": "Generating…",
+    "generatingTime": "(1-2 min)",
+    "renderPlaceholder": "The render will appear here",
+    "itemTried": "Item tried on",
+    "recommendedSize": "Recommended size",
+    "recommendedByAI": "Size {{size}} recommended by AI",
+    "compatibilityScore": "Compatibility score",
+    "morphMatch": "Body shape match",
+    "excellentMatch": "Excellent match",
+    "generationFailed": "Generation failed",
+    "retry": "Retry",
+    "addToCart": "Add to cart",
+    "viewProduct": "View product page"
+  }
+},
+  "maintenance": {
+  "eyebrow": "Maintenance",
+  "title": "Site temporarily unavailable",
+  "description": "Our teams are running a scheduled update. Service will be restored shortly.",
+  "statusBadge": "Maintenance in progress",
+  "info": {
+    "duration": "Estimated duration: less than 30 minutes",
+    "dataSafe": "Your data and orders are safe",
+    "adminOnly": "Only administrators can sign in"
+  },
+  "backHome": "Back to home"
+},
+  "terms": {
+  "badge": "Terms",
+  "heroTitle": "Terms & Conditions",
+  "heroSubtitle": "By making a purchase on CFPD TryOn, you unreservedly accept these Terms & Conditions.",
+  "ctaTitle": "Shop with confidence",
+  "ctaSubtitle": "Our terms are clear, fair, and designed to protect your rights.",
+  "ctaButton": "Back to home",
+  "sections": {
+    "acceptance": {
+      "title": "1. Acceptance of Terms",
+      "p1": "By accessing the CFPD TryOn website and making a purchase, you unreservedly accept these Terms & Conditions. If you do not accept these terms, please do not use our site.",
+      "note": "We reserve the right to modify these terms at any time. Changes take effect as soon as they are published."
+    },
+    "products": {
+      "title": "2. Products and Prices",
+      "item1": "Product characteristics are described as accurately as possible.",
+      "item2": "All prices are shown in FCFA and reflect those in effect at the time of order.",
+      "item3": "Products remain the property of CFPD TryOn until full payment has been received."
+    },
+    "order": {
+      "title": "3. Order",
+      "step1": "Select the products you want and add them to your cart.",
+      "step2": "Sign in or create an account after confirming your cart.",
+      "step3": "Choose your delivery address and payment method.",
+      "step4": "Review your order details and total price before finalizing.",
+      "step5": "Confirming the order constitutes acceptance of these Terms and forms the sales contract."
+    },
+    "payment": {
+      "title": "4. Payment",
+      "item1": "We accept payment by credit card, mobile money, and bank transfer.",
+      "item2": "Payment is due immediately upon ordering.",
+      "item3": "All transactions are secure and encrypted using SSL technology."
+    },
+    "shipping": {
+      "title": "5. Shipping",
+      "item1": "Products are delivered to the address provided at checkout.",
+      "item2": "Delivery times are estimates and may vary based on availability.",
+      "item3": "If a delay exceeds 7 business days, you may cancel your order."
+    },
+    "returns": {
+      "title": "6. Right of Withdrawal and Returns",
+      "p1": "In accordance with our returns policy, you have 15 calendar days from receipt to return a product that doesn't suit you.",
+      "noteBefore": "Detailed terms are available on our",
+      "noteLinkText": "Returns Policy"
+    },
+    "warranty": {
+      "title": "7. Warranty",
+      "item1": "Products are covered by the legal warranty of conformity.",
+      "item2": "Keep your purchase receipt to make use of the warranty."
+    },
+    "contact": {
+      "title": "8. Contact",
+      "emailLabel": "Email:",
+      "addressLabel": "Address:",
+      "addressValue": "CFPD TryOn, Douala, Cameroon",
+      "phoneLabel": "Phone:"
+    }
+  }
+},
+"sizeGuide": {
+  "badge": "Size Guide",
+  "heroTitle": "Find your perfect size",
+  "heroSubtitle": "For a flawless fit with our virtual fitting room, follow these simple steps to take your measurements.",
+  "measuring": {
+    "title": "How to take your measurements",
+    "intro": "To ensure a perfect fit with our virtual fitting room, please follow these simple steps:",
+    "tip": "Tip: for more accuracy, ask someone to help you take your measurements."
+  },
+  "measures": {
+    "chest": { "title": "Chest", "desc": "Measure around the fullest part of your chest, keeping the tape horizontal." },
+    "waist": { "title": "Waist", "desc": "Measure around the narrowest part of your waist, usually at navel level." },
+    "hip": { "title": "Hips", "desc": "Measure around the fullest part of your hips and seat." },
+    "legLength": { "title": "Leg length", "desc": "Measure from the crotch to the floor, barefoot." }
+  },
+  "table": {
+    "title": "Size chart",
+    "subtitle": "All measurements are in centimeters (cm).",
+    "headers": {
+      "size": "Size",
+      "chest": "Chest (cm)",
+      "waist": "Waist (cm)",
+      "hip": "Hips (cm)"
+    },
+    "note": "These measurements are indicative. For the best fit, use our virtual try-on feature."
+  },
+  "between": {
+    "title": "Between two sizes?",
+    "intro": "If your measurements fall between two sizes, here are our recommendations:",
+    "item1": "For tops and dresses: choose the larger size if your chest is bigger.",
+    "item2": "For pants and skirts: choose the larger size if your hips are bigger.",
+    "item3": "If in doubt, feel free to contact us for personalized advice."
+  },
+  "international": {
+    "title": "International size conversion",
+    "headers": {
+      "tryon": "TryOn",
+      "fr": "France (FR)",
+      "uk": "UK",
+      "us": "US",
+      "it": "Italy (IT)"
+    }
+  },
+  "ctaTitle": "Ready for a perfect try-on?",
+  "ctaSubtitle": "Use your measurements to find your ideal size in our virtual fitting room.",
+  "ctaButton": "Start the try-on"
+},
+"shipping": {
+  "badge": "Shipping",
+  "heroTitle": "Shipping Policy",
+  "heroSubtitle": "Everything you need to know about delivery of your orders from CFPD TryOn.",
+  "zones": {
+    "title": "Delivery Zones",
+    "list": {
+      "douala": "Douala and surrounding areas",
+      "yaounde": "Yaoundé and surrounding areas",
+      "bafoussam": "Bafoussam",
+      "garoua": "Garoua",
+      "maroua": "Maroua",
+      "bamenda": "Bamenda",
+      "other": "All other regions of Cameroon"
+    },
+    "note": "For international deliveries, please contact us directly."
+  },
+  "delays": {
+    "title": "Delivery Times",
+    "standard": {
+      "title": "Standard Delivery",
+      "main": "3–5 business days for major cities",
+      "remote": "5–7 business days for remote areas"
+    },
+    "express": {
+      "title": "Express Delivery",
+      "main": "1–2 business days for Douala and Yaoundé",
+      "other": "2–3 business days for other major cities"
+    }
+  },
+  "fees": {
+    "title": "Delivery Fees",
+    "standard": {
+      "title": "Standard",
+      "free": "Free for orders over 50,000 FCFA",
+      "paid": "500 FCFA for smaller orders"
+    },
+    "express": {
+      "title": "Express",
+      "paid": "1,500 FCFA for all orders",
+      "free": "Free for orders over 100,000 FCFA"
+    }
+  },
+  "tracking": {
+    "title": "Order Tracking",
+    "desc": "Once your order has shipped, you'll receive an email with your tracking number. You can track your package in real time on our site or directly on the carrier's website."
+  },
+  "issues": {
+    "title": "Delays and Delivery Issues",
+    "phoneLabel": "By phone:",
+    "emailLabel": "By email:"
+  },
+  "ctaTitle": "Ready to place your order?",
+  "ctaSubtitle": "Enjoy our fast and reliable delivery service throughout Cameroon.",
+  "ctaButton": "View catalogue"
+},
+"returns": {
+  "badge": "Returns",
+  "heroTitle": "Returns Policy",
+  "heroSubtitle": "Everything you need to know about returning or exchanging items from CFPD TryOn.",
+  "delay": {
+    "title": "Return Window",
+    "textBefore": "You have",
+    "textBold": "15 calendar days",
+    "textAfter": "from the date you receive your order to return an item that doesn't suit you.",
+    "note": "This window is extended during holiday periods (Christmas, New Year, etc.)."
+  },
+  "conditions": {
+    "title": "Return Conditions",
+    "item1": "The item must be in its original condition, unworn, unwashed, and with all tags attached.",
+    "item2": "The item must be in its original packaging.",
+    "item3": "Personalized or custom-made items cannot be returned."
+  },
+  "process": {
+    "title": "Return Process",
+    "step1": "Sign in to your account on our site.",
+    "step2": "Go to the \"My Orders\" section.",
+    "step3": "Select the order containing the item to return.",
+    "step4": "Click \"Return an item\" and follow the instructions.",
+    "step5": "Print the return label and attach it to your package.",
+    "step6": "Drop off your package at the nearest pickup point.",
+    "note": "Return shipping costs are the customer's responsibility, unless the error is on our part."
+  },
+  "refund": {
+    "title": "Refund",
+    "card": { "mode": "Credit card", "delay": "3–5 business days" },
+    "mobileMoney": { "mode": "Mobile Money", "delay": "24–48 hours" },
+    "transfer": { "mode": "Bank transfer", "delay": "3–5 business days" }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "emailLabel": "Email:",
+    "phoneLabel": "Phone:",
+    "chatLabel": "Live chat:",
+    "chatHours": "available 9am–6pm, Monday to Friday"
+  },
+  "ctaTitle": "Shop with confidence",
+  "ctaSubtitle": "With our clear and fair returns policy, shop risk-free.",
+  "ctaButton": "Back to home"
+},
+"product": {
+  "loading": "Loading product...",
+  "notFound": {
+    "title": "Product not found",
+    "desc": "This product doesn't exist or is no longer available.",
+    "backToCatalogue": "Back to catalogue"
+  },
+  "fallback": {
+    "category": "Catalogue",
+    "condition": "New",
+    "description": "No description provided for this item."
+  },
+  "messages": {
+    "selectSize": "Please choose an available size.",
+    "addedToCart": "Added to cart in size {{size}} ✓",
+    "addToCartError": "Unable to add to cart",
+    "limitedStock": "Only {{count}} item(s) left in this size in your cart.",
+    "linkCopied": "Link copied!"
+  },
+  "whatsappMessage": "Hi, I'm interested in \"{{name}}\" ({{price}} FCFA) on TryOn.",
+  "breadcrumb": { "home": "Home", "catalogue": "Catalogue" },
+  "aria": {
+    "addToFavorites": "Add to favorites",
+    "share": "Share",
+    "close": "Close"
+  },
+  "detailsToggle": "Item details",
+  "detailLabels": {
+    "brand": "Brand",
+    "size": "Size",
+    "material": "Material"
+  },
+  "sizeSection": {
+    "label": "Size",
+    "guideLink": "Size guide →"
+  },
+  "stock": {
+    "outOfStock": "sold out",
+    "lowStock": "only {{count}} left",
+    "available": "{{count}} in stock"
+  },
+  "tryOnButton": "Try on virtually",
+  "addToCart": {
+    "outOfStock": "Sold out",
+    "added": "Added to cart",
+    "default": "Add to cart"
+  },
+  "whatsappButton": "Contact on WhatsApp",
+  "reassurance": "Secure cash-on-delivery or Mobile Money payment",
+  "descriptionTitle": "Description"
+},
+"privacyPolicy": {
+  "badge": "Privacy",
+  "heroTitle": "Privacy Policy",
+  "heroSubtitle": "How we collect, use, and protect your personal information when you use our services.",
+  "sections": {
+    "introduction": {
+      "title": "Introduction",
+      "p1": "At CFPD TryOn, we are committed to protecting your privacy. This policy describes how we collect, use, disclose, and secure your information when you visit our site or use our services.",
+      "consentNote": "By using our site, you consent to the practices described in this policy."
+    },
+    "collectedInfo": {
+      "title": "Information We Collect",
+      "personal": {
+        "title": "Personal information",
+        "item1": "Full name, email address, phone number",
+        "item2": "Billing and shipping address",
+        "item3": "Payment details (processed by our secure partners, not stored by us)",
+        "item4": "Purchase history and preferences",
+        "item5": "Virtual try-on data (uploaded photos, body measurements)"
+      },
+      "technical": {
+        "title": "Technical information",
+        "item1": "IP address, browser type, operating system",
+        "item2": "Pages visited, visit duration, navigation paths",
+        "item3": "Cookies and similar tracking technologies"
+      }
+    },
+    "usage": {
+      "title": "How We Use Your Information",
+      "item1": "To process your orders and provide our services",
+      "item2": "To personalize your shopping experience",
+      "item3": "To improve our website and features",
+      "item4": "To send you communications related to your account",
+      "item5": "To prevent fraud and ensure security"
+    },
+    "security": {
+      "title": "Data Security",
+      "card1": { "title": "SSL/TLS Encryption", "desc": "For all data transmissions" },
+      "card2": { "title": "Strict access controls", "desc": "Secure storage with limited access" },
+      "card3": { "title": "Regular audits", "desc": "Periodic security review of our systems" },
+      "card4": { "title": "Staff training", "desc": "Continuous data protection awareness" }
+    },
+    "rights": {
+      "title": "Your Rights",
+      "item1": "Right of access to your personal data",
+      "item2": "Right to rectify inaccurate data",
+      "item3": "Right to erasure (\"right to be forgotten\")"
+    },
+    "cookies": {
+      "title": "Cookies",
+      "item1": "Essential — necessary for the site to function",
+      "item2": "Performance — to analyze site usage",
+      "item3": "Functionality — to remember your preferences"
+    },
+    "contact": {
+      "title": "Contact",
+      "emailLabel": "Email:",
+      "addressLabel": "Address:",
+      "addressValue": "CFPD TryOn, Douala, Cameroon",
+      "phoneLabel": "Phone:"
+    }
+  },
+  "cta": {
+    "title": "Your data is safe",
+    "subtitle": "We protect your information with the highest standards of privacy.",
+    "backHome": "Back to home"
+  }
+},
+"helpCenter": {
+  "title": "Help Center",
+  "subtitle": "Find answers to frequently asked questions on CFPD TryOn.",
+  "heroTitle": "How can we help you?",
+  "searchPlaceholder": "Search for an answer...",
+  "categories": {
+    "commandes": { "label": "Orders", "desc": "Tracking, changes and history" },
+    "livraison": { "label": "Shipping", "desc": "Delivery times, address and package tracking" },
+    "paiement": { "label": "Payment", "desc": "Methods, security and verification" },
+    "essayage": { "label": "Virtual Try-On", "desc": "Photo, AI rendering and tips" },
+    "retours": { "label": "Returns", "desc": "Exchanges and refunds" },
+    "compte": { "label": "Account", "desc": "Profile, password and security" }
+  },
+  "faqs": {
+    "q1": {
+      "category": "Virtual Try-On",
+      "question": "How do I use the virtual try-on?",
+      "answer": "Choose a product, click on Virtual Try-On, upload your image and launch the simulation. The result allows you to visualize how the garment looks before buying."
+    },
+    "q2": {
+      "category": "Orders",
+      "question": "How do I track my order?",
+      "answer": "From your account, open the Orders section. You will be able to check the status and history of each order."
+    },
+    "q3": {
+      "category": "Payment",
+      "question": "Are my payments secure?",
+      "answer": "Yes. Transactions are processed through a secure gateway and sensitive information is not stored in plain text in the application."
+    },
+    "q4": {
+      "category": "Returns",
+      "question": "Can I return a product?",
+      "answer": "Returns are possible according to our general terms of sale. We recommend checking the return policy before making a request."
+    },
+    "q5": {
+      "category": "Account",
+      "question": "How do I change my personal information?",
+      "answer": "Go to your profile, then click on Edit Profile. You can update your name, email, and phone number."
+    },
+    "q6": {
+      "category": "Technical",
+      "question": "What should I do if the try-on doesn't start?",
+      "answer": "Check your internet connection, reload the page, and try again. If the issue persists, contact support using the help center form."
+    }
+  },
+  "alerts": {
+    "success": "Your request has been sent to support.",
+    "error": "Unable to send your request at the moment."
+  },
+  "sectionCategories": "Categories",
+  "sectionFaqs": "Frequently Asked Questions",
+  "noResults": {
+    "title": "No answers found",
+    "desc": "Try another keyword or contact support."
+  },
+  "contact": {
+    "title": "Still need help?",
+    "desc": "Send a request to CFPD TryOn support. We will get back to you as soon as possible.",
+    "button": "Contact Support"
+  },
+  "modal": {
+    "title": "Contact Support",
+    "subject": "Subject",
+    "subjectPlaceholder": "e.g., Issue with my order",
+    "priority": "Priority",
+    "priorityLow": "Low",
+    "priorityMedium": "Medium",
+    "priorityHigh": "High",
+    "message": "Message",
+    "messagePlaceholder": "Describe your issue...",
+    "send": "Send Request",
+    "sending": "Sending..."
+  }
+},
+"orders": {
+    "myAccount": "My Account",
+    "title": "My Orders",
+    "loading": "Loading…",
+    "errorLoad": "Unable to load your orders.",
+    "orderId": "Order",
+    "loadingDetails": "Loading items…",
+    "unnamedItem": "Unnamed item",
+    "itemSpec": "Size",
+    "itemQty": "Qty",
+    "subtotal": "Subtotal",
+    "deliveryFee": "Shipping",
+    "free": "Free",
+    "shippingAddress": "Shipping Address",
+    "continueShopping": "Continue shopping",
+    "empty": {
+      "title": "No orders yet",
+      "desc": "Your orders will appear here as soon as they have been placed.",
+      "btn": "Discover the collection"
+    },
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "payment": {
+      "orange_money": "Orange Money",
+      "mtn_mobile_money": "MTN Mobile Money",
+      "cash_on_delivery": "Cash on Delivery"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unreadCount": "{{count}} unread notification(s)",
+    "upToDate": "Everything is up to date",
+    "loading": "Loading your notifications…",
+    "errorLoad": "Unable to load notifications.",
+    "filter": {
+      "all": "All",
+      "unread": "Unread"
+    },
+    "action": {
+      "markAllRead": "Mark all read",
+      "delete": "Delete"
+    },
+    "empty": {
+      "title": "No notifications",
+      "allDesc": "Your notifications will show up here.",
+      "unreadDesc": "You don't have any unread notifications."
+    },
+    "date": {
+      "today": "Today",
+      "yesterday": "Yesterday"
+    }
+  },
+  "profile": {
+    "defaultUser": "User",
+    "roleAdmin": "Administrator",
+    "roleClient": "Client",
+    "updateSuccess": "Profile updated successfully!",
+    "updateError": "Error during update",
+    "notSpecified": "Not specified",
+    "footer": "TryOn v1.0 — Fashion platform with virtual try-on",
+    "actions": {
+      "orders": "Orders",
+      "tryon": "Try-on",
+      "cart": "Cart",
+      "admin": "Admin",
+      "edit": "Edit",
+      "editProfile": "Edit Profile",
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "logout": "Log Out"
+    },
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "phoneHelp": "Used for delivery tracking and order notifications."
+    },
+    "groups": {
+      "account": "Account",
+      "preferences": "Preferences",
+      "support": "Support"
+    },
+    "links": {
+      "notifications": "Notifications",
+      "helpCenter": "Help Center",
+      "privacyPolicy": "Privacy Policy",
+      "terms": "Terms & Conditions",
+      "shipping": "Shipping Info",
+      "returns": "Returns & Refunds"
+    }
+  }
+}

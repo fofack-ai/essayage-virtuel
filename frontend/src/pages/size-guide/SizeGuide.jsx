@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import MobileHeader from '../../components/layout/MobileHeader';
 
 // ─── ICÔNES LUCIDE ───
@@ -21,14 +22,19 @@ const sizes = [
   { s: 'XXL', chest: '106–111', waist: '88–93', hip: '114–119' }
 ];
 
-const measures = [
-  { icon: Ruler, title: 'Tour de poitrine', desc: 'Mesurez autour de la partie la plus forte de votre poitrine, en gardant le ruban horizontal.' },
-  { icon: Ruler, title: 'Tour de taille', desc: 'Mesurez autour de la partie la plus fine de votre taille, généralement au niveau du nombril.' },
-  { icon: Scale, title: 'Tour de hanches', desc: 'Mesurez autour de la partie la plus forte de vos hanches et fesses.' },
-  { icon: ArrowUpDown, title: 'Longueur de jambe', desc: 'Mesurez de l\'entrejambe jusqu\'au sol, pieds nus.' }
-];
+function getMeasures(t) {
+  return [
+    { icon: Ruler, title: t('sizeGuide.measures.chest.title'), desc: t('sizeGuide.measures.chest.desc') },
+    { icon: Ruler, title: t('sizeGuide.measures.waist.title'), desc: t('sizeGuide.measures.waist.desc') },
+    { icon: Scale, title: t('sizeGuide.measures.hip.title'), desc: t('sizeGuide.measures.hip.desc') },
+    { icon: ArrowUpDown, title: t('sizeGuide.measures.legLength.title'), desc: t('sizeGuide.measures.legLength.desc') }
+  ];
+}
 
 export default function SizeGuide() {
+  const { t } = useTranslation();
+  const measures = getMeasures(t);
+
   return (
     <div className="static-page" style={{ paddingTop: '72px', minHeight: '100vh', background: '#F9F9F9' }}>
       <MobileHeader />
@@ -104,7 +110,7 @@ export default function SizeGuide() {
             display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}
         >
-          <ChevronLeft size={22} strokeWidth={2} />  {/* ← Changé */}
+          <ChevronLeft size={22} strokeWidth={2} />
         </button>
 
         <div className="static-hero-badge" style={{
@@ -116,7 +122,7 @@ export default function SizeGuide() {
           borderRadius: '50px', marginBottom: '1.25rem'
         }}>
           <Ruler size={14} strokeWidth={2} />
-          Guide des tailles
+          {t('sizeGuide.badge')}
         </div>
         <h1 className="static-hero-title" style={{
           fontFamily: "'Cormorant Garamond', serif",
@@ -124,13 +130,13 @@ export default function SizeGuide() {
           fontWeight: 600, color: '#1A1A1A',
           marginBottom: '1rem', lineHeight: '1.1'
         }}>
-          Trouvez votre taille parfaite
+          {t('sizeGuide.heroTitle')}
         </h1>
         <p className="static-hero-sub" style={{
           fontSize: '1rem', color: '#6A6F78',
           maxWidth: '560px', margin: '0 auto', lineHeight: '1.7'
         }}>
-          Pour un ajustement impeccable avec notre cabine d'essayage virtuel, suivez ces étapes simples pour prendre vos mesures.
+          {t('sizeGuide.heroSubtitle')}
         </p>
       </section>
 
@@ -143,10 +149,10 @@ export default function SizeGuide() {
             display: 'flex', alignItems: 'center', gap: '10px'
           }}>
             <Ruler size={22} strokeWidth={1.8} />
-            Comment prendre vos mesures
+            {t('sizeGuide.measuring.title')}
           </h2>
           <p className="static-p" style={{ fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.75', marginBottom: '1rem' }}>
-            Pour garantir un ajustement parfait avec notre cabine d'essayage virtuel, veuillez suivre ces étapes simples :
+            {t('sizeGuide.measuring.intro')}
           </p>
           <div className="static-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
             {measures.map(m => {
@@ -180,7 +186,7 @@ export default function SizeGuide() {
             display: 'flex', alignItems: 'center', gap: '8px'
           }}>
             <Lightbulb size={16} strokeWidth={2} color="#355C86" />
-            Conseil : pour plus de précision, demandez à quelqu'un de vous aider à prendre vos mesures.
+            {t('sizeGuide.measuring.tip')}
           </div>
         </section>
 
@@ -192,10 +198,10 @@ export default function SizeGuide() {
             display: 'flex', alignItems: 'center', gap: '10px'
           }}>
             <Scale size={22} strokeWidth={1.8} />
-            Tableau des tailles
+            {t('sizeGuide.table.title')}
           </h2>
           <p className="static-p" style={{ fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.75', marginBottom: '1.5rem' }}>
-            Toutes les mesures sont en centimètres (cm).
+            {t('sizeGuide.table.subtitle')}
           </p>
           <div style={{ overflowX: 'auto', borderRadius: '14px' }}>
             <table className="size-table" style={{
@@ -212,7 +218,7 @@ export default function SizeGuide() {
                     color: '#355C86', background: '#DDE8F3',
                     borderBottom: '1px solid rgba(0,0,0,0.08)'
                   }}>
-                    Taille
+                    {t('sizeGuide.table.headers.size')}
                   </th>
                   <th style={{
                     padding: '1rem 1.25rem', textAlign: 'left',
@@ -221,7 +227,7 @@ export default function SizeGuide() {
                     color: '#355C86', background: '#DDE8F3',
                     borderBottom: '1px solid rgba(0,0,0,0.08)'
                   }}>
-                    Poitrine (cm)
+                    {t('sizeGuide.table.headers.chest')}
                   </th>
                   <th style={{
                     padding: '1rem 1.25rem', textAlign: 'left',
@@ -230,7 +236,7 @@ export default function SizeGuide() {
                     color: '#355C86', background: '#DDE8F3',
                     borderBottom: '1px solid rgba(0,0,0,0.08)'
                   }}>
-                    Taille (cm)
+                    {t('sizeGuide.table.headers.waist')}
                   </th>
                   <th style={{
                     padding: '1rem 1.25rem', textAlign: 'left',
@@ -239,7 +245,7 @@ export default function SizeGuide() {
                     color: '#355C86', background: '#DDE8F3',
                     borderBottom: '1px solid rgba(0,0,0,0.08)'
                   }}>
-                    Hanches (cm)
+                    {t('sizeGuide.table.headers.hip')}
                   </th>
                 </tr>
               </thead>
@@ -284,7 +290,7 @@ export default function SizeGuide() {
             marginTop: '1rem'
           }}>
             <Sparkles size={14} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
-            Ces mesures sont indicatives. Pour un ajustement optimal, utilisez notre fonctionnalité d'essayage virtuel.
+            {t('sizeGuide.table.note')}
           </div>
         </section>
 
@@ -294,23 +300,23 @@ export default function SizeGuide() {
             fontWeight: 600, color: '#1A1A1A', marginBottom: '1.25rem',
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
-            Entre deux tailles ?
+            {t('sizeGuide.between.title')}
           </h2>
           <p className="static-p" style={{ fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.75', marginBottom: '1rem' }}>
-            Si vos mesures se situent entre deux tailles, voici nos recommandations :
+            {t('sizeGuide.between.intro')}
           </p>
           <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Pour les hauts et robes : choisissez la taille supérieure si votre poitrine est plus grande.
+              {t('sizeGuide.between.item1')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Pour les pantalons et jupes : choisissez la taille supérieure si vos hanches sont plus grandes.
+              {t('sizeGuide.between.item2')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              En cas de doute, n'hésitez pas à nous contacter pour un conseil personnalisé.
+              {t('sizeGuide.between.item3')}
             </li>
           </ul>
         </section>
@@ -321,7 +327,7 @@ export default function SizeGuide() {
             fontWeight: 600, color: '#1A1A1A', marginBottom: '1.25rem',
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
-            Correspondances internationales
+            {t('sizeGuide.international.title')}
           </h2>
           <div style={{ overflowX: 'auto', borderRadius: '14px' }}>
             <table className="size-table" style={{
@@ -338,7 +344,7 @@ export default function SizeGuide() {
                     color: '#355C86', background: '#DDE8F3',
                     borderBottom: '1px solid rgba(0,0,0,0.08)'
                   }}>
-                    TryOn
+                    {t('sizeGuide.international.headers.tryon')}
                   </th>
                   <th style={{
                     padding: '1rem 1.25rem', textAlign: 'left',
@@ -347,7 +353,7 @@ export default function SizeGuide() {
                     color: '#355C86', background: '#DDE8F3',
                     borderBottom: '1px solid rgba(0,0,0,0.08)'
                   }}>
-                    France (FR)
+                    {t('sizeGuide.international.headers.fr')}
                   </th>
                   <th style={{
                     padding: '1rem 1.25rem', textAlign: 'left',
@@ -356,7 +362,7 @@ export default function SizeGuide() {
                     color: '#355C86', background: '#DDE8F3',
                     borderBottom: '1px solid rgba(0,0,0,0.08)'
                   }}>
-                    UK
+                    {t('sizeGuide.international.headers.uk')}
                   </th>
                   <th style={{
                     padding: '1rem 1.25rem', textAlign: 'left',
@@ -365,7 +371,7 @@ export default function SizeGuide() {
                     color: '#355C86', background: '#DDE8F3',
                     borderBottom: '1px solid rgba(0,0,0,0.08)'
                   }}>
-                    US
+                    {t('sizeGuide.international.headers.us')}
                   </th>
                   <th style={{
                     padding: '1rem 1.25rem', textAlign: 'left',
@@ -374,7 +380,7 @@ export default function SizeGuide() {
                     color: '#355C86', background: '#DDE8F3',
                     borderBottom: '1px solid rgba(0,0,0,0.08)'
                   }}>
-                    Italie (IT)
+                    {t('sizeGuide.international.headers.it')}
                   </th>
                 </tr>
               </thead>
@@ -436,10 +442,10 @@ export default function SizeGuide() {
           fontFamily: "'Cormorant Garamond', serif", fontSize: '2.25rem',
           fontWeight: 600, marginBottom: '1rem', lineHeight: '1.2'
         }}>
-          Prêt pour un essayage parfait ?
+          {t('sizeGuide.ctaTitle')}
         </h2>
         <p className="static-cta-sub" style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '2.5rem' }}>
-          Utilisez nos mesures pour trouver votre taille idéale dans notre cabine d'essayage virtuel.
+          {t('sizeGuide.ctaSubtitle')}
         </p>
         <Link to="/tryon" className="static-cta-btn" style={{
           display: 'inline-flex', alignItems: 'center', gap: '10px',
@@ -450,7 +456,7 @@ export default function SizeGuide() {
           boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
         }}>
           <Sparkles size={16} strokeWidth={2} />
-          Commencer l'essayage
+          {t('sizeGuide.ctaButton')}
         </Link>
       </section>
     </div>

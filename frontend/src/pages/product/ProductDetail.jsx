@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { useCart } from "../../context/CartContext";
 import { api, getImageUrl } from "../../services/api";
 import { FaWhatsapp } from "react-icons/fa";
@@ -30,6 +31,7 @@ export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { t } = useTranslation();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -52,11 +54,11 @@ export default function ProductDetail() {
           id: p.id,
           name: p.name,
           brand: p.brand || "—",
-          category: p.categoryName || p.category || "Catalogue",
+          category: p.categoryName || p.category || t('product.fallback.category'),
           material: p.material || p.matiere || null,
-          condition: p.condition || "Neuf",
+          condition: p.condition || t('product.fallback.condition'),
           price: Number(p.price),
-          description: p.description || "Aucune description fournie pour cet article.",
+          description: p.description || t('product.fallback.description'),
           colors: p.color ? [p.color] : ["#1a1410"],
           sizes: p.sizes?.length
             ? p.sizes.map((s) => ({
@@ -80,22 +82,22 @@ export default function ProductDetail() {
       }
     }
     loadProduct();
-  }, [id]);
+  }, [id, t]);
 
   if (loading) {
-    return <LoadingPage message="Chargement du produit..." />;
+    return <LoadingPage message={t('product.loading')} />;
   }
 
   if (!product) {
     return (
       <div style={{ paddingTop: 140, paddingBottom: 80, textAlign: 'center' }}>
         <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontWeight: 300, fontSize: 32, marginBottom: 12 }}>
-          Produit introuvable
+          {t('product.notFound.title')}
         </h2>
         <p style={{ color: '#6A6F78', marginBottom: 24 }}>
-          Ce produit n'existe pas ou n'est plus disponible.
+          {t('product.notFound.desc')}
         </p>
-        <Link to="/catalogue" className="btn-outline">Retour au catalogue</Link>
+        <Link to="/catalogue" className="btn-outline">{t('product.notFound.backToCatalogue')}</Link>
       </div>
     );
   }
@@ -107,7 +109,7 @@ export default function ProductDetail() {
 const handleAdd = async () => {
     const selectedSizeInfo = product.sizes.find((s) => s.label === selectedSize);
     if (!selectedSizeInfo || selectedSizeInfo.stock <= 0) {
-      setMessage({ type: 'error', text: "Veuillez choisir une taille disponible." });
+      setMessage({ type: 'error', text: t('product.messages.selectSize') });
       return;
     }
     try {
@@ -122,16 +124,16 @@ const handleAdd = async () => {
         sizeStock: selectedSizeInfo.stock,
         qty: 1,
       });
-      setMessage({ type: 'success', text: `Ajouté au panier en taille ${selectedSize} ✓` });
+      setMessage({ type: 'success', text: t('product.messages.addedToCart', { size: selectedSize }) });
       setAdded(true);
       setTimeout(() => { setAdded(false); setMessage(null); }, 2500);
     } catch (error) {
       // On rend le message du serveur plus clair
-      let text = error.message || "Impossible d'ajouter au panier";
+      let text = error.message || t('product.messages.addToCartError');
       if (text.includes("n'est disponible qu'en")) {
         const match = text.match(/(\d+) exemplaire/);
         const reste = match ? match[1] : '';
-        text = `Il ne reste que ${reste} exemplaire(s) de cette taille dans votre panier.`;
+        text = t('product.messages.limitedStock', { count: reste });
       }
       setMessage({ type: 'error', text });
     }
@@ -143,12 +145,12 @@ const handleAdd = async () => {
       try { await navigator.share({ title: product.name, url }); } catch (_) {}
     } else {
       navigator.clipboard?.writeText(url);
-      setMessage({ type: 'success', text: "Lien copié !" });
+      setMessage({ type: 'success', text: t('product.messages.linkCopied') });
     }
   };
 
   const whatsappUrl = `https://wa.me/${SHOP_WHATSAPP}?text=${encodeURIComponent(
-    `Bonjour, je suis intéressé(e) par « ${product.name} » (${product.price.toLocaleString()} FCFA) sur TryOn.`
+    t('product.whatsappMessage', { name: product.name, price: product.price.toLocaleString() })
   )}`;
 
   const T = { ink: '#1A1A1A', blue: '#355C86', muted: '#6A6F78', border: 'rgba(26,26,26,.11)', card: '#fff' };
@@ -290,9 +292,9 @@ const handleAdd = async () => {
 
       {/* Breadcrumb */}
       <div className="product-breadcrumb" style={{ padding: '12px 48px', fontSize: 12, color: T.muted, display: 'flex', gap: 8, borderBottom: `1px solid ${T.border}`, background: '#fff' }}>
-        <Link to="/" style={{ color: T.blue, textDecoration: 'none' }}>Accueil</Link>
+        <Link to="/" style={{ color: T.blue, textDecoration: 'none' }}>{t('product.breadcrumb.home')}</Link>
         <span>›</span>
-        <Link to="/catalogue" style={{ color: T.blue, textDecoration: 'none' }}>Catalogue</Link>
+        <Link to="/catalogue" style={{ color: T.blue, textDecoration: 'none' }}>{t('product.breadcrumb.catalogue')}</Link>
         <span>›</span>
         <span>{product.name}</span>
       </div>
@@ -334,13 +336,13 @@ const handleAdd = async () => {
               {product.price.toLocaleString()} <small style={{ fontSize: 16, fontWeight: 300 }}>FCFA</small>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button type="button" onClick={() => setFavorite(f => !f)} aria-label="Ajouter aux favoris" style={{
+              <button type="button" onClick={() => setFavorite(f => !f)} aria-label={t('product.aria.addToFavorites')} style={{
                 width: 46, height: 46, borderRadius: 12, cursor: 'pointer',
                 border: `1.5px solid ${favorite ? '#B83228' : T.border}`,
                 background: favorite ? 'rgba(184,50,40,.08)' : '#fff',
                 fontSize: 20, color: favorite ? '#B83228' : T.muted,
               }}><Heart size={18} fill={favorite ? '#B83228' : 'none'} /></button>
-              <button type="button" onClick={handleShare} aria-label="Partager" style={{
+              <button type="button" onClick={handleShare} aria-label={t('product.aria.share')} style={{
                 width: 46, height: 46, borderRadius: 12, cursor: 'pointer',
                 border: `1.5px solid ${T.border}`, background: '#fff', fontSize: 18, color: T.muted,
               }}><Share2 size={17} /></button>
@@ -354,15 +356,15 @@ const handleAdd = async () => {
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               fontSize: 16, fontWeight: 600, color: T.ink,
             }}>
-              Détails de l'article
+              {t('product.detailsToggle')}
               <span style={{ transform: detailsOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>⌄</span>
             </button>
             {detailsOpen && (
               <div className="product-detail-content" style={{ padding: '0 24px 24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px 24px' }}>
                 {[
-                  ['Marque', product.brand],
-                  ['Taille', selectedSize || '—'],
-                  ['Matière', product.material || '—'],
+                  [t('product.detailLabels.brand'), product.brand],
+                  [t('product.detailLabels.size'), selectedSize || '—'],
+                  [t('product.detailLabels.material'), product.material || '—'],
                 ].map(([k, v]) => (
                   <div key={k}>
                     <div style={{ fontSize: 12, color: T.muted, marginBottom: 4 }}>{k}</div>
@@ -376,7 +378,7 @@ const handleAdd = async () => {
           {/* Taille */}
           <div style={{ marginBottom: 28 }}>
             <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: '1.5px', textTransform: 'uppercase', color: T.muted, marginBottom: 12, display: 'flex', justifyContent: 'space-between' }}>
-              Taille <Link to="/size-guide" style={{ color: T.blue, textTransform: 'none', letterSpacing: 0, textDecoration: 'none' }}>Guide des tailles →</Link>
+              {t('product.sizeSection.label')} <Link to="/size-guide" style={{ color: T.blue, textTransform: 'none', letterSpacing: 0, textDecoration: 'none' }}>{t('product.sizeSection.guideLink')}</Link>
             </div>
             <div className="product-size-grid" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {ALL_SIZES.map(s => {
@@ -401,7 +403,7 @@ const handleAdd = async () => {
                       fontWeight: 500,
                       color: on ? 'rgba(255,255,255,.75)' : !available ? '#c0392b' : lowStock ? '#c0392b' : '#2E7C4F',
                     }}>
-                      {!available ? 'épuisé' : lowStock ? `plus que ${stock}` : `${stock} dispo`}
+                      {!available ? t('product.stock.outOfStock') : lowStock ? t('product.stock.lowStock', { count: stock }) : t('product.stock.available', { count: stock })}
                     </small>
                   </button>
                 );
@@ -423,7 +425,7 @@ const handleAdd = async () => {
               <button type="button" onClick={() => setMessage(null)} style={{
                 background: 'none', border: 'none', cursor: 'pointer', fontSize: 18,
                 color: 'inherit', opacity: .6, lineHeight: 1,
-              }} aria-label="Fermer">×</button>
+              }} aria-label={t('product.aria.close')}>×</button>
             </div>
           )}
 
@@ -437,7 +439,7 @@ const handleAdd = async () => {
               fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
             }}>
-              Essayer virtuellement
+              {t('product.tryOnButton')}
             </button>
 
             {/* Ajouter au panier */}
@@ -448,7 +450,7 @@ const handleAdd = async () => {
               border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
               fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase',
             }}>
-              {isOutOfStock ? (<><X size={16} /> Épuisé</>) : (added ? (<><Check size={16} /> Ajouté au panier</>) : (<><ShoppingBag size={16} /> Ajouter au panier</>))}
+              {isOutOfStock ? (<><X size={16} /> {t('product.addToCart.outOfStock')}</>) : (added ? (<><Check size={16} /> {t('product.addToCart.added')}</>) : (<><ShoppingBag size={16} /> {t('product.addToCart.default')}</>))}
             </button>
 
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" style={{
@@ -460,20 +462,20 @@ const handleAdd = async () => {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
               </svg>
-              Contacter sur WhatsApp
+              {t('product.whatsappButton')}
             </a>
 
             {/* Réassurance */}
             <div className="product-reassurance" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: T.muted, justifyContent: 'center' }}>
               <span style={{ color: '#2E7C4F', display: 'flex', alignItems: 'center' }}><ShieldCheck size={16} /></span>
-              Paiement à la livraison ou Mobile Money sécurisé
+              {t('product.reassurance')}
             </div>
           </div>
 
           {/* Description */}
           <div className="product-description" style={{ marginTop: 32, paddingTop: 28, borderTop: `1px solid ${T.border}` }}>
             <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 24, fontWeight: 400, marginBottom: 14 }}>
-              Description
+              {t('product.descriptionTitle')}
             </h2>
             <p style={{ fontSize: 15, lineHeight: 1.7, color: T.muted }}>
               {product.description}

@@ -166,6 +166,94 @@ nav.vesti-header {
   gap: 1rem;
 }
 
+/* ─── LANGUAGE SWITCHER ─── */
+.lang-switcher {
+  position: relative;
+}
+
+.lang-switcher-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 22px rgba(26,20,16,0.07);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.lang-switcher-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(53,92,134,0.3);
+  color: var(--blue-dark);
+}
+
+.lang-switcher-btn.open {
+  border-color: var(--blue-dark);
+  color: var(--blue-dark);
+}
+
+.lang-switcher-code {
+  line-height: 1;
+}
+
+.lang-switcher-chevron {
+  transition: transform 0.2s ease;
+}
+
+.lang-switcher-btn.open .lang-switcher-chevron {
+  transform: rotate(180deg);
+}
+
+.lang-switcher-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 12px);
+  width: 170px;
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  z-index: 1000;
+  padding: 6px;
+  animation: dropdownIn 0.18s ease;
+}
+
+.lang-switcher-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  text-align: left;
+}
+
+.lang-switcher-option:hover {
+  background: var(--warm);
+  color: var(--blue-dark);
+}
+
+.lang-switcher-option.active {
+  color: var(--blue-dark);
+  font-weight: 700;
+}
+
 /* ─── FOOTER ─── */
 footer {
   background: linear-gradient(180deg, #1A1A1A 0%, #26384D 100%);

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { api, getImageUrl } from "../../services/api";
 import ProductCard from "../../components/shop/ProductCard";
 import FilterSidebar from "../../components/shop/FilterSidebar";
@@ -10,15 +11,16 @@ import { useCart } from '../../context/CartContext';
 import MobileHeader from '../../components/layout/MobileHeader';
 import LoadingPage from '../../components/common/LoadingPage';
 
-const FILTERS = [
-  { label: 'Tous',      value: 'all'      },
-  { label: 'Femme',     value: 'femme'    },
-  { label: 'Homme',     value: 'homme'    },
-  { label: 'Robes',     value: 'robes'    },
-  { label: 'Chemises',  value: 'chemises' },
-  { label: 'Pantalons', value: 'pantalons'},
-  { label: 'Vestes',    value: 'vestes'   },
-];
+const FILTER_VALUES = ['all', 'femme', 'homme', 'robes', 'chemises', 'pantalons', 'vestes'];
+const FILTER_KEYS = {
+  all: 'shop.filters.all',
+  femme: 'shop.filters.women',
+  homme: 'shop.filters.men',
+  robes: 'shop.filters.dresses',
+  chemises: 'shop.filters.shirts',
+  pantalons: 'shop.filters.pants',
+  vestes: 'shop.filters.jackets',
+};
 
 const BATCH_SIZE = 8;
 
@@ -52,8 +54,14 @@ function RevealOnScroll({ children }) {
 }
 
 export default function Shop() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get('category') || 'all';
+
+  const FILTERS = useMemo(
+    () => FILTER_VALUES.map((value) => ({ value, label: t(FILTER_KEYS[value]) })),
+    [t]
+  );
 
   const [filter, setFilter] = useState(initialCategory);
   const [search, setSearch] = useState("");
@@ -184,7 +192,7 @@ export default function Shop() {
   };
 
   if (loading) {
-    return <LoadingPage message="Chargement du catalogue..." />;
+    return <LoadingPage message={t('shop.loading')} />;
   }
 
   return (
@@ -239,6 +247,7 @@ export default function Shop() {
           font-weight: 300;
           line-height: 1;
           margin: 18px 0;
+          color: #fff
         }
 
         .shop-hero-text h1 em {
@@ -617,18 +626,18 @@ export default function Shop() {
 
       <section className="shop-hero">
         <div className="shop-hero-text">
-          <span>Collection TryOn</span>
+          <span>{t('shop.hero.tag')}</span>
           <h1>
-            Boutique <em>africaine</em>
+            {t('shop.hero.titleLine')} <em>{t('shop.hero.titleHighlight')}</em>
           </h1>
-          <p>Découvrez nos tenues modernes et essayez-les virtuellement avant d’acheter.</p>
+          <p>{t('shop.hero.description')}</p>
         </div>
       </section>
 
       <section className="catalogue-section">
         <div className="catalogue-header">
           <h2>
-            Tous les <em>vêtements</em>
+            {t('shop.header.titleLine')} <em>{t('shop.header.titleHighlight')}</em>
           </h2>
         </div>
 
@@ -646,7 +655,7 @@ export default function Shop() {
 
         {!loading && visibleProducts.length === 0 && (
           <p style={{ textAlign: 'center', padding: '40px 0', color: '#6A6F78' }}>
-            Aucun produit disponible pour le moment.
+            {t('shop.empty')}
           </p>
         )}
 
@@ -667,7 +676,7 @@ export default function Shop() {
         )}
 
         {!loading && !hasMore && visibleProducts.length > 0 && (
-          <p className="end-of-catalogue">Vous avez tout vu ✨</p>
+          <p className="end-of-catalogue">{t('shop.endOfCatalogue')}</p>
         )}
       </section>
     </div>

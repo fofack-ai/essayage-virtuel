@@ -1,0 +1,973 @@
+{
+  "navbar": {
+    "home": "Accueil",
+    "catalogue": "Catalogue",
+    "account": "Compte utilisateur",
+    "notifications": "Notifications",
+    "settings": "Paramètres",
+    "myOrders": "Mes commandes",
+    "logout": "Se déconnecter"
+  },
+  "footer": {
+    "description": "Plateforme e-commerce avec cabine d'essayage virtuelle au Cameroun. Développée sous la charte du TryOn.",
+    "shop": {
+      "title": "Boutique",
+      "new": "Nouveautés",
+      "women": "Femme",
+      "men": "Homme",
+      "accessories": "Accessoires",
+      "promotions": "Promotions"
+    },
+    "services": {
+      "title": "Services",
+      "virtualTryOn": "Essayage Virtuel",
+      "sizeGuide": "Guide des tailles",
+      "shipping": "Livraison",
+      "returns": "Retours"
+    },
+    "contact": {
+      "title": "Contact",
+      "location": "Douala, Cameroun"
+    },
+    "copyright": "© 2026 CFPD TryOn — Application de mode africaine et cabine d'essayage virtuelle. Tous droits réservés.",
+    "privacyPolicy": "Politique de confidentialité",
+    "terms": "CGV"
+  },
+  "home": {
+    "states": {
+      "loading": "Chargement...",
+      "error": "Erreur : {{message}}"
+    },
+    "hero": {
+      "badge": "Essayage virtuel par IA",
+      "titleLine1": "La mode africaine",
+      "titleHighlight": "réinventée",
+      "titleLine2": "pour vous",
+      "description": "Essayez virtuellement des tenues wax, bogolan et ankara grâce à notre cabine IA. Commandez avec confiance.",
+      "ctaTryOn": "Essayer maintenant",
+      "ctaTryOnAria": "Essayer l'essayage virtuel",
+      "ctaCatalogue": "Voir le catalogue",
+      "ctaCatalogueAria": "Voir le catalogue produits",
+      "statOutfits": "Tenues disponibles",
+      "statSatisfaction": "Satisfaction client",
+      "statTryOns": "Essayages réalisés",
+      "aiScoreLabel": "Score IA",
+      "aiScoreCompat": "Compatibilité morphologique",
+      "aiScoreBadgeAria": "Badge indiquant un score IA de 94% pour la compatibilité morphologique"
+    },
+    "categories": {
+      "subheader": "Collections",
+      "titleLine": "Explorez nos",
+      "titleHighlight": "catégories",
+      "discoverAria": "Découvrir la catégorie {{name}}",
+      "discoverFallback": "Découvrir →",
+      "empty": "Aucune catégorie disponible"
+    },
+    "featured": {
+      "subtitle": "Sélection",
+      "titleLine": "Produits",
+      "titleHighlight": "vedettes",
+      "viewAll": "Voir tout →",
+      "viewAllAria": "Voir tous les produits vedettes",
+      "empty": "Aucun produit disponible"
+    },
+    "iaBanner": {
+      "badge": "Technologie IA",
+      "titleLine1": "Votre cabine d'essayage",
+      "titleHighlight": "virtuelle",
+      "description": "Uploadez votre photo, notre IA analyse votre morphologie et vous propose les tailles et coupes les plus adaptées.",
+      "cta": "Essayer gratuitement →",
+      "ctaAria": "Commencer l'essayage virtuel gratuitement",
+      "step1Title": "Uploadez votre photo",
+      "step1Desc": "Une photo de face en tenue ajustée suffit.",
+      "step2Title": "Analyse morphologique",
+      "step2Desc": "Notre IA détecte vos mesures en quelques secondes.",
+      "step3Title": "Score de compatibilité",
+      "step3Desc": "Chaque vêtement reçoit un score d'adéquation.",
+      "step4Title": "Commandez en confiance",
+      "step4Desc": "Ajustements de taille inclus automatiquement."
+    },
+    "productCard": {
+      "tryOnButton": "Essayer virtuellement",
+      "tagNew": "Nouveau",
+      "tagOut": "Rupture"
+    }
+  },
+  "shop": {
+    "filters": {
+      "all": "Tous",
+      "women": "Femme",
+      "men": "Homme",
+      "dresses": "Robes",
+      "shirts": "Chemises",
+      "pants": "Pantalons",
+      "jackets": "Vestes"
+    },
+    "loading": "Chargement du catalogue...",
+    "hero": {
+      "tag": "Collection TryOn",
+      "titleLine": "Boutique",
+      "titleHighlight": "africaine",
+      "description": "Découvrez nos tenues modernes et essayez-les virtuellement avant d'acheter."
+    },
+    "header": {
+      "titleLine": "Tous les",
+      "titleHighlight": "vêtements"
+    },
+    "empty": "Aucun produit disponible pour le moment.",
+    "endOfCatalogue": "Vous avez tout vu ✨",
+    "search": {
+      "placeholder": "Rechercher une tenue..."
+    },
+    "sort": {
+      "popularity": "Popularité",
+      "priceAsc": "Prix croissant",
+      "priceDesc": "Prix décroissant"
+    },
+    "productCard": {
+      "view": "Voir",
+      "tryOn": "Essayer virtuellement"
+    }
+  },
+  "auth": {
+  "loading": "Chargement...",
+  "registrationClosed": {
+    "heroTitle": "Inscriptions",
+    "heroHighlight": "fermées",
+    "tag1": "🔒 Sécurisé",
+    "tag2": "📧 Contact support",
+    "tag3": "⏳ Réessayer plus tard",
+    "title": "Inscriptions fermées",
+    "desc1": "Les inscriptions sont temporairement fermées par l'administrateur.",
+    "desc2": "Veuillez réessayer plus tard ou contacter le support.",
+    "loginButton": "Se connecter"
+  },
+  "errors": {
+    "registrationClosed": "Les inscriptions sont temporairement fermées.",
+    "passwordMismatch": "Les mots de passe ne correspondent pas."
+  },
+  "messages": {
+    "otpSentAdmin": "Un code OTP a été envoyé à votre email administrateur.",
+    "otpSent": "Un code OTP a été envoyé.",
+    "resetLinkSent": "Un lien de réinitialisation a été envoyé à votre adresse email.",
+    "passwordResetSuccess": "Mot de passe réinitialisé avec succès."
+  },
+  "hero": {
+    "login": {
+      "title": "Connectez-vous à votre",
+      "highlight": "style",
+      "end": "et essayez avant d'acheter.",
+      "tags": ["Compte client", "Commandes", "Essayages virtuels", "Favoris"]
+    },
+    "register": {
+      "title": "Créez votre espace",
+      "highlight": "TryOn",
+      "end": "et construisez votre dressing.",
+      "tags": ["Profil morphologie", "Tailles sauvegardées", "Offres privées", "Suivi commandes"]
+    },
+    "forgot": {
+      "title": "Retrouvez l'accès à votre",
+      "highlight": "compte",
+      "end": "en toute sécurité.",
+      "tags": ["Email sécurisé", "Nouveau mot de passe", "Retour rapide", "Compte protégé"]
+    },
+    "reset": {
+      "title": "Choisissez un nouveau",
+      "highlight": "mot de passe",
+      "end": "pour sécuriser votre compte.",
+      "tags": ["Lien sécurisé", "Nouveau mot de passe", "Protection renforcée", "Accès restauré"]
+    },
+    "otp": {
+      "line1": "Vérifiez votre",
+      "highlight": "identité",
+      "line2": "administrateur.",
+      "tags": ["Sécurité renforcée", "Code OTP", "Accès administrateur", "Compte protégé"]
+    }
+  },
+  "tabs": {
+    "login": "Connexion",
+    "register": "Créer un compte"
+  },
+  "login": {
+    "otpTitle": "Vérification OTP",
+    "title": "Bon retour",
+    "otpDesc": "Entrez le code de vérification reçu pour accéder à votre espace administrateur.",
+    "desc": "Accédez à votre espace personnel et retrouvez vos essayages.",
+    "otpLabel": "Code OTP",
+    "otpPlaceholder": "Ex : 123456",
+    "verifyButton": "Vérifier le code",
+    "emailLabel": "Email",
+    "emailPlaceholder": "vous@exemple.cm",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "••••••••",
+    "forgotLink": "Mot de passe oublié ?",
+    "submitButton": "Se connecter",
+    "orContinueWith": "ou continuer avec",
+    "googleButton": "Continuer avec Google"
+  },
+  "register": {
+    "title": "Créer un compte",
+    "desc": "Créez votre profil pour sauvegarder vos tailles, favoris et commandes.",
+    "firstNameLabel": "Prénom",
+    "firstNamePlaceholder": "Miranda",
+    "lastNameLabel": "Nom",
+    "lastNamePlaceholder": "Eko",
+    "emailLabel": "Email",
+    "emailPlaceholder": "vous@exemple.cm",
+    "phoneLabel": "Téléphone",
+    "phonePlaceholder": "+237 6XX XXX XXX",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "Minimum 6 caractères",
+    "confirmLabel": "Confirmer",
+    "confirmPlaceholder": "Répétez le mot de passe",
+    "submitButton": "Créer mon compte"
+  },
+  "forgot": {
+    "title": "Réinitialisation",
+    "desc": "Entrez votre email pour recevoir les instructions et obtenir un nouveau mot de passe sécurisé.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "vous@exemple.cm",
+    "submitButton": "Demander un nouveau mot de passe",
+    "backLink": "← Retour à la connexion"
+  },
+  "reset": {
+    "title": "Nouveau mot de passe",
+    "desc": "Entrez le token reçu par email puis choisissez votre nouveau mot de passe.",
+    "newPasswordLabel": "Nouveau mot de passe",
+    "passwordPlaceholder": "********",
+    "confirmLabel": "Confirmer",
+    "submitButton": "Réinitialiser",
+    "backLink": "← Retour à la connexion"
+  }
+},
+"cart": {
+  "hero": {
+    "tag": "Panier CFPD TryOn",
+    "title": "Votre sélection",
+    "subtitle": "Finalisez vos articles avant de passer commande."
+  },
+  "empty": {
+    "title": "Votre panier est vide",
+    "desc": "Ajoutez des tenues depuis le catalogue pour les retrouver ici.",
+    "cta": "Découvrir la boutique"
+  },
+  "item": {
+    "categoryFallback": "TryOn",
+    "size": "Taille : {{size}}",
+    "sizeFallback": "Unique",
+    "color": "Couleur : {{color}}",
+    "colorFallback": "Standard",
+    "stock": "Stock disponible : {{stock}}",
+    "stockFallback": "non précisé"
+  },
+  "stockAlert": "Ce produit en taille {{size}} n'est disponible qu'en {{stock}} exemplaire(s) en stock.",
+  "remove": "Supprimer",
+  "summary": {
+    "tag": "Commande",
+    "title": "Résumé",
+    "items": "Articles",
+    "subtotal": "Sous-total",
+    "shipping": "Livraison",
+    "shippingTBD": "À confirmer",
+    "total": "Total",
+    "checkout": "Passer la commande",
+    "clear": "Vider le panier",
+    "continue": "← Continuer mes achats"
+  }
+},
+"checkout": {
+  "payment": {
+    "orange": { "label": "Orange Money", "desc": "Paiement via votre compte Orange Money" },
+    "mtn": { "label": "MTN Mobile Money", "desc": "Paiement via Mobile Money MTN" },
+    "cash": { "label": "À la livraison", "desc": "Espèces à la réception de votre colis" }
+  },
+  "city": {
+    "label": "Ville *",
+    "onlyDoualaNote": "Nous livrons uniquement à Douala pour le moment.",
+    "choosePlaceholder": "-- Choisir une ville --"
+  },
+  "validation": {
+    "nameRequired": "Le nom est requis",
+    "firstNameRequired": "Le prénom est requis",
+    "emailRequired": "L'email est requis",
+    "emailInvalid": "Email invalide",
+    "phoneRequired": "Le téléphone est requis",
+    "phoneFormat": "Format requis : 6XXXXXXXX (9 chiffres, ex: 671207375)",
+    "addressRequired": "L'adresse est requise",
+    "cityRequired": "La ville est requise",
+    "neighborhoodRequired": "Le quartier est requis pour permettre au livreur de vous trouver"
+  },
+  "errors": {
+    "onlinePaymentUnavailable": "Le paiement en ligne n'est pas disponible pour le moment. Choisissez le paiement à la livraison.",
+    "generic": "Une erreur est survenue. Veuillez réessayer."
+  },
+  "success": {
+    "titleLine": "Commande",
+    "titleHighlight": "confirmée !",
+    "orderNumberLabel": "Numéro de commande",
+    "confirmedMessage": "Commande bien enregistrée. Nous vous contacterons au {{phone}} pour la confirmation.",
+    "viewOrders": "Voir mes commandes",
+    "backHome": "Retour à l'accueil"
+  },
+  "loading": "Chargement…",
+  "breadcrumb": {
+    "home": "Accueil",
+    "cart": "Panier",
+    "payment": "Paiement"
+  },
+  "steps": {
+    "delivery": "Livraison",
+    "payment": "Paiement",
+    "confirmation": "Confirmation"
+  },
+  "step1": {
+    "title": "Adresse de livraison",
+    "desc": "Où devons-nous livrer votre commande ?",
+    "lastNameLabel": "Nom *",
+    "lastNamePlaceholder": "Votre nom",
+    "firstNameLabel": "Prénom *",
+    "firstNamePlaceholder": "Votre prénom",
+    "emailLabel": "Email *",
+    "emailPlaceholder": "vous@exemple.cm",
+    "phoneLabel": "Téléphone * — format : 671207375",
+    "phonePlaceholder": "Ex : 671207375",
+    "addressLabel": "Adresse *",
+    "addressPlaceholder": "Numéro et nom de rue",
+    "neighborhoodLabel": "Quartier / Secteur *",
+    "neighborhoodPlaceholder": "Ex : Bastos, Bonapriso",
+    "referenceLabel": "Point de référence (optionnel)",
+    "referencePlaceholder": "Ex : près de la mairie, supermarché Casino…",
+    "deliveryNote": "Livraison à Douala : {{fee}} FCFA (3-5 jours ouvrés).",
+    "continueButton": "Continuer →"
+  },
+  "step2": {
+    "title": "Mode de paiement",
+    "desc": "Choisissez votre méthode de paiement.",
+    "backButton": "← Retour",
+    "confirmButton": "Confirmer →"
+  },
+  "step3": {
+    "title": "Vérification finale",
+    "desc": "Vérifiez vos informations avant de valider.",
+    "deliveryLabel": "Livraison",
+    "paymentLabel": "Paiement",
+    "itemsLabel": "Articles commandés",
+    "sizeLabel": "Taille {{size}}",
+    "colorLabel": "Couleur {{color}}",
+    "qtyLabel": "Qté {{qty}}",
+    "backButton": "← Retour",
+    "submitting": "En cours…",
+    "submitButton": "Valider la commande"
+  },
+  "sidebar": {
+    "title": "Récapitulatif",
+    "subtotal": "Sous-total",
+    "delivery": "Livraison (Douala)",
+    "total": "Total"
+  },
+  "legal": {
+    "withdrawal": "Conformément à la loi camerounaise n° 2011/012, vous disposez d'un délai de rétractation de 7 jours à compter de la réception.",
+    "pricesInfo": "Prix exprimés en FCFA TTC."
+  }
+},
+  "tryon": {
+  "loading": "Chargement de l'essayage...",
+  "productUnavailable": "Produit non disponible",
+  "alerts": {
+    "noProduct": "Aucun produit disponible pour l'essayage",
+    "productNotFound": "Produit introuvable",
+    "webcamError": "Impossible d'accéder à la webcam : {{message}}",
+    "linkCopied": "Lien du rendu copié !",
+    "addedToCart": "Produit ajouté au panier !",
+    "addToCartError": "Erreur lors de l'ajout au panier."
+  },
+  "messages": {
+    "noPersonDetected": "Nous n'avons pas reconnu de personne sur cette photo. Envoyez une photo de vous, de face et en entier, sur un fond dégagé.",
+    "photoNotClear": "La photo n'est pas assez nette pour l'analyse. Essayez une photo bien éclairée où l'on voit tout votre corps.",
+    "loginToSave": "Connectez-vous pour enregistrer votre essayage et le retrouver plus tard.",
+    "saveError": "Votre essayage n'a pas pu être enregistré. Vérifiez votre connexion et réessayez."
+  },
+  "errors": { "unknown": "Erreur inconnue" },
+  "aria": {
+    "notifications": "Notifications",
+    "cart": "Panier",
+    "closeMessage": "Fermer le message"
+  },
+  "shareTitle": "Mon essayage — {{name}}",
+  "header": {
+    "tag": "Technologie IA",
+    "titleStart": "Cabine d'essayage ",
+    "titleHighlight": "virtuelle",
+    "description": "Uploadez votre photo, notre IA analyse votre morphologie et vous propose la taille la plus adaptée."
+  },
+  "stepper": { "step1": "Photo & Taille", "step2": "Analyse", "step3": "Résultats" },
+  "step1": {
+    "photoTitle": "1. Votre photo",
+    "photoHint": "Glissez ou cliquez pour importer",
+    "webcamActive": "Webcam active",
+    "dropzoneTitle": "Glissez votre photo ici",
+    "dropzoneSubtitle": "ou cliquez pour parcourir",
+    "fileHint": "JPG, PNG — Max 10 Mo",
+    "photoReady": "Photo prête",
+    "useWebcam": "Utiliser la webcam",
+    "reset": "Réinitialiser",
+    "previewTitle": "2. Aperçu du rendu",
+    "previewHint": "Prévisualisation de l'essayage virtuel",
+    "defaultGarment": "Votre vêtement",
+    "readyToGenerate": "Photo prête — lancez la génération pour voir le rendu",
+    "addPhotoPrompt": "Ajoutez votre photo pour le voir sur vous",
+    "selectedItem": "Article sélectionné",
+    "sizeTitle": "3. Votre taille",
+    "sizeGuideLink": "Guide →",
+    "colorTitle": "4. Votre couleur",
+    "checklist": {
+      "photoUploaded": "Photo uploadée",
+      "itemSelected": "Article sélectionné",
+      "sizeChosen": "Taille choisie",
+      "colorChosen": "Couleur choisie"
+    },
+    "renderInfo": "Taille {{size}} · Rendu IA",
+    "launchDisabled": "Uploadez une photo d'abord",
+    "launch": "Lancer l'essayage IA"
+  },
+  "step2": {
+    "title": "Analyse en cours…",
+    "subtitle": "Notre IA analyse votre morphologie",
+    "productSize": "{{name}} · Taille {{size}}",
+    "steps": {
+      "bodyDetection": "Détection du corps",
+      "morphAnalysis": "Analyse morphologique",
+      "measurements": "Calcul des mensurations",
+      "compatibilityScore": "Score de compatibilité"
+    }
+  },
+  "step3": {
+    "yourPhoto": "VOTRE PHOTO",
+    "aiRender": "RENDU IA",
+    "download": "Télécharger",
+    "share": "Partager",
+    "generating": "Génération en cours…",
+    "generatingTime": "(1-2 min)",
+    "renderPlaceholder": "Le rendu apparaîtra ici",
+    "itemTried": "Article essayé",
+    "recommendedSize": "Taille recommandée",
+    "recommendedByAI": "Taille {{size}} recommandée par l'IA",
+    "compatibilityScore": "Score de compatibilité",
+    "morphMatch": "Correspondance morphologique",
+    "excellentMatch": "Excellente compatibilité",
+    "generationFailed": "Génération échouée",
+    "retry": "Réessayer",
+    "addToCart": "Ajouter au panier",
+    "viewProduct": "Voir la fiche produit"
+  }
+},
+  "maintenance": {
+  "eyebrow": "Maintenance",
+  "title": "Site temporairement indisponible",
+  "description": "Nos équipes effectuent une mise à jour planifiée. Le service sera rétabli très prochainement.",
+  "statusBadge": "Maintenance en cours",
+  "info": {
+    "duration": "Durée estimée : moins de 30 minutes",
+    "dataSafe": "Vos données et commandes sont en sécurité",
+    "adminOnly": "Seuls les administrateurs peuvent se connecter"
+  },
+  "backHome": "Retour à l'accueil"
+},
+  "terms": {
+  "badge": "CGV",
+  "heroTitle": "Conditions Générales de Vente",
+  "heroSubtitle": "En effectuant un achat sur CFPD TryOn, vous acceptez sans réserve les présentes Conditions Générales de Vente.",
+  "ctaTitle": "Achetez en toute confiance",
+  "ctaSubtitle": "Nos CGV sont claires, équitables et conçues pour protéger vos droits.",
+  "ctaButton": "Retourner à l'accueil",
+  "sections": {
+    "acceptance": {
+      "title": "1. Acceptation des Conditions",
+      "p1": "En accédant au site web de CFPD TryOn et en effectuant un achat, vous acceptez sans réserve les présentes CGV. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre site.",
+      "note": "Nous nous réservons le droit de modifier ces conditions à tout moment. Les modifications prennent effet dès leur publication."
+    },
+    "products": {
+      "title": "2. Produits et Prix",
+      "item1": "Les caractéristiques des produits sont décrites avec la plus grande exactitude possible.",
+      "item2": "Tous les prix sont indiqués en FCFA et sont ceux en vigueur au moment de la commande.",
+      "item3": "Les produits demeurent la propriété de CFPD TryOn jusqu'au paiement complet du prix."
+    },
+    "order": {
+      "title": "3. Commande",
+      "step1": "Sélectionnez les produits souhaités et ajoutez-les à votre panier.",
+      "step2": "Identifiez-vous ou créez un compte après validation du panier.",
+      "step3": "Choisissez votre adresse de livraison et votre mode de paiement.",
+      "step4": "Vérifiez le détail de votre commande et son prix total avant de finaliser.",
+      "step5": "La confirmation de la commande entraîne acceptation des présentes CGV et forme le contrat de vente."
+    },
+    "payment": {
+      "title": "4. Paiement",
+      "item1": "Nous acceptons les paiements par carte bancaire, mobile money et virement bancaire.",
+      "item2": "Le paiement est exigible immédiatement à la commande.",
+      "item3": "Toutes les transactions sont sécurisées et chiffrées via la technologie SSL."
+    },
+    "shipping": {
+      "title": "5. Livraison",
+      "item1": "Les produits sont livrés à l'adresse indiquée lors de la commande.",
+      "item2": "Les délais de livraison sont des estimations et peuvent varier selon la disponibilité.",
+      "item3": "En cas de retard supérieur à 7 jours ouvrés, vous pouvez annuler votre commande."
+    },
+    "returns": {
+      "title": "6. Droit de Rétractation et Retours",
+      "p1": "Conformément à notre politique de retours, vous disposez de 15 jours calendaires à compter de la réception pour retourner un produit qui ne vous convient pas.",
+      "noteBefore": "Les conditions détaillées sont disponibles sur notre page",
+      "noteLinkText": "Politique de Retours"
+    },
+    "warranty": {
+      "title": "7. Garantie",
+      "item1": "Les produits bénéficient de la garantie légale de conformité.",
+      "item2": "Pour bénéficier de la garantie, conservez votre facture d'achat."
+    },
+    "contact": {
+      "title": "8. Contact",
+      "emailLabel": "Email :",
+      "addressLabel": "Adresse :",
+      "addressValue": "CFPD TryOn, Douala, Cameroun",
+      "phoneLabel": "Téléphone :"
+    }
+  }
+},
+"sizeGuide": {
+  "badge": "Guide des tailles",
+  "heroTitle": "Trouvez votre taille parfaite",
+  "heroSubtitle": "Pour un ajustement impeccable avec notre cabine d'essayage virtuel, suivez ces étapes simples pour prendre vos mesures.",
+  "measuring": {
+    "title": "Comment prendre vos mesures",
+    "intro": "Pour garantir un ajustement parfait avec notre cabine d'essayage virtuel, veuillez suivre ces étapes simples :",
+    "tip": "Conseil : pour plus de précision, demandez à quelqu'un de vous aider à prendre vos mesures."
+  },
+  "measures": {
+    "chest": { "title": "Tour de poitrine", "desc": "Mesurez autour de la partie la plus forte de votre poitrine, en gardant le ruban horizontal." },
+    "waist": { "title": "Tour de taille", "desc": "Mesurez autour de la partie la plus fine de votre taille, généralement au niveau du nombril." },
+    "hip": { "title": "Tour de hanches", "desc": "Mesurez autour de la partie la plus forte de vos hanches et fesses." },
+    "legLength": { "title": "Longueur de jambe", "desc": "Mesurez de l'entrejambe jusqu'au sol, pieds nus." }
+  },
+  "table": {
+    "title": "Tableau des tailles",
+    "subtitle": "Toutes les mesures sont en centimètres (cm).",
+    "headers": {
+      "size": "Taille",
+      "chest": "Poitrine (cm)",
+      "waist": "Taille (cm)",
+      "hip": "Hanches (cm)"
+    },
+    "note": "Ces mesures sont indicatives. Pour un ajustement optimal, utilisez notre fonctionnalité d'essayage virtuel."
+  },
+  "between": {
+    "title": "Entre deux tailles ?",
+    "intro": "Si vos mesures se situent entre deux tailles, voici nos recommandations :",
+    "item1": "Pour les hauts et robes : choisissez la taille supérieure si votre poitrine est plus grande.",
+    "item2": "Pour les pantalons et jupes : choisissez la taille supérieure si vos hanches sont plus grandes.",
+    "item3": "En cas de doute, n'hésitez pas à nous contacter pour un conseil personnalisé."
+  },
+  "international": {
+    "title": "Correspondances internationales",
+    "headers": {
+      "tryon": "TryOn",
+      "fr": "France (FR)",
+      "uk": "UK",
+      "us": "US",
+      "it": "Italie (IT)"
+    }
+  },
+  "ctaTitle": "Prêt pour un essayage parfait ?",
+  "ctaSubtitle": "Utilisez nos mesures pour trouver votre taille idéale dans notre cabine d'essayage virtuel.",
+  "ctaButton": "Commencer l'essayage"
+},
+"shipping": {
+  "badge": "Livraison",
+  "heroTitle": "Politique de Livraison",
+  "heroSubtitle": "Toutes les informations concernant la livraison de vos commandes chez CFPD TryOn.",
+  "zones": {
+    "title": "Zones de Livraison",
+    "list": {
+      "douala": "Douala et ses environs",
+      "yaounde": "Yaoundé et ses environs",
+      "bafoussam": "Bafoussam",
+      "garoua": "Garoua",
+      "maroua": "Maroua",
+      "bamenda": "Bamenda",
+      "other": "Toutes les autres régions camerounaises"
+    },
+    "note": "Pour les livraisons internationales, veuillez nous contacter directement."
+  },
+  "delays": {
+    "title": "Délais de Livraison",
+    "standard": {
+      "title": "Livraison Standard",
+      "main": "3–5 jours ouvrables pour les principales villes",
+      "remote": "5–7 jours ouvrables pour les zones éloignées"
+    },
+    "express": {
+      "title": "Livraison Express",
+      "main": "1–2 jours ouvrables pour Douala et Yaoundé",
+      "other": "2–3 jours ouvrables pour les autres grandes villes"
+    }
+  },
+  "fees": {
+    "title": "Frais de Livraison",
+    "standard": {
+      "title": "Standard",
+      "free": "Gratuite pour les commandes > 50 000 FCFA",
+      "paid": "500 FCFA pour les commandes inférieures"
+    },
+    "express": {
+      "title": "Express",
+      "paid": "1 500 FCFA pour toutes les commandes",
+      "free": "Gratuite pour les commandes > 100 000 FCFA"
+    }
+  },
+  "tracking": {
+    "title": "Suivi de Commande",
+    "desc": "Une fois votre commande expédiée, vous recevrez un email contenant votre numéro de suivi. Vous pouvez suivre votre colis en temps réel sur notre site ou directement sur le site du transporteur."
+  },
+  "issues": {
+    "title": "Retards et Problèmes de Livraison",
+    "phoneLabel": "Par téléphone :",
+    "emailLabel": "Par email :"
+  },
+  "ctaTitle": "Prêt à passer votre commande ?",
+  "ctaSubtitle": "Profitez de notre service de livraison rapide et fiable partout au Cameroun.",
+  "ctaButton": "Voir le catalogue"
+},
+"returns": {
+  "badge": "Retours",
+  "heroTitle": "Politique de Retours",
+  "heroSubtitle": "Toutes les conditions pour retourner ou échanger vos articles chez CFPD TryOn.",
+  "delay": {
+    "title": "Délai de Retour",
+    "textBefore": "Vous disposez de",
+    "textBold": "15 jours calendaires",
+    "textAfter": "à compter de la date de réception de votre commande pour retourner un article qui ne vous convient pas.",
+    "note": "Ce délai est prolongé pendant les périodes de fêtes (Noël, Nouvel An, etc.)."
+  },
+  "conditions": {
+    "title": "Conditions de Retour",
+    "item1": "L'article doit être dans son état original, non porté, non lavé et avec toutes ses étiquettes.",
+    "item2": "L'article doit être dans son emballage d'origine.",
+    "item3": "Les articles personnalisés ou confectionnés sur mesure ne peuvent pas être retournés."
+  },
+  "process": {
+    "title": "Processus de Retour",
+    "step1": "Connectez-vous à votre compte sur notre site.",
+    "step2": "Accédez à la section \"Mes commandes\".",
+    "step3": "Sélectionnez la commande contenant l'article à retourner.",
+    "step4": "Cliquez sur \"Retourner un article\" et suivez les instructions.",
+    "step5": "Imprimez l'étiquette de retour et collez-la sur votre colis.",
+    "step6": "Déposez votre colis au point relais le plus proche.",
+    "note": "Les frais de retour sont à la charge du client, sauf en cas d'erreur de notre part."
+  },
+  "refund": {
+    "title": "Remboursement",
+    "card": { "mode": "Carte bancaire", "delay": "3–5 jours ouvrables" },
+    "mobileMoney": { "mode": "Mobile Money", "delay": "24–48 heures" },
+    "transfer": { "mode": "Virement bancaire", "delay": "3–5 jours ouvrables" }
+  },
+  "contact": {
+    "title": "Nous Contacter",
+    "emailLabel": "Email :",
+    "phoneLabel": "Téléphone :",
+    "chatLabel": "Chat en ligne :",
+    "chatHours": "disponible 9h–18h du lundi au vendredi"
+  },
+  "ctaTitle": "Achetez en toute confiance",
+  "ctaSubtitle": "Avec notre politique de retours claire et équitable, faites vos achats sans risque.",
+  "ctaButton": "Retourner à l'accueil"
+},
+"product": {
+  "loading": "Chargement du produit...",
+  "notFound": {
+    "title": "Produit introuvable",
+    "desc": "Ce produit n'existe pas ou n'est plus disponible.",
+    "backToCatalogue": "Retour au catalogue"
+  },
+  "fallback": {
+    "category": "Catalogue",
+    "condition": "Neuf",
+    "description": "Aucune description fournie pour cet article."
+  },
+  "messages": {
+    "selectSize": "Veuillez choisir une taille disponible.",
+    "addedToCart": "Ajouté au panier en taille {{size}} ✓",
+    "addToCartError": "Impossible d'ajouter au panier",
+    "limitedStock": "Il ne reste que {{count}} exemplaire(s) de cette taille dans votre panier.",
+    "linkCopied": "Lien copié !"
+  },
+  "whatsappMessage": "Bonjour, je suis intéressé(e) par « {{name}} » ({{price}} FCFA) sur TryOn.",
+  "breadcrumb": { "home": "Accueil", "catalogue": "Catalogue" },
+  "aria": {
+    "addToFavorites": "Ajouter aux favoris",
+    "share": "Partager",
+    "close": "Fermer"
+  },
+  "detailsToggle": "Détails de l'article",
+  "detailLabels": {
+    "brand": "Marque",
+    "size": "Taille",
+    "material": "Matière"
+  },
+  "sizeSection": {
+    "label": "Taille",
+    "guideLink": "Guide des tailles →"
+  },
+  "stock": {
+    "outOfStock": "épuisé",
+    "lowStock": "plus que {{count}}",
+    "available": "{{count}} dispo"
+  },
+  "tryOnButton": "Essayer virtuellement",
+  "addToCart": {
+    "outOfStock": "Épuisé",
+    "added": "Ajouté au panier",
+    "default": "Ajouter au panier"
+  },
+  "whatsappButton": "Contacter sur WhatsApp",
+  "reassurance": "Paiement à la livraison ou Mobile Money sécurisé",
+  "descriptionTitle": "Description"
+},
+"privacyPolicy": {
+  "badge": "Confidentialité",
+  "heroTitle": "Politique de Confidentialité",
+  "heroSubtitle": "Comment nous collectons, utilisons et protégeons vos informations personnelles lorsque vous utilisez nos services.",
+  "sections": {
+    "introduction": {
+      "title": "Introduction",
+      "p1": "Chez CFPD TryOn, nous nous engageons à protéger votre vie privée. Cette politique décrit comment nous collectons, utilisons, divulguons et sécurisons vos informations lorsque vous visitez notre site ou utilisez nos services.",
+      "consentNote": "En utilisant notre site, vous consentez aux pratiques décrites dans cette politique."
+    },
+    "collectedInfo": {
+      "title": "Informations que Nous Collectons",
+      "personal": {
+        "title": "Informations personnelles",
+        "item1": "Nom complet, adresse e-mail, numéro de téléphone",
+        "item2": "Adresse de facturation et de livraison",
+        "item3": "Informations de paiement (traitées par nos partenaires sécurisés, non stockées chez nous)",
+        "item4": "Préférences et historiques d'achat",
+        "item5": "Données liées à l'essayage virtuel (photos uploadées, mesures prises)"
+      },
+      "technical": {
+        "title": "Informations techniques",
+        "item1": "Adresse IP, type de navigateur, système d'exploitation",
+        "item2": "Pages visitées, durée de visite, chemins de navigation",
+        "item3": "Cookies et technologies de suivi similaires"
+      }
+    },
+    "usage": {
+      "title": "Comment Nous Utilisons Vos Informations",
+      "item1": "Pour traiter vos commandes et vous fournir nos services",
+      "item2": "Pour personnaliser votre expérience d'achat",
+      "item3": "Pour améliorer notre site et nos fonctionnalités",
+      "item4": "Pour vous envoyer des communications liées à votre compte",
+      "item5": "Pour prévenir la fraude et assurer la sécurité"
+    },
+    "security": {
+      "title": "Sécurité des Données",
+      "card1": { "title": "Chiffrement SSL/TLS", "desc": "Pour toutes les transmissions de données" },
+      "card2": { "title": "Contrôles d'accès stricts", "desc": "Stockage sécurisé avec accès limité" },
+      "card3": { "title": "Audits réguliers", "desc": "Revue de sécurité périodique de nos systèmes" },
+      "card4": { "title": "Formation du personnel", "desc": "Sensibilisation continue à la protection des données" }
+    },
+    "rights": {
+      "title": "Vos Droits",
+      "item1": "Droit d'accès à vos données personnelles",
+      "item2": "Droit de rectification des données inexactes",
+      "item3": "Droit à l'effacement (« droit à l'oubli »)"
+    },
+    "cookies": {
+      "title": "Cookies",
+      "item1": "Essentiels — nécessaires au fonctionnement du site",
+      "item2": "Performance — pour analyser l'utilisation du site",
+      "item3": "Fonctionnalité — pour mémoriser vos préférences"
+    },
+    "contact": {
+      "title": "Contact",
+      "emailLabel": "Email :",
+      "addressLabel": "Adresse :",
+      "addressValue": "CFPD TryOn, Douala, Cameroun",
+      "phoneLabel": "Téléphone :"
+    }
+  },
+  "cta": {
+    "title": "Vos données sont en sécurité",
+    "subtitle": "Nous protégeons vos informations avec les plus hauts standards de confidentialité.",
+    "backHome": "Retourner à l'accueil"
+  }
+},
+"helpCenter": {
+  "title": "Centre d'aide",
+  "subtitle": "Retrouvez les réponses aux questions fréquentes sur CFPD TryOn.",
+  "heroTitle": "Comment pouvons-nous vous aider ?",
+  "searchPlaceholder": "Rechercher une réponse...",
+  "categories": {
+    "commandes": { "label": "Commandes", "desc": "Suivi, modification et historique" },
+    "livraison": { "label": "Livraison", "desc": "Délais, adresse et suivi colis" },
+    "paiement": { "label": "Paiement", "desc": "Méthodes, sécurité et validation" },
+    "essayage": { "label": "Essayage virtuel", "desc": "Photo, rendu IA et conseils" },
+    "retours": { "label": "Retours", "desc": "Échanges et remboursements" },
+    "compte": { "label": "Compte", "desc": "Profil, mot de passe et sécurité" }
+  },
+  "faqs": {
+    "q1": {
+      "category": "Essayage virtuel",
+      "question": "Comment utiliser l'essayage virtuel ?",
+      "answer": "Choisissez un produit, cliquez sur Essayer virtuellement, ajoutez votre image puis lancez la simulation. Le résultat vous permet de visualiser le rendu du vêtement avant achat."
+    },
+    "q2": {
+      "category": "Commandes",
+      "question": "Comment suivre ma commande ?",
+      "answer": "Depuis votre espace client, ouvrez la section Commandes. Vous pourrez consulter le statut de chaque commande et son historique."
+    },
+    "q3": {
+      "category": "Paiement",
+      "question": "Mes paiements sont-ils sécurisés ?",
+      "answer": "Oui. Les transactions sont traitées via une passerelle sécurisée et les informations sensibles ne sont pas stockées en clair dans l'application."
+    },
+    "q4": {
+      "category": "Retours",
+      "question": "Puis-je retourner un produit ?",
+      "answer": "Les retours sont possibles selon les conditions générales de vente. Il est recommandé de consulter la politique de retour avant toute demande."
+    },
+    "q5": {
+      "category": "Compte",
+      "question": "Comment modifier mes informations personnelles ?",
+      "answer": "Rendez-vous dans votre profil, puis cliquez sur Modifier le profil. Vous pourrez mettre à jour votre nom, email et téléphone."
+    },
+    "q6": {
+      "category": "Technique",
+      "question": "Que faire si l'essayage ne se lance pas ?",
+      "answer": "Vérifiez votre connexion Internet, rechargez la page, puis réessayez. Si le problème persiste, contactez le support via le formulaire du centre d'aide."
+    }
+  },
+  "alerts": {
+    "success": "Votre demande a été envoyée au support.",
+    "error": "Impossible d'envoyer votre demande pour le moment."
+  },
+  "sectionCategories": "Catégories",
+  "sectionFaqs": "Questions fréquentes",
+  "noResults": {
+    "title": "Aucune réponse trouvée",
+    "desc": "Essayez un autre mot-clé ou contactez le support."
+  },
+  "contact": {
+    "title": "Toujours besoin d'aide ?",
+    "desc": "Envoyez une demande au support CFPD TryOn. Nous vous répondrons dès que possible.",
+    "button": "Contacter le support"
+  },
+  "modal": {
+    "title": "Contacter le support",
+    "subject": "Sujet",
+    "subjectPlaceholder": "Ex : Problème avec ma commande",
+    "priority": "Priorité",
+    "priorityLow": "Basse",
+    "priorityMedium": "Moyenne",
+    "priorityHigh": "Haute",
+    "message": "Message",
+    "messagePlaceholder": "Décrivez votre problème...",
+    "send": "Envoyer la demande",
+    "sending": "Envoi..."
+  }
+},
+"orders": {
+    "myAccount": "Mon compte",
+    "title": "Mes commandes",
+    "loading": "Chargement…",
+    "errorLoad": "Impossible de charger vos commandes.",
+    "orderId": "Commande",
+    "loadingDetails": "Chargement des articles…",
+    "unnamedItem": "Article sans nom",
+    "itemSpec": "Taille",
+    "itemQty": "Qté",
+    "subtotal": "Sous-total",
+    "deliveryFee": "Livraison",
+    "free": "Gratuit",
+    "shippingAddress": "Adresse de livraison",
+    "continueShopping": "Continuer mes achats",
+    "empty": {
+      "title": "Aucune commande pour le moment",
+      "desc": "Vos commandes apparaîtront ici dès qu’elles auront été passées.",
+      "btn": "Découvrir la collection"
+    },
+    "status": {
+      "pending": "En préparation",
+      "processing": "En cours",
+      "shipped": "Expédiée",
+      "delivered": "Livrée",
+      "cancelled": "Annulée"
+    },
+    "payment": {
+      "orange_money": "Orange Money",
+      "mtn_mobile_money": "MTN Mobile Money",
+      "cash_on_delivery": "À la livraison"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unreadCount": "{{count}} notification(s) non lue(s)",
+    "upToDate": "Tout est à jour",
+    "loading": "Chargement de vos notifications…",
+    "errorLoad": "Impossible de charger les notifications.",
+    "filter": {
+      "all": "Toutes",
+      "unread": "Non lues"
+    },
+    "action": {
+      "markAllRead": "Tout lire",
+      "delete": "Supprimer"
+    },
+    "empty": {
+      "title": "Aucune notification",
+      "allDesc": "Vos notifications s’afficheront ici au fur et à mesure.",
+      "unreadDesc": "Vous n’avez aucune notification non lue."
+    },
+    "date": {
+      "today": "Aujourd'hui",
+      "yesterday": "Hier"
+    }
+  },
+  "profile": {
+    "defaultUser": "Utilisateur",
+    "roleAdmin": "Administrateur",
+    "roleClient": "Client",
+    "updateSuccess": "Profil mis à jour avec succès !",
+    "updateError": "Erreur lors de la mise à jour",
+    "notSpecified": "Non renseigné",
+    "footer": "TryOn v1.0 — Plateforme de mode avec essayage virtuel",
+    "actions": {
+      "orders": "Commandes",
+      "tryon": "Essayage",
+      "cart": "Panier",
+      "admin": "Admin",
+      "edit": "Modifier",
+      "editProfile": "Modifier le profil",
+      "save": "Enregistrer",
+      "saving": "Enregistrement...",
+      "cancel": "Annuler",
+      "logout": "Se déconnecter"
+    },
+    "fields": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email",
+      "phone": "Téléphone",
+      "phoneHelp": "Utilisé pour le suivi de livraison et les notifications commande."
+    },
+    "groups": {
+      "account": "Compte",
+      "preferences": "Préférences",
+      "support": "Support"
+    },
+    "links": {
+      "notifications": "Notifications",
+      "helpCenter": "Centre d'aide",
+      "privacyPolicy": "Politique de confidentialité",
+      "terms": "Conditions générales de vente",
+      "shipping": "Livraison",
+      "returns": "Retours"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next"; // Ajout de useTranslation
 import { adminService } from "../../services/adminService";
 import "./account-pages.css";
 import MobileHeader from '../../components/layout/MobileHeader';
@@ -25,24 +26,6 @@ import {
   Minus,
   Loader2,
 } from 'lucide-react';
-
-const categories = [
-  { icon: Package, label: "Commandes", desc: "Suivi, modification et historique" },
-  { icon: Truck, label: "Livraison", desc: "Délais, adresse et suivi colis" },
-  { icon: CreditCard, label: "Paiement", desc: "Méthodes, sécurité et validation" },
-  { icon: Sparkles, label: "Essayage virtuel", desc: "Photo, rendu IA et conseils" },
-  { icon: Undo2, label: "Retours", desc: "Échanges et remboursements" },
-  { icon: User, label: "Compte", desc: "Profil, mot de passe et sécurité" }
-];
-
-const faqs = [
-  ["Essayage virtuel", "Comment utiliser l'essayage virtuel ?", "Choisissez un produit, cliquez sur Essayer virtuellement, ajoutez votre image puis lancez la simulation. Le résultat vous permet de visualiser le rendu du vêtement avant achat."],
-  ["Commandes", "Comment suivre ma commande ?", "Depuis votre espace client, ouvrez la section Commandes. Vous pourrez consulter le statut de chaque commande et son historique."],
-  ["Paiement", "Mes paiements sont-ils sécurisés ?", "Oui. Les transactions sont traitées via une passerelle sécurisée et les informations sensibles ne sont pas stockées en clair dans l'application."],
-  ["Retours", "Puis-je retourner un produit ?", "Les retours sont possibles selon les conditions générales de vente. Il est recommandé de consulter la politique de retour avant toute demande."],
-  ["Compte", "Comment modifier mes informations personnelles ?", "Rendez-vous dans votre profil, puis cliquez sur Modifier le profil. Vous pourrez mettre à jour votre nom, email et téléphone."],
-  ["Technique", "Que faire si l'essayage ne se lance pas ?", "Vérifiez votre connexion Internet, rechargez la page, puis réessayez. Si le problème persiste, contactez le support via le formulaire du centre d'aide."]
-].map(([category, question, answer]) => ({ category, question, answer }));
 
 function FAQItem({ item }) {
   const [open, setOpen] = useState(false);
@@ -75,6 +58,7 @@ function FAQItem({ item }) {
 
 export default function HelpCenter() {
   const navigate = useNavigate();
+  const { t } = useTranslation(); // Initialisation de i18n
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({ subject: "", message: "", priority: "medium" });
@@ -82,11 +66,31 @@ export default function HelpCenter() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
+  // Traduction dynamique des catégories de recherche
+  const categories = useMemo(() => [
+    { icon: Package, label: t("helpCenter.categories.commandes.label"), desc: t("helpCenter.categories.commandes.desc") },
+    { icon: Truck, label: t("helpCenter.categories.livraison.label"), desc: t("helpCenter.categories.livraison.desc") },
+    { icon: CreditCard, label: t("helpCenter.categories.paiement.label"), desc: t("helpCenter.categories.paiement.desc") },
+    { icon: Sparkles, label: t("helpCenter.categories.essayage.label"), desc: t("helpCenter.categories.essayage.desc") },
+    { icon: Undo2, label: t("helpCenter.categories.retours.label"), desc: t("helpCenter.categories.retours.desc") },
+    { icon: User, label: t("helpCenter.categories.compte.label"), desc: t("helpCenter.categories.compte.desc") }
+  ], [t]);
+
+  // Traduction dynamique des FAQs
+  const faqs = useMemo(() => [
+    { category: t("helpCenter.faqs.q1.category"), question: t("helpCenter.faqs.q1.question"), answer: t("helpCenter.faqs.q1.answer") },
+    { category: t("helpCenter.faqs.q2.category"), question: t("helpCenter.faqs.q2.question"), answer: t("helpCenter.faqs.q2.answer") },
+    { category: t("helpCenter.faqs.q3.category"), question: t("helpCenter.faqs.q3.question"), answer: t("helpCenter.faqs.q3.answer") },
+    { category: t("helpCenter.faqs.q4.category"), question: t("helpCenter.faqs.q4.question"), answer: t("helpCenter.faqs.q4.answer") },
+    { category: t("helpCenter.faqs.q5.category"), question: t("helpCenter.faqs.q5.question"), answer: t("helpCenter.faqs.q5.answer") },
+    { category: t("helpCenter.faqs.q6.category"), question: t("helpCenter.faqs.q6.question"), answer: t("helpCenter.faqs.q6.answer") }
+  ], [t]);
+
   const filteredFaqs = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return faqs;
     return faqs.filter((f) => `${f.category} ${f.question} ${f.answer}`.toLowerCase().includes(q));
-  }, [search]);
+  }, [search, faqs]);
 
   const submitTicket = async (e) => {
     e.preventDefault();
@@ -100,12 +104,12 @@ export default function HelpCenter() {
         priority: form.priority,
         status: "open"
       });
-      setSuccess("Votre demande a été envoyée au support.");
+      setSuccess(t("helpCenter.alerts.success"));
       setModalOpen(false);
       setForm({ subject: "", message: "", priority: "medium" });
     } catch (e) {
       console.error(e);
-      setError("Impossible d'envoyer votre demande pour le moment.");
+      setError(t("helpCenter.alerts.error"));
     } finally {
       setSending(false);
     }
@@ -209,10 +213,10 @@ export default function HelpCenter() {
           </button>
           <div>
             <h1 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '38px', fontWeight: 600, color: '#1A1A1A' }}>
-              Centre d'aide
+              {t("helpCenter.title")}
             </h1>
             <p style={{ margin: '4px 0 0', color: '#6A6F78', fontSize: '14px' }}>
-              Retrouvez les réponses aux questions fréquentes sur CFPD TryOn.
+              {t("helpCenter.subtitle")}
             </p>
           </div>
         </div>
@@ -231,7 +235,7 @@ export default function HelpCenter() {
             fontWeight: 600,
             color: '#fff'
           }}>
-            Comment pouvons-nous vous aider ?
+            {t("helpCenter.heroTitle")}
           </h2>
           <div className="help-search" style={{
             display: 'flex', alignItems: 'center', gap: '10px',
@@ -243,7 +247,7 @@ export default function HelpCenter() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Rechercher une réponse..."
+              placeholder={t("helpCenter.searchPlaceholder")}
               style={{
                 flex: 1, height: '52px', border: 0, outline: 0,
                 background: 'transparent', color: '#fff',
@@ -283,7 +287,7 @@ export default function HelpCenter() {
           color: '#9CA3AF', letterSpacing: '1.6px',
           textTransform: 'uppercase', fontWeight: 800
         }}>
-          Catégories
+          {t("helpCenter.sectionCategories")}
         </h3>
         <div className="help-category-grid" style={{
           display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
@@ -332,7 +336,7 @@ export default function HelpCenter() {
           color: '#9CA3AF', letterSpacing: '1.6px',
           textTransform: 'uppercase', fontWeight: 800
         }}>
-          Questions fréquentes
+          {t("helpCenter.sectionFaqs")}
         </h3>
         <div className="help-faq-list" style={{ display: 'grid', gap: '10px' }}>
           {filteredFaqs.length ? (
@@ -344,8 +348,12 @@ export default function HelpCenter() {
               color: '#6A6F78'
             }}>
               <Search size={48} strokeWidth={1.5} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.3 }} />
-              <h3 style={{ margin: '8px 0 4px', color: '#1A1A1A', fontSize: '18px' }}>Aucune réponse trouvée</h3>
-              <p style={{ margin: 0, fontSize: '14px', color: '#6A6F78' }}>Essayez un autre mot-clé ou contactez le support.</p>
+              <h3 style={{ margin: '8px 0 4px', color: '#1A1A1A', fontSize: '18px' }}>
+                {t("helpCenter.noResults.title")}
+              </h3>
+              <p style={{ margin: 0, fontSize: '14px', color: '#6A6F78' }}>
+                {t("helpCenter.noResults.desc")}
+              </p>
             </div>
           )}
         </div>
@@ -359,9 +367,11 @@ export default function HelpCenter() {
           boxShadow: '0 3px 16px rgba(0,0,0,0.06)'
         }}>
           <div>
-            <h3 style={{ margin: '0 0 5px', fontSize: '18px', color: '#1A1A1A' }}>Toujours besoin d'aide ?</h3>
+            <h3 style={{ margin: '0 0 5px', fontSize: '18px', color: '#1A1A1A' }}>
+              {t("helpCenter.contact.title")}
+            </h3>
             <p style={{ margin: 0, color: '#6A6F78', fontSize: '14px' }}>
-              Envoyez une demande au support CFPD TryOn. Nous vous répondrons dès que possible.
+              {t("helpCenter.contact.desc")}
             </p>
           </div>
           <button
@@ -375,7 +385,7 @@ export default function HelpCenter() {
             }}
           >
             <Headphones size={16} strokeWidth={2} />
-            Contacter le support
+            {t("helpCenter.contact.button")}
           </button>
         </div>
       </div>
@@ -398,7 +408,7 @@ export default function HelpCenter() {
             }}>
               <h3 style={{ margin: 0, fontSize: '22px', color: '#1A1A1A' }}>
                 <MessageCircle size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-                Contacter le support
+                {t("helpCenter.modal.title")}
               </h3>
               <button onClick={() => setModalOpen(false)} style={{
                 width: '36px', height: '36px', borderRadius: '12px',
@@ -415,13 +425,13 @@ export default function HelpCenter() {
                   letterSpacing: '1.4px', fontWeight: 800,
                   color: '#6A6F78', display: 'block', marginBottom: '4px'
                 }}>
-                  Sujet
+                  {t("helpCenter.modal.subject")}
                 </label>
                 <input
                   required
                   value={form.subject}
                   onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                  placeholder="Ex : Problème avec ma commande"
+                  placeholder={t("helpCenter.modal.subjectPlaceholder")}
                   style={{
                     width: '100%', boxSizing: 'border-box',
                     border: '1.5px solid rgba(0,0,0,0.1)',
@@ -437,7 +447,7 @@ export default function HelpCenter() {
                   letterSpacing: '1.4px', fontWeight: 800,
                   color: '#6A6F78', display: 'block', marginBottom: '4px'
                 }}>
-                  Priorité
+                  {t("helpCenter.modal.priority")}
                 </label>
                 <select
                   value={form.priority}
@@ -450,9 +460,9 @@ export default function HelpCenter() {
                     outline: 'none', background: '#F8F9FA'
                   }}
                 >
-                  <option value="low">Basse</option>
-                  <option value="medium">Moyenne</option>
-                  <option value="high">Haute</option>
+                  <option value="low">{t("helpCenter.modal.priorityLow")}</option>
+                  <option value="medium">{t("helpCenter.modal.priorityMedium")}</option>
+                  <option value="high">{t("helpCenter.modal.priorityHigh")}</option>
                 </select>
               </div>
               <div>
@@ -461,14 +471,14 @@ export default function HelpCenter() {
                   letterSpacing: '1.4px', fontWeight: 800,
                   color: '#6A6F78', display: 'block', marginBottom: '4px'
                 }}>
-                  Message
+                  {t("helpCenter.modal.message")}
                 </label>
                 <textarea
                   required
                   rows="5"
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  placeholder="Décrivez votre problème..."
+                  placeholder={t("helpCenter.modal.messagePlaceholder")}
                   style={{
                     width: '100%', boxSizing: 'border-box',
                     border: '1.5px solid rgba(0,0,0,0.1)',
@@ -493,12 +503,12 @@ export default function HelpCenter() {
                 {sending ? (
                   <>
                     <Loader2 size={18} className="spinner" strokeWidth={2} />
-                    Envoi...
+                    {t("helpCenter.modal.sending")}
                   </>
                 ) : (
                   <>
                     <Send size={16} strokeWidth={2} />
-                    Envoyer la demande
+                    {t("helpCenter.modal.send")}
                   </>
                 )}
               </button>

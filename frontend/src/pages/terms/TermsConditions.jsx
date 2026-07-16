@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import MobileHeader from '../../components/layout/MobileHeader';
 
 // ─── ICÔNES LUCIDE ───
@@ -21,176 +22,180 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 
-const sections = [
-  {
-    title: '1. Acceptation des Conditions',
-    icon: Check,
-    content: (
-      <>
-        <p className="static-p" style={{ fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.75', marginBottom: '1rem' }}>
-          En accédant au site web de CFPD TryOn et en effectuant un achat, vous acceptez sans réserve les présentes CGV. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre site.
-        </p>
-        <div className="static-note" style={{
-          fontSize: '0.875rem', color: '#6A6F78', fontStyle: 'italic',
-          padding: '1rem 1.25rem', background: 'rgba(53,92,134,0.05)',
-          borderRadius: '10px', borderLeft: '3px solid rgba(53,92,134,0.25)',
-          marginTop: '1rem'
-        }}>
-          Nous nous réservons le droit de modifier ces conditions à tout moment. Les modifications prennent effet dès leur publication.
-        </div>
-      </>
-    )
-  },
-  {
-    title: '2. Produits et Prix',
-    icon: ShoppingBag,
-    content: (
-      <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          Les caractéristiques des produits sont décrites avec la plus grande exactitude possible.
-        </li>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          Tous les prix sont indiqués en FCFA et sont ceux en vigueur au moment de la commande.
-        </li>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          Les produits demeurent la propriété de CFPD TryOn jusqu'au paiement complet du prix.
-        </li>
-      </ul>
-    )
-  },
-  {
-    title: '3. Commande',
-    icon: Package,
-    content: (
-      <ol className="static-ol" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', counterReset: 'step-counter' }}>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: '#355C86', color: '#fff', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>1</span>
-          Sélectionnez les produits souhaités et ajoutez-les à votre panier.
-        </li>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: '#355C86', color: '#fff', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>2</span>
-          Identifiez-vous ou créez un compte après validation du panier.
-        </li>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: '#355C86', color: '#fff', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>3</span>
-          Choisissez votre adresse de livraison et votre mode de paiement.
-        </li>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: '#355C86', color: '#fff', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>4</span>
-          Vérifiez le détail de votre commande et son prix total avant de finaliser.
-        </li>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: '#355C86', color: '#fff', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>5</span>
-          La confirmation de la commande entraîne acceptation des présentes CGV et forme le contrat de vente.
-        </li>
-      </ol>
-    )
-  },
-  {
-    title: '4. Paiement',
-    icon: CreditCard,
-    content: (
-      <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          Nous acceptons les paiements par carte bancaire, mobile money et virement bancaire.
-        </li>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          Le paiement est exigible immédiatement à la commande.
-        </li>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          Toutes les transactions sont sécurisées et chiffrées via la technologie SSL.
-        </li>
-      </ul>
-    )
-  },
-  {
-    title: '5. Livraison',
-    icon: Truck,
-    content: (
-      <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          Les produits sont livrés à l'adresse indiquée lors de la commande.
-        </li>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          Les délais de livraison sont des estimations et peuvent varier selon la disponibilité.
-        </li>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          En cas de retard supérieur à 7 jours ouvrés, vous pouvez annuler votre commande.
-        </li>
-      </ul>
-    )
-  },
-  {
-    title: '6. Droit de Rétractation et Retours',
-    icon: RotateCcw,
-    content: (
-      <>
-        <p className="static-p" style={{ fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.75', marginBottom: '1rem' }}>
-          Conformément à notre politique de retours, vous disposez de 15 jours calendaires à compter de la réception pour retourner un produit qui ne vous convient pas.
-        </p>
-        <div className="static-note" style={{
-          fontSize: '0.875rem', color: '#6A6F78', fontStyle: 'italic',
-          padding: '1rem 1.25rem', background: 'rgba(53,92,134,0.05)',
-          borderRadius: '10px', borderLeft: '3px solid rgba(53,92,134,0.25)',
-          marginTop: '1rem'
-        }}>
-          Les conditions détaillées sont disponibles sur notre page <Link to="/returns" style={{ color: '#355C86' }}>Politique de Retours</Link>.
-        </div>
-      </>
-    )
-  },
-  {
-    title: '7. Garantie',
-    icon: Shield,
-    content: (
-      <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          Les produits bénéficient de la garantie légale de conformité.
-        </li>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          Pour bénéficier de la garantie, conservez votre facture d'achat.
-        </li>
-      </ul>
-    )
-  },
-  {
-    title: '8. Contact',
-    icon: Mail,
-    content: (
-      <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          <Mail size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-          Email : <strong>tryon.douala@gmail.com</strong>
-        </li>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          <MapPin size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-          Adresse : CFPD TryOn, Douala, Cameroun
-        </li>
-        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-          <Phone size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-          Téléphone : +237 671 207 375
-        </li>
-      </ul>
-    )
-  }
-];
+function getSections(t) {
+  return [
+    {
+      title: t('terms.sections.acceptance.title'),
+      icon: Check,
+      content: (
+        <>
+          <p className="static-p" style={{ fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.75', marginBottom: '1rem' }}>
+            {t('terms.sections.acceptance.p1')}
+          </p>
+          <div className="static-note" style={{
+            fontSize: '0.875rem', color: '#6A6F78', fontStyle: 'italic',
+            padding: '1rem 1.25rem', background: 'rgba(53,92,134,0.05)',
+            borderRadius: '10px', borderLeft: '3px solid rgba(53,92,134,0.25)',
+            marginTop: '1rem'
+          }}>
+            {t('terms.sections.acceptance.note')}
+          </div>
+        </>
+      )
+    },
+    {
+      title: t('terms.sections.products.title'),
+      icon: ShoppingBag,
+      content: (
+        <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            {t('terms.sections.products.item1')}
+          </li>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            {t('terms.sections.products.item2')}
+          </li>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            {t('terms.sections.products.item3')}
+          </li>
+        </ul>
+      )
+    },
+    {
+      title: t('terms.sections.order.title'),
+      icon: Package,
+      content: (
+        <ol className="static-ol" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', counterReset: 'step-counter' }}>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: '#355C86', color: '#fff', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>1</span>
+            {t('terms.sections.order.step1')}
+          </li>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: '#355C86', color: '#fff', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>2</span>
+            {t('terms.sections.order.step2')}
+          </li>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: '#355C86', color: '#fff', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>3</span>
+            {t('terms.sections.order.step3')}
+          </li>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: '#355C86', color: '#fff', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>4</span>
+            {t('terms.sections.order.step4')}
+          </li>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ minWidth: '26px', height: '26px', borderRadius: '50%', background: '#355C86', color: '#fff', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>5</span>
+            {t('terms.sections.order.step5')}
+          </li>
+        </ol>
+      )
+    },
+    {
+      title: t('terms.sections.payment.title'),
+      icon: CreditCard,
+      content: (
+        <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            {t('terms.sections.payment.item1')}
+          </li>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            {t('terms.sections.payment.item2')}
+          </li>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            {t('terms.sections.payment.item3')}
+          </li>
+        </ul>
+      )
+    },
+    {
+      title: t('terms.sections.shipping.title'),
+      icon: Truck,
+      content: (
+        <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            {t('terms.sections.shipping.item1')}
+          </li>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            {t('terms.sections.shipping.item2')}
+          </li>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            {t('terms.sections.shipping.item3')}
+          </li>
+        </ul>
+      )
+    },
+    {
+      title: t('terms.sections.returns.title'),
+      icon: RotateCcw,
+      content: (
+        <>
+          <p className="static-p" style={{ fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.75', marginBottom: '1rem' }}>
+            {t('terms.sections.returns.p1')}
+          </p>
+          <div className="static-note" style={{
+            fontSize: '0.875rem', color: '#6A6F78', fontStyle: 'italic',
+            padding: '1rem 1.25rem', background: 'rgba(53,92,134,0.05)',
+            borderRadius: '10px', borderLeft: '3px solid rgba(53,92,134,0.25)',
+            marginTop: '1rem'
+          }}>
+            {t('terms.sections.returns.noteBefore')} <Link to="/returns" style={{ color: '#355C86' }}>{t('terms.sections.returns.noteLinkText')}</Link>.
+          </div>
+        </>
+      )
+    },
+    {
+      title: t('terms.sections.warranty.title'),
+      icon: Shield,
+      content: (
+        <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            {t('terms.sections.warranty.item1')}
+          </li>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            {t('terms.sections.warranty.item2')}
+          </li>
+        </ul>
+      )
+    },
+    {
+      title: t('terms.sections.contact.title'),
+      icon: Mail,
+      content: (
+        <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            <Mail size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
+            {t('terms.sections.contact.emailLabel')} <strong>tryon.douala@gmail.com</strong>
+          </li>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            <MapPin size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
+            {t('terms.sections.contact.addressLabel')} {t('terms.sections.contact.addressValue')}
+          </li>
+          <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
+            <Phone size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
+            {t('terms.sections.contact.phoneLabel')} +237 671 207 375
+          </li>
+        </ul>
+      )
+    }
+  ];
+}
 
 export default function TermsConditions() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const sections = getSections(t);
 
   return (
     <div className="static-page" style={{ paddingTop: '72px', minHeight: '100vh', background: '#F9F9F9' }}>
@@ -290,7 +295,7 @@ export default function TermsConditions() {
           borderRadius: '50px', marginBottom: '1.25rem'
         }}>
           <FileText size={14} strokeWidth={2} />
-          CGV
+          {t('terms.badge')}
         </div>
         <h1 className="static-hero-title" style={{
           fontFamily: "'Cormorant Garamond', serif",
@@ -298,13 +303,13 @@ export default function TermsConditions() {
           fontWeight: 600, color: '#1A1A1A',
           marginBottom: '1rem', lineHeight: '1.1'
         }}>
-          Conditions Générales de Vente
+          {t('terms.heroTitle')}
         </h1>
         <p className="static-hero-sub" style={{
           fontSize: '1rem', color: '#6A6F78',
           maxWidth: '560px', margin: '0 auto', lineHeight: '1.7'
         }}>
-          En effectuant un achat sur CFPD TryOn, vous acceptez sans réserve les présentes Conditions Générales de Vente.
+          {t('terms.heroSubtitle')}
         </p>
       </section>
 
@@ -336,10 +341,10 @@ export default function TermsConditions() {
           fontFamily: "'Cormorant Garamond', serif", fontSize: '2.25rem',
           fontWeight: 600, marginBottom: '1rem', lineHeight: '1.2'
         }}>
-          Achetez en toute confiance
+          {t('terms.ctaTitle')}
         </h2>
         <p className="static-cta-sub" style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '2.5rem' }}>
-          Nos CGV sont claires, équitables et conçues pour protéger vos droits.
+          {t('terms.ctaSubtitle')}
         </p>
         <Link to="/" className="static-cta-btn" style={{
           display: 'inline-flex', alignItems: 'center', gap: '10px',
@@ -350,7 +355,7 @@ export default function TermsConditions() {
           boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
         }}>
           <Home size={16} strokeWidth={2} />
-          Retourner à l'accueil
+          {t('terms.ctaButton')}
         </Link>
       </section>
     </div>

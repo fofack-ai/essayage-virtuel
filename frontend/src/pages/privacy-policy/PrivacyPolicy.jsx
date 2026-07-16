@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // Import de useTranslation
 import MobileHeader from '../../components/layout/MobileHeader';
 
 // ─── ICÔNES LUCIDE ───
@@ -8,24 +9,20 @@ import {
   Lock,
   Shield,
   Home,
-  Check,
   Eye,
   Server,
   Mail,
   Phone,
   MapPin,
   Cookie,
-  Smartphone,
-  Laptop,
   Users,
   Edit,
   Trash2,
-  AlertTriangle,
-  Download,
 } from 'lucide-react';
 
 export default function PrivacyPolicy() {
   const navigate = useNavigate();
+  const { t } = useTranslation(); // Initialisation de la traduction
 
   return (
     <div className="static-page" style={{ paddingTop: '72px', minHeight: '100vh', background: '#F9F9F9' }}>
@@ -133,7 +130,7 @@ export default function PrivacyPolicy() {
           borderRadius: '50px', marginBottom: '1.25rem'
         }}>
           <Lock size={14} strokeWidth={2} />
-          Confidentialité
+          {t('privacyPolicy.badge')}
         </div>
         <h1 className="static-hero-title" style={{
           fontFamily: "'Cormorant Garamond', serif",
@@ -141,13 +138,13 @@ export default function PrivacyPolicy() {
           fontWeight: 600, color: '#1A1A1A',
           marginBottom: '1rem', lineHeight: '1.1'
         }}>
-          Politique de Confidentialité
+          {t('privacyPolicy.heroTitle')}
         </h1>
         <p className="static-hero-sub" style={{
           fontSize: '1rem', color: '#6A6F78',
           maxWidth: '560px', margin: '0 auto', lineHeight: '1.7'
         }}>
-          Comment nous collectons, utilisons et protégeons vos informations personnelles lorsque vous utilisez nos services.
+          {t('privacyPolicy.heroSubtitle')}
         </p>
       </section>
 
@@ -160,10 +157,10 @@ export default function PrivacyPolicy() {
             fontWeight: 600, color: '#1A1A1A', marginBottom: '1.25rem',
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
-            Introduction
+            {t('privacyPolicy.sections.introduction.title')}
           </h2>
           <p className="static-p" style={{ fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.75', marginBottom: '1rem' }}>
-            Chez CFPD TryOn, nous nous engageons à protéger votre vie privée. Cette politique décrit comment nous collectons, utilisons, divulguons et sécurisons vos informations lorsque vous visitez notre site ou utilisez nos services.
+            {t('privacyPolicy.sections.introduction.p1')}
           </p>
           <div className="static-note" style={{
             fontSize: '0.875rem', color: '#6A6F78', fontStyle: 'italic',
@@ -172,7 +169,7 @@ export default function PrivacyPolicy() {
             marginTop: '1rem'
           }}>
             <Shield size={14} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
-            En utilisant notre site, vous consentez aux pratiques décrites dans cette politique.
+            {t('privacyPolicy.sections.introduction.consentNote')}
           </div>
         </section>
 
@@ -184,51 +181,51 @@ export default function PrivacyPolicy() {
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
             <Eye size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-            Informations que Nous Collectons
+            {t('privacyPolicy.sections.collectedInfo.title')}
           </h2>
           <h3 className="static-h3" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.25rem', fontWeight: 600, color: '#1A1A1A', marginBottom: '0.75rem', marginTop: '1rem' }}>
             <Users size={18} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
-            Informations personnelles
+            {t('privacyPolicy.sections.collectedInfo.personal.title')}
           </h3>
           <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Nom complet, adresse e-mail, numéro de téléphone
+              {t('privacyPolicy.sections.collectedInfo.personal.item1')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Adresse de facturation et de livraison
+              {t('privacyPolicy.sections.collectedInfo.personal.item2')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Informations de paiement (traitées par nos partenaires sécurisés, non stockées chez nous)
+              {t('privacyPolicy.sections.collectedInfo.personal.item3')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Préférences et historiques d'achat
+              {t('privacyPolicy.sections.collectedInfo.personal.item4')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Données liées à l'essayage virtuel (photos uploadées, mesures prises)
+              {t('privacyPolicy.sections.collectedInfo.personal.item5')}
             </li>
           </ul>
           <h3 className="static-h3" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.25rem', fontWeight: 600, color: '#1A1A1A', marginBottom: '0.75rem', marginTop: '1.5rem' }}>
             <Server size={18} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
-            Informations techniques
+            {t('privacyPolicy.sections.collectedInfo.technical.title')}
           </h3>
           <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Adresse IP, type de navigateur, système d'exploitation
+              {t('privacyPolicy.sections.collectedInfo.technical.item1')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Pages visitées, durée de visite, chemins de navigation
+              {t('privacyPolicy.sections.collectedInfo.technical.item2')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <Cookie size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-              Cookies et technologies de suivi similaires
+              {t('privacyPolicy.sections.collectedInfo.technical.item3')}
             </li>
           </ul>
         </section>
@@ -240,28 +237,28 @@ export default function PrivacyPolicy() {
             fontWeight: 600, color: '#1A1A1A', marginBottom: '1.25rem',
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
-            Comment Nous Utilisons Vos Informations
+            {t('privacyPolicy.sections.usage.title')}
           </h2>
           <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Pour traiter vos commandes et vous fournir nos services
+              {t('privacyPolicy.sections.usage.item1')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Pour personnaliser votre expérience d'achat
+              {t('privacyPolicy.sections.usage.item2')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Pour améliorer notre site et nos fonctionnalités
+              {t('privacyPolicy.sections.usage.item3')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Pour vous envoyer des communications liées à votre compte
+              {t('privacyPolicy.sections.usage.item4')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Pour prévenir la fraude et assurer la sécurité
+              {t('privacyPolicy.sections.usage.item5')}
             </li>
           </ul>
         </section>
@@ -274,36 +271,77 @@ export default function PrivacyPolicy() {
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
             <Shield size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-            Sécurité des Données
+            {t('privacyPolicy.sections.security.title')}
           </h2>
-          <div className="static-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginTop: '1.25rem' }}>
-            {[
-              { icon: Lock, t: 'Chiffrement SSL/TLS', d: 'Pour toutes les transmissions de données' },
-              { icon: Shield, t: 'Contrôles d\'accès stricts', d: 'Stockage sécurisé avec accès limité' },
-              { icon: Eye, t: 'Audits réguliers', d: 'Revue de sécurité périodique de nos systèmes' },
-              { icon: Users, t: 'Formation du personnel', d: 'Sensibilisation continue à la protection des données' },
-            ].map(c => {
-              const Icon = c.icon;
-              return (
-                <div key={c.t} className="static-card" style={{
-                  background: '#fff', borderRadius: '14px', padding: '1.75rem',
-                  boxShadow: '0 10px 28px rgba(26,26,26,0.08)',
-                  border: '1px solid rgba(0,0,0,0.08)'
-                }}>
-                  <div className="static-card-title" style={{
-                    fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem',
-                    fontWeight: 600, color: '#1A1A1A', marginBottom: '0.75rem',
-                    display: 'flex', alignItems: 'center', gap: '0.5rem'
-                  }}>
-                    <Icon size={20} strokeWidth={1.8} />
-                    {c.t}
-                  </div>
-                  <p className="static-card-text" style={{ fontSize: '0.9375rem', color: '#6A6F78', lineHeight: '1.65' }}>
-                    {c.d}
-                  </p>
-                </div>
-              );
-            })}
+          <div className="static-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1.25rem' }}>
+            <div className="static-card" style={{
+              background: '#fff', borderRadius: '14px', padding: '1.75rem',
+              boxShadow: '0 10px 28px rgba(26,26,26,0.08)',
+              border: '1px solid rgba(0,0,0,0.08)'
+            }}>
+              <div className="static-card-title" style={{
+                fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem',
+                fontWeight: 600, color: '#1A1A1A', marginBottom: '0.75rem',
+                display: 'flex', alignItems: 'center', gap: '0.5rem'
+              }}>
+                <Lock size={20} strokeWidth={1.8} />
+                {t('privacyPolicy.sections.security.card1.title')}
+              </div>
+              <p className="static-card-text" style={{ fontSize: '0.9375rem', color: '#6A6F78', lineHeight: '1.65' }}>
+                {t('privacyPolicy.sections.security.card1.desc')}
+              </p>
+            </div>
+            <div className="static-card" style={{
+              background: '#fff', borderRadius: '14px', padding: '1.75rem',
+              boxShadow: '0 10px 28px rgba(26,26,26,0.08)',
+              border: '1px solid rgba(0,0,0,0.08)'
+            }}>
+              <div className="static-card-title" style={{
+                fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem',
+                fontWeight: 600, color: '#1A1A1A', marginBottom: '0.75rem',
+                display: 'flex', alignItems: 'center', gap: '0.5rem'
+              }}>
+                <Shield size={20} strokeWidth={1.8} />
+                {t('privacyPolicy.sections.security.card2.title')}
+              </div>
+              <p className="static-card-text" style={{ fontSize: '0.9375rem', color: '#6A6F78', lineHeight: '1.65' }}>
+                {t('privacyPolicy.sections.security.card2.desc')}
+              </p>
+            </div>
+            <div className="static-card" style={{
+              background: '#fff', borderRadius: '14px', padding: '1.75rem',
+              boxShadow: '0 10px 28px rgba(26,26,26,0.08)',
+              border: '1px solid rgba(0,0,0,0.08)'
+            }}>
+              <div className="static-card-title" style={{
+                fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem',
+                fontWeight: 600, color: '#1A1A1A', marginBottom: '0.75rem',
+                display: 'flex', alignItems: 'center', gap: '0.5rem'
+              }}>
+                <Eye size={20} strokeWidth={1.8} />
+                {t('privacyPolicy.sections.security.card3.title')}
+              </div>
+              <p className="static-card-text" style={{ fontSize: '0.9375rem', color: '#6A6F78', lineHeight: '1.65' }}>
+                {t('privacyPolicy.sections.security.card3.desc')}
+              </p>
+            </div>
+            <div className="static-card" style={{
+              background: '#fff', borderRadius: '14px', padding: '1.75rem',
+              boxShadow: '0 10px 28px rgba(26,26,26,0.08)',
+              border: '1px solid rgba(0,0,0,0.08)'
+            }}>
+              <div className="static-card-title" style={{
+                fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem',
+                fontWeight: 600, color: '#1A1A1A', marginBottom: '0.75rem',
+                display: 'flex', alignItems: 'center', gap: '0.5rem'
+              }}>
+                <Users size={20} strokeWidth={1.8} />
+                {t('privacyPolicy.sections.security.card4.title')}
+              </div>
+              <p className="static-card-text" style={{ fontSize: '0.9375rem', color: '#6A6F78', lineHeight: '1.65' }}>
+                {t('privacyPolicy.sections.security.card4.desc')}
+              </p>
+            </div>
           </div>
         </section>
 
@@ -314,23 +352,23 @@ export default function PrivacyPolicy() {
             fontWeight: 600, color: '#1A1A1A', marginBottom: '1.25rem',
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
-            Vos Droits
+            {t('privacyPolicy.sections.rights.title')}
           </h2>
           <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <Eye size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Droit d'accès à vos données personnelles
+              {t('privacyPolicy.sections.rights.item1')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <Edit size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Droit de rectification des données inexactes
+              {t('privacyPolicy.sections.rights.item2')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <Trash2 size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Droit à l'effacement (« droit à l'oubli »)
+              {t('privacyPolicy.sections.rights.item3')}
             </li>
           </ul>
         </section>
@@ -343,20 +381,20 @@ export default function PrivacyPolicy() {
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
             <Cookie size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-            Cookies
+            {t('privacyPolicy.sections.cookies.title')}
           </h2>
           <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              <strong>Essentiels</strong> — nécessaires au fonctionnement du site
+              {t('privacyPolicy.sections.cookies.item1')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              <strong>Performance</strong> — pour analyser l'utilisation du site
+              {t('privacyPolicy.sections.cookies.item2')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              <strong>Fonctionnalité</strong> — pour mémoriser vos préférences
+              {t('privacyPolicy.sections.cookies.item3')}
             </li>
           </ul>
         </section>
@@ -369,23 +407,23 @@ export default function PrivacyPolicy() {
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
             <Mail size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-            Contact
+            {t('privacyPolicy.sections.contact.title')}
           </h2>
           <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <Mail size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Email : <strong>tryon.douala@gmail.com</strong>
+              {t('privacyPolicy.sections.contact.emailLabel')} <strong>tryon.douala@gmail.com</strong>
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <MapPin size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Adresse : CFPD TryOn, Douala, Cameroun
+              {t('privacyPolicy.sections.contact.addressLabel')} {t('privacyPolicy.sections.contact.addressValue')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <Phone size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Téléphone : +237 671 207 375
+              {t('privacyPolicy.sections.contact.phoneLabel')} +237 671 207 375
             </li>
           </ul>
         </section>
@@ -400,10 +438,10 @@ export default function PrivacyPolicy() {
           fontFamily: "'Cormorant Garamond', serif", fontSize: '2.25rem',
           fontWeight: 600, marginBottom: '1rem', lineHeight: '1.2'
         }}>
-          Vos données sont en sécurité
+          {t('privacyPolicy.cta.title')}
         </h2>
         <p className="static-cta-sub" style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '2.5rem' }}>
-          Nous protégeons vos informations avec les plus hauts standards de confidentialité.
+          {t('privacyPolicy.cta.subtitle')}
         </p>
         <Link to="/" className="static-cta-btn" style={{
           display: 'inline-flex', alignItems: 'center', gap: '10px',
@@ -414,7 +452,7 @@ export default function PrivacyPolicy() {
           boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
         }}>
           <Home size={16} strokeWidth={2} />
-          Retourner à l'accueil
+          {t('privacyPolicy.cta.backHome')}
         </Link>
       </section>
     </div>

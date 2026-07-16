@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 // ─── ICÔNES LUCIDE ───
 import {
@@ -99,6 +100,7 @@ const labelStyle = {
 
 /* ── Main Component ── */
 export default function Profile() {
+  const { t } = useTranslation();
   const { user, logout, updateProfile, isAdmin } = useAuth();
   const navigate = useNavigate();
 
@@ -117,10 +119,10 @@ export default function Profile() {
     setIsLoading(true); setError(''); setSuccess('');
     try {
       await updateProfile(form);
-      setSuccess('Profil mis à jour avec succès !');
+      setSuccess(t('profile.updateSuccess', 'Profil mis à jour avec succès !'));
       setEditOpen(false);
     } catch (err) {
-      setError(err.message || 'Erreur lors de la mise à jour');
+      setError(err.message || t('profile.updateError', 'Erreur lors de la mise à jour'));
     } finally {
       setIsLoading(false);
     }
@@ -135,17 +137,17 @@ export default function Profile() {
 
   if (!user) { navigate('/auth'); return null; }
 
-  const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Utilisateur';
+  const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || t('profile.defaultUser', 'Utilisateur');
   const initial  = fullName.charAt(0).toUpperCase();
-  const role     = isAdmin ? 'Administrateur' : 'Client';
+  const role     = isAdmin ? t('profile.roleAdmin', 'Administrateur') : t('profile.roleClient', 'Client');
 
   const quickActions = [
-    { icon: ShoppingBag, label: 'Commandes', to: '/orders' },
-    { icon: Sparkles, label: 'Essayage', to: '/tryon' },
-    { icon: ShoppingCart, label: 'Panier', to: '/cart' },
+    { icon: ShoppingBag, label: t('profile.actions.orders', 'Commandes'), to: '/orders' },
+    { icon: Sparkles, label: t('profile.actions.tryon', 'Essayage'), to: '/tryon' },
+    { icon: ShoppingCart, label: t('profile.actions.cart', 'Panier'), to: '/cart' },
     isAdmin
-      ? { icon: Settings, label: 'Admin', to: '/admin' }
-      : { icon: Edit2, label: 'Modifier', action: () => setEditOpen(true) },
+      ? { icon: Settings, label: t('profile.actions.admin', 'Admin'), to: '/admin' }
+      : { icon: Edit2, label: t('profile.actions.edit', 'Modifier'), action: () => setEditOpen(true) },
   ];
 
   return (
@@ -463,10 +465,10 @@ export default function Profile() {
         </div>
 
         {/* ── COMPTE ── */}
-        <Group title="Compte">
+        <Group title={t('profile.groups.account', 'Compte')}>
           <Row
             icon={User}
-            label="Modifier le profil"
+            label={t('profile.actions.editProfile', 'Modifier le profil')}
             onClick={() => setEditOpen(!editOpen)}
           />
 
@@ -476,7 +478,7 @@ export default function Profile() {
               <form onSubmit={handleSubmit}>
                 <div className="profile-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
                   <div className="profile-field">
-                    <label style={labelStyle}>Prénom</label>
+                    <label style={labelStyle}>{t('profile.fields.firstName', 'Prénom')}</label>
                     <input
                       type="text" value={form.firstName} required
                       onChange={e => setForm({ ...form, firstName: e.target.value })}
@@ -486,7 +488,7 @@ export default function Profile() {
                     />
                   </div>
                   <div className="profile-field">
-                    <label style={labelStyle}>Nom</label>
+                    <label style={labelStyle}>{t('profile.fields.lastName', 'Nom')}</label>
                     <input
                       type="text" value={form.lastName} required
                       onChange={e => setForm({ ...form, lastName: e.target.value })}
@@ -497,7 +499,7 @@ export default function Profile() {
                   </div>
                 </div>
                 <div className="profile-field" style={{ marginBottom: '14px' }}>
-                  <label style={labelStyle}>Email</label>
+                  <label style={labelStyle}>{t('profile.fields.email', 'Email')}</label>
                   <input
                     type="email" value={form.email}
                     onChange={e => setForm({ ...form, email: e.target.value })}
@@ -507,7 +509,7 @@ export default function Profile() {
                   />
                 </div>
                 <div className="profile-field" style={{ marginBottom: '20px' }}>
-                  <label style={labelStyle}>Téléphone</label>
+                  <label style={labelStyle}>{t('profile.fields.phone', 'Téléphone')}</label>
                   <input
                     type="tel" value={form.phone} placeholder="+237 6XX XXX XXX"
                     onChange={e => setForm({ ...form, phone: e.target.value })}
@@ -516,7 +518,7 @@ export default function Profile() {
                     onBlur={e => e.target.style.borderColor='rgba(26,26,26,0.1)'}
                   />
                   <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '6px' }}>
-                    Utilisé pour le suivi de livraison et les notifications commande.
+                    {t('profile.fields.phoneHelp', 'Utilisé pour le suivi de livraison et les notifications commande.')}
                   </p>
                 </div>
                 <div className="profile-form-actions" style={{ display: 'flex', gap: '10px' }}>
@@ -532,7 +534,7 @@ export default function Profile() {
                     }}
                   >
                     {isLoading ? <Loader2 size={18} className="spinner" /> : null}
-                    {isLoading ? 'Enregistrement...' : 'Enregistrer'}
+                    {isLoading ? t('profile.actions.saving', 'Enregistrement...') : t('profile.actions.save', 'Enregistrer')}
                   </button>
                   <button
                     type="button" onClick={handleCancel} disabled={isLoading}
@@ -544,29 +546,29 @@ export default function Profile() {
                       fontFamily: "'DM Sans', sans-serif",
                     }}
                   >
-                    Annuler
+                    {t('profile.actions.cancel', 'Annuler')}
                   </button>
                 </div>
               </form>
             </div>
           )}
 
-          <Row icon={Mail} label="Email" right={user.email} chevron={false} />
-          <Row icon={Phone} label="Téléphone" right={user.phone || 'Non renseigné'} chevron={false} />
+          <Row icon={Mail} label={t('profile.fields.email', 'Email')} right={user.email} chevron={false} />
+          <Row icon={Phone} label={t('profile.fields.phone', 'Téléphone')} right={user.phone || t('profile.notSpecified', 'Non renseigné')} chevron={false} />
         </Group>
 
         {/* ── PRÉFÉRENCES ── */}
-        <Group title="Préférences">
-          <Row icon={Bell} label="Notifications" to="/notifications" />
+        <Group title={t('profile.groups.preferences', 'Préférences')}>
+          <Row icon={Bell} label={t('profile.links.notifications', 'Notifications')} to="/notifications" />
         </Group>
 
         {/* ── SUPPORT ── */}
-        <Group title="Support">
-          <Row icon={HelpCircle} label="Centre d'aide" to="/help-center" />
-          <Row icon={ShieldCheck} label="Politique de confidentialité" to="/privacy-policy" />
-          <Row icon={FileText} label="Conditions générales de vente" to="/terms" />
-          <Row icon={Truck} label="Livraison" to="/shipping" />
-          <Row icon={Undo2} label="Retours" to="/returns" />
+        <Group title={t('profile.groups.support', 'Support')}>
+          <Row icon={HelpCircle} label={t('profile.links.helpCenter', "Centre d'aide")} to="/help-center" />
+          <Row icon={ShieldCheck} label={t('profile.links.privacyPolicy', 'Politique de confidentialité')} to="/privacy-policy" />
+          <Row icon={FileText} label={t('profile.links.terms', 'Conditions générales de vente')} to="/terms" />
+          <Row icon={Truck} label={t('profile.links.shipping', 'Livraison')} to="/shipping" />
+          <Row icon={Undo2} label={t('profile.links.returns', 'Retours')} to="/returns" />
         </Group>
 
         {/* ── Se déconnecter ── */}
@@ -588,11 +590,11 @@ export default function Profile() {
           onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 6px 20px rgba(192,57,43,0.22)'; }}
         >
           <LogOut size={18} strokeWidth={2} />
-          Se déconnecter
+          {t('profile.actions.logout', 'Se déconnecter')}
         </button>
 
         <p className="profile-footer" style={{ textAlign: 'center', fontSize: '11px', color: '#9CA3AF', marginTop: '24px' }}>
-          TryOn v1.0 — Plateforme de mode avec essayage virtuel
+          {t('profile.footer', 'TryOn v1.0 — Plateforme de mode avec essayage virtuel')}
         </p>
 
       </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import MobileHeader from '../../components/layout/MobileHeader';
 
 // ─── ICÔNES LUCIDE ───
@@ -16,10 +17,22 @@ import {
   Mail,
 } from 'lucide-react';
 
-const zones = ['Douala et ses environs', 'Yaoundé et ses environs', 'Bafoussam', 'Garoua', 'Maroua', 'Bamenda', 'Toutes les autres régions camerounaises'];
+function getZones(t) {
+  return [
+    t('shipping.zones.list.douala'),
+    t('shipping.zones.list.yaounde'),
+    t('shipping.zones.list.bafoussam'),
+    t('shipping.zones.list.garoua'),
+    t('shipping.zones.list.maroua'),
+    t('shipping.zones.list.bamenda'),
+    t('shipping.zones.list.other'),
+  ];
+}
 
 export default function Shipping() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const zones = getZones(t);
 
   return (
     <div className="static-page" style={{ paddingTop: '72px', minHeight: '100vh', background: '#F9F9F9' }}>
@@ -97,7 +110,7 @@ export default function Shipping() {
           borderRadius: '50px', marginBottom: '1.25rem'
         }}>
           <Truck size={14} strokeWidth={2} />
-          Livraison
+          {t('shipping.badge')}
         </div>
         <h1 className="static-hero-title" style={{
           fontFamily: "'Cormorant Garamond', serif",
@@ -105,13 +118,13 @@ export default function Shipping() {
           fontWeight: 600, color: '#1A1A1A',
           marginBottom: '1rem', lineHeight: '1.1'
         }}>
-          Politique de Livraison
+          {t('shipping.heroTitle')}
         </h1>
         <p className="static-hero-sub" style={{
           fontSize: '1rem', color: '#6A6F78',
           maxWidth: '560px', margin: '0 auto', lineHeight: '1.7'
         }}>
-          Toutes les informations concernant la livraison de vos commandes chez CFPD TryOn.
+          {t('shipping.heroSubtitle')}
         </p>
       </section>
 
@@ -124,7 +137,7 @@ export default function Shipping() {
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
             <MapPin size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-            Zones de Livraison
+            {t('shipping.zones.title')}
           </h2>
           <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             {zones.map(z => (
@@ -141,7 +154,7 @@ export default function Shipping() {
             marginTop: '1rem'
           }}>
             <Package size={14} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
-            Pour les livraisons internationales, veuillez nous contacter directement.
+            {t('shipping.zones.note')}
           </div>
         </section>
 
@@ -153,7 +166,7 @@ export default function Shipping() {
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
             <Clock size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-            Délais de Livraison
+            {t('shipping.delays.title')}
           </h2>
           <div className="static-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
             <div className="static-card" style={{
@@ -167,13 +180,13 @@ export default function Shipping() {
                 display: 'flex', alignItems: 'center', gap: '0.5rem'
               }}>
                 <Truck size={20} strokeWidth={1.8} />
-                Livraison Standard
+                {t('shipping.delays.standard.title')}
               </div>
               <p className="static-card-text" style={{ fontSize: '0.9375rem', color: '#6A6F78', lineHeight: '1.65' }}>
-                3–5 jours ouvrables pour les principales villes
+                {t('shipping.delays.standard.main')}
               </p>
               <p className="static-card-text" style={{ marginTop: '0.5rem', opacity: 0.75, fontSize: '0.875rem', color: '#6A6F78', lineHeight: '1.65' }}>
-                5–7 jours ouvrables pour les zones éloignées
+                {t('shipping.delays.standard.remote')}
               </p>
             </div>
             <div className="static-card" style={{
@@ -187,13 +200,13 @@ export default function Shipping() {
                 display: 'flex', alignItems: 'center', gap: '0.5rem'
               }}>
                 <Clock size={20} strokeWidth={1.8} />
-                Livraison Express
+                {t('shipping.delays.express.title')}
               </div>
               <p className="static-card-text" style={{ fontSize: '0.9375rem', color: '#6A6F78', lineHeight: '1.65' }}>
-                1–2 jours ouvrables pour Douala et Yaoundé
+                {t('shipping.delays.express.main')}
               </p>
               <p className="static-card-text" style={{ marginTop: '0.5rem', opacity: 0.75, fontSize: '0.875rem', color: '#6A6F78', lineHeight: '1.65' }}>
-                2–3 jours ouvrables pour les autres grandes villes
+                {t('shipping.delays.express.other')}
               </p>
             </div>
           </div>
@@ -206,7 +219,7 @@ export default function Shipping() {
             fontWeight: 600, color: '#1A1A1A', marginBottom: '1.25rem',
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
-            Frais de Livraison
+            {t('shipping.fees.title')}
           </h2>
           <div className="static-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
             <div className="static-card-accent" style={{
@@ -217,13 +230,13 @@ export default function Shipping() {
                 fontWeight: 600, color: '#355C86', marginBottom: '0.75rem'
               }}>
                 <Truck size={18} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
-                Standard
+                {t('shipping.fees.standard.title')}
               </div>
               <p className="static-card-text" style={{ fontWeight: 600, color: '#1A1A1A', marginBottom: '0.5rem', fontSize: '0.9375rem', lineHeight: '1.65' }}>
-                Gratuite pour les commandes &gt; 50 000 FCFA
+                {t('shipping.fees.standard.free')}
               </p>
               <p className="static-card-text" style={{ fontSize: '0.9375rem', color: '#6A6F78', lineHeight: '1.65' }}>
-                500 FCFA pour les commandes inférieures
+                {t('shipping.fees.standard.paid')}
               </p>
             </div>
             <div className="static-card-accent" style={{
@@ -234,13 +247,13 @@ export default function Shipping() {
                 fontWeight: 600, color: '#355C86', marginBottom: '0.75rem'
               }}>
                 <Clock size={18} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
-                Express
+                {t('shipping.fees.express.title')}
               </div>
               <p className="static-card-text" style={{ fontWeight: 600, color: '#1A1A1A', marginBottom: '0.5rem', fontSize: '0.9375rem', lineHeight: '1.65' }}>
-                1 500 FCFA pour toutes les commandes
+                {t('shipping.fees.express.paid')}
               </p>
               <p className="static-card-text" style={{ fontSize: '0.9375rem', color: '#6A6F78', lineHeight: '1.65' }}>
-                Gratuite pour les commandes &gt; 100 000 FCFA
+                {t('shipping.fees.express.free')}
               </p>
             </div>
           </div>
@@ -254,10 +267,10 @@ export default function Shipping() {
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
             <Check size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-            Suivi de Commande
+            {t('shipping.tracking.title')}
           </h2>
           <p className="static-p" style={{ fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.75', marginBottom: '1rem' }}>
-            Une fois votre commande expédiée, vous recevrez un email contenant votre numéro de suivi. Vous pouvez suivre votre colis en temps réel sur notre site ou directement sur le site du transporteur.
+            {t('shipping.tracking.desc')}
           </p>
         </section>
 
@@ -269,18 +282,18 @@ export default function Shipping() {
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
             <AlertCircle size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-            Retards et Problèmes de Livraison
+            {t('shipping.issues.title')}
           </h2>
           <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <Phone size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Par téléphone : +237 671 207 375
+              {t('shipping.issues.phoneLabel')} +237 671 207 375
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <Mail size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Par email : tryon.douala@gmail.com
+              {t('shipping.issues.emailLabel')} tryon.douala@gmail.com
             </li>
           </ul>
         </section>
@@ -294,10 +307,10 @@ export default function Shipping() {
           fontFamily: "'Cormorant Garamond', serif", fontSize: '2.25rem',
           fontWeight: 600, marginBottom: '1rem', lineHeight: '1.2'
         }}>
-          Prêt à passer votre commande ?
+          {t('shipping.ctaTitle')}
         </h2>
         <p className="static-cta-sub" style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '2.5rem' }}>
-          Profitez de notre service de livraison rapide et fiable partout au Cameroun.
+          {t('shipping.ctaSubtitle')}
         </p>
         <Link to="/catalogue" className="static-cta-btn" style={{
           display: 'inline-flex', alignItems: 'center', gap: '10px',
@@ -308,7 +321,7 @@ export default function Shipping() {
           boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
         }}>
           <Package size={16} strokeWidth={2} />
-          Voir le catalogue
+          {t('shipping.ctaButton')}
         </Link>
       </section>
     </div>

@@ -6,6 +6,7 @@ import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import './index.css';
 import './App.css';
+import './i18n';
 
 // ─── IGNORER L'ERREUR RESIZEOBSERVER (une seule fois) ───
 const originalConsoleError = console.error;

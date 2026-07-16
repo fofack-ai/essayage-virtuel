@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import MobileHeader from '../../components/layout/MobileHeader';
 
 // ─── ICÔNES LUCIDE ───
@@ -18,17 +19,30 @@ import {
   Undo2,
 } from 'lucide-react';
 
-const steps = [
-  'Connectez-vous à votre compte sur notre site.',
-  'Accédez à la section "Mes commandes".',
-  'Sélectionnez la commande contenant l\'article à retourner.',
-  'Cliquez sur "Retourner un article" et suivez les instructions.',
-  'Imprimez l\'étiquette de retour et collez-la sur votre colis.',
-  'Déposez votre colis au point relais le plus proche.'
-];
+function getSteps(t) {
+  return [
+    t('returns.process.step1'),
+    t('returns.process.step2'),
+    t('returns.process.step3'),
+    t('returns.process.step4'),
+    t('returns.process.step5'),
+    t('returns.process.step6'),
+  ];
+}
+
+function getRefundMethods(t) {
+  return [
+    { icon: CreditCard, mode: t('returns.refund.card.mode'), delay: t('returns.refund.card.delay') },
+    { icon: Phone, mode: t('returns.refund.mobileMoney.mode'), delay: t('returns.refund.mobileMoney.delay') },
+    { icon: CreditCard, mode: t('returns.refund.transfer.mode'), delay: t('returns.refund.transfer.delay') },
+  ];
+}
 
 export default function Returns() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const steps = getSteps(t);
+  const refundMethods = getRefundMethods(t);
 
   return (
     <div className="static-page" style={{ paddingTop: '72px', minHeight: '100vh', background: '#F9F9F9' }}>
@@ -133,7 +147,7 @@ export default function Returns() {
           borderRadius: '50px', marginBottom: '1.25rem'
         }}>
           <RotateCcw size={14} strokeWidth={2} />
-          Retours
+          {t('returns.badge')}
         </div>
         <h1 className="static-hero-title" style={{
           fontFamily: "'Cormorant Garamond', serif",
@@ -141,13 +155,13 @@ export default function Returns() {
           fontWeight: 600, color: '#1A1A1A',
           marginBottom: '1rem', lineHeight: '1.1'
         }}>
-          Politique de Retours
+          {t('returns.heroTitle')}
         </h1>
         <p className="static-hero-sub" style={{
           fontSize: '1rem', color: '#6A6F78',
           maxWidth: '560px', margin: '0 auto', lineHeight: '1.7'
         }}>
-          Toutes les conditions pour retourner ou échanger vos articles chez CFPD TryOn.
+          {t('returns.heroSubtitle')}
         </p>
       </section>
 
@@ -160,10 +174,10 @@ export default function Returns() {
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
             <Clock size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-            Délai de Retour
+            {t('returns.delay.title')}
           </h2>
           <p className="static-p" style={{ fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.75', marginBottom: '1rem' }}>
-            Vous disposez de <strong>15 jours calendaires</strong> à compter de la date de réception de votre commande pour retourner un article qui ne vous convient pas.
+            {t('returns.delay.textBefore')} <strong>{t('returns.delay.textBold')}</strong> {t('returns.delay.textAfter')}
           </p>
           <div className="static-note" style={{
             fontSize: '0.875rem', color: '#6A6F78', fontStyle: 'italic',
@@ -172,7 +186,7 @@ export default function Returns() {
             marginTop: '1rem'
           }}>
             <Clock size={14} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
-            Ce délai est prolongé pendant les périodes de fêtes (Noël, Nouvel An, etc.).
+            {t('returns.delay.note')}
           </div>
         </section>
 
@@ -184,20 +198,20 @@ export default function Returns() {
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
             <Check size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-            Conditions de Retour
+            {t('returns.conditions.title')}
           </h2>
           <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              L'article doit être dans son état original, non porté, non lavé et avec toutes ses étiquettes.
+              {t('returns.conditions.item1')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              L'article doit être dans son emballage d'origine.
+              {t('returns.conditions.item2')}
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
-              Les articles personnalisés ou confectionnés sur mesure ne peuvent pas être retournés.
+              {t('returns.conditions.item3')}
             </li>
           </ul>
         </section>
@@ -210,7 +224,7 @@ export default function Returns() {
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
             <Package size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-            Processus de Retour
+            {t('returns.process.title')}
           </h2>
           <ol className="static-ol" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', counterReset: 'step-counter', marginTop: '1.25rem' }}>
             {steps.map((s) => (
@@ -229,7 +243,7 @@ export default function Returns() {
             marginTop: '1rem'
           }}>
             <AlertCircle size={14} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
-            Les frais de retour sont à la charge du client, sauf en cas d'erreur de notre part.
+            {t('returns.process.note')}
           </div>
         </section>
 
@@ -241,14 +255,10 @@ export default function Returns() {
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
             <CreditCard size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-            Remboursement
+            {t('returns.refund.title')}
           </h2>
           <div className="static-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginTop: '1.25rem' }}>
-            {[
-              { icon: CreditCard, mode: 'Carte bancaire', delay: '3–5 jours ouvrables' },
-              { icon: Phone, mode: 'Mobile Money', delay: '24–48 heures' },
-              { icon: CreditCard, mode: 'Virement bancaire', delay: '3–5 jours ouvrables' }
-            ].map(r => {
+            {refundMethods.map(r => {
               const Icon = r.icon;
               return (
                 <div key={r.mode} className="static-card" style={{
@@ -275,23 +285,23 @@ export default function Returns() {
             paddingLeft: '1rem', borderLeft: '3px solid #355C86'
           }}>
             <MessageCircle size={20} style={{ display: 'inline', marginRight: '10px', verticalAlign: 'middle' }} />
-            Nous Contacter
+            {t('returns.contact.title')}
           </h2>
           <ul className="static-ul" style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <Mail size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Email : <strong>tryon.douala@gmail.com</strong>
+              {t('returns.contact.emailLabel')} <strong>tryon.douala@gmail.com</strong>
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <Phone size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Téléphone : +237 671 207 375
+              {t('returns.contact.phoneLabel')} +237 671 207 375
             </li>
             <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.95rem', color: '#6A6F78', lineHeight: '1.65' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#355C86', flexShrink: 0, marginTop: '0.55rem' }} />
               <MessageCircle size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              Chat en ligne : disponible 9h–18h du lundi au vendredi
+              {t('returns.contact.chatLabel')} {t('returns.contact.chatHours')}
             </li>
           </ul>
         </section>
@@ -305,10 +315,10 @@ export default function Returns() {
           fontFamily: "'Cormorant Garamond', serif", fontSize: '2.25rem',
           fontWeight: 600, marginBottom: '1rem', lineHeight: '1.2'
         }}>
-          Achetez en toute confiance
+          {t('returns.ctaTitle')}
         </h2>
         <p className="static-cta-sub" style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '2.5rem' }}>
-          Avec notre politique de retours claire et équitable, faites vos achats sans risque.
+          {t('returns.ctaSubtitle')}
         </p>
         <Link to="/" className="static-cta-btn" style={{
           display: 'inline-flex', alignItems: 'center', gap: '10px',
@@ -319,7 +329,7 @@ export default function Returns() {
           boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
         }}>
           <Home size={16} strokeWidth={2} />
-          Retourner à l'accueil
+          {t('returns.ctaButton')}
         </Link>
       </section>
     </div>

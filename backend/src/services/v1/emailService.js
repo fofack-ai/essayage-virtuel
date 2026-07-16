@@ -1,27 +1,36 @@
-const nodemailer = require("nodemailer");
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const FROM_ADDRESS = process.env.RESEND_FROM || "TryOn <onboarding@resend.dev>";
 
-function createTransporter() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+async function sendViaResend({ to, subject, html }) {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify({
+      from: FROM_ADDRESS,
+      to: [to],
+      subject,
+      html,
+    }),
   });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Échec de l'envoi d'email (Resend) : ${errorBody}`);
+  }
+
+  return response.json();
 }
 
 async function sendOtpEmail(to, otp) {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  if (!RESEND_API_KEY) {
     console.log("Code OTP admin :", otp);
     return;
   }
 
-  const transporter = createTransporter();
-
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM,
+  await sendViaResend({
     to,
     subject: "Code de vérification TryOn",
     html: `
@@ -34,15 +43,12 @@ async function sendOtpEmail(to, otp) {
 }
 
 async function sendResetPasswordEmail(to, resetLink) {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  if (!RESEND_API_KEY) {
     console.log("Lien de réinitialisation :", resetLink);
     return;
   }
 
-  const transporter = createTransporter();
-
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM,
+  await sendViaResend({
     to,
     subject: "Réinitialisation de votre mot de passe TryOn",
     html: `

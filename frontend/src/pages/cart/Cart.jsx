@@ -1,9 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useCart } from "../../context/CartContext";
 import LoadingPage from '../../components/common/LoadingPage';
 
 export default function Cart() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const { items, removeItem, updateQty, clearCart, total, count } = useCart();
 
   const formatPrice = (price) => new Intl.NumberFormat("fr-FR").format(price);
@@ -13,16 +15,16 @@ export default function Cart() {
       <style>{styles}</style>
 
       <section className="cart-hero">
-        <span>Panier CFPD TryOn</span>
-        <h1>Votre sélection</h1>
-        <p>Finalisez vos articles avant de passer commande.</p>
+        <span>{t('cart.hero.tag')}</span>
+        <h1>{t('cart.hero.title')}</h1>
+        <p>{t('cart.hero.subtitle')}</p>
       </section>
 
       {items.length === 0 ? (
         <div className="empty-cart">
-          <h2>Votre panier est vide</h2>
-          <p>Ajoutez des tenues depuis le catalogue pour les retrouver ici.</p>
-          <Link to="/catalogue">Découvrir la boutique</Link>
+          <h2>{t('cart.empty.title')}</h2>
+          <p>{t('cart.empty.desc')}</p>
+          <Link to="/catalogue">{t('cart.empty.cta')}</Link>
         </div>
       ) : (
         <section className="cart-layout">
@@ -41,14 +43,14 @@ export default function Cart() {
 
                 <div className="cart-content">
                   <div>
-                    <span className="item-category">{item.category || "TryOn"}</span>
+                    <span className="item-category">{item.category || t('cart.item.categoryFallback')}</span>
                     <h3>{item.name}</h3>
 
                     <div className="item-meta">
-                      <span>Taille : {item.size || "Unique"}</span>
-                      <span>Couleur : {item.color || "Standard"}</span>
+                      <span>{t('cart.item.size', { size: item.size || t('cart.item.sizeFallback') })}</span>
+                      <span>{t('cart.item.color', { color: item.color || t('cart.item.colorFallback') })}</span>
                       <p>
-                        Stock disponible : {item.sizeStock || "non précisé"}
+                        {t('cart.item.stock', { stock: item.sizeStock || t('cart.item.stockFallback') })}
                       </p>
                     </div>
 
@@ -75,7 +77,7 @@ export default function Cart() {
                         onClick={() => {
                           if (item.sizeStock && item.qty >= item.sizeStock) {
                             alert(
-                              `Ce produit en taille ${item.size} n'est disponible qu'en ${item.sizeStock} exemplaire(s) en stock.`
+                              t('cart.stockAlert', { size: item.size, stock: item.sizeStock })
                             );
                             return;
                           }
@@ -90,7 +92,7 @@ export default function Cart() {
                       className="remove"
                       onClick={() => removeItem(item.id, item.size, item.color)}
                     >
-                      Supprimer
+                      {t('cart.remove')}
                     </button>
                   </div>
                 </div>
@@ -99,39 +101,39 @@ export default function Cart() {
           </div>
 
           <aside className="cart-summary">
-            <span className="summary-tag">Commande</span>
-            <h2>Résumé</h2>
+            <span className="summary-tag">{t('cart.summary.tag')}</span>
+            <h2>{t('cart.summary.title')}</h2>
 
             <div className="summary-row">
-              <span>Articles</span>
+              <span>{t('cart.summary.items')}</span>
               <strong>{count}</strong>
             </div>
 
             <div className="summary-row">
-              <span>Sous-total</span>
+              <span>{t('cart.summary.subtotal')}</span>
               <strong>{formatPrice(total)} FCFA</strong>
             </div>
 
             <div className="summary-row">
-              <span>Livraison</span>
-              <strong>À confirmer</strong>
+              <span>{t('cart.summary.shipping')}</span>
+              <strong>{t('cart.summary.shippingTBD')}</strong>
             </div>
 
             <div className="summary-total">
-              <span>Total</span>
+              <span>{t('cart.summary.total')}</span>
               <strong>{formatPrice(total)} FCFA</strong>
             </div>
 
             <button className="checkout" onClick={() => navigate("/checkout")}>
-              Passer la commande
+              {t('cart.summary.checkout')}
             </button>
 
             <button className="clear" onClick={clearCart}>
-              Vider le panier
+              {t('cart.summary.clear')}
             </button>
 
             <Link to="/catalogue" className="continue">
-              ← Continuer mes achats
+              {t('cart.summary.continue')}
             </Link>
           </aside>
         </section>

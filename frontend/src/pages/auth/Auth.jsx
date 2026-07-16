@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
 import { useSettings } from '../../context/SettingsContext';
@@ -8,43 +9,15 @@ import MobileHeader from '../../components/layout/MobileHeader';
 import { User, Mail, Phone, Lock, KeyRound, Hash, Eye, EyeOff } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
 
-const DATA = {
-  login: {
-    image: "/auth-login.jpg",
-    title: "Connectez-vous à votre",
-    red: "style",
-    end: "et essayez avant d’acheter.",
-    tags: ["Compte client", "Commandes", "Essayages virtuels", "Favoris"],
-  },
-  register: {
-    image: "/auth-register.jpg",
-    title: "Créez votre espace",
-    red: "TryOn",
-    end: "et construisez votre dressing.",
-    tags: ["Profil morphologie", "Tailles sauvegardées", "Offres privées", "Suivi commandes"],
-  },
-  forgot: {
-    image: "/auth-forgot.jpg",
-    title: "Retrouvez l’accès à votre",
-    red: "compte",
-    end: "en toute sécurité.",
-    tags: ["Email sécurisé", "Nouveau mot de passe", "Retour rapide", "Compte protégé"],
-  },
-  reset: {
-    image: "/auth-reset.jpg",
-    title: "Choisissez un nouveau",
-    red: "mot de passe",
-    end: "pour sécuriser votre compte.",
-    tags: [
-      "Lien sécurisé",
-      "Nouveau mot de passe",
-      "Protection renforcée",
-      "Accès restauré"
-    ],
-  },
+const IMAGES = {
+  login: "/auth-login.jpg",
+  register: "/auth-register.jpg",
+  forgot: "/auth-forgot.jpg",
+  reset: "/auth-reset.jpg",
 };
 
 export default function Auth() {
+  const { t } = useTranslation();
   const { token } = useParams();
   const { login, register, verifyOtp, pendingOtp, loginWithGoogle, completeGoogleLogin } = useAuth();
   const { getSetting, loading: settingsLoading } = useSettings();
@@ -99,7 +72,7 @@ export default function Auth() {
 
       if (result?.requiresOtp) {
         setScreen("login");
-        setMessage("Un code OTP a été envoyé à votre email administrateur.");
+        setMessage(t('auth.messages.otpSentAdmin'));
         window.history.replaceState({}, "", "/auth");
         return;
       }
@@ -123,12 +96,18 @@ export default function Auth() {
     checkRegistration();
   }, [getSetting, screen]);
 
-  const active = DATA[screen];
+  const active = {
+    image: IMAGES[screen],
+    title: t(`auth.hero.${screen}.title`),
+    red: t(`auth.hero.${screen}.highlight`),
+    end: t(`auth.hero.${screen}.end`),
+    tags: t(`auth.hero.${screen}.tags`, { returnObjects: true }),
+  };
 
   const changeScreen = (value) => {
     // 👇 EMPÊCHER LE PASSAGE VERS REGISTER SI L'INSCRIPTION EST FERMÉE
     if (value === "register" && !registrationEnabled) {
-      setError("Les inscriptions sont temporairement fermées.");
+      setError(t('auth.errors.registrationClosed'));
       return;
     }
     setScreen(value);
@@ -149,7 +128,7 @@ export default function Auth() {
       );
 
       if (result?.requiresOtp) {
-        setMessage("Un code OTP a été envoyé.");
+        setMessage(t('auth.messages.otpSent'));
         return;
       }
 
@@ -190,12 +169,12 @@ export default function Auth() {
 
       // 👇 VÉRIFICATION SUPPLÉMENTAIRE AVANT L'INSCRIPTION
       if (!registrationEnabled) {
-        setError("Les inscriptions sont temporairement fermées.");
+        setError(t('auth.errors.registrationClosed'));
         return;
       }
 
       if (registerForm.password !== registerForm.confirmPassword) {
-        setError("Les mots de passe ne correspondent pas.");
+        setError(t('auth.errors.passwordMismatch'));
         return;
       }
 
@@ -218,9 +197,7 @@ export default function Auth() {
         email: forgotEmail,
       });
 
-      setMessage(
-        "Un lien de réinitialisation a été envoyé à votre adresse email."
-      );
+      setMessage(t('auth.messages.resetLinkSent'));
     } catch (err) {
       setError(err.message);
     }
@@ -234,7 +211,7 @@ export default function Auth() {
       setMessage("");
 
       if (newPassword !== confirmNewPassword) {
-        setError("Les mots de passe ne correspondent pas.");
+        setError(t('auth.errors.passwordMismatch'));
         return;
       }
 
@@ -243,9 +220,7 @@ export default function Auth() {
         newPassword,
       });
 
-      setMessage(
-        "Mot de passe réinitialisé avec succès."
-      );
+      setMessage(t('auth.messages.passwordResetSuccess'));
 
       setTimeout(() => {
         changeScreen("login");
@@ -257,7 +232,7 @@ export default function Auth() {
 
   // ✅ PENDANT LE CHARGEMENT
   if (settingsLoading) {
-    return <div className="auth-loading">Chargement...</div>;
+    return <div className="auth-loading">{t('auth.loading')}</div>;
   }
 
   // ✅ SI L'INSCRIPTION EST FERMÉE ET QU'ON ESSAIE D'Y ACCÉDER
@@ -268,19 +243,19 @@ export default function Auth() {
         <section
           style={{
             ...leftStyle,
-            backgroundImage: `linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.50)), url(${DATA.register.image})`,
+            backgroundImage: `linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.50)), url(${IMAGES.register})`,
           }}
           className="auth-left"
         >
           <div style={leftContentStyle}>
             <h1 style={leftTitleStyle}>
-              Inscriptions<br />
-              <span style={redWordStyle}>fermées</span>
+              {t('auth.registrationClosed.heroTitle')}<br />
+              <span style={redWordStyle}>{t('auth.registrationClosed.heroHighlight')}</span>
             </h1>
             <div style={tagsBoxStyle} className="auth-tags">
-              <span style={tagStyle}>🔒 Sécurisé</span>
-              <span style={tagStyle}>📧 Contact support</span>
-              <span style={tagStyle}>⏳ Réessayer plus tard</span>
+              <span style={tagStyle}>{t('auth.registrationClosed.tag1')}</span>
+              <span style={tagStyle}>{t('auth.registrationClosed.tag2')}</span>
+              <span style={tagStyle}>{t('auth.registrationClosed.tag3')}</span>
             </div>
           </div>
         </section>
@@ -289,12 +264,12 @@ export default function Auth() {
           <div style={cardStyle} className="auth-card">
             <div className="auth-header" style={{ textAlign: 'center', marginBottom: 30 }}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
-              <h2 style={titleStyle}>Inscriptions fermées</h2>
+              <h2 style={titleStyle}>{t('auth.registrationClosed.title')}</h2>
               <p style={descStyle}>
-                Les inscriptions sont temporairement fermées par l'administrateur.
+                {t('auth.registrationClosed.desc1')}
               </p>
               <p style={{ ...descStyle, color: '#888', fontSize: 14 }}>
-                Veuillez réessayer plus tard ou contacter le support.
+                {t('auth.registrationClosed.desc2')}
               </p>
               <div style={{ marginTop: 24 }}>
                 <button
@@ -302,7 +277,7 @@ export default function Auth() {
                   onClick={() => changeScreen("login")}
                   style={{ width: '100%', justifyContent: 'center' }}
                 >
-                  Se connecter
+                  {t('auth.registrationClosed.loginButton')}
                 </button>
               </div>
             </div>
@@ -543,11 +518,11 @@ export default function Auth() {
           <h1 style={leftTitleStyle}>
             {pendingOtp && screen === "login" ? (
               <>
-                Vérifiez votre
+                {t('auth.hero.otp.line1')}
                 <br />
-                <span style={redWordStyle}>identité</span>
+                <span style={redWordStyle}>{t('auth.hero.otp.highlight')}</span>
                 <br />
-                administrateur.
+                {t('auth.hero.otp.line2')}
               </>
             ) : (
               <>
@@ -562,7 +537,7 @@ export default function Auth() {
 
           <div style={tagsBoxStyle} className="auth-tags">
             {(pendingOtp && screen === "login"
-              ? ["Sécurité renforcée", "Code OTP", "Accès administrateur", "Compte protégé"]
+              ? t('auth.hero.otp.tags', { returnObjects: true })
               : active.tags
             ).map((tag) => (
               <span key={tag} style={tagStyle}>
@@ -583,7 +558,7 @@ export default function Auth() {
               onMouseEnter={hoverTabEnter}
               onMouseLeave={(e) => hoverTabLeave(e, screen === "login")}
             >
-              Connexion
+              {t('auth.tabs.login')}
             </button>
 
             <button
@@ -593,7 +568,7 @@ export default function Auth() {
               onMouseEnter={hoverTabEnter}
               onMouseLeave={(e) => hoverTabLeave(e, screen === "register")}
             >
-              Créer un compte
+              {t('auth.tabs.register')}
             </button>
           </div>
 
@@ -603,27 +578,27 @@ export default function Auth() {
           {screen === "login" && (
             <>
               <h2 style={titleStyle}>
-                {pendingOtp ? "Vérification OTP" : "Bon retour"}
+                {pendingOtp ? t('auth.login.otpTitle') : t('auth.login.title')}
               </h2>
 
               <p style={descStyle}>
                 {pendingOtp
-                  ? "Entrez le code de vérification reçu pour accéder à votre espace administrateur."
-                  : "Accédez à votre espace personnel et retrouvez vos essayages."}
+                  ? t('auth.login.otpDesc')
+                  : t('auth.login.desc')}
               </p>
 
               {pendingOtp ? (
                 <form onSubmit={handleVerifyOtp}>
                   <Input
                     icon={<Hash size={18} />}
-                    label="Code OTP"
-                    placeholder="Ex : 123456"
+                    label={t('auth.login.otpLabel')}
+                    placeholder={t('auth.login.otpPlaceholder')}
                     value={otp}
                     onChange={setOtp}
                   />
 
                   <HoverButton type="submit">
-                    Vérifier le code
+                    {t('auth.login.verifyButton')}
                   </HoverButton>
                   
                 </form>
@@ -632,9 +607,9 @@ export default function Auth() {
                   <form onSubmit={handleLogin}>
                     <Input
                       icon={<Mail size={18} />}
-                      label="Email"
+                      label={t('auth.login.emailLabel')}
                       type="email"
-                      placeholder="vous@exemple.cm"
+                      placeholder={t('auth.login.emailPlaceholder')}
                       value={loginForm.email}
                       onChange={(v) =>
                         setLoginForm({
@@ -646,9 +621,9 @@ export default function Auth() {
 
                     <Input
                       icon={<KeyRound size={18} />}
-                      label="Mot de passe"
+                      label={t('auth.login.passwordLabel')}
                       type="password"
-                      placeholder="••••••••"
+                      placeholder={t('auth.login.passwordPlaceholder')}
                       value={loginForm.password}
                       onChange={(v) =>
                         setLoginForm({
@@ -664,21 +639,21 @@ export default function Auth() {
                         onClick={() => changeScreen("forgot")}
                         style={linkButtonStyle}
                       >
-                        Mot de passe oublié ?
+                        {t('auth.login.forgotLink')}
                       </button>
                     </div>
 
                     <HoverButton type="submit" className="auth-btn">
-                      Se connecter
+                      {t('auth.login.submitButton')}
                     </HoverButton>
                   </form>
 
-                  <div style={separatorStyle} className="auth-separator">ou continuer avec</div>
+                  <div style={separatorStyle} className="auth-separator">{t('auth.login.orContinueWith')}</div>
 
                   {/* Connexion avec Google */}
                   <SocialButton onClick={loginWithGoogle} className="auth-social-btn">
                     <FcGoogle size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-                    Continuer avec Google
+                    {t('auth.login.googleButton')}
                   </SocialButton>
                 </>
               )}
@@ -687,17 +662,17 @@ export default function Auth() {
 
           {screen === "register" && (
             <>
-              <h2 style={titleStyle}>Créer un compte</h2>
+              <h2 style={titleStyle}>{t('auth.register.title')}</h2>
               <p style={descStyle}>
-                Créez votre profil pour sauvegarder vos tailles, favoris et commandes.
+                {t('auth.register.desc')}
               </p>
 
               <form onSubmit={handleRegister}>
                 <div style={registerNameGridStyle} className="auth-name-grid">
                   <Input
                     icon={<User size={18} />}
-                    label="Prénom"
-                    placeholder="Miranda"
+                    label={t('auth.register.firstNameLabel')}
+                    placeholder={t('auth.register.firstNamePlaceholder')}
                     value={registerForm.firstName}
                     onChange={(v) =>
                       setRegisterForm({
@@ -709,8 +684,8 @@ export default function Auth() {
 
                   <Input
                     icon={<User size={18} />}
-                    label="Nom"
-                    placeholder="Eko"
+                    label={t('auth.register.lastNameLabel')}
+                    placeholder={t('auth.register.lastNamePlaceholder')}
                     value={registerForm.lastName}
                     onChange={(v) =>
                       setRegisterForm({
@@ -723,9 +698,9 @@ export default function Auth() {
 
                 <Input
                   icon={<Mail size={18} />}
-                  label="Email"
+                  label={t('auth.register.emailLabel')}
                   type="email"
-                  placeholder="vous@exemple.cm"
+                  placeholder={t('auth.register.emailPlaceholder')}
                   value={registerForm.email}
                   onChange={(v) =>
                     setRegisterForm({
@@ -737,8 +712,8 @@ export default function Auth() {
 
                 <Input
                   icon={<Phone size={18} />}
-                  label="Téléphone"
-                  placeholder="+237 6XX XXX XXX"
+                  label={t('auth.register.phoneLabel')}
+                  placeholder={t('auth.register.phonePlaceholder')}
                   value={registerForm.phone}
                   onChange={(v) =>
                     setRegisterForm({
@@ -750,9 +725,9 @@ export default function Auth() {
 
                 <Input
                   icon={<Lock size={18} />}
-                  label="Mot de passe"
+                  label={t('auth.register.passwordLabel')}
                   type="password"
-                  placeholder="Minimum 6 caractères"
+                  placeholder={t('auth.register.passwordPlaceholder')}
                   value={registerForm.password}
                   onChange={(v) =>
                     setRegisterForm({
@@ -764,9 +739,9 @@ export default function Auth() {
 
                 <Input
                   icon={<KeyRound size={18} />}
-                  label="Confirmer"
+                  label={t('auth.register.confirmLabel')}
                   type="password"
-                  placeholder="Répétez le mot de passe"
+                  placeholder={t('auth.register.confirmPlaceholder')}
                   value={registerForm.confirmPassword}
                   onChange={(v) =>
                     setRegisterForm({
@@ -777,7 +752,7 @@ export default function Auth() {
                 />
 
                 <HoverButton type="submit" className="auth-btn">
-                  Créer mon compte
+                  {t('auth.register.submitButton')}
                 </HoverButton>
               </form>
             </>
@@ -785,24 +760,23 @@ export default function Auth() {
 
           {screen === "forgot" && (
             <>
-              <h2 style={titleStyle}>Réinitialisation</h2>
+              <h2 style={titleStyle}>{t('auth.forgot.title')}</h2>
               <p style={descStyle}>
-                Entrez votre email pour recevoir les instructions et obtenir un
-                nouveau mot de passe sécurisé.
+                {t('auth.forgot.desc')}
               </p>
 
               <form onSubmit={handleForgot}>
                 <Input
                   icon={<Mail size={18} />}
-                  label="Email"
+                  label={t('auth.forgot.emailLabel')}
                   type="email"
-                  placeholder="vous@exemple.cm"
+                  placeholder={t('auth.forgot.emailPlaceholder')}
                   value={forgotEmail}
                   onChange={setForgotEmail}
                 />
 
                 <HoverButton type="submit" className="auth-btn">
-                  Demander un nouveau mot de passe
+                  {t('auth.forgot.submitButton')}
                 </HoverButton>
               </form>
 
@@ -813,7 +787,7 @@ export default function Auth() {
                   style={inlineButtonStyle}
                   className="auth-back-link"
                 >
-                  ← Retour à la connexion
+                  {t('auth.forgot.backLink')}
                 </button>
               </p>
             </>
@@ -822,35 +796,34 @@ export default function Auth() {
           {screen === "reset" && (
             <>
               <h2 style={titleStyle}>
-                Nouveau mot de passe
+                {t('auth.reset.title')}
               </h2>
 
               <p style={descStyle}>
-                Entrez le token reçu par email puis choisissez
-                votre nouveau mot de passe.
+                {t('auth.reset.desc')}
               </p>
 
               <form onSubmit={handleResetPassword}>
                 <Input
                   icon={<Lock size={18} />}
-                  label="Nouveau mot de passe"
+                  label={t('auth.reset.newPasswordLabel')}
                   type="password"
-                  placeholder="********"
+                  placeholder={t('auth.reset.passwordPlaceholder')}
                   value={newPassword}
                   onChange={setNewPassword}
                 />
 
                 <Input
                   icon={<KeyRound size={18} />}
-                  label="Confirmer"
+                  label={t('auth.reset.confirmLabel')}
                   type="password"
-                  placeholder="********"
+                  placeholder={t('auth.reset.passwordPlaceholder')}
                   value={confirmNewPassword}
                   onChange={setConfirmNewPassword}
                 />
 
                 <HoverButton type="submit" className="auth-btn">
-                  Réinitialiser
+                  {t('auth.reset.submitButton')}
                 </HoverButton>
               </form>
 
@@ -861,7 +834,7 @@ export default function Auth() {
                   style={inlineButtonStyle}
                   className="auth-back-link"
                 >
-                  ← Retour à la connexion
+                  {t('auth.reset.backLink')}
                 </button>
               </p>
             </>
@@ -1017,6 +990,7 @@ const leftTitleStyle = {
   fontWeight: 300,
   lineHeight: 1.25,
   textShadow: "0 8px 28px rgba(0,0,0,.75)",
+  color: "#fff",
 };
 
 const redWordStyle = {

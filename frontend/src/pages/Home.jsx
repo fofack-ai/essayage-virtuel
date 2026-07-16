@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api, getImageUrl } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -317,6 +318,7 @@ function ImageWithFallback({ src, alt = '', label = 'TryOn', style = {} }) {
 }
 
 export default function Home() {
+  const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -381,7 +383,7 @@ export default function Home() {
           name: p.name,
           brand: p.brand || 'TryOn',
           price: parseFloat(p.price) || 0,
-          tag: p.stock > 0 ? 'Nouveau' : 'Rupture',
+          tag: p.stock > 0 ? 'new' : 'out',
           colors: p.color ? [p.color] : ['#1a1410'],
           image: getImageUrl(p.image),
         }));
@@ -430,11 +432,11 @@ export default function Home() {
   const featured = useMemo(() => products, [products]);
 
   if (loading) {
-    return <div style={{ paddingTop: '72px', textAlign: 'center', color: '#6A6F78' }}>Chargement...</div>;
+    return <div style={{ paddingTop: '72px', textAlign: 'center', color: '#6A6F78' }}>{t('home.states.loading')}</div>;
   }
 
   if (error) {
-    return <div style={{ paddingTop: '72px', textAlign: 'center', color: T.red }}>Erreur : {error}</div>;
+    return <div style={{ paddingTop: '72px', textAlign: 'center', color: T.red }}>{t('home.states.error', { message: error })}</div>;
   }
 
   const mobileStyles = `
@@ -719,28 +721,28 @@ export default function Home() {
       >
         <div style={HERO_CONTENT_STYLE}>
           <span style={HERO_TAG_STYLE}>
-            <Sparkles size={14} style={{ color: T.red, display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} /> Essayage virtuel par IA
+            <Sparkles size={14} style={{ color: T.red, display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} /> {t('home.hero.badge')}
           </span>
 
           <h1 style={HERO_TITLE_STYLE}>
-            La mode africaine<br />
-            <em style={{ fontStyle: 'italic', color: T.red }}>réinventée</em><br />
-            pour vous
+            {t('home.hero.titleLine1')}<br />
+            <em style={{ fontStyle: 'italic', color: T.red }}>{t('home.hero.titleHighlight')}</em><br />
+            {t('home.hero.titleLine2')}
           </h1>
 
           <p style={HERO_DESCRIPTION_STYLE}>
-            Essayez virtuellement des tenues wax, bogolan et ankara grâce à notre cabine IA. Commandez avec confiance.
+            {t('home.hero.description')}
           </p>
 
           <div style={HERO_BUTTONS_STYLE} className="hero-buttons-wrap">
-            <Link to="/tryon" className="btn-primary" aria-label="Essayer l'essayage virtuel">
-              Essayer maintenant
+            <Link to="/tryon" className="btn-primary" aria-label={t('home.hero.ctaTryOnAria')}>
+              {t('home.hero.ctaTryOn')}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </Link>
-            <Link to="/catalogue" className="btn-outline" aria-label="Voir le catalogue produits">
-              Voir le catalogue
+            <Link to="/catalogue" className="btn-outline" aria-label={t('home.hero.ctaCatalogueAria')}>
+              {t('home.hero.ctaCatalogue')}
             </Link>
           </div>
 
@@ -748,104 +750,119 @@ export default function Home() {
           <div style={HERO_STATS_STYLE} aria-label="Statistics section">
             <div style={STAT_ITEM_STYLE}>
               <div style={STAT_NUMBER_STYLE}>{stats.totalProducts}+</div>
-              <div style={STAT_LABEL_STYLE}>Tenues disponibles</div>
+              <div style={STAT_LABEL_STYLE}>{t('home.hero.statOutfits')}</div>
             </div>
             <div style={STAT_ITEM_STYLE}>
               <div style={STAT_NUMBER_STYLE}>{stats.satisfaction}%</div>
-              <div style={STAT_LABEL_STYLE}>Satisfaction client</div>
+              <div style={STAT_LABEL_STYLE}>{t('home.hero.statSatisfaction')}</div>
             </div>
             <div style={STAT_ITEM_STYLE}>
               <div style={STAT_NUMBER_STYLE}>{stats.totalTryons || 0}+</div>
-              <div style={STAT_LABEL_STYLE}>Essayages réalisés</div>
+              <div style={STAT_LABEL_STYLE}>{t('home.hero.statTryOns')}</div>
             </div>
           </div>
         </div>
 
         {/* Image hero droite */}
-        <div style={{ position: 'relative', overflow: 'hidden' }} aria-hidden="true">
-          <ImageWithFallback src={DEFAULT_HERO_IMAGE} alt="" label="CFPD TryOn" />
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(135deg, rgba(26,26,26,0.12) 0%, transparent 60%)',
-            }}
+          <div 
+            style={{ 
+              position: 'relative', 
+              overflow: 'hidden',
+              backgroundImage: "url('/Accueil.jpg')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center 25%', /* Ajusté à 25% vertical pour centrer le visage du modèle */
+              backgroundRepeat: 'no-repeat',
+              width: '100%',
+              height: '100%',
+              minHeight: '100%'
+            }} 
             aria-hidden="true"
-          />
-          {/* Badge IA flottant */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '40px',
-              left: '40px',
-              background: 'rgba(250,247,242,0.96)',
-              borderRadius: '18px',
-              padding: '16px 20px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              boxShadow: '0 18px 50px rgba(26,26,26,0.13)',
-            }}
-            role="img"
-            aria-label="Badge indiquant un score IA de 94% pour la compatibilité morphologique"
           >
+            {/* Overlay subtil pour intégrer l'image en douceur */}
             <div
               style={{
-                width: '40px',
-                height: '40px',
-                background: T.blueLight,
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px',
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(135deg, rgba(26,26,26,0.1) 0%, transparent 60%)',
               }}
               aria-hidden="true"
+            />
+
+            {/* Badge IA flottant */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '40px',
+                left: '40px',
+                background: 'rgba(255,255,255,0.92)',
+                backdropFilter: 'blur(8px)', /* Effet flouté ultra-moderne */
+                borderRadius: '18px',
+                padding: '16px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                boxShadow: '0 18px 50px rgba(26,26,26,0.13)',
+              }}
+              role="img"
+              aria-label="Badge indiquant un score IA de 94% pour la compatibilité morphologique"
             >
-              <Sparkles size={28} />
-            </div>
-            <div>
               <div
                 style={{
-                  fontSize: '11px',
-                  color: T.muted,
-                  letterSpacing: '1.5px',
-                  textTransform: 'uppercase',
+                  width: '40px',
+                  height: '40px',
+                  background: T.blueLight,
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px',
                 }}
+                aria-hidden="true"
               >
-                Score IA
+                <Sparkles size={20} style={{ color: T.blueDark }} />
               </div>
-              <div
-                style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: '28px',
-                  fontWeight: 600,
-                  color: T.red,
-                  lineHeight: 1,
-                }}
-              >
-                94%
-              </div>
-              <div
-                style={{
-                  fontSize: '11px',
-                  color: T.muted,
-                  marginTop: '2px',
-                }}
-              >
-                Compatibilité morphologique
+              <div>
+                <div
+                  style={{
+                    fontSize: '11px',
+                    color: T.muted,
+                    letterSpacing: '1.5px',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  Score IA
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: '28px',
+                    fontWeight: 600,
+                    color: T.red,
+                    lineHeight: 1,
+                  }}
+                >
+                  94%
+                </div>
+                <div
+                  style={{
+                    fontSize: '11px',
+                    color: T.muted,
+                    marginTop: '2px',
+                  }}
+                >
+                  Compatibilité morphologique
+                </div>
               </div>
             </div>
           </div>
-        </div>
       </section>
 
       {/* ── CATÉGORIES DYNAMIQUES ── */}
       <section style={CATEGORIES_SECTION_STYLE} aria-label="Product categories section">
         <div style={CATEGORIES_HEADER_STYLE}>
-          <div style={CATEGORIES_SUBHEADER_STYLE}>Collections</div>
+          <div style={CATEGORIES_SUBHEADER_STYLE}>{t('home.categories.subheader')}</div>
           <h2 style={CATEGORIES_TITLE_STYLE}>
-            Explorez nos <em style={{ fontStyle: 'italic', color: T.red }}>catégories</em>
+            {t('home.categories.titleLine')} <em style={{ fontStyle: 'italic', color: T.red }}>{t('home.categories.titleHighlight')}</em>
           </h2>
         </div>
         <div style={CATEGORIES_GRID_STYLE}>
@@ -858,7 +875,7 @@ export default function Home() {
                   key={cat.id}
                   to={`/catalogue?category=${categorySlug}`}
                   style={{ textDecoration: 'none' }}
-                  aria-label={`Découvrir la catégorie ${cat.name}`}
+                  aria-label={t('home.categories.discoverAria', { name: cat.name })}
                 >
                   <div
                     style={{
@@ -920,7 +937,7 @@ export default function Home() {
                           marginTop: '4px',
                         }}
                       >
-                        {cat.productsCount || 'Découvrir →'}
+                        {cat.productsCount || t('home.categories.discoverFallback')}
                       </div>
                     </div>
                   </div>
@@ -928,7 +945,7 @@ export default function Home() {
               );
             })
           ) : (
-            <p>Aucune catégorie disponible</p>
+            <p>{t('home.categories.empty')}</p>
           )}
         </div>
       </section>
@@ -937,20 +954,20 @@ export default function Home() {
       <section style={FEATURED_SECTION_STYLE} aria-label="Featured products section">
         <div style={FEATURED_HEADER_STYLE}>
           <div style={FEATURED_TITLE_LEFT_STYLE}>
-            <div style={FEATURED_SUBTITLE_STYLE}>Sélection</div>
+            <div style={FEATURED_SUBTITLE_STYLE}>{t('home.featured.subtitle')}</div>
             <h2 style={FEATURED_TITLE_STYLE}>
-              Produits <em style={{ fontStyle: 'italic', color: T.red }}>vedettes</em>
+              {t('home.featured.titleLine')} <em style={{ fontStyle: 'italic', color: T.red }}>{t('home.featured.titleHighlight')}</em>
             </h2>
           </div>
-          <Link to="/catalogue" style={FEATURED_LINK_STYLE} aria-label="Voir tous les produits vedettes">
-            Voir tout →
+          <Link to="/catalogue" style={FEATURED_LINK_STYLE} aria-label={t('home.featured.viewAllAria')}>
+            {t('home.featured.viewAll')}
           </Link>
         </div>
         <div style={FEATURED_GRID_STYLE}>
           {products.length > 0 ? (
             products.map((product) => <ProductCard key={product.id} product={product} />)
           ) : (
-            <p>Aucun produit disponible</p>
+            <p>{t('home.featured.empty')}</p>
           )}
         </div>
       </section>
@@ -958,25 +975,24 @@ export default function Home() {
       {/* ── BANNIÈRE IA ── */}
       <section style={IA_BANNER_SECTION_STYLE} aria-label="IA banner section">
         <div style={IA_BANNER_CONTENT_STYLE}>
-          <span style={IA_BADGE_STYLE}><Sparkles size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} /> Technologie IA</span>
+          <span style={IA_BADGE_STYLE}><Sparkles size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} /> {t('home.iaBanner.badge')}</span>
           <h2 style={IA_TITLE_STYLE}>
-            Votre cabine d'essayage<br />
-            <em style={{ fontStyle: 'italic', color: '#f5b7b1' }}>virtuelle</em>
+            {t('home.iaBanner.titleLine1')}<br />
+            <em style={{ fontStyle: 'italic', color: '#f5b7b1' }}>{t('home.iaBanner.titleHighlight')}</em>
           </h2>
           <p style={IA_DESCRIPTION_STYLE}>
-            Uploadez votre photo, notre IA analyse votre morphologie et vous propose les tailles et coupes les plus
-            adaptées.
+            {t('home.iaBanner.description')}
           </p>
-          <Link to="/catalogue" style={IA_BUTTON_STYLE} aria-label="Commencer l'essayage virtuel gratuitement">
-            Essayer gratuitement →
+          <Link to="/catalogue" style={IA_BUTTON_STYLE} aria-label={t('home.iaBanner.ctaAria')}>
+            {t('home.iaBanner.cta')}
           </Link>
         </div>
         <div style={IA_STEPS_STYLE}>
           {[
-            { n: '01', t: 'Uploadez votre photo', d: 'Une photo de face en tenue ajustée suffit.' },
-            { n: '02', t: 'Analyse morphologique', d: 'Notre IA détecte vos mesures en quelques secondes.' },
-            { n: '03', t: 'Score de compatibilité', d: "Chaque vêtement reçoit un score d'adéquation." },
-            { n: '04', t: 'Commandez en confiance', d: 'Ajustements de taille inclus automatiquement.' },
+            { n: '01', t: t('home.iaBanner.step1Title'), d: t('home.iaBanner.step1Desc') },
+            { n: '02', t: t('home.iaBanner.step2Title'), d: t('home.iaBanner.step2Desc') },
+            { n: '03', t: t('home.iaBanner.step3Title'), d: t('home.iaBanner.step3Desc') },
+            { n: '04', t: t('home.iaBanner.step4Title'), d: t('home.iaBanner.step4Desc') },
           ].map((s) => (
             <div key={s.n} style={IA_STEP_ITEM_STYLE}>
               <span style={IA_STEP_NUMBER_STYLE}>{s.n}</span>
@@ -995,6 +1011,7 @@ export default function Home() {
 // ── ProductCard ──
 
 function ProductCard({ product }) {
+  const { t } = useTranslation();
   const [pressed, setPressed] = useState(false);
   const pressTimer = useRef(null);
   const navigate = useNavigate();
@@ -1036,12 +1053,12 @@ function ProductCard({ product }) {
           {product.tag && (
             <span style={{
               position: 'absolute', top: '14px', left: '14px',
-              background: product.tag === 'Nouveau' ? 'rgba(91,127,166,0.14)' : T.red,
-              color: product.tag === 'Nouveau' ? T.blueDark : '#fff',
+              background: product.tag === 'new' ? 'rgba(91,127,166,0.14)' : T.red,
+              color: product.tag === 'new' ? T.blueDark : '#fff',
               fontSize: '10px', fontWeight: 600, letterSpacing: '1px',
               padding: '4px 10px', borderRadius: '100px',
             }}>
-              {product.tag}
+              {product.tag === 'new' ? t('home.productCard.tagNew') : t('home.productCard.tagOut')}
             </span>
           )}
 
@@ -1063,7 +1080,7 @@ function ProductCard({ product }) {
                 whiteSpace: 'nowrap', boxShadow: '0 4px 16px rgba(26,26,26,0.12)',
               }}
             >
-              Essayer virtuellement
+              {t('home.productCard.tryOnButton')}
             </button>
           )}
         </div>
