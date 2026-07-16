@@ -426,11 +426,11 @@ async function aiGenerateTryon(req, res) {
 
     console.log(`[aiGenerateTryon] userId=${req.user?.id || 'guest'} guestId=${req.guestId} productId=${productId}`);
 
-    const aiResult = await aiTryonService.generateVirtualTryon(
-      userPhotoPath,
-      productImagePath,
-      { name: product.name, description: product.description }
-    );
+const aiResult = await aiTryonService.generateVirtualTryon(
+  userPhotoPath,
+  productImagePath,
+  { name: product.name, categoryName: product.categoryName }   // ← indispensable
+);
 
     // --- SAUVEGARDE SYSTÉMATIQUE (même pour les invités) ---
     const tryonData = {
