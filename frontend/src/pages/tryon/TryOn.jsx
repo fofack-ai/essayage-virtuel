@@ -125,6 +125,16 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
   const [tryonId, setTryonId] = useState(null);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [measurements, setMeasurements] = useState(null);
+
+
+  // ── Moteur de recommandation de taille ──
+  const [heightCm, setHeightCm] = useState('');
+  const [weightKg, setWeightKg] = useState('');
+  const [morphology, setMorphology] = useState('normale');
+  const [fitData, setFitData] = useState(null);
+  const [fitLoading, setFitLoading] = useState(false);
+  const [fitError, setFitError] = useState(null);
+  
   // Téléphone/tablette : pointeur grossier => appareil photo natif
   const [isMobile] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
