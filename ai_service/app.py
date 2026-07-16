@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import FileResponse, JSONResponse
 from pathlib import Path
 from PIL import Image
@@ -63,8 +63,6 @@ def build_client(space, token):
         os.environ["HF_TOKEN"] = token
 
     return Client(space)
-
-
 
 
 def get_client():
@@ -133,6 +131,7 @@ def copy_result_to_output(result, output_path):
     # pour que le fichier corresponde au media_type annoncé.
     img = Image.open(output_path).convert("RGB")
     img.save(output_path, format="PNG")
+
 
 def make_editor_payload(person_path):
     """
@@ -214,18 +213,24 @@ def run_fashn(person_path, garment_path, output_path):
     raise RuntimeError("FASHN : délai dépassé (le service met trop de temps)")
 
 
-def run_catvton(person_path, garment_path, output_path):
+def run_catvton(person_path, garment_path, output_path, cloth_type="upper"):
     client = get_client()
 
     result = client.predict(
         person_image=make_editor_payload(person_path),
         cloth_image=handle_file(str(garment_path)),
+        cloth_type=cloth_type,        # upper / lower / overall : indique au modèle
+                                      # QUELLE partie du corps doit être remplacée.
         num_inference_steps=NUM_STEPS,
-        guidance_scale=3.5,
+        guidance_scale=2.5,           # valeur par défaut du Space pour cet endpoint
         seed=-1,  # -1 = aléatoire : si le SafetyChecker du Space bloque un
                   # résultat (faux positif fréquent), un retry a une chance
                   # de passer, ce qu'un seed fixe interdisait.
-        api_name="/submit_function_p2p",
+        show_type="result only",      # sinon le Space renvoie un collage
+                                      # entrée + masque + résultat.
+        api_name="/submit_function",  # /submit_function_p2p attend la photo d'une
+                                      # AUTRE PERSONNE portant le vêtement, pas une
+                                      # image de vêtement à plat -> aucun effet.
     )
 
     copy_result_to_output(result, output_path)
@@ -257,7 +262,11 @@ def translate_error(exc: Exception) -> str:
 async def generate_tryon(
     person_image: UploadFile = File(...),
     garment_image: UploadFile = File(...),
+    cloth_type: str = Form("upper"),
 ):
+    if cloth_type not in ("upper", "lower", "overall"):
+        cloth_type = "upper"
+
     job_id = str(uuid.uuid4())
 
     person_path = OUTPUT_DIR / f"{job_id}_person.png"
@@ -279,13 +288,13 @@ async def generate_tryon(
             # Fournisseur par défaut : CatVTON (gratuit)
             print("[TryOn] Fournisseur : CatVTON")
             try:
-                run_catvton(person_path, garment_path, output_path)
+                run_catvton(person_path, garment_path, output_path, cloth_type)
             except Exception:
                 # La session Gradio peut expirer : une reconnexion + 1 retry
                 # règle la majorité des échecs transitoires.
                 print("[CatVTON] Premier essai échoué, reconnexion au Space...")
                 reset_client()
-                run_catvton(person_path, garment_path, output_path)
+                run_catvton(person_path, garment_path, output_path, cloth_type)
 
         return FileResponse(
             output_path, media_type="image/png", filename="tryon_result.png"

@@ -16,6 +16,17 @@ function isUrl(value) {
 }
 
 /**
+ * Traduit la catégorie du produit en zone du corps comprise par CatVTON.
+ * Sans ce paramètre, le modèle ne sait pas quelle partie remplacer.
+ */
+function mapClothType(categoryName = "") {
+  const c = String(categoryName).toLowerCase();
+  if (/(pantalon|jean|short|jupe|bas)/.test(c)) return "lower";
+  if (/(robe|costume|ensemble|combinaison)/.test(c)) return "overall";
+  return "upper";
+}
+
+/**
  * Extrait un message d'erreur lisible depuis une réponse d'erreur du
  * service IA (le body arrive en Buffer car responseType: "arraybuffer").
  */
@@ -39,8 +50,8 @@ function extractAiError(error) {
 }
 
 /**
- * ✅ CORRECTIF BUG 3 — charge une image en Buffer, qu'elle vienne d'une URL
- * Cloudinary (production) ou d'un fichier local (développement).
+ * Charge une image en Buffer, qu'elle vienne d'une URL Cloudinary (production)
+ * ou d'un fichier local (développement).
  */
 async function loadImage(source, label) {
   if (isUrl(source)) {
@@ -62,7 +73,7 @@ async function loadImage(source, label) {
   return fs.readFileSync(source);
 }
 
-/** ✅ CORRECTIF BUG 2 — envoie l'image générée vers Cloudinary (tryon/results). */
+/** Envoie l'image générée vers Cloudinary (tryon/results). */
 function uploadResultToCloudinary(buffer) {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
@@ -73,7 +84,7 @@ function uploadResultToCloudinary(buffer) {
   });
 }
 
-async function generateWithCatVTON({ personImagePath, garmentImagePath }) {
+async function generateWithCatVTON({ personImagePath, garmentImagePath, clothType = "upper" }) {
   // Accepte indifféremment une URL Cloudinary ou un chemin local.
   const [personBuffer, garmentBuffer] = await Promise.all([
     loadImage(personImagePath, "Image utilisateur"),
@@ -83,6 +94,7 @@ async function generateWithCatVTON({ personImagePath, garmentImagePath }) {
   const form = new FormData();
   form.append("person_image", personBuffer, { filename: "person.jpg" });
   form.append("garment_image", garmentBuffer, { filename: "garment.jpg" });
+  form.append("cloth_type", clothType);
 
   let response;
   try {
@@ -122,15 +134,21 @@ async function generateWithCatVTON({ personImagePath, garmentImagePath }) {
 }
 
 async function generateVirtualTryon(personImagePath, garmentImagePath, productInfo = {}) {
+  const clothType = mapClothType(
+    productInfo?.categoryName || productInfo?.category || ""
+  );
+
   const result = await generateWithCatVTON({
     personImagePath,
     garmentImagePath,
+    clothType,
   });
 
   return {
     servedPath: result.imageUrl,   // URL Cloudinary complète
     publicId: result.publicId,
     strategy: "catvton",
+    clothType,
     generatedAt: new Date().toISOString(),
     personDesc: "Photo utilisateur analysée par le service IA TryOn",
     garmentDesc: productInfo?.name
@@ -142,4 +160,5 @@ async function generateVirtualTryon(personImagePath, garmentImagePath, productIn
 module.exports = {
   generateWithCatVTON,
   generateVirtualTryon,
+  mapClothType,
 };
