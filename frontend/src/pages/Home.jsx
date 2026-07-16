@@ -729,7 +729,7 @@ export default function Home() {
           </h1>
 
           <p style={HERO_DESCRIPTION_STYLE}>
-            Essayez virtuellement des tenues wax, bogolan et ankara grâce à notre cabine IA. Commandez avec confiance.
+            Essayez virtuellement des tenues grâce à notre cabine d'essayage virtuelle. Commandez avec confiance.
           </p>
 
           <div style={HERO_BUTTONS_STYLE} className="hero-buttons-wrap">
@@ -968,13 +968,13 @@ export default function Home() {
             adaptées.
           </p>
           <Link to="/catalogue" style={IA_BUTTON_STYLE} aria-label="Commencer l'essayage virtuel gratuitement">
-            Essayer gratuitement →
+            Essayer un vêtement →
           </Link>
         </div>
         <div style={IA_STEPS_STYLE}>
           {[
             { n: '01', t: 'Uploadez votre photo', d: 'Une photo de face en tenue ajustée suffit.' },
-            { n: '02', t: 'Analyse morphologique', d: 'Notre IA détecte vos mesures en quelques secondes.' },
+            { n: '02', t: 'Analyse morphologique', d: 'Notre système en lieu détecte vos mesures en quelques secondes.' },
             { n: '03', t: 'Score de compatibilité', d: "Chaque vêtement reçoit un score d'adéquation." },
             { n: '04', t: 'Commandez en confiance', d: 'Ajustements de taille inclus automatiquement.' },
           ].map((s) => (

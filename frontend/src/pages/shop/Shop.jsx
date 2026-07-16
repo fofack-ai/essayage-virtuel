@@ -239,6 +239,7 @@ export default function Shop() {
           font-weight: 300;
           line-height: 1;
           margin: 18px 0;
+          color: #fff;
         }
 
         .shop-hero-text h1 em {

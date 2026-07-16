@@ -1017,6 +1017,7 @@ const leftTitleStyle = {
   fontWeight: 300,
   lineHeight: 1.25,
   textShadow: "0 8px 28px rgba(0,0,0,.75)",
+  color: "#fff",
 };
 
 const redWordStyle = {
