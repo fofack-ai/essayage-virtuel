@@ -1,14 +1,15 @@
 const cartModel = require("../../models/v1/cartModel");
 const db = require("../../config/database");
 
-async function getOrCreateCart(userId) {
-  let cart = await cartModel.findActiveCartByUserId(userId);
+async function getOrCreateCart(owner) {
+  let cart = await cartModel.findActiveCartByOwner(owner);
 
   if (!cart) {
-    const cartId = await cartModel.createCart(userId);
+    const cartId = await cartModel.createCart(owner);
     cart = {
       id: cartId,
-      userId,
+      userId: owner.userId || null,
+      guestId: owner.guestId || null,
       status: "active",
     };
   }
@@ -60,19 +61,12 @@ async function getSizeStock(productId, size) {
   return rows[0] ? Number(rows[0].stock || 0) : 0;
 }
 
-async function getCart(userId) {
-  const cart = await getOrCreateCart(userId);
+async function getCart(owner) {
+  const cart = await getOrCreateCart(owner);
   const items = await cartModel.getCartItems(cart.id);
 
-  const total = items.reduce(
-    (sum, item) => sum + Number(item.subtotal),
-    0
-  );
-
-  const count = items.reduce(
-    (sum, item) => sum + Number(item.quantity),
-    0
-  );
+  const total = items.reduce((sum, item) => sum + Number(item.subtotal), 0);
+  const count = items.reduce((sum, item) => sum + Number(item.quantity), 0);
 
   return {
     cartId: cart.id,
@@ -82,32 +76,25 @@ async function getCart(userId) {
   };
 }
 
-async function addToCart(userId, data) {
-  // Validate required fields
+async function addToCart(owner, data) {
   if (!data.productId) {
     throw new Error("ID du produit requis");
   }
 
-  // Validate quantity if provided
   const quantity = data.quantity !== undefined ? Number(data.quantity) : 1;
   if (isNaN(quantity) || quantity <= 0) {
     throw new Error("La quantité doit être un nombre positif");
   }
 
-  // Get product details from database
   const product = await getProductDetails(data.productId);
-
   const sizeStock = await getSizeStock(product.id, data.size || null);
 
   if (data.size && sizeStock <= 0) {
-    throw new Error(
-      `La taille ${data.size} n'est pas disponible en stock.`
-    );
+    throw new Error(`La taille ${data.size} n'est pas disponible en stock.`);
   }
 
-  const cart = await getOrCreateCart(userId);
+  const cart = await getOrCreateCart(owner);
 
-  // Check if item already exists in cart with same specifications
   const existingItem = await cartModel.findItem(
     cart.id,
     product.id,
@@ -124,10 +111,7 @@ async function addToCart(userId, data) {
       );
     }
 
-    await cartModel.updateItemQuantity(
-      existingItem.id,
-      nextQuantity
-    );
+    await cartModel.updateItemQuantity(existingItem.id, nextQuantity);
   } else {
     await cartModel.addItem({
       cartId: cart.id,
@@ -141,23 +125,18 @@ async function addToCart(userId, data) {
     });
   }
 
-  return getCart(userId);
+  return getCart(owner);
 }
 
-async function updateCartItem(userId, itemId, quantity) {
-  const cart = await getOrCreateCart(userId);
-
-  const item = await cartModel.getItemById(
-    itemId,
-    cart.id
-  );
+async function updateCartItem(owner, itemId, quantity) {
+  const cart = await getOrCreateCart(owner);
+  const item = await cartModel.getItemById(itemId, cart.id);
 
   if (!item) {
     throw new Error("Article introuvable dans le panier");
   }
 
   const newQuantity = Number(quantity);
-
   const sizeStock = await getSizeStock(item.productId, item.size || null);
 
   if (item.size && sizeStock !== null && newQuantity > sizeStock) {
@@ -169,22 +148,15 @@ async function updateCartItem(userId, itemId, quantity) {
   if (newQuantity <= 0) {
     await cartModel.removeItem(itemId, cart.id);
   } else {
-    await cartModel.updateItemQuantity(
-      itemId,
-      newQuantity
-    );
+    await cartModel.updateItemQuantity(itemId, newQuantity);
   }
 
-  return getCart(userId);
+  return getCart(owner);
 }
 
-async function removeCartItem(userId, itemId) {
-  const cart = await getOrCreateCart(userId);
-
-  const item = await cartModel.getItemById(
-    itemId,
-    cart.id
-  );
+async function removeCartItem(owner, itemId) {
+  const cart = await getOrCreateCart(owner);
+  const item = await cartModel.getItemById(itemId, cart.id);
 
   if (!item) {
     throw new Error("Article introuvable dans le panier");
@@ -192,15 +164,53 @@ async function removeCartItem(userId, itemId) {
 
   await cartModel.removeItem(itemId, cart.id);
 
-  return getCart(userId);
+  return getCart(owner);
 }
 
-async function clearCart(userId) {
-  const cart = await getOrCreateCart(userId);
-
+async function clearCart(owner) {
+  const cart = await getOrCreateCart(owner);
   await cartModel.clearCart(cart.id);
 
-  return getCart(userId);
+  return getCart(owner);
+}
+
+/**
+ * Fusionne le panier invité dans celui du compte après connexion.
+ * Fusion TOLÉRANTE : un article devenu indisponible est ignoré, le reste
+ * du panier est conservé. Les articles écartés sont retournés à l'appelant
+ * pour pouvoir en informer le client.
+ */
+async function mergeGuestCart(userId, guestId) {
+  const owner = { userId };
+  if (!guestId) return { ...(await getCart(owner)), skipped: [] };
+
+  const guestCart = await cartModel.findActiveCartByOwner({ guestId });
+  if (!guestCart) return { ...(await getCart(owner)), skipped: [] };
+
+  const items = await cartModel.getCartItems(guestCart.id);
+  const skipped = [];
+
+  for (const item of items) {
+    try {
+      await addToCart(owner, {
+        productId: item.productId,
+        size: item.size,
+        color: item.color,
+        quantity: item.quantity,
+      });
+    } catch (error) {
+      // Stock épuisé ou produit désactivé : on n'interrompt pas la fusion.
+      skipped.push({
+        productName: item.productName,
+        size: item.size,
+        reason: error.message,
+      });
+    }
+  }
+
+  await cartModel.closeCart(guestCart.id);
+
+  return { ...(await getCart(owner)), skipped };
 }
 
 module.exports = {
@@ -209,4 +219,5 @@ module.exports = {
   updateCartItem,
   removeCartItem,
   clearCart,
+  mergeGuestCart,
 };

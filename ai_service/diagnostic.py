@@ -11,6 +11,7 @@ import os
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
+from PIL import Image
 
 load_dotenv()
 
@@ -53,8 +54,8 @@ try:
     api = client.view_api(return_format="dict", print_info=False)
     for name in (api.get("named_endpoints") or {}):
         print(f"   - {name}")
-    if "/submit_function_p2p" not in (api.get("named_endpoints") or {}):
-        print("   ATTENTION : /submit_function_p2p introuvable — l'API a changé,")
+    if "/submit_function" not in (api.get("named_endpoints") or {}):
+        print("   ATTENTION : /submit_function introuvable — l'API a changé,")
         print("   adaptez api_name dans app.py avec un des endpoints listés ci-dessus.")
     print()
 except Exception as e:
@@ -68,16 +69,32 @@ if len(sys.argv) == 3:
     print(f"3) Génération test : {person.name} + {garment.name} (30 étapes)...")
     print("   (peut prendre 1 à 3 minutes, ne pas interrompre)")
     try:
+        # Le Space fait person_image["layers"][0] dès sa première ligne :
+        # une liste vide provoque un IndexError. On fournit un calque
+        # transparent -> masque uniforme -> le Space bascule sur son
+        # masquage automatique, ce qui est le comportement voulu.
+        blank = person.with_name(person.stem + "_layer.png")
+        with Image.open(person) as im:
+            Image.new("RGBA", im.size, (0, 0, 0, 0)).save(blank)
+
         result = client.predict(
-            person_image={"background": handle_file(str(person)), "layers": [], "composite": None},
+            person_image={
+                "background": handle_file(str(person)),
+                "layers": [handle_file(str(blank))],
+                "composite": None,
+            },
             cloth_image=handle_file(str(garment)),
+            cloth_type="upper",
             num_inference_steps=30,
-            guidance_scale=3.5,
+            guidance_scale=2.5,
             seed=-1,
-            api_name="/submit_function_p2p",
+            show_type="result only",
+            api_name="/submit_function",
         )
         print(f"   SUCCÈS ! Résultat : {result}")
-        print("   -> L'essayage virtuel fonctionne. Vous pouvez lancer le serveur.")
+        print("   -> OUVRE CETTE IMAGE : la veste est-elle appliquée ?")
+        print("      - OUI -> le Space fonctionne, le souci est ailleurs (Render, images envoyées)")
+        print("      - NON -> le payload est en cause, on teste /person_example_fn")
     except Exception as e:
         print(f"   ÉCHEC : {e}")
         print("   -> Lisez le message : quota GPU ? endpoint changé ? image invalide ?")

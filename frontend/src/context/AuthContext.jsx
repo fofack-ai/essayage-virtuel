@@ -51,6 +51,9 @@ export function AuthProvider({ children }) {
       localStorage.setItem('tryon_token', result.token);
       localStorage.setItem('tryon_user', JSON.stringify(result.user));
       setUser(result.user);
+
+       // Rapatrie le panier constitué avant la connexion
+      await api.post('/cart/merge').catch(() => {});
       return { user: result.user };
     }
 
@@ -77,6 +80,8 @@ export function AuthProvider({ children }) {
       localStorage.setItem('tryon_token', response.data.token);
       localStorage.setItem('tryon_user', JSON.stringify(response.data.user));
       setUser(response.data.user);
+
+       await api.post('/cart/merge').catch(() => {});
     }
     return response;
   };
@@ -91,6 +96,9 @@ export function AuthProvider({ children }) {
     localStorage.setItem('tryon_user', JSON.stringify(user));
     setUser(user);
     setPendingOtp(null);
+
+
+    await api.post('/cart/merge').catch(() => {});
 
     return { user };
   };
@@ -114,7 +122,10 @@ export function AuthProvider({ children }) {
     localStorage.setItem('tryon_token', token);
     localStorage.setItem('tryon_user', JSON.stringify(user));
     setUser(user);
+
+    api.post('/cart/merge').catch(() => {});   // sans await
     return { user };
+    
   };
 
   return (

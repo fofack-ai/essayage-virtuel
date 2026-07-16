@@ -2,26 +2,17 @@ const cartService = require("../../services/v1/cartService");
 
 async function getCart(req, res) {
   try {
-    const cart = await cartService.getCart(req.user.id);
+    const cart = await cartService.getCart(req.owner);
 
-    return res.status(200).json({
-      success: true,
-      data: cart,
-    });
+    return res.status(200).json({ success: true, data: cart });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 }
 
 async function addToCart(req, res) {
   try {
-    const cart = await cartService.addToCart(
-      req.user.id,
-      req.body
-    );
+    const cart = await cartService.addToCart(req.owner, req.body);
 
     return res.status(201).json({
       success: true,
@@ -29,17 +20,14 @@ async function addToCart(req, res) {
       data: cart,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 }
 
 async function updateCartItem(req, res) {
   try {
     const cart = await cartService.updateCartItem(
-      req.user.id,
+      req.owner,
       req.params.itemId,
       req.body.quantity
     );
@@ -50,17 +38,14 @@ async function updateCartItem(req, res) {
       data: cart,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 }
 
 async function removeCartItem(req, res) {
   try {
     const cart = await cartService.removeCartItem(
-      req.user.id,
+      req.owner,
       req.params.itemId
     );
 
@@ -70,16 +55,13 @@ async function removeCartItem(req, res) {
       data: cart,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 }
 
 async function clearCart(req, res) {
   try {
-    const cart = await cartService.clearCart(req.user.id);
+    const cart = await cartService.clearCart(req.owner);
 
     return res.status(200).json({
       success: true,
@@ -87,10 +69,28 @@ async function clearCart(req, res) {
       data: cart,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
+  }
+}
+
+/**
+ * POST /api/v1/cart/merge
+ * Rapatrie le panier constitué en tant qu'invité dans le panier du compte.
+ */
+async function mergeGuestCart(req, res) {
+  try {
+    const cart = await cartService.mergeGuestCart(
+      req.user.id,
+      req.cookies?.guestId
+    );
+
+    const message = cart.skipped.length
+      ? `Panier fusionné. ${cart.skipped.length} article(s) indisponible(s) n'ont pas pu être repris.`
+      : "Panier fusionné";
+
+    return res.status(200).json({ success: true, message, data: cart });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
   }
 }
 
@@ -100,4 +100,5 @@ module.exports = {
   updateCartItem,
   removeCartItem,
   clearCart,
+  mergeGuestCart,
 };

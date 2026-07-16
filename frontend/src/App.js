@@ -76,8 +76,11 @@ function AppLayout() {
           <Route path="/maintenance" element={<MaintenancePage />} />
 
           {/* ── Routes protégées client ── */}
-          <Route path="/tryon"         element={<ProtectedRoute><TryOn /></ProtectedRoute>} />
-          <Route path="/checkout"      element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+{/* Essayage virtuel accessible sans connexion (invité) */}
+<Route path="/tryon" element={<TryOn />} />
+
+{/* ── Routes protégées client ── */}
+<Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
           <Route path="/cart"          element={<ProtectedRoute><Cart /></ProtectedRoute>} />
           <Route path="/orders"        element={<ProtectedRoute><Orders /></ProtectedRoute>} />
           <Route path="/profile"       element={<ProtectedRoute><Profile /></ProtectedRoute>} />
