@@ -32,6 +32,35 @@ export function AuthProvider({ children }) {
   }, []);
 
   // ── Login ──
+  /**
+   * Rapatrie tout ce que le client a produit AVANT de créer son compte :
+   * son panier et ses essayages virtuels.
+   *
+   * Les deux appels sont indépendants : si la fusion du panier échoue, les
+   * essayages doivent quand même suivre, et inversement. Les erreurs sont
+   * tracées et non avalées — un panier qui disparaît en silence est
+   * exactement ce que cette fonctionnalité est censée empêcher.
+   */
+  const syncGuestData = async () => {
+    try {
+      await api.post('/cart/merge');
+    } catch (e) {
+      console.error('[syncGuestData] fusion du panier échouée :', e.message);
+    }
+    try {
+      await api.post('/tryons/transfer');
+    } catch (e) {
+      // Le serveur répond 400 « Aucun essai invité à transférer » quand le
+      // client n'a jamais rien essayé avant de se connecter : c'est le cas
+      // normal, pas une panne. On ne pollue pas la console avec une erreur.
+      if (!/Aucun essai/i.test(e.message || '')) {
+        console.error('[syncGuestData] transfert des essayages échoué :', e.message);
+      }
+    }
+    // CartContext écoute : il recharge le panier fusionné.
+    window.dispatchEvent(new Event('cart:refresh'));
+  };
+
   const login = async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
 
@@ -52,8 +81,8 @@ export function AuthProvider({ children }) {
       localStorage.setItem('tryon_user', JSON.stringify(result.user));
       setUser(result.user);
 
-       // Rapatrie le panier constitué avant la connexion
-      await api.post('/cart/merge').catch(() => {});
+      // Rapatrie le panier ET les essayages constitués avant la connexion
+      await syncGuestData();
       return { user: result.user };
     }
 
@@ -81,7 +110,7 @@ export function AuthProvider({ children }) {
       localStorage.setItem('tryon_user', JSON.stringify(response.data.user));
       setUser(response.data.user);
 
-       await api.post('/cart/merge').catch(() => {});
+      await syncGuestData();
     }
     return response;
   };
@@ -98,7 +127,7 @@ export function AuthProvider({ children }) {
     setPendingOtp(null);
 
 
-    await api.post('/cart/merge').catch(() => {});
+    await syncGuestData();
 
     return { user };
   };
@@ -123,7 +152,10 @@ export function AuthProvider({ children }) {
     localStorage.setItem('tryon_user', JSON.stringify(user));
     setUser(user);
 
-    api.post('/cart/merge').catch(() => {});   // sans await
+    // Sans await : completeGoogleLogin est synchrone et son retour est lu
+    // immédiatement par Auth.jsx. La fusion se termine en arrière-plan et
+    // c'est l'événement cart:refresh qui rafraîchira l'affichage.
+    syncGuestData();
     return { user };
     
   };

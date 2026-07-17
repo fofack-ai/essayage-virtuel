@@ -15,11 +15,27 @@ i18n
     },
     fallbackLng: 'fr',
     supportedLngs: ['fr', 'en'],
+
+    // 'en-US' renvoyé par le navigateur doit être ramené à 'en', qui est la
+    // seule des deux formes présente dans supportedLngs.
+    load: 'languageOnly',
+
     interpolation: {
       escapeValue: false, // React échappe déjà le HTML
     },
+
     detection: {
-      order: ['localStorage', 'navigator'],
+      // 'navigator' a été retiré volontairement. Il était consulté au premier
+      // passage, avant que localStorage ne contienne quoi que ce soit : un
+      // client dont le téléphone est configuré en anglais voyait le site
+      // s'ouvrir en anglais, et ce choix qu'il n'avait pas fait était aussitôt
+      // mis en cache. fallbackLng ne corrigeait rien — il n'intervient que si
+      // la détection échoue, or elle réussissait, elle répondait juste
+      // « anglais ».
+      //
+      // Le CFPD vend à Douala : le français est la langue par défaut, l'anglais
+      // est un choix explicite du client via le sélecteur.
+      order: ['localStorage'],
       caches: ['localStorage'],
     },
   });
