@@ -320,10 +320,6 @@
       "onlyDoualaNote": "We currently deliver to Douala only.",
       "choosePlaceholder": "-- Choose a city --"
     },
-    "neighborhood": {
-      "hint": "Click to see every neighborhood, or type the first few letters.",
-      "noMatch": "“{{value}}” isn't in our list — no problem, we'll keep what you typed."
-    },
     "validation": {
       "nameRequired": "Last name is required",
       "firstNameRequired": "First name is required",
@@ -348,19 +344,19 @@
       "backHome": "Back to home"
     },
     "orderSuccess": {
-      "checking": "Vérification de votre paiement…",
-      "pendingTitle": "Confirmation du paiement en cours…",
-      "paidTitleLine": "Paiement",
-      "paidTitleHighlight": "confirmé !",
-      "orderNumberLabel": "Numéro de commande",
-      "paidMessage": "Votre paiement a bien été reçu. Nous préparons votre commande.",
-      "pendingMessage": "Nous confirmons votre paiement auprès de l'opérateur. Cette page se mettra à jour automatiquement.",
-      "stillProcessingMessage": "C'est plus long que prévu. Votre paiement est peut-être encore en cours de traitement — vérifiez \"Mes commandes\" dans quelques minutes, ou contactez-nous en cas de doute.",
-      "errorTitle": "Un problème est survenu",
-      "genericError": "Impossible de vérifier votre commande pour le moment.",
-      "missingOrder": "Aucune référence de commande trouvée dans ce lien.",
-      "viewOrders": "Voir mes commandes",
-      "backHome": "Retour à l'accueil"
+      "checking": "Checking your payment…",
+      "pendingTitle": "Confirming your payment…",
+      "paidTitleLine": "Payment",
+      "paidTitleHighlight": "confirmed!",
+      "orderNumberLabel": "Order number",
+      "paidMessage": "Your payment was received. We'll prepare your order shortly.",
+      "pendingMessage": "We're still confirming your payment with the operator. This page will update automatically.",
+      "stillProcessingMessage": "This is taking longer than usual. Your payment may still be processing — check \"My orders\" in a few minutes, or contact us if you're unsure.",
+      "errorTitle": "Something went wrong",
+      "genericError": "Unable to check your order right now.",
+      "missingOrder": "No order reference was found in this link.",
+      "viewOrders": "View my orders",
+      "backHome": "Back to home"
     },
     "loading": "Loading…",
     "breadcrumb": {
@@ -387,7 +383,7 @@
       "addressLabel": "Address *",
       "addressPlaceholder": "Street number and name",
       "neighborhoodLabel": "Neighborhood / Area *",
-      "neighborhoodPlaceholder": "E.g.: Akwa, Bonamoussadi, Ndogpassi",
+      "neighborhoodPlaceholder": "E.g.: Bastos, Bonapriso",
       "referenceLabel": "Landmark (optional)",
       "referencePlaceholder": "E.g.: near the town hall, Casino supermarket…",
       "deliveryNote": "Delivery to Douala: {{fee}} FCFA (3-5 business days).",
@@ -421,103 +417,140 @@
     "legal": {
       "withdrawal": "In accordance with Cameroonian law n° 2011/012, you have a 7-day withdrawal period from the date of receipt.",
       "pricesInfo": "Prices shown in FCFA, all taxes included."
+    },
+    "neighborhood": {
+      "hint": "Click to see every neighborhood, or type the first few letters.",
+      "noMatch": "“{{value}}” isn't in our list — no problem, we'll keep what you typed."
     }
   },
+  "orderSuccess": {
+    "checking": "Checking your payment…",
+    "errorTitle": "Something went wrong",
+    "missingOrder": "Order not found.",
+    "genericError": "We couldn't check your order.",
+    "orderNumberLabel": "Order number",
+    "paidTitleLine": "Order",
+    "paidTitleHighlight": "confirmed",
+    "paidMessage": "We've received your payment. We're preparing your order and will be in touch about delivery.",
+    "pendingTitle": "Payment pending",
+    "pendingMessage": "Your order is saved. We'll start preparing it as soon as your payment is confirmed.",
+    "stillProcessingMessage": "Your payment is still going through. This can take a few minutes — we'll notify you as soon as it's confirmed.",
+    "viewOrders": "View my orders",
+    "backHome": "Back to home"
+  },
   "tryon": {
-    "loading": "Loading your try-on...",
-    "productUnavailable": "Product unavailable",
+    "loading": "Loading your try-on…",
+    "productUnavailable": "Item unavailable",
+    "closeMessage": "Close message",
     "alerts": {
-      "noProduct": "No product available for try-on",
-      "productNotFound": "Product not found",
-      "webcamError": "Unable to access the webcam: {{message}}",
-      "linkCopied": "Render link copied!",
-      "addedToCart": "Product added to cart!",
-      "addToCartError": "Error adding to cart."
+      "noProductAvailable": "No item available for try-on.",
+      "productNotFound": "Item not found.",
+      "cameraAccessError": "Unable to access the camera: {{message}}",
+      "shareLinkCopied": "Render link copied!",
+      "addedToCart": "Item added to cart!",
+      "addToCartError": "Something went wrong adding this to your cart."
     },
     "messages": {
-      "noPersonDetected": "We couldn't detect a person in this photo. Upload a full-body photo of yourself, facing forward, on a plain background.",
-      "photoNotClear": "The photo isn't clear enough for analysis. Try a well-lit photo showing your whole body.",
-      "loginToSave": "Sign in to save your try-on and find it again later.",
-      "saveError": "Your try-on couldn't be saved. Check your connection and try again."
+      "photoQualityNone": "We couldn't read your body shape from this photo, so the recommendation will use your height and weight.",
+      "photoQualityBadRotation": "Face the camera squarely — your torso is turned too far for us to measure your shoulders.",
+      "photoQualityBad": "Frame yourself head to toe against a clear background: this photo doesn't let us read your build.",
+      "photoQualityPoor": "This photo works, but a head-to-toe shot facing the camera would give you a more accurate size.",
+      "noPersonDetectedInfo": "We can't make out anyone in this photo. Use a full-body shot of yourself, facing forward, against a clear background.",
+      "noPersonDetectedError": "No one detected in this photo. Try a well-lit shot where your whole body is visible.",
+      "loginToSaveTryon": "Sign in to save this try-on and find it again later.",
+      "saveError": "We couldn't save your try-on. Check your connection and try again.",
+      "missingHeightWeight": "Enter your height and weight."
     },
-    "errors": {
-      "unknown": "Unknown error"
-    },
-    "aria": {
-      "notifications": "Notifications",
-      "cart": "Cart",
-      "closeMessage": "Close message"
-    },
-    "shareTitle": "My try-on — {{name}}",
     "header": {
-      "tag": "AI Technology",
-      "titleStart": "Virtual fitting ",
+      "badge": "AI technology",
+      "titleLine": "Virtual fitting",
       "titleHighlight": "room",
-      "description": "Upload your photo, our AI analyzes your body shape and suggests the size that fits you best."
+      "description": "Add your photo: our AI reads your body shape and tells you which size fits you."
     },
-    "stepper": {
-      "step1": "Photo & Size",
-      "step2": "Analysis",
-      "step3": "Results"
+    "steps": {
+      "photoSize": "Photo & Size",
+      "analysis": "Analysis",
+      "results": "Results"
     },
-    "step1": {
-      "photoTitle": "1. Your photo",
-      "photoHint": "Drag or click to upload",
-      "webcamActive": "Webcam active",
-      "dropzoneTitle": "Drop your photo here",
-      "dropzoneSubtitle": "or click to browse",
-      "fileHint": "JPG, PNG — Max 10 MB",
+    "upload": {
+      "title": "1. Your photo",
+      "subtitle": "Drag or click to add your photo",
+      "cameraActive": "Camera on",
       "photoReady": "Photo ready",
-      "useWebcam": "Use webcam",
-      "reset": "Reset",
-      "previewTitle": "2. Render preview",
-      "previewHint": "Virtual try-on preview",
-      "defaultGarment": "Your garment",
-      "readyToGenerate": "Photo ready — start the generation to see the render",
-      "addPhotoPrompt": "Add your photo to see it on you",
+      "dropHere": "Drop your photo here",
+      "orClickToBrowse": "or click to browse your files",
+      "formatHint": "JPG, PNG — 10 MB max",
+      "takePhoto": "Take a photo",
+      "importPhoto": "Upload a photo",
+      "reset": "Start over"
+    },
+    "preview": {
+      "title": "2. Render preview",
+      "subtitle": "A preview of your virtual try-on",
+      "sizeRenderLabel": "Size {{size}} · AI render",
+      "defaultGarmentName": "Your garment",
+      "readyLaunch": "Photo ready — start the generation to see the render",
+      "addPhotoToSee": "Add your photo to see yourself in it"
+    },
+    "options": {
       "selectedItem": "Selected item",
+      "brandFallback": "TryOn Fashion",
       "sizeTitle": "3. Your size",
-      "sizeGuideLink": "Guide →",
-      "colorTitle": "4. Your color",
-      "checklist": {
-        "photoUploaded": "Photo uploaded",
-        "itemSelected": "Item selected",
-        "sizeChosen": "Size chosen",
-        "colorChosen": "Color chosen"
-      },
-      "renderInfo": "Size {{size}} · AI render",
-      "launchDisabled": "Upload a photo first",
+      "sizeGuide": "Guide →",
+      "measurementsTitle": "Your measurements — optional",
+      "heightPlaceholder": "Height (cm)",
+      "weightPlaceholder": "Weight (kg)",
+      "morphologyThin": "Slim",
+      "morphologyNormal": "Average",
+      "morphologyLarge": "Larger",
+      "measurementsReadyPrefix": "Your ideal size will be worked out during the try-on",
+      "measurementsReadyPhoto": "from the build we measured on your photo.",
+      "measurementsReadyNoPhoto": "from your height and weight.",
+      "measurementsHint": "Optional — but without your height and weight we can't turn your body shape into centimetres. Add them and we'll tell you which size to pick, alongside your try-on result.",
+      "colorTitle": "4. Your colour",
+      "checklistPhoto": "Photo added",
+      "checklistItem": "Item selected",
+      "checklistSize": "Size chosen",
+      "checklistColor": "Colour chosen",
+      "launchDisabled": "Add a photo first",
       "launch": "Start AI try-on"
     },
-    "step2": {
-      "title": "Analyzing…",
-      "subtitle": "Our AI is analyzing your body shape",
-      "productSize": "{{name}} · Size {{size}}",
-      "steps": {
-        "bodyDetection": "Body detection",
-        "morphAnalysis": "Body shape analysis",
-        "measurements": "Calculating measurements",
-        "compatibilityScore": "Compatibility score"
-      }
+    "analysis": {
+      "title": "Analysing…",
+      "subtitle": "Our AI is reading your body shape",
+      "sizeLabel": "Size {{size}}",
+      "step1": "Detecting your body",
+      "step2": "Analysing your body shape",
+      "step3": "Calculating measurements"
     },
-    "step3": {
-      "yourPhoto": "YOUR PHOTO",
-      "aiRender": "AI RENDER",
+    "result": {
+      "yourPhotoBadge": "YOUR PHOTO",
+      "aiRenderBadge": "AI RENDER",
+      "generating": "Generating…",
       "download": "Download",
       "share": "Share",
-      "generating": "Generating…",
-      "generatingTime": "(1-2 min)",
-      "renderPlaceholder": "The render will appear here",
+      "renderWillAppear": "Your render will appear here",
       "itemTried": "Item tried on",
-      "recommendedSize": "Recommended size",
-      "recommendedByAI": "Size {{size}} recommended by AI",
-      "compatibilityScore": "Compatibility score",
-      "morphMatch": "Body shape match",
-      "excellentMatch": "Excellent match",
+      "recommendedSizeTitle": "Recommended size",
+      "calculating": "Working out your ideal size…",
+      "fitErrorPrefix": "Size recommendation unavailable: {{error}}",
+      "fitErrorSuffix": "Your try-on isn't affected.",
+      "fitSuccess": "Size {{size}} recommended — {{confidence}}% confidence",
+      "calculatedOn": "Based on {{basis}}",
+      "calculatedOnPhoto": "your photo, your height and your weight",
+      "calculatedOnBasic": "your height and your weight",
+      "measurementsDetail": " · chest {{chest}} · waist {{waist}} · hips {{hip}} cm",
+      "photoTipHint": "A head-to-toe photo facing the camera would let us measure your build instead of estimating it.",
+      "verdictRecommend": "we recommend {{size}}",
+      "zoneTooTight": "too tight",
+      "zoneTooLoose": "too loose",
+      "noMeasurementsHint": "Add your height and weight before the try-on to get a recommendation based on your body shape.",
       "generationFailed": "Generation failed",
-      "retry": "Retry",
-      "addToCart": "Add to cart",
-      "viewProduct": "View product page"
+      "retry": "Try again",
+      "redo": "Redo the try-on",
+      "addToCart": "Add to cart — {{price}} FCFA",
+      "viewProduct": "View product page",
+      "generatingDuration": "(1–2 min)"
     }
   },
   "maintenance": {
