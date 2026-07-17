@@ -256,7 +256,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
    * n'ont aucune raison d'être couplés — le client doit connaître sa taille
    * même si le rendu IA tombe en panne.
    */
-  const measurePhoto = useCallback(async (imageSrc) => {
+  const measurePhoto = useCallback(async (imageSrc, skipRefresh = false) => {
     setMeasuring(true);
     try {
       const img = new Image();
@@ -280,6 +280,8 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
         if (r.poseLandmarks) results = r;
       });
       await pose.send({ image: img });
+      pose.close(); // libère le runtime WASM : sans ça, chaque photo analysée
+                    // laisse ~40 Mo derrière elle et l'onglet finit par tomber
 
       if (!results) {
         setMeasurements(null);
@@ -299,7 +301,12 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
 
       // Si taille et poids sont déjà saisis, on rafraîchit la reco sans
       // que le client ait à recliquer : la photo vient de tout changer.
-      if (m && m.quality !== 'bad' && heightCm && weightKg) await loadFit(m);
+      // Rafraîchissement automatique, uniquement sur le chemin « upload de
+      // fichier ». Quand c'est loadFit qui nous appelle (cas webcam),
+      // skipRefresh évite l'aller-retour infini.
+      if (!skipRefresh && m && m.quality !== 'bad' && heightCm && weightKg) {
+        await loadFit(m);
+      }
       return m;
     } catch (err) {
       setMeasurements(null);
@@ -715,10 +722,22 @@ const handleAITryon = async () => {
   // setState de `measurements` ne soit répercuté (React ne l'applique pas
   // de façon synchrone — sans cela le premier calcul ignorerait la photo).
   const loadFit = async (ratiosOverride) => {
-    const m = ratiosOverride !== undefined ? ratiosOverride : measurements;
     if (!heightCm || !weightKg) {
       setFitError('Renseignez votre taille et votre poids.');
       return null;
+    }
+
+    let m = ratiosOverride !== undefined ? ratiosOverride : measurements;
+
+    // measurePhoto est déclenchée à l'upload d'un fichier ; la webcam, elle,
+    // n'a pas d'upload. Sans ce filet, un client qui se photographie en
+    // direct reçoit une reco sans sa photo, sans jamais en être informé.
+    if (!m && useWebcam && videoRef.current) {
+      const canvas = document.createElement('canvas');
+      canvas.width = videoRef.current.videoWidth || 640;
+      canvas.height = videoRef.current.videoHeight || 480;
+      canvas.getContext('2d').drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      m = await measurePhoto(canvas.toDataURL('image/jpeg'), true);
     }
     setFitLoading(true);
     setFitError(null);
@@ -1749,6 +1768,10 @@ body: JSON.stringify({
                 ) : measurements && measurements.quality !== 'bad' ? (
                   <p style={{ fontSize: '11px', color: '#06D6A0', margin: '0 0 8px', fontWeight: 500 }}>
                     📷 Votre photo est utilisée : carrure mesurée, taille affinée.
+                  </p>
+                ) : (photoPreview || webcamActive) ? (
+                  <p style={{ fontSize: '11px', color: T.blueDark, margin: '0 0 8px', lineHeight: 1.4 }}>
+                    📷 Photo prête : elle sera lue au calcul pour affiner votre carrure.
                   </p>
                 ) : (
                   <p style={{ fontSize: '11px', color: T.muted, margin: '0 0 8px', lineHeight: 1.4 }}>
