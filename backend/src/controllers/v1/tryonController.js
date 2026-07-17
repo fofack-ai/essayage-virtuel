@@ -31,7 +31,18 @@ async function transferGuestTryons(req, res) {
       return res.status(400).json({ success: false, message: 'Aucun essai invité à transférer' });
     }
     await tryonService.transferGuestTryons(guestId, req.user.id);
-    res.clearCookie('guestId');
+
+    // Le navigateur n'efface un cookie que si les attributs correspondent à
+    // ceux de la pose. En production le front est sur vercel.app et l'API sur
+    // onrender.com : le cookie a été posé avec SameSite=None; Secure. Sans
+    // les répéter ici, le Set-Cookie d'expiration est rejeté et le guestId
+    // survit — il ressusciterait un vieux panier invité à la déconnexion.
+    const isProd = process.env.NODE_ENV === 'production';
+    res.clearCookie('guestId', {
+      httpOnly: true,
+      sameSite: isProd ? 'none' : 'lax',
+      secure: isProd,
+    });
     return res.status(200).json({ success: true, message: 'Essayages transférés avec succès' });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });

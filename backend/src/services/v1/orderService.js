@@ -6,18 +6,19 @@ const paymentModel = require("../../models/v1/paymentModel");
 const notificationService = require("./notificationService");
 
 /**
- * Frais de livraison — forfait unique, Douala uniquement.
+ * Livraison : forfait unique de 2 000 FCFA, Douala uniquement.
  *
- * ⚠️ Doit rester égal à DELIVERY_FEE dans frontend/src/pages/checkout/Checkout.jsx.
- * C'est le serveur qui fait foi : le montant affiché au client n'est jamais
- * envoyé dans la requête, précisément pour qu'il ne puisse pas être manipulé.
+ * Le montant est décidé ICI et jamais accepté depuis le client : un frais de
+ * port modifiable dans le navigateur n'est pas une fonctionnalité, c'est une
+ * faille. Le frontend l'affiche, le serveur le facture.
  *
- * L'ancienne table { std: 0, exp: 2000 } facturait 0 FCFA de livraison :
- * le frontend n'envoie aucun deliveryType, donc "std" s'appliquait toujours,
- * alors que le récapitulatif annonçait 2 000 FCFA. Chaque commande était
- * enregistrée 2 000 FCFA en dessous du montant accepté par le client.
+ * ⚠️ Doit rester synchronisé avec DELIVERY_FEE dans frontend/src/pages/
+ * checkout/Checkout.jsx. Le jour où les frais seront zonés par quartier,
+ * c'est cette constante qui devient une table — et l'idéal sera alors que le
+ * frontend lise le montant renvoyé par le serveur au lieu de le recopier.
  */
-const DELIVERY_FEE = 2000;
+const DELIVERY_FEE_DOUALA = 2000;
+const DELIVERY_FEES = { std: DELIVERY_FEE_DOUALA, exp: DELIVERY_FEE_DOUALA };
 
 function generateOrderNumber() {
   const date   = Date.now().toString().slice(-6);
@@ -26,8 +27,9 @@ function generateOrderNumber() {
 }
 
 async function createOrderFromCart(userId, data) {
-  // findActiveCartByUserId a été renommée findActiveCartByOwner quand le
-  // panier invité est arrivé : elle prend désormais { userId } ou { guestId }.
+  // findActiveCartByUserId a été renommée findActiveCartByOwner lors du
+  // passage au panier invité : elle prend désormais un propriétaire, compte
+  // OU invité, et non plus un identifiant nu. Cet appel n'avait pas suivi.
   const cart = await cartModel.findActiveCartByOwner({ userId });
   if (!cart) throw new Error("Aucun panier actif trouvé");
 
@@ -36,10 +38,8 @@ async function createOrderFromCart(userId, data) {
 
   const cartSubtotal = items.reduce((sum, item) => sum + Number(item.subtotal), 0);
 
-  // deliveryType est conservé pour la colonne existante en base, mais il ne
-  // pilote plus le tarif : une seule ville desservie, un seul forfait.
   const deliveryType = ["std", "exp"].includes(data.deliveryType) ? data.deliveryType : "std";
-  const deliveryFee  = DELIVERY_FEE;
+  const deliveryFee  = DELIVERY_FEES[deliveryType];
 
   // ✅ PLUS DE PROMO CODE
   const total = cartSubtotal + deliveryFee;
@@ -48,9 +48,11 @@ async function createOrderFromCart(userId, data) {
   try {
     await connection.beginTransaction();
 
+    const orderNumber = generateOrderNumber();
+
     const orderId = await orderModel.createOrder(connection, {
       userId,
-      orderNumber:     generateOrderNumber(),
+      orderNumber,
       total,
       paymentMethod:   data.paymentMethod || "cash_on_delivery",
       paymentStatus:   "pending",
@@ -61,8 +63,10 @@ async function createOrderFromCart(userId, data) {
       deliveryFee,
     });
 
-    const order = await orderModel.getOrderById(orderId, userId);
-    const orderNumber = order?.orderNumber || `#${orderId}`;
+    // On NE relit PAS la commande ici. getOrderById passe par le pool, pas par
+    // `connection` : il ne verrait pas une ligne encore dans la transaction et
+    // renverrait undefined. Le `order?.orderNumber || #id` qui suivait masquait
+    // ce fait. Le numéro, on vient de le générer — inutile d'aller le chercher.
 
     for (const item of items) {
       await orderModel.createOrderItem(connection, {

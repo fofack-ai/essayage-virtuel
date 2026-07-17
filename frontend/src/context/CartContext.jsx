@@ -32,15 +32,10 @@ const normalizeItems = (backendItems = []) => {
 };
 
   const loadCart = async () => {
-    const token = localStorage.getItem("tryon_token");
-
-    if (!token) {
-      setItems([]);
-      setTotal(0);
-      setCount(0);
-      return;
-    }
-
+    // Pas de barrière sur le token : optionalAuth côté serveur identifie le
+    // propriétaire du panier — compte via le Bearer, invité via le cookie
+    // guestId. Filtrer ici rendait le panier invité invisible alors même
+    // qu'il existait en base.
     try {
       setLoadingCart(true);
 
@@ -72,15 +67,20 @@ const normalizeItems = (backendItems = []) => {
     loadCart();
   }, []);
 
+  // Après une connexion, AuthContext fusionne le panier invité côté serveur
+  // puis émet cet événement. Sans lui, le badge du panier resterait figé sur
+  // l'ancien état jusqu'au prochain rechargement de page.
+  useEffect(() => {
+    const refresh = () => loadCart();
+    window.addEventListener('cart:refresh', refresh);
+    return () => window.removeEventListener('cart:refresh', refresh);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const addItem = async (product) => {
-    const token = localStorage.getItem("tryon_token");
-
-    if (!token) {
-      alert("Veuillez vous connecter pour ajouter un produit au panier.");
-      window.location.href = "/auth";
-      return;
-    }
-
+    // Aucun compte requis : le client essaie, remplit son panier, et ne crée
+    // un compte qu'au moment de payer. Le panier constitué avant la connexion
+    // est rapatrié par /cart/merge (voir AuthContext).
     const payload = {
       productId: product.id || product.productId || null,
       productName: product.name,

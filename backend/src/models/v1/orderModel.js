@@ -68,7 +68,7 @@ async function getOrderById(orderId, userId) {
   const [rows] = await db.query(
     `SELECT id, userId, orderNumber, total, status, paymentMethod, paymentStatus,
             deliveryAddress, deliveryCity, deliveryPhone,
-            deliveryType, deliveryFee, promoCode, promoDiscount,
+            deliveryType, deliveryFee,
             createdAt, updatedAt
      FROM orders
      WHERE id = ? AND userId = ?
