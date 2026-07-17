@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { api, getImageUrl } from '../../services/api';
@@ -123,14 +124,14 @@ function getBodyRatios(results) {
 }
 
 /** Message d'aide affiché quand la photo ne permet pas de lire la morphologie. */
-function photoQualityHint(m) {
-  if (!m) return "Nous n'avons pas pu lire votre morphologie sur cette photo : la recommandation utilisera votre taille et votre poids.";
+function photoQualityHint(m, t) {
+  if (!m) return t('tryon.messages.photoQualityNone');
   if (m.quality === 'bad' && m.rotationDeg > 35)
-    return 'Placez-vous bien face à l’objectif : votre buste est trop tourné pour mesurer votre carrure.';
+    return t('tryon.messages.photoQualityBadRotation');
   if (m.quality === 'bad')
-    return 'Cadrez-vous en entier, des pieds à la tête, sur un fond dégagé : la photo ne permet pas de lire votre carrure.';
+    return t('tryon.messages.photoQualityBad');
   if (m.quality === 'poor')
-    return 'Photo exploitable, mais une prise de vue de face et en pied donnerait une taille plus juste.';
+    return t('tryon.messages.photoQualityPoor');
   return null;
 }
 
@@ -144,6 +145,7 @@ function calculateScoreFromMeasurements(m) {
 
 /* ── Composant principal ── */
 export default function TryOn() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const productId = searchParams.get('productId');
@@ -212,7 +214,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
         }
 
         if (!prod) {
-          alert('Aucun produit disponible pour l\'essayage');
+          alert(t('tryon.alerts.noProductAvailable'));
           navigate('/catalogue');
           return;
         }
@@ -237,7 +239,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
 
       } catch (err) {
         console.error('Erreur chargement produit:', err);
-        alert('Produit introuvable');
+        alert(t('tryon.alerts.productNotFound'));
         navigate('/catalogue');
       } finally {
         setLoadingProduct(false);
@@ -287,7 +289,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
         setMeasurements(null);
         setPageMessage({
           type: 'info',
-          text: "Nous n'avons pas reconnu de personne sur cette photo : la taille sera estimée à partir de votre taille et de votre poids.",
+          text: t('tryon.messages.noPersonDetectedInfo'),
         });
         return null;
       }
@@ -296,7 +298,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
       setMeasurements(m);
       setPoseLandmarks(results.poseLandmarks);
 
-      const hint = photoQualityHint(m);
+      const hint = photoQualityHint(m, t);
       if (hint) setPageMessage({ type: 'info', text: hint });
 
       // Si taille et poids sont déjà saisis, on rafraîchit la reco sans
@@ -353,7 +355,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
         initializePoseDetection(stream);
       }
     } catch (err) {
-      alert("Impossible d'accéder à la caméra : " + err.message);
+      alert(t('tryon.alerts.cameraAccessError', { message: err.message }));
     }
   };
 
@@ -492,7 +494,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
     if (!detectedLandmarks) {
       setPageMessage({
         type: 'error',
-        text: "Nous n'avons pas reconnu de personne sur cette photo. Envoyez une photo de vous, de face et en entier, sur un fond dégagé.",
+        text: t('tryon.messages.noPersonDetectedError'),
       });
       setStep(1);
       return;
@@ -509,7 +511,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
     const m = getBodyRatios(detectedResults);
     setMeasurements(m);
 
-    const hint = photoQualityHint(m);
+    const hint = photoQualityHint(m, t);
     if (hint) setPageMessage({ type: 'info', text: hint });
 
     const scoreVal = m ? calculateScoreFromMeasurements(m) : null;
@@ -534,7 +536,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
     if (!user) {
       setPageMessage({
         type: 'info',
-        text: "Connectez-vous pour enregistrer votre essayage et le retrouver plus tard.",
+        text: t('tryon.messages.loginToSaveTryon'),
       });
       return;
     }
@@ -572,7 +574,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
       console.error('Erreur sauvegarde essai:', err);
       setPageMessage({
         type: 'error',
-        text: "Votre essayage n'a pas pu être enregistré. Vérifiez votre connexion et réessayez.",
+        text: t('tryon.messages.saveError'),
       });
     }
   };
@@ -605,7 +607,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
       try { await navigator.share({ title: `Mon essayage — ${product?.name}`, url }); } catch (_) {}
     } else {
       navigator.clipboard?.writeText(url);
-      alert('Lien du rendu copié !');
+      alert(t('tryon.alerts.shareLinkCopied'));
     }
   };
 
@@ -621,10 +623,10 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
         color: selectedColor,
         qty: 1,
       });
-      alert('Produit ajouté au panier !');
+      alert(t('tryon.alerts.addedToCart'));
       navigate('/cart');
     } catch (err) {
-      alert('Erreur lors de l\'ajout au panier.');
+      alert(t('tryon.alerts.addToCartError'));
     }
   };
 
@@ -748,11 +750,11 @@ const handleAITryon = async () => {
 
   /* ── Rendu ── */
   if (loadingProduct) {
-    return <LoadingPage message="Chargement de l'essayage..." />;
+    return <LoadingPage message={t('tryon.loading')} />;
   }
 
   if (!product) {
-    return <div style={{ paddingTop: '72px', textAlign: 'center' }}>Produit non disponible</div>;
+    return <div style={{ paddingTop: '72px', textAlign: 'center' }}>{t('tryon.productUnavailable')}</div>;
   }
 
   const sizeOptions = sizes.length ? sizes : ['XS', 'S', 'M', 'L', 'XL'];
@@ -764,7 +766,7 @@ const handleAITryon = async () => {
   // de façon synchrone — sans cela le premier calcul ignorerait la photo).
   const loadFit = async (ratiosOverride) => {
     if (!heightCm || !weightKg) {
-      setFitError('Renseignez votre taille et votre poids.');
+      setFitError(t('tryon.messages.missingHeightWeight'));
       return null;
     }
 
@@ -1331,7 +1333,7 @@ body: JSON.stringify({
       {/* ─── CONTENU EN-DESSOUS (titre, description, stepper) ─── */}
       <div className="tryon-content-header" style={{ padding: '20px 16px', borderBottom: `1px solid ${T.border}`, background: '#fff' }}>
         <span style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '3px', textTransform: 'uppercase', color: T.blueDark }}>
-           Technologie IA
+           {t('tryon.header.badge')}
         </span>
         <h1 style={{
           fontFamily: "'Cormorant Garamond', serif",
@@ -1341,18 +1343,18 @@ body: JSON.stringify({
           marginTop: '8px',
           lineHeight: 1.1
         }}>
-          Cabine d'essayage <em style={{ fontStyle: 'italic', color: T.red }}>virtuelle</em>
+          {t('tryon.header.titleLine')} <em style={{ fontStyle: 'italic', color: T.red }}>{t('tryon.header.titleHighlight')}</em>
         </h1>
         <p style={{ color: T.muted, marginTop: '10px', fontSize: '14px', maxWidth: '480px', lineHeight: 1.7 }}>
-          Uploadez votre photo, notre IA analyse votre morphologie et vous propose la taille la plus adaptée.
+          {t('tryon.header.description')}
         </p>
 
         {/* Stepper */}
         <div className="tryon-stepper">
           {[
-            { n: 1, label: 'Photo & Taille' },
-            { n: 2, label: 'Analyse' },
-            { n: 3, label: 'Résultats' }
+            { n: 1, label: t('tryon.steps.photoSize') },
+            { n: 2, label: t('tryon.steps.analysis') },
+            { n: 3, label: t('tryon.steps.results') }
           ].map((s, i) => (
             <React.Fragment key={s.n}>
               <div className="tryon-step" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1417,7 +1419,7 @@ body: JSON.stringify({
                 background: 'none', border: 'none', cursor: 'pointer',
                 fontSize: '18px', color: T.muted, flexShrink: 0, lineHeight: 1,
               }}
-              aria-label="Fermer le message"
+              aria-label={t('tryon.closeMessage')}
             >
               ×
             </button>
@@ -1429,9 +1431,9 @@ body: JSON.stringify({
             {/* Colonne gauche : upload photo/webcam */}
             <div>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', fontWeight: 500, marginBottom: '6px' }}>
-                1. Votre photo
+                {t('tryon.upload.title')}
               </h2>
-              <p style={{ fontSize: '12px', color: T.muted, marginBottom: '20px' }}>Glissez ou cliquez pour importer</p>
+              <p style={{ fontSize: '12px', color: T.muted, marginBottom: '20px' }}>{t('tryon.upload.subtitle')}</p>
 
               <div
                 className="tryon-dropzone"
@@ -1499,7 +1501,7 @@ body: JSON.stringify({
                       fontSize: '11px',
                       fontWeight: 600,
                     }}>
-                     <CameraIcon size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Caméra active
+                     <CameraIcon size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> {t('tryon.upload.cameraActive')}
                     </div>
                   </div>
                 ) : photoPreview ? (
@@ -1538,7 +1540,7 @@ body: JSON.stringify({
                       fontSize: '11px',
                       fontWeight: 600,
                     }}>
-                      ✓ Photo prête
+                      ✓ {t('tryon.upload.photoReady')}
                     </div>
                   </>
                 ) : (
@@ -1559,10 +1561,10 @@ body: JSON.stringify({
                         <line x1="12" y1="3" x2="12" y2="15"/>
                       </svg>
                     </div>
-                    <p style={{ fontWeight: 500, color: T.ink, marginBottom: '6px' }}>Glissez votre photo ici</p>
-                    <p style={{ fontSize: '12px', color: T.muted, marginBottom: '16px' }}>ou cliquez pour parcourir</p>
+                    <p style={{ fontWeight: 500, color: T.ink, marginBottom: '6px' }}>{t('tryon.upload.dropHere')}</p>
+                    <p style={{ fontSize: '12px', color: T.muted, marginBottom: '16px' }}>{t('tryon.upload.orClickToBrowse')}</p>
                     <span style={{ fontSize: '11px', color: T.blueDark, background: T.blueLight, padding: '4px 12px', borderRadius: '100px' }}>
-                      JPG, PNG — Max 10 Mo
+                      {t('tryon.upload.formatHint')}
                     </span>
                   </div>
                 )}
@@ -1595,7 +1597,7 @@ body: JSON.stringify({
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
                     </svg>
-                    Prendre une photo
+                    {t('tryon.upload.takePhoto')}
                   </button>
                 )}
                 {!useWebcam && !photo && (
@@ -1620,7 +1622,7 @@ body: JSON.stringify({
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                     </svg>
-                    Importer une photo
+                    {t('tryon.upload.importPhoto')}
                   </button>
                 )}
                 {(useWebcam || photo) && (
@@ -1638,7 +1640,7 @@ body: JSON.stringify({
                       cursor: 'pointer',
                     }}
                   >
-                    Réinitialiser
+                    {t('tryon.upload.reset')}
                   </button>
                 )}
               </div>
@@ -1647,9 +1649,9 @@ body: JSON.stringify({
             {/* Colonne centrale : aperçu du rendu */}
             <div>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', fontWeight: 500, marginBottom: '6px' }}>
-                2. Aperçu du rendu
+                {t('tryon.preview.title')}
               </h2>
-              <p style={{ fontSize: '12px', color: T.muted, marginBottom: '20px' }}>Prévisualisation de l'essayage virtuel</p>
+              <p style={{ fontSize: '12px', color: T.muted, marginBottom: '20px' }}>{t('tryon.preview.subtitle')}</p>
 
               <div className="tryon-preview" style={{
                 borderRadius: '18px',
@@ -1687,7 +1689,7 @@ body: JSON.stringify({
                       <Shirt size={22} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: '12px', fontWeight: 600, color: T.ink }}>{product.name}</div>
-                        <div style={{ fontSize: '11px', color: T.muted }}>Taille {selectedSize} · Rendu IA</div>
+                        <div style={{ fontSize: '11px', color: T.muted }}>{t('tryon.preview.sizeRenderLabel', { size: selectedSize })}</div>
                       </div>
                       <div style={{
                         background: `linear-gradient(135deg, ${T.red}, ${T.redDark})`,
@@ -1729,12 +1731,12 @@ body: JSON.stringify({
                       </div>
                     )}
                     <p style={{ fontWeight: 500, color: T.ink, fontSize: '14px', marginBottom: '4px' }}>
-                      {product?.name || 'Votre vêtement'}
+                      {product?.name || t('tryon.preview.defaultGarmentName')}
                     </p>
                     <p style={{ fontSize: '12px', color: 'rgba(106,111,120,0.7)' }}>
                       {photoPreview
-                        ? 'Photo prête — lancez la génération pour voir le rendu'
-                        : 'Ajoutez votre photo pour le voir sur vous'}
+                        ? t('tryon.preview.readyLaunch')
+                        : t('tryon.preview.addPhotoToSee')}
                     </p>
                   </div>
                 )}
@@ -1751,14 +1753,14 @@ body: JSON.stringify({
             }}>
               <div style={{ padding: '20px', borderBottom: `1px solid ${T.border}` }}>
                 <div style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '12px' }}>
-                  Article sélectionné
+                  {t('tryon.options.selectedItem')}
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {product.name}
                     </div>
-                    <div style={{ fontSize: '11px', color: T.muted, marginBottom: '4px' }}>{product.brand || 'TryOn'}</div>
+                    <div style={{ fontSize: '11px', color: T.muted, marginBottom: '4px' }}>{product.brand || t('tryon.options.brandFallback')}</div>
                     <div style={{ fontSize: '16px', fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
                       {parseFloat(product.price).toLocaleString()} FCFA
                     </div>
@@ -1778,8 +1780,8 @@ body: JSON.stringify({
                   display: 'flex',
                   justifyContent: 'space-between',
                 }}>
-                  <span>3. Votre taille</span>
-                  <span style={{ fontSize: '10px', color: T.blueDark, textTransform: 'none', letterSpacing: 0, cursor: 'pointer', fontWeight: 500 }}>Guide →</span>
+                  <span>{t('tryon.options.sizeTitle')}</span>
+                  <span style={{ fontSize: '10px', color: T.blueDark, textTransform: 'none', letterSpacing: 0, cursor: 'pointer', fontWeight: 500 }}>{t('tryon.options.sizeGuide')}</span>
                 </div>
 
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '16px' }}>
@@ -1805,36 +1807,34 @@ body: JSON.stringify({
 
                 {/* Mesures : facultatives, mais c'est ce qui rend la reco possible */}
                 <div style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: T.muted, marginBottom: '8px' }}>
-                  Vos mesures — facultatif
+                  {t('tryon.options.measurementsTitle')}
                 </div>
                 <div style={{ display: 'flex', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                  <input type="number" placeholder="Taille (cm)" value={heightCm}
+                  <input type="number" placeholder={t('tryon.options.heightPlaceholder')} value={heightCm}
                     onChange={(e) => setHeightCm(e.target.value)}
                     style={{ flex: '1 1 90px', minWidth: 0, padding: '7px 9px', borderRadius: '8px', border: `1.5px solid ${T.border}`, fontSize: '12px' }} />
-                  <input type="number" placeholder="Poids (kg)" value={weightKg}
+                  <input type="number" placeholder={t('tryon.options.weightPlaceholder')} value={weightKg}
                     onChange={(e) => setWeightKg(e.target.value)}
                     style={{ flex: '1 1 90px', minWidth: 0, padding: '7px 9px', borderRadius: '8px', border: `1.5px solid ${T.border}`, fontSize: '12px' }} />
                   <select value={morphology} onChange={(e) => setMorphology(e.target.value)}
                     style={{ flex: '1 1 110px', minWidth: 0, padding: '7px 9px', borderRadius: '8px', border: `1.5px solid ${T.border}`, fontSize: '12px' }}>
-                    <option value="mince">Mince</option>
-                    <option value="normale">Normale</option>
-                    <option value="corpulent">Corpulent</option>
+                    <option value="mince">{t('tryon.options.morphologyThin')}</option>
+                    <option value="normale">{t('tryon.options.morphologyNormal')}</option>
+                    <option value="corpulent">{t('tryon.options.morphologyLarge')}</option>
                   </select>
                 </div>
 
                 {/* Ce que le client gagne à remplir, et où il verra le résultat */}
                 {heightCm && weightKg ? (
                   <p style={{ fontSize: '11px', color: '#06D6A0', margin: 0, lineHeight: 1.4, fontWeight: 500 }}>
-                    ✓ Votre taille idéale sera calculée pendant l'essayage
+                    ✓ {t('tryon.options.measurementsReadyPrefix')}
                     {measurements && measurements.quality !== 'bad'
-                      ? ' à partir de votre carrure mesurée sur la photo.'
-                      : ' à partir de votre taille et de votre poids.'}
+                      ? t('tryon.options.measurementsReadyPhoto')
+                      : t('tryon.options.measurementsReadyNoPhoto')}
                   </p>
                 ) : (
                   <p style={{ fontSize: '11px', color: T.muted, margin: 0, lineHeight: 1.4 }}>
-                    💡 Facultatif — mais sans votre taille et votre poids, nous ne pouvons
-                    pas convertir votre morphologie en centimètres. Renseignez-les et nous
-                    vous dirons quelle taille choisir, avec le résultat de l'essayage.
+                    💡 {t('tryon.options.measurementsHint')}
                   </p>
                 )}
               </div>
@@ -1842,7 +1842,7 @@ body: JSON.stringify({
               {/* Couleur */}
               <div style={{ padding: '20px', borderBottom: `1px solid ${T.border}` }}>
                 <div style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '12px' }}>
-                  4. Votre couleur
+                  {t('tryon.options.colorTitle')}
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                   {colorOptions.map((color, idx) => (
@@ -1880,10 +1880,10 @@ body: JSON.stringify({
               <div style={{ padding: '16px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFBFC' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {[
-                    { label: 'Photo uploadée', done: !!(photoPreview || useWebcam) },
-                    { label: 'Article sélectionné', done: true },
-                    { label: 'Taille choisie', done: !!selectedSize },
-                    { label: 'Couleur choisie', done: !!selectedColor },
+                    { label: t('tryon.options.checklistPhoto'), done: !!(photoPreview || useWebcam) },
+                    { label: t('tryon.options.checklistItem'), done: true },
+                    { label: t('tryon.options.checklistSize'), done: !!selectedSize },
+                    { label: t('tryon.options.checklistColor'), done: !!selectedColor },
                   ].map((item, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}>
                       <div style={{
@@ -1939,7 +1939,7 @@ body: JSON.stringify({
                     gap: '8px',
                   }}
                 >
-                  {!photoPreview && !useWebcam ? "Uploadez une photo d'abord" : "Lancer l'essayage IA"}
+                  {!photoPreview && !useWebcam ? t('tryon.options.launchDisabled') : t('tryon.options.launch')}
                 </button>
               </div>
             </div>
@@ -1965,11 +1965,11 @@ body: JSON.stringify({
               </svg>
             </div>
             <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 300, marginBottom: '12px' }}>
-              Analyse en cours…
+              {t('tryon.analysis.title')}
             </h2>
-            <p style={{ color: T.muted, marginBottom: '8px' }}>Notre IA analyse votre morphologie</p>
+            <p style={{ color: T.muted, marginBottom: '8px' }}>{t('tryon.analysis.subtitle')}</p>
             <p style={{ fontSize: '13px', color: T.blueDark, fontWeight: 500, marginBottom: '36px' }}>
-              {product.name} · Taille {selectedSize}
+              {product.name} · {t('tryon.analysis.sizeLabel', { size: selectedSize })}
             </p>
             <div style={{ background: T.blueLight, borderRadius: '100px', height: '8px', marginBottom: '12px', overflow: 'hidden' }}>
               <div style={{
@@ -1982,7 +1982,7 @@ body: JSON.stringify({
             </div>
             <div style={{ fontSize: '13px', color: T.red, marginBottom: '40px', fontWeight: 600 }}>{analysisProgress}%</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
-              {['Détection du corps', 'Analyse morphologique', 'Calcul des mensurations'].map((label, i, arr) => (
+              {[t('tryon.analysis.step1'), t('tryon.analysis.step2'), t('tryon.analysis.step3')].map((label, i, arr) => (
                 <div key={i} style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -2040,7 +2040,7 @@ body: JSON.stringify({
                       </div>
                     )}
                     <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(26,26,26,0.7)', color: '#fff', fontSize: '10px', fontWeight: 600, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.5px' }}>
-                      VOTRE PHOTO
+                      {t('tryon.result.yourPhotoBadge')}
                     </div>
                   </div>
 
@@ -2049,7 +2049,7 @@ body: JSON.stringify({
                     {aiGenerating ? (
                       <div className="tryon-result-media" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '16px', textAlign: 'center' }}>
                         <div style={{ width: '44px', height: '44px', borderRadius: '50%', border: `3px solid rgba(53,92,134,0.2)`, borderTopColor: T.blueDark, animation: 'spin 1s linear infinite' }} />
-                        <p style={{ color: T.muted, fontSize: '13px', margin: 0 }}>Génération en cours…<br />(1-2 min)</p>
+                        <p style={{ color: T.muted, fontSize: '13px', margin: 0 }}>{t('tryon.result.generating')}<br />{t('tryon.result.generatingDuration')}</p>
                       </div>
                     ) : aiResult && aiResult.resultImageUrl ? (
                       <>
@@ -2061,13 +2061,13 @@ body: JSON.stringify({
                           
                         />
                         <div style={{ position: 'absolute', top: '12px', left: '12px', background: T.blueDark, color: '#fff', fontSize: '10px', fontWeight: 600, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.5px' }}>
-                           RENDU IA
+                           {t('tryon.result.aiRenderBadge')}
                         </div>
                         {/* Boutons télécharger + partager (discrets, en haut à droite) */}
                         <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px' }}>
                           <button
                             onClick={handleDownload}
-                            title="Télécharger"
+                            title={t('tryon.result.download')}
                             style={{ width: '34px', height: '34px', borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
                           >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={T.blueDark} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -2076,7 +2076,7 @@ body: JSON.stringify({
                           </button>
                           <button
                             onClick={handleShareResult}
-                            title="Partager"
+                            title={t('tryon.result.share')}
                             style={{ width: '34px', height: '34px', borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
                           >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={T.blueDark} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -2087,7 +2087,7 @@ body: JSON.stringify({
                       </>
                     ) : (
                       <div className="tryon-result-media" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.muted, fontSize: '13px', textAlign: 'center', padding: '16px' }}>
-                        Le rendu apparaîtra ici
+                        {t('tryon.result.renderWillAppear')}
                       </div>
                     )}
                   </div>
@@ -2099,7 +2099,7 @@ body: JSON.stringify({
               <div className="tryon-details-card" style={{ background: T.white, borderRadius: '24px', border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 18px 50px rgba(26,26,26,0.08)' }}>
                 <div style={{ padding: '24px', borderBottom: `1px solid ${T.border}` }}>
                   <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>
-                    Article essayé
+                    {t('tryon.result.itemTried')}
                   </div>
                   <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                     {product?.image ? (
@@ -2132,7 +2132,7 @@ body: JSON.stringify({
                     )}
                     <div>
                       <div style={{ fontSize: '15px', fontWeight: 500 }}>{product.name}</div>
-                      <div style={{ fontSize: '12px', color: T.muted }}>{product.brand || 'TryOn'}</div>
+                      <div style={{ fontSize: '12px', color: T.muted }}>{product.brand || t('tryon.options.brandFallback')}</div>
                       <div style={{ fontSize: '18px', fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
                         {parseFloat(product.price).toLocaleString()} FCFA
                       </div>
@@ -2143,7 +2143,7 @@ body: JSON.stringify({
                 {/* Taille recommandée */}
                 <div style={{ padding: '24px', borderBottom: `1px solid ${T.border}` }}>
                   <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>
-                    Taille recommandée
+                    {t('tryon.result.recommendedSizeTitle')}
                   </div>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     {sizeOptions.map(s => (
@@ -2182,28 +2182,28 @@ body: JSON.stringify({
                   {/* Trois états : calcul en cours, résultat, ou mesures manquantes */}
                   {fitLoading || measuring ? (
                     <div style={{ marginTop: '12px', fontSize: '12px', color: T.muted }}>
-                      ⏳ Calcul de votre taille idéale…
+                      ⏳ {t('tryon.result.calculating')}
                     </div>
                   ) : fitError ? (
                     <div style={{ marginTop: '12px', fontSize: '11px', color: T.red, lineHeight: 1.5 }}>
-                      Recommandation de taille indisponible : {fitError}
-                      <br />L'essayage, lui, n'est pas affecté.
+                      {t('tryon.result.fitErrorPrefix', { error: fitError })}
+                      <br />{t('tryon.result.fitErrorSuffix')}
                     </div>
                   ) : fitData ? (
                     <div style={{ marginTop: '12px' }}>
                       <div style={{ fontSize: '13px', color: '#06D6A0', fontWeight: 600 }}>
-                        ✓ Taille {fitData.recommendedSize} recommandée — {fitData.confidence}% de confiance
+                        ✓ {t('tryon.result.fitSuccess', { size: fitData.recommendedSize, confidence: fitData.confidence })}
                       </div>
                       <div style={{ fontSize: '11px', color: T.muted, marginTop: '3px' }}>
-                        Calculée sur {fitData.photoUsed ? 'votre photo, votre taille et votre poids' : 'votre taille et votre poids'}
-                        {fitData.measurements && ` · poitrine ${fitData.measurements.chestCm} · taille ${fitData.measurements.waistCm} · hanches ${fitData.measurements.hipCm} cm`}
+                        {t('tryon.result.calculatedOn', { basis: fitData.photoUsed ? t('tryon.result.calculatedOnPhoto') : t('tryon.result.calculatedOnBasic') })}
+                        {fitData.measurements && t('tryon.result.measurementsDetail', { chest: fitData.measurements.chestCm, waist: fitData.measurements.waistCm, hip: fitData.measurements.hipCm })}
                       </div>
                       {fitData.photoNote && (
                         <div style={{ fontSize: '11px', color: T.muted, marginTop: '3px' }}>{fitData.photoNote}</div>
                       )}
                       {!fitData.photoUsed && (
                         <div style={{ fontSize: '11px', color: T.muted, marginTop: '3px' }}>
-                          💡 Une photo en pied et de face nous permettrait de mesurer votre carrure au lieu de l'estimer.
+                          💡 {t('tryon.result.photoTipHint')}
                         </div>
                       )}
 
@@ -2211,11 +2211,11 @@ body: JSON.stringify({
                       {selectedSize && fitOf(selectedSize) && !fitOf(selectedSize).wearable && (
                         <div style={{ marginTop: '10px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(192,57,43,0.07)', border: '1px solid rgba(192,57,43,0.2)' }}>
                           <p style={{ margin: 0, fontSize: '12px', color: T.red, fontWeight: 600 }}>
-                            {fitOf(selectedSize).label} — nous recommandons {fitData.recommendedSize}
+                            {fitOf(selectedSize).label} — {t('tryon.result.verdictRecommend', { size: fitData.recommendedSize })}
                           </p>
                           {fitOf(selectedSize).zones.filter(z => z.deltaCm !== 0).map(z => (
                             <p key={z.zone} style={{ margin: '2px 0 0', fontSize: '11px', color: T.muted }}>
-                              {z.zone} : {Math.abs(z.deltaCm)} cm {z.deltaCm > 0 ? 'trop juste' : 'de trop'}
+                              {z.zone} : {Math.abs(z.deltaCm)} cm {z.deltaCm > 0 ? t('tryon.result.zoneTooTight') : t('tryon.result.zoneTooLoose')}
                             </p>
                           ))}
                         </div>
@@ -2223,8 +2223,7 @@ body: JSON.stringify({
                     </div>
                   ) : (
                     <div style={{ marginTop: '12px', fontSize: '11px', color: T.muted, lineHeight: 1.5 }}>
-                      Renseignez votre taille et votre poids avant l'essayage pour recevoir
-                      une recommandation calculée sur votre morphologie.
+                      {t('tryon.result.noMeasurementsHint')}
                     </div>
                   )}
                 </div>
@@ -2233,10 +2232,10 @@ body: JSON.stringify({
                 {aiError && !aiGenerating && (
                   <div className="tryon-error-box" style={{ padding: '20px 24px', borderBottom: `1px solid ${T.border}` }}>
                     <div style={{ padding: '14px 16px', borderRadius: '10px', background: 'rgba(192,57,43,0.07)', border: `1px solid rgba(192,57,43,0.2)` }}>
-                      <p style={{ color: T.red, fontSize: '13px', margin: '0 0 8px', fontWeight: 500 }}>⚠ Génération échouée</p>
+                      <p style={{ color: T.red, fontSize: '13px', margin: '0 0 8px', fontWeight: 500 }}>⚠ {t('tryon.result.generationFailed')}</p>
                       <p style={{ color: T.muted, fontSize: '12px', margin: 0 }}>{aiError}</p>
                       <button onClick={handleAITryon} style={{ marginTop: '10px', background: 'transparent', border: `1px solid ${T.red}`, color: T.red, borderRadius: '8px', padding: '6px 14px', fontSize: '12px', cursor: 'pointer' }}>
-                        Réessayer
+                        {t('tryon.result.retry')}
                       </button>
                     </div>
                   </div>
@@ -2263,7 +2262,7 @@ body: JSON.stringify({
                       cursor: aiGenerating ? 'not-allowed' : 'pointer',
                     }}
                   >
-                    ↻ Refaire l'essayage
+                    ↻ {t('tryon.result.redo')}
                   </button>
                   <button
                     onClick={handleAddToCart}
@@ -2282,7 +2281,7 @@ body: JSON.stringify({
                       boxShadow: '0 10px 20px rgba(192,57,43,0.25)',
                     }}
                   >
-                    Ajouter au panier — {parseFloat(product.price).toLocaleString()} FCFA
+                    {t('tryon.result.addToCart', { price: parseFloat(product.price).toLocaleString() })}
                   </button>
                   <Link
                     to={`/product/${product.id}`}
@@ -2300,7 +2299,7 @@ body: JSON.stringify({
                       textDecoration: 'none',
                     }}
                   >
-                    Voir la fiche produit
+                    {t('tryon.result.viewProduct')}
                   </Link>
                 </div>
 

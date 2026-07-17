@@ -5,6 +5,29 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import fr from './locales/fr/translation.json';
 import en from './locales/en/translation.json';
 
+// ─── MIGRATION : NETTOYAGE D'UN CACHE ERRONÉ ───
+// Avant ce correctif, la détection incluait 'navigator' : un navigateur
+// configuré en anglais imposait l'anglais dès la première visite, et ce
+// choix — que la personne n'avait pas fait elle-même — était aussitôt mis
+// en cache dans localStorage sous la clé 'i18nextLng'.
+//
+// On a retiré 'navigator' de l'ordre de détection ci-dessous, mais cette
+// valeur mise en cache À TORT reste présente chez toute personne ayant déjà
+// visité le site avant ce changement. Sans nettoyage, elle resterait
+// bloquée en anglais malgré le correctif, puisque seul 'localStorage' est
+// consulté désormais.
+//
+// On efface donc cette valeur une seule fois, sauf si elle a été choisie
+// explicitement via le sélecteur (marqueur 'i18nextLng_userSelected' posé
+// par LanguageSwitcher). Après ce nettoyage ponctuel, fallbackLng ('fr')
+// reprend la main tant qu'aucun choix explicite n'a été fait.
+if (
+  localStorage.getItem('i18nextLng') &&
+  localStorage.getItem('i18nextLng_userSelected') !== 'true'
+) {
+  localStorage.removeItem('i18nextLng');
+}
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -25,16 +48,10 @@ i18n
     },
 
     detection: {
-      // 'navigator' a été retiré volontairement. Il était consulté au premier
-      // passage, avant que localStorage ne contienne quoi que ce soit : un
-      // client dont le téléphone est configuré en anglais voyait le site
-      // s'ouvrir en anglais, et ce choix qu'il n'avait pas fait était aussitôt
-      // mis en cache. fallbackLng ne corrigeait rien — il n'intervient que si
-      // la détection échoue, or elle réussissait, elle répondait juste
-      // « anglais ».
-      //
-      // Le CFPD vend à Douala : le français est la langue par défaut, l'anglais
-      // est un choix explicite du client via le sélecteur.
+      // 'navigator' reste volontairement absent (voir la migration
+      // ci-dessus pour le contexte). Le CFPD vend à Douala : le français
+      // est la langue par défaut, l'anglais est un choix explicite du
+      // client via le sélecteur.
       order: ['localStorage'],
       caches: ['localStorage'],
     },
