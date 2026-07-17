@@ -75,7 +75,9 @@ async function paydunyaCallback(req, res) {
     if (result.status === "completed" && result.orderId) {
       const payment = await paymentModel.findByTransactionId(token);
       if (payment) {
-        await paymentModel.updateStatus(payment.id, "completed");
+        // "paid" (et non "completed") pour rester cohérent avec le paiement
+        // à la livraison et l'affichage du statut côté dashboard admin.
+        await paymentModel.updateStatus(payment.id, "paid");
       }
       await orderModel.updatePaymentStatus(result.orderId, "paid");
     }

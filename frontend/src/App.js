@@ -13,6 +13,7 @@ import Home from "./pages/Home";
 import ProductDetail from "./pages/product/ProductDetail";
 import TryOn from "./pages/tryon/TryOn";
 import Checkout from "./pages/checkout/Checkout";
+import OrderSuccess from "./pages/checkout/OrderSuccess";
 import Auth from "./pages/auth/Auth";
 import Shop from "./pages/shop/Shop";
 import Cart from "./pages/cart/Cart";
@@ -81,6 +82,7 @@ function AppLayout() {
 
 {/* ── Routes protégées client ── */}
 <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+<Route path="/order-success" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
           <Route path="/cart"          element={<ProtectedRoute><Cart /></ProtectedRoute>} />
           <Route path="/orders"        element={<ProtectedRoute><Orders /></ProtectedRoute>} />
           <Route path="/profile"       element={<ProtectedRoute><Profile /></ProtectedRoute>} />

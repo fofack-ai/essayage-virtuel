@@ -347,6 +347,21 @@
       "viewOrders": "View my orders",
       "backHome": "Back to home"
     },
+    "orderSuccess": {
+      "checking": "Vérification de votre paiement…",
+      "pendingTitle": "Confirmation du paiement en cours…",
+      "paidTitleLine": "Paiement",
+      "paidTitleHighlight": "confirmé !",
+      "orderNumberLabel": "Numéro de commande",
+      "paidMessage": "Votre paiement a bien été reçu. Nous préparons votre commande.",
+      "pendingMessage": "Nous confirmons votre paiement auprès de l'opérateur. Cette page se mettra à jour automatiquement.",
+      "stillProcessingMessage": "C'est plus long que prévu. Votre paiement est peut-être encore en cours de traitement — vérifiez \"Mes commandes\" dans quelques minutes, ou contactez-nous en cas de doute.",
+      "errorTitle": "Un problème est survenu",
+      "genericError": "Impossible de vérifier votre commande pour le moment.",
+      "missingOrder": "Aucune référence de commande trouvée dans ce lien.",
+      "viewOrders": "Voir mes commandes",
+      "backHome": "Retour à l'accueil"
+    },
     "loading": "Loading…",
     "breadcrumb": {
       "home": "Home",
@@ -409,120 +424,102 @@
     }
   },
   "tryon": {
-  "loading": "Chargement de l'essayage...",
-  "productUnavailable": "Produit non disponible",
-  "alerts": {
-    "noProductAvailable": "Aucun produit disponible pour l'essayage",
-    "productNotFound": "Produit introuvable",
-    "cameraAccessError": "Impossible d'accéder à la caméra : {{message}}",
-    "shareLinkCopied": "Lien du rendu copié !",
-    "addedToCart": "Produit ajouté au panier !",
-    "addToCartError": "Erreur lors de l'ajout au panier."
+    "loading": "Loading your try-on...",
+    "productUnavailable": "Product unavailable",
+    "alerts": {
+      "noProduct": "No product available for try-on",
+      "productNotFound": "Product not found",
+      "webcamError": "Unable to access the webcam: {{message}}",
+      "linkCopied": "Render link copied!",
+      "addedToCart": "Product added to cart!",
+      "addToCartError": "Error adding to cart."
+    },
+    "messages": {
+      "noPersonDetected": "We couldn't detect a person in this photo. Upload a full-body photo of yourself, facing forward, on a plain background.",
+      "photoNotClear": "The photo isn't clear enough for analysis. Try a well-lit photo showing your whole body.",
+      "loginToSave": "Sign in to save your try-on and find it again later.",
+      "saveError": "Your try-on couldn't be saved. Check your connection and try again."
+    },
+    "errors": {
+      "unknown": "Unknown error"
+    },
+    "aria": {
+      "notifications": "Notifications",
+      "cart": "Cart",
+      "closeMessage": "Close message"
+    },
+    "shareTitle": "My try-on — {{name}}",
+    "header": {
+      "tag": "AI Technology",
+      "titleStart": "Virtual fitting ",
+      "titleHighlight": "room",
+      "description": "Upload your photo, our AI analyzes your body shape and suggests the size that fits you best."
+    },
+    "stepper": {
+      "step1": "Photo & Size",
+      "step2": "Analysis",
+      "step3": "Results"
+    },
+    "step1": {
+      "photoTitle": "1. Your photo",
+      "photoHint": "Drag or click to upload",
+      "webcamActive": "Webcam active",
+      "dropzoneTitle": "Drop your photo here",
+      "dropzoneSubtitle": "or click to browse",
+      "fileHint": "JPG, PNG — Max 10 MB",
+      "photoReady": "Photo ready",
+      "useWebcam": "Use webcam",
+      "reset": "Reset",
+      "previewTitle": "2. Render preview",
+      "previewHint": "Virtual try-on preview",
+      "defaultGarment": "Your garment",
+      "readyToGenerate": "Photo ready — start the generation to see the render",
+      "addPhotoPrompt": "Add your photo to see it on you",
+      "selectedItem": "Selected item",
+      "sizeTitle": "3. Your size",
+      "sizeGuideLink": "Guide →",
+      "colorTitle": "4. Your color",
+      "checklist": {
+        "photoUploaded": "Photo uploaded",
+        "itemSelected": "Item selected",
+        "sizeChosen": "Size chosen",
+        "colorChosen": "Color chosen"
+      },
+      "renderInfo": "Size {{size}} · AI render",
+      "launchDisabled": "Upload a photo first",
+      "launch": "Start AI try-on"
+    },
+    "step2": {
+      "title": "Analyzing…",
+      "subtitle": "Our AI is analyzing your body shape",
+      "productSize": "{{name}} · Size {{size}}",
+      "steps": {
+        "bodyDetection": "Body detection",
+        "morphAnalysis": "Body shape analysis",
+        "measurements": "Calculating measurements",
+        "compatibilityScore": "Compatibility score"
+      }
+    },
+    "step3": {
+      "yourPhoto": "YOUR PHOTO",
+      "aiRender": "AI RENDER",
+      "download": "Download",
+      "share": "Share",
+      "generating": "Generating…",
+      "generatingTime": "(1-2 min)",
+      "renderPlaceholder": "The render will appear here",
+      "itemTried": "Item tried on",
+      "recommendedSize": "Recommended size",
+      "recommendedByAI": "Size {{size}} recommended by AI",
+      "compatibilityScore": "Compatibility score",
+      "morphMatch": "Body shape match",
+      "excellentMatch": "Excellent match",
+      "generationFailed": "Generation failed",
+      "retry": "Retry",
+      "addToCart": "Add to cart",
+      "viewProduct": "View product page"
+    }
   },
-  "messages": {
-    "noPersonDetectedInfo": "Nous n'avons pas reconnu de personne sur cette photo : la taille sera estimée à partir de votre taille et de votre poids.",
-    "noPersonDetectedError": "Nous n'avons pas reconnu de personne sur cette photo. Envoyez une photo de vous, de face et en entier, sur un fond dégagé.",
-    "loginToSaveTryon": "Connectez-vous pour enregistrer votre essayage et le retrouver plus tard.",
-    "saveError": "Votre essayage n'a pas pu être enregistré. Vérifiez votre connexion et réessayez.",
-    "photoQualityNone": "Nous n'avons pas pu lire votre morphologie sur cette photo : la recommandation utilisera votre taille et votre poids.",
-    "photoQualityBadRotation": "Placez-vous bien face à l'objectif : votre buste est trop tourné pour mesurer votre carrure.",
-    "photoQualityBad": "Cadrez-vous en entier, des pieds à la tête, sur un fond dégagé : la photo ne permet pas de lire votre carrure.",
-    "photoQualityPoor": "Photo exploitable, mais une prise de vue de face et en pied donnerait une taille plus juste.",
-    "missingHeightWeight": "Renseignez votre taille et votre poids."
-  },
-  "header": {
-    "badge": "Technologie IA",
-    "titleLine": "Cabine d'essayage",
-    "titleHighlight": "virtuelle",
-    "description": "Uploadez votre photo, notre IA analyse votre morphologie et vous propose la taille la plus adaptée."
-  },
-  "steps": {
-    "photoSize": "Photo & Taille",
-    "analysis": "Analyse",
-    "results": "Résultats"
-  },
-  "closeMessage": "Fermer le message",
-  "upload": {
-    "title": "1. Votre photo",
-    "subtitle": "Glissez ou cliquez pour importer",
-    "cameraActive": "Caméra active",
-    "photoReady": "Photo prête",
-    "dropHere": "Glissez votre photo ici",
-    "orClickToBrowse": "ou cliquez pour parcourir",
-    "formatHint": "JPG, PNG — Max 10 Mo",
-    "takePhoto": "Prendre une photo",
-    "importPhoto": "Importer une photo",
-    "reset": "Réinitialiser"
-  },
-  "preview": {
-    "title": "2. Aperçu du rendu",
-    "subtitle": "Prévisualisation de l'essayage virtuel",
-    "sizeRenderLabel": "Taille {{size}} · Rendu IA",
-    "defaultGarmentName": "Votre vêtement",
-    "readyLaunch": "Photo prête — lancez la génération pour voir le rendu",
-    "addPhotoToSee": "Ajoutez votre photo pour le voir sur vous"
-  },
-  "options": {
-    "selectedItem": "Article sélectionné",
-    "brandFallback": "TryOn",
-    "sizeTitle": "3. Votre taille",
-    "sizeGuide": "Guide →",
-    "measurementsTitle": "Vos mesures — facultatif",
-    "heightPlaceholder": "Taille (cm)",
-    "weightPlaceholder": "Poids (kg)",
-    "morphologyThin": "Mince",
-    "morphologyNormal": "Normale",
-    "morphologyLarge": "Corpulent",
-    "measurementsReadyPrefix": "Votre taille idéale sera calculée pendant l'essayage",
-    "measurementsReadyPhoto": " à partir de votre carrure mesurée sur la photo.",
-    "measurementsReadyNoPhoto": " à partir de votre taille et de votre poids.",
-    "measurementsHint": "Facultatif — mais sans votre taille et votre poids, nous ne pouvons pas convertir votre morphologie en centimètres. Renseignez-les et nous vous dirons quelle taille choisir, avec le résultat de l'essayage.",
-    "colorTitle": "4. Votre couleur",
-    "checklistPhoto": "Photo uploadée",
-    "checklistItem": "Article sélectionné",
-    "checklistSize": "Taille choisie",
-    "checklistColor": "Couleur choisie",
-    "launchDisabled": "Uploadez une photo d'abord",
-    "launch": "Lancer l'essayage IA"
-  },
-  "analysis": {
-    "title": "Analyse en cours…",
-    "subtitle": "Notre IA analyse votre morphologie",
-    "sizeLabel": "Taille {{size}}",
-    "step1": "Détection du corps",
-    "step2": "Analyse morphologique",
-    "step3": "Calcul des mensurations"
-  },
-  "result": {
-    "yourPhotoBadge": "VOTRE PHOTO",
-    "aiRenderBadge": "RENDU IA",
-    "generating": "Génération en cours…",
-    "generatingDuration": "(1-2 min)",
-    "renderWillAppear": "Le rendu apparaîtra ici",
-    "download": "Télécharger",
-    "share": "Partager",
-    "itemTried": "Article essayé",
-    "recommendedSizeTitle": "Taille recommandée",
-    "calculating": "Calcul de votre taille idéale…",
-    "fitErrorPrefix": "Recommandation de taille indisponible : {{error}}",
-    "fitErrorSuffix": "L'essayage, lui, n'est pas affecté.",
-    "fitSuccess": "Taille {{size}} recommandée — {{confidence}}% de confiance",
-    "calculatedOnPhoto": "votre photo, votre taille et votre poids",
-    "calculatedOnBasic": "votre taille et votre poids",
-    "calculatedOn": "Calculée sur {{basis}}",
-    "measurementsDetail": " · poitrine {{chest}} · taille {{waist}} · hanches {{hip}} cm",
-    "photoTipHint": "Une photo en pied et de face nous permettrait de mesurer votre carrure au lieu de l'estimer.",
-    "noMeasurementsHint": "Renseignez votre taille et votre poids avant l'essayage pour recevoir une recommandation calculée sur votre morphologie.",
-    "verdictRecommend": "nous recommandons {{size}}",
-    "zoneTooTight": "trop juste",
-    "zoneTooLoose": "de trop",
-    "generationFailed": "Génération échouée",
-    "retry": "Réessayer",
-    "redo": "Refaire l'essayage",
-    "addToCart": "Ajouter au panier — {{price}} FCFA",
-    "viewProduct": "Voir la fiche produit"
-  }
-},
   "maintenance": {
     "eyebrow": "Maintenance",
     "title": "Site temporarily unavailable",

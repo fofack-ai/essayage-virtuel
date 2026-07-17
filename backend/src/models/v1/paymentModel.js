@@ -46,6 +46,20 @@ async function findByOrderId(orderId) {
   return rows[0];
 }
 
+async function findById(id) {
+  const [rows] = await db.query(
+    `
+    SELECT *
+    FROM payments
+    WHERE id = ?
+    LIMIT 1
+    `,
+    [id]
+  );
+
+  return rows[0];
+}
+
 async function findByTransactionId(transactionId) {
   const [rows] = await db.query(
     `
@@ -88,6 +102,7 @@ async function updatePaymentUrl(id, paymentUrl, transactionId = null) {
 module.exports = {
   createPayment,
   findByOrderId,
+  findById,
   findByTransactionId,
   updateStatus,
   updatePaymentUrl,
