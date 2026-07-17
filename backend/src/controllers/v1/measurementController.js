@@ -146,14 +146,25 @@ async function evaluateFit(req, res) {
       morphology,
       productId,
       isStretchFabric,
+      // Ratios morphologiques sans unité, mesurés par MediaPipe sur la photo.
+      // Facultatifs : leur absence fait retomber sur l'estimation IMC seule.
+      shoulderRatio,
+      hipRatio,
+      photoQuality,
     } = req.body;
 
     let estimated = null;
 
     // Si le client n'a donné que sa taille et son poids, on estime ses tours.
-if (chestCm === undefined && waistCm === undefined && hipCm === undefined) {
+    // La photo, si elle a été analysée, affine la carrure ; sinon l'IMC suffit.
+    if (chestCm === undefined && waistCm === undefined && hipCm === undefined) {
       estimated = measurementService.estimateFromPhotoAndBody({
-        heightCm, weightKg, morphology, shoulderRatio, hipRatio,
+        heightCm,
+        weightKg,
+        morphology,
+        shoulderRatio,
+        hipRatio,
+        photoQuality,
       });
       chestCm = estimated.chestCm;
       waistCm = estimated.waistCm;
@@ -189,7 +200,14 @@ if (chestCm === undefined && waistCm === undefined && hipCm === undefined) {
         measurements: { chestCm, waistCm, hipCm },
         estimated,
         recommendedSize: recommendation.recommendedSize,
-        confidence: recommendation.score,
+        // Sans photo, on plafonne la confiance affichée : annoncer 100 % sur
+        // une estimation purement statistique serait mentir au client.
+        confidence:
+          estimated && !estimated.photoUsed
+            ? Math.min(recommendation.score, 80)
+            : recommendation.score,
+        photoUsed: estimated ? Boolean(estimated.photoUsed) : false,
+        photoNote: estimated ? estimated.photoNote || null : null,
         sizes,
       },
     });

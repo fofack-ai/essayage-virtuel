@@ -227,41 +227,6 @@ easeAppliedCm: ease,
   };
 }        
 
-// ═══ COLLE LE NOUVEAU CODE ICI ═══
-
-/** Carrure moyenne (biacromial ÷ taille) chez l'adulte. */
-const REF_SHOULDER_RATIO = 0.225;
-const REF_HIP_RATIO = 0.19;
-
-function estimateFromPhotoAndBody({ heightCm, weightKg, morphology, shoulderRatio, hipRatio }) {
-  const base = estimateFromHeightWeight({ heightCm, weightKg, morphology });
-  if (!shoulderRatio && !hipRatio) return { ...base, photoUsed: false };
-
-  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-  const round = (n) => Math.round(n * 2) / 2;
-
-  let chest = base.chestCm;
-  let hip = base.hipCm;
-
-  if (shoulderRatio) {
-    const k = clamp(shoulderRatio / REF_SHOULDER_RATIO, 0.8, 1.25);
-    chest = chest * (0.5 + 0.5 * k);
-  }
-  if (hipRatio) {
-    const k = clamp(hipRatio / REF_HIP_RATIO, 0.8, 1.25);
-    hip = hip * (0.5 + 0.5 * k);
-  }
-
-  return {
-    chestCm: round(chest),
-    waistCm: round(chest - 18),
-    hipCm: round(hip),
-    shoulderCm: shoulderRatio ? round(shoulderRatio * Number(heightCm)) : null,
-    bmi: base.bmi,
-    photoUsed: true,
-  };
-}
-
 /**
  * Évalue TOUTES les tailles d'un coup : permet à l'interface d'afficher
  * un verdict sous chaque bouton de taille (XS, S, M, L, XL, XXL).
@@ -306,53 +271,124 @@ async function getLatest(userId) {
   }
   return measurement;
 }
-/** Carrure moyenne (biacromial ÷ taille) chez l'adulte. */
-const REF_SHOULDER_RATIO = 0.225;
-const REF_HIP_RATIO = 0.19;
+/* ════════════════════════════════════════════════════════════════════
+ * ESTIMATION HYBRIDE : IMC (corpulence) + PHOTO (carrure réelle)
+ * ════════════════════════════════════════════════════════════════════
+ *
+ * Une photo n'a AUCUNE échelle : le même corps photographié à 1 m ou à 5 m
+ * produit les mêmes pixels relatifs. Elle ne peut donc pas donner de
+ * centimètres. Ce qu'elle donne, c'est une FORME : cette personne est-elle
+ * large ou étroite POUR sa taille ? C'est la taille saisie par le client
+ * qui convertit cette forme en centimètres.
+ *
+ * Le frontend (getBodyRatios dans TryOn.jsx) envoie des ratios sans unité :
+ *     shoulderRatio = écart 3D inter-épaules / stature estimée
+ *     hipRatio      = écart 3D inter-hanches / stature estimée
+ * Les deux sont calculés sur poseWorldLandmarks (coordonnées 3D), donc
+ * insensibles au format de l'image et à la rotation du buste.
+ *
+ * ⚠️ Les références ci-dessous DOIVENT être définies exactement comme le
+ * frontend calcule ses ratios, sinon la correction est biaisée en
+ * permanence. Ce sont des moyennes de population adulte : à recalibrer sur
+ * les clients du CFPD le jour où un échantillon mesuré au mètre existe.
+ */
+const REF_RATIOS = {
+  shoulder: 0.215, // écart inter-épaules MediaPipe ÷ stature, adulte moyen
+  hip: 0.145,      // écart inter-hanches MediaPipe ÷ stature, adulte moyen
+};
 
 /**
- * Estimation hybride : l'IMC donne la corpulence (profondeur du torse),
- * la photo donne la carrure réelle (largeur). Une photo seule ne peut pas
- * fournir de centimètres — elle n'a aucune échelle. C'est la taille saisie
- * par le client qui convertit les ratios en cm.
- *
- * On pondère 50/50 : la photo corrige, l'IMC reste la référence calibrée.
+ * Poids de la correction photo : 0.35 et non 0.5. La photo est bruitée
+ * (pose, vêtements amples, distorsion d'objectif), l'IMC est la référence
+ * calibrée. La photo ajuste, elle ne décide pas.
  */
-function estimateFromPhotoAndBody({ heightCm, weightKg, morphology, shoulderRatio, hipRatio }) {
-  const base = estimateFromHeightWeight({ heightCm, weightKg, morphology });
-  if (!shoulderRatio && !hipRatio) return { ...base, photoUsed: false };
+const PHOTO_WEIGHT = 0.35;
 
-  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-  const round = (n) => Math.round(n * 2) / 2;
+/** Bornes du facteur de correction. Au-delà, c'est une erreur de détection
+ *  et non une morphologie : ±15 % couvre déjà du fluet au carré. */
+const K_MIN = 0.85;
+const K_MAX = 1.15;
+
+const clampK = (v, a, b) => Math.max(a, Math.min(b, v));
+const round1 = (n) => Math.round(n * 2) / 2; // arrondi au demi-cm
+
+/** Applique un ratio photo à une mesure de base, avec pondération et bornes. */
+function blendWithPhoto(baseCm, ratio, refRatio) {
+  const k = clampK(ratio / refRatio, K_MIN, K_MAX);
+  return baseCm * (1 - PHOTO_WEIGHT + PHOTO_WEIGHT * k);
+}
+
+/**
+ * Estimation finale des tours. Rétrocompatible : sans photo exploitable,
+ * retourne exactement l'estimation IMC (photoUsed: false) — le mode Express
+ * reste strictement inchangé.
+ *
+ * @param {number}  heightCm        taille debout saisie (obligatoire)
+ * @param {number}  weightKg        poids saisi (obligatoire)
+ * @param {string}  morphology      mince | normale | corpulent
+ * @param {number} [shoulderRatio]  ratio sans unité issu de la photo
+ * @param {number} [hipRatio]       ratio sans unité issu de la photo
+ * @param {string} [photoQuality]   'good' | 'poor' | 'bad' (calculé côté client)
+ */
+function estimateFromPhotoAndBody({
+  heightCm,
+  weightKg,
+  morphology,
+  shoulderRatio,
+  hipRatio,
+  photoQuality,
+}) {
+  const base = estimateFromHeightWeight({ heightCm, weightKg, morphology });
+
+  // Garde-fou serveur : un ratio hors de ces bornes ne vient pas d'un corps
+  // humain debout de face, c'est une détection ratée. On l'ignore plutôt que
+  // de dégrader une estimation IMC qui, elle, est fiable.
+  const sane = (r, ref) => Number.isFinite(r) && r > ref * 0.6 && r < ref * 1.6;
+  const useShoulder =
+    photoQuality !== "bad" && sane(Number(shoulderRatio), REF_RATIOS.shoulder);
+  const useHip = photoQuality !== "bad" && sane(Number(hipRatio), REF_RATIOS.hip);
+
+  if (!useShoulder && !useHip) {
+    return {
+      ...base,
+      photoUsed: false,
+      photoNote:
+        photoQuality === "bad"
+          ? "Photo inexploitable pour la morphologie : estimation basée sur la taille et le poids seuls."
+          : null,
+    };
+  }
 
   let chest = base.chestCm;
   let hip = base.hipCm;
 
-  if (shoulderRatio) {
-    // Bornes 0.8–1.25 : au-delà, c'est une erreur de détection de pose,
-    // pas une morphologie réelle.
-    const k = clamp(shoulderRatio / REF_SHOULDER_RATIO, 0.8, 1.25);
-    chest = chest * (0.5 + 0.5 * k);
-  }
-  if (hipRatio) {
-    const k = clamp(hipRatio / REF_HIP_RATIO, 0.8, 1.25);
-    hip = hip * (0.5 + 0.5 * k);
-  }
+  // Les épaules corrigent la poitrine : c'est la carrure qui conditionne
+  // l'emmanchure, et c'est elle qui bloque l'enfilage d'une veste.
+  if (useShoulder) chest = blendWithPhoto(chest, Number(shoulderRatio), REF_RATIOS.shoulder);
+  if (useHip) hip = blendWithPhoto(hip, Number(hipRatio), REF_RATIOS.hip);
 
+  // La relation taille = poitrine − 18 doit être conservée : c'est
+  // l'hypothèse sur laquelle SIZE_CHART est construit (cf. estimateFromHeightWeight).
   return {
-    chestCm: round(chest),
-    waistCm: round(chest - 18),
-    hipCm: round(hip),
-    shoulderCm: shoulderRatio ? round(shoulderRatio * Number(heightCm)) : null,
+    chestCm: round1(chest),
+    waistCm: round1(chest - 18),
+    hipCm: round1(hip),
+    shoulderCm: useShoulder ? round1(Number(shoulderRatio) * Number(heightCm)) : null,
     bmi: base.bmi,
     photoUsed: true,
+    photoQuality: photoQuality || "good",
+    photoNote:
+      photoQuality === "poor"
+        ? "Photo de qualité moyenne : correction morphologique appliquée avec prudence."
+        : null,
   };
 }
+
 module.exports = {
   SIZE_CHART,
   evaluateFit,
   evaluateAllSizes,
-  estimateFromPhotoAndBody,     // ← AJOUTE CETTE LIGNE
+  estimateFromPhotoAndBody,
   validateMeasurements,
   estimateFromHeightWeight,
   recommendSize,

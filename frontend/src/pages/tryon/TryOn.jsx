@@ -39,56 +39,107 @@ const T = {
   border: 'rgba(26,26,26,0.105)',
 };
 
-/* ── Fonctions utilitaires pour les mensurations ── */
+/* ── Mensurations : extraction des ratios morphologiques ── */
 
-/** Extrait les mensurations normalisées à partir des landmarks */
-function getMeasurements(landmarks) {
-  if (!landmarks || !landmarks[0] || !landmarks[27] || !landmarks[28] ||
-      !landmarks[11] || !landmarks[12] || !landmarks[23] || !landmarks[24]) {
-    return null;
-  }
+const LM = {
+  NOSE: 0,
+  L_SHOULDER: 11,
+  R_SHOULDER: 12,
+  L_HIP: 23,
+  R_HIP: 24,
+  L_ANKLE: 27,
+  R_ANKLE: 28,
+};
+const REQUIRED_LM = Object.values(LM);
 
-  const noseY = landmarks[0].y;
-  const leftAnkleY = landmarks[27].y;
-  const rightAnkleY = landmarks[28].y;
-  const ankleY = (leftAnkleY + rightAnkleY) / 2;
-  const heightNorm = ankleY - noseY; // doit être positif
+/**
+ * Hauteur nez → chevilles, exprimée en fraction de la stature debout.
+ * Le nez se situe vers 0,925 H et la cheville (malléole) vers 0,045 H :
+ * l'écart couvre donc ~0,88 H. Sans cette correction, on prendrait la
+ * distance nez-chevilles pour la taille entière et tous les ratios
+ * seraient surestimés d'environ 14 %.
+ */
+const NOSE_TO_ANKLE_FRACTION = 0.88;
 
-  if (heightNorm <= 0) return null;
+const dist3 = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 
-  const shoulderWidthNorm = Math.abs(landmarks[12].x - landmarks[11].x);
-  const hipWidthNorm = Math.abs(landmarks[24].x - landmarks[23].x);
+/**
+ * Extrait les ratios morphologiques sans unité à partir des landmarks 3D.
+ *
+ * Pourquoi poseWorldLandmarks et pas poseLandmarks :
+ *  - poseLandmarks normalise x par la LARGEUR de l'image et y par sa
+ *    HAUTEUR. Le rapport largeur_épaules / hauteur_corps y dépend donc du
+ *    format de la photo (3:4, 9:16…) et non du corps. C'est inexploitable.
+ *  - poseWorldLandmarks donne des coordonnées 3D métriques, origine au
+ *    centre du bassin. On peut y mesurer une vraie distance entre deux
+ *    points, même si le buste est légèrement tourné (on utilise z).
+ *
+ * L'échelle absolue de ces mètres est estimée par le modèle et donc peu
+ * fiable — mais on divise deux longueurs issues du MÊME repère, donc
+ * l'échelle se simplifie. Ce qui reste est une forme : large ou étroit
+ * POUR sa taille. C'est la taille saisie par le client qui la convertit
+ * en centimètres, côté serveur.
+ *
+ * @returns {{shoulderRatio, hipRatio, quality, rotationDeg, minVisibility}|null}
+ */
+function getBodyRatios(results) {
+  const W = results?.poseWorldLandmarks;
+  const I = results?.poseLandmarks;
+  if (!W || !I) return null;
+  if (REQUIRED_LM.some((i) => !W[i] || !I[i])) return null;
 
-  return { heightNorm, shoulderWidthNorm, hipWidthNorm };
+  // Visibilité : MediaPipe place des points même quand ils sont hors cadre
+  // ou masqués, en les devinant. Un point deviné ne doit pas mesurer un corps.
+  const minVisibility = Math.min(
+    ...REQUIRED_LM.map((i) => (typeof I[i].visibility === 'number' ? I[i].visibility : 0))
+  );
+
+  // Stature estimée : axe vertical uniquement (y croît vers le bas).
+  const ankleY = (W[LM.L_ANKLE].y + W[LM.R_ANKLE].y) / 2;
+  const noseToAnkle = ankleY - W[LM.NOSE].y;
+  if (!(noseToAnkle > 0.5)) return null; // corps assis, allongé ou tronqué
+  const statureM = noseToAnkle / NOSE_TO_ANKLE_FRACTION;
+
+  const shoulderM = dist3(W[LM.L_SHOULDER], W[LM.R_SHOULDER]);
+  const hipM = dist3(W[LM.L_HIP], W[LM.R_HIP]);
+
+  // Rotation du buste : si une épaule est nettement plus proche de
+  // l'objectif que l'autre, l'estimation de z devient hasardeuse.
+  const dz = Math.abs(W[LM.L_SHOULDER].z - W[LM.R_SHOULDER].z);
+  const dx = Math.abs(W[LM.L_SHOULDER].x - W[LM.R_SHOULDER].x);
+  const rotationDeg = (Math.atan2(dz, Math.max(dx, 1e-6)) * 180) / Math.PI;
+
+  let quality = 'good';
+  if (minVisibility < 0.5 || rotationDeg > 35) quality = 'bad';
+  else if (minVisibility < 0.75 || rotationDeg > 20) quality = 'poor';
+
+  return {
+    shoulderRatio: shoulderM / statureM,
+    hipRatio: hipM / statureM,
+    quality,
+    rotationDeg: Math.round(rotationDeg),
+    minVisibility: Math.round(minVisibility * 100) / 100,
+  };
 }
 
-/** Calcule un score de compatibilité (0-100) à partir des mensurations */
+/** Message d'aide affiché quand la photo ne permet pas de lire la morphologie. */
+function photoQualityHint(m) {
+  if (!m) return "Nous n'avons pas pu lire votre morphologie sur cette photo : la recommandation utilisera votre taille et votre poids.";
+  if (m.quality === 'bad' && m.rotationDeg > 35)
+    return 'Placez-vous bien face à l’objectif : votre buste est trop tourné pour mesurer votre carrure.';
+  if (m.quality === 'bad')
+    return 'Cadrez-vous en entier, des pieds à la tête, sur un fond dégagé : la photo ne permet pas de lire votre carrure.';
+  if (m.quality === 'poor')
+    return 'Photo exploitable, mais une prise de vue de face et en pied donnerait une taille plus juste.';
+  return null;
+}
+
+/** Score de compatibilité (0-100) — proportions du client vs. proportions de référence */
 function calculateScoreFromMeasurements(m) {
-  const shoulderToHeight = m.shoulderWidthNorm / m.heightNorm;
-  const hipToHeight = m.hipWidthNorm / m.heightNorm;
-
-  // Valeurs idéales (à ajuster selon des données réelles)
-  const idealShoulderToHeight = 0.20;
-  const idealHipToHeight = 0.18;
-
-  let shoulderScore = 1 - Math.abs(shoulderToHeight - idealShoulderToHeight) / idealShoulderToHeight;
-  let hipScore = 1 - Math.abs(hipToHeight - idealHipToHeight) / idealHipToHeight;
-
-  shoulderScore = Math.max(0, Math.min(1, shoulderScore));
-  hipScore = Math.max(0, Math.min(1, hipScore));
-
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  const shoulderScore = clamp01(1 - Math.abs(m.shoulderRatio - 0.215) / 0.215);
+  const hipScore = clamp01(1 - Math.abs(m.hipRatio - 0.145) / 0.145);
   return Math.round(((shoulderScore + hipScore) / 2) * 100);
-}
-
-/** Recommande une taille (XS à XL) basée sur la largeur des épaules relative */
-function recommendSizeFromMeasurements(m) {
-  const shoulderToHeight = m.shoulderWidthNorm / m.heightNorm;
-  if (shoulderToHeight < 0.15) return 'XS';
-  if (shoulderToHeight < 0.18) return 'S';
-  if (shoulderToHeight < 0.21) return 'M';
-  if (shoulderToHeight < 0.24) return 'L';
-  if (shoulderToHeight < 0.27) return 'XL';
-  return 'XL';
 }
 
 /* ── Composant principal ── */
@@ -348,9 +399,13 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
       minTrackingConfidence: 0.5,
     });
 
+    // On garde l'objet results ENTIER : poseWorldLandmarks (3D métrique) est
+    // indispensable au calcul des ratios, poseLandmarks ne suffit pas.
+    let detectedResults = null;
     let detectedLandmarks = null;
     pose.onResults((results) => {
       if (results.poseLandmarks) {
+        detectedResults = results;
         detectedLandmarks = results.poseLandmarks;
         setPoseLandmarks(results.poseLandmarks);
         drawPoseOnCanvas(results.poseLandmarks);
@@ -373,22 +428,25 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
     setTimeout(() => setAnalysisProgress(60), 500);
     setTimeout(() => setAnalysisProgress(100), 1000);
 
-    // Calcul des mensurations, score et taille
-    const m = getMeasurements(detectedLandmarks);
-    if (!m) {
-      setPageMessage({
-        type: 'error',
-        text: "La photo n'est pas assez nette pour l'analyse. Essayez une photo bien éclairée où l'on voit tout votre corps.",
-      });
-      setStep(1);
-      return;
-    }
+    // Ratios morphologiques. Volontairement NON bloquant : une photo peut
+    // très bien servir à l'essayage virtuel sans permettre de mesurer la
+    // carrure. On prévient le client, on ne le renvoie pas à l'étape 1.
+    const m = getBodyRatios(detectedResults);
     setMeasurements(m);
 
-    const scoreVal = calculateScoreFromMeasurements(m);
+    const hint = photoQualityHint(m);
+    if (hint) setPageMessage({ type: 'info', text: hint });
+
+    const scoreVal = m ? calculateScoreFromMeasurements(m) : null;
     setScore(scoreVal);
-    const sizeVal = recommendSizeFromMeasurements(m);
-    setRecommendedSize(sizeVal);
+
+    // La taille n'est plus devinée ici à partir de la largeur d'épaules :
+    // c'est le moteur du serveur qui décide, à partir des ratios + taille + poids.
+    let sizeVal = recommendedSize;
+    if (heightCm && weightKg) {
+      const fit = await loadFit(m);
+      if (fit) sizeVal = fit.recommendedSize;
+    }
 
     // Sauvegarder l'essai
     await saveTryon(detectedLandmarks, scoreVal, sizeVal);
@@ -588,10 +646,14 @@ const handleAITryon = async () => {
   const colorOptions = colors.length ? colors : ['#1a1410'];
 
   // ── Moteur de taille : taille + poids + morphologie -> verdict par taille ──
-  const loadFit = async () => {
+  // ratiosOverride : permet à analyzePhoto d'appeler loadFit AVANT que le
+  // setState de `measurements` ne soit répercuté (React ne l'applique pas
+  // de façon synchrone — sans cela le premier calcul ignorerait la photo).
+  const loadFit = async (ratiosOverride) => {
+    const m = ratiosOverride !== undefined ? ratiosOverride : measurements;
     if (!heightCm || !weightKg) {
       setFitError('Renseignez votre taille et votre poids.');
-      return;
+      return null;
     }
     setFitLoading(true);
     setFitError(null);
@@ -606,14 +668,13 @@ body: JSON.stringify({
           weightKg: Number(weightKg),
           morphology,
           productId: product?.id,
-          // Ratios mesurés par MediaPipe sur la photo (sans unité).
+          // Ratios 3D mesurés par MediaPipe sur la photo (sans unité).
           // Convertis en cm côté serveur grâce à la taille saisie.
-          shoulderRatio: measurements
-            ? measurements.shoulderWidthNorm / measurements.heightNorm
-            : undefined,
-          hipRatio: measurements
-            ? measurements.hipWidthNorm / measurements.heightNorm
-            : undefined,
+          // Absents si aucune photo n'a été analysée : le serveur retombe
+          // alors proprement sur l'estimation taille + poids.
+          shoulderRatio: m?.shoulderRatio,
+          hipRatio: m?.hipRatio,
+          photoQuality: m?.quality,
         }),
       });
       const json = await res.json();
@@ -622,8 +683,10 @@ body: JSON.stringify({
       setFitData(json.data);
       setRecommendedSize(json.data.recommendedSize);
       if (!selectedSize) setSelectedSize(json.data.recommendedSize);
+      return json.data;
     } catch (e) {
       setFitError(e.message);
+      return null;
     } finally {
       setFitLoading(false);
     }
@@ -1607,18 +1670,36 @@ body: JSON.stringify({
                     <option value="normale">Normale</option>
                     <option value="corpulent">Corpulent</option>
                   </select>
-                  <button onClick={loadFit} disabled={fitLoading}
+                  <button onClick={() => loadFit()} disabled={fitLoading}
                     style={{ flex: '1 1 100%', padding: '8px', borderRadius: '8px', border: 'none', background: T.blueDark, color: '#fff', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
                     {fitLoading ? 'Calcul…' : 'Trouver ma taille'}
                   </button>
                 </div>
 
+                {/* État de la photo : ce que le client gagne à en ajouter une */}
+                {measurements && measurements.quality !== 'bad' ? (
+                  <p style={{ fontSize: '11px', color: '#06D6A0', margin: '0 0 8px', fontWeight: 500 }}>
+                    📷 Votre photo est utilisée : carrure mesurée, taille affinée.
+                  </p>
+                ) : (
+                  <p style={{ fontSize: '11px', color: T.muted, margin: '0 0 8px', lineHeight: 1.4 }}>
+                    💡 Pour plus de précision, ajoutez une photo de vous en pied et de face :
+                    nous mesurons votre carrure réelle au lieu de l'estimer.
+                  </p>
+                )}
+
                 {fitError && <p style={{ color: T.red, fontSize: '11px', margin: '0 0 8px' }}>{fitError}</p>}
 
                 {fitData && (
-                  <p style={{ fontSize: '12px', color: '#06D6A0', fontWeight: 600, margin: '0 0 8px' }}>
-                    ✓ Taille {fitData.recommendedSize} recommandée ({fitData.confidence}% de confiance)
-                  </p>
+                  <>
+                    <p style={{ fontSize: '12px', color: '#06D6A0', fontWeight: 600, margin: '0 0 4px' }}>
+                      ✓ Taille {fitData.recommendedSize} recommandée ({fitData.confidence}% de confiance)
+                      {fitData.photoUsed ? ' · photo + taille + poids' : ' · taille + poids'}
+                    </p>
+                    {fitData.photoNote && (
+                      <p style={{ fontSize: '10px', color: T.muted, margin: '0 0 8px' }}>{fitData.photoNote}</p>
+                    )}
+                  </>
                 )}
 
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
