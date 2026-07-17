@@ -5,7 +5,19 @@ const productModel = require("../../models/v1/productModel");
 const paymentModel = require("../../models/v1/paymentModel");
 const notificationService = require("./notificationService");
 
-const DELIVERY_FEES = { std: 0, exp: 2000 };
+/**
+ * Frais de livraison — forfait unique, Douala uniquement.
+ *
+ * ⚠️ Doit rester égal à DELIVERY_FEE dans frontend/src/pages/checkout/Checkout.jsx.
+ * C'est le serveur qui fait foi : le montant affiché au client n'est jamais
+ * envoyé dans la requête, précisément pour qu'il ne puisse pas être manipulé.
+ *
+ * L'ancienne table { std: 0, exp: 2000 } facturait 0 FCFA de livraison :
+ * le frontend n'envoie aucun deliveryType, donc "std" s'appliquait toujours,
+ * alors que le récapitulatif annonçait 2 000 FCFA. Chaque commande était
+ * enregistrée 2 000 FCFA en dessous du montant accepté par le client.
+ */
+const DELIVERY_FEE = 2000;
 
 function generateOrderNumber() {
   const date   = Date.now().toString().slice(-6);
@@ -14,7 +26,9 @@ function generateOrderNumber() {
 }
 
 async function createOrderFromCart(userId, data) {
-  const cart = await cartModel.findActiveCartByUserId(userId);
+  // findActiveCartByUserId a été renommée findActiveCartByOwner quand le
+  // panier invité est arrivé : elle prend désormais { userId } ou { guestId }.
+  const cart = await cartModel.findActiveCartByOwner({ userId });
   if (!cart) throw new Error("Aucun panier actif trouvé");
 
   const items = await cartModel.getCartItems(cart.id);
@@ -22,8 +36,10 @@ async function createOrderFromCart(userId, data) {
 
   const cartSubtotal = items.reduce((sum, item) => sum + Number(item.subtotal), 0);
 
+  // deliveryType est conservé pour la colonne existante en base, mais il ne
+  // pilote plus le tarif : une seule ville desservie, un seul forfait.
   const deliveryType = ["std", "exp"].includes(data.deliveryType) ? data.deliveryType : "std";
-  const deliveryFee  = DELIVERY_FEES[deliveryType];
+  const deliveryFee  = DELIVERY_FEE;
 
   // ✅ PLUS DE PROMO CODE
   const total = cartSubtotal + deliveryFee;
