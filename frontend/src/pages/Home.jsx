@@ -764,97 +764,109 @@ export default function Home() {
         </div>
 
         {/* Image hero droite */}
-          <div 
-            style={{ 
-              position: 'relative', 
-              overflow: 'hidden',
-              backgroundImage: "url('/Accueil.jpg')",
-              backgroundSize: 'cover',
-              backgroundPosition: 'center 25%', /* Ajusté à 25% vertical pour centrer le visage du modèle */
-              backgroundRepeat: 'no-repeat',
+        <div
+          style={{
+            position: 'relative',
+            overflow: 'hidden',
+            width: '100%',
+            height: '100%',
+          }}
+          aria-hidden="true"
+        >
+          {/* Vraie balise <img> + object-fit: cover : recadrage fiable et net,
+              quel que soit le ratio de l'écran — plus robuste qu'un
+              background-image en CSS inline. */}
+          <img
+            src="/Accueil.jpg"
+            alt=""
+            style={{
+              position: 'absolute',
+              inset: 0,
               width: '100%',
               height: '100%',
-              minHeight: '100%'
-            }} 
-            aria-hidden="true"
-          >
-            {/* Overlay subtil pour intégrer l'image en douceur */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(135deg, rgba(26,26,26,0.1) 0%, transparent 60%)',
-              }}
-              aria-hidden="true"
-            />
+              objectFit: 'cover',
+              objectPosition: 'center 22%', // ajuste ce % pour recentrer le visage si besoin
+            }}
+          />
 
-            {/* Badge IA flottant */}
+          {/* Fondu doux à gauche : fait disparaître la ligne de séparation
+              brutale entre le fond crème et la photo */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: `linear-gradient(90deg, ${T.cream} 0%, rgba(248,249,250,0) 12%)`,
+            }}
+            aria-hidden="true"
+          />
+
+          {/* Overlay diagonal existant, conservé pour la profondeur */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(135deg, rgba(26,26,26,0.1) 0%, transparent 60%)',
+            }}
+            aria-hidden="true"
+          />
+
+          {/* Léger voile en bas pour que le badge blanc reste bien lisible
+              même sur une zone claire de la photo */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to top, rgba(0,0,0,0.28) 0%, transparent 30%)',
+            }}
+            aria-hidden="true"
+          />
+
+          {/* Badge IA flottant — inchangé */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '40px',
+              left: '40px',
+              background: 'rgba(255,255,255,0.92)',
+              backdropFilter: 'blur(8px)',
+              borderRadius: '18px',
+              padding: '16px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              boxShadow: '0 18px 50px rgba(26,26,26,0.13)',
+            }}
+            role="img"
+            aria-label="Badge indiquant un score IA de 94% pour la compatibilité morphologique"
+          >
             <div
               style={{
-                position: 'absolute',
-                bottom: '40px',
-                left: '40px',
-                background: 'rgba(255,255,255,0.92)',
-                backdropFilter: 'blur(8px)', /* Effet flouté ultra-moderne */
-                borderRadius: '18px',
-                padding: '16px 20px',
+                width: '40px',
+                height: '40px',
+                background: T.blueLight,
+                borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
-                boxShadow: '0 18px 50px rgba(26,26,26,0.13)',
+                justifyContent: 'center',
+                fontSize: '18px',
               }}
-              role="img"
-              aria-label="Badge indiquant un score IA de 94% pour la compatibilité morphologique"
+              aria-hidden="true"
             >
-              <div
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  background: T.blueLight,
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '18px',
-                }}
-                aria-hidden="true"
-              >
-                <Sparkles size={20} style={{ color: T.blueDark }} />
+              <Sparkles size={20} style={{ color: T.blueDark }} />
+            </div>
+            <div>
+              <div style={{ fontSize: '11px', color: T.muted, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+                Score IA
               </div>
-              <div>
-                <div
-                  style={{
-                    fontSize: '11px',
-                    color: T.muted,
-                    letterSpacing: '1.5px',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Score IA
-                </div>
-                <div
-                  style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: '28px',
-                    fontWeight: 600,
-                    color: T.red,
-                    lineHeight: 1,
-                  }}
-                >
-                  94%
-                </div>
-                <div
-                  style={{
-                    fontSize: '11px',
-                    color: T.muted,
-                    marginTop: '2px',
-                  }}
-                >
-                  Compatibilité morphologique
-                </div>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: T.red, lineHeight: 1 }}>
+                94%
+              </div>
+              <div style={{ fontSize: '11px', color: T.muted, marginTop: '2px' }}>
+                Compatibilité morphologique
               </div>
             </div>
           </div>
+        </div>
       </section>
 
       {/* ── CATÉGORIES DYNAMIQUES ── */}

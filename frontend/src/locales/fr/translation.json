@@ -393,6 +393,8 @@
     "cart": "Panier",
     "closeMessage": "Fermer le message"
   },
+  "takePhoto": "Prendre une photo",
+  "importPhoto": "Importer une photo",
   "shareTitle": "Mon essayage — {{name}}",
   "header": {
     "tag": "Technologie IA",

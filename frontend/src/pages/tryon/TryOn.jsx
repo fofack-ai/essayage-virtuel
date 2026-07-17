@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { api, getImageUrl } from '../../services/api';
@@ -93,6 +94,7 @@ function recommendSizeFromMeasurements(m) {
 
 /* ── Composant principal ── */
 export default function TryOn() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const productId = searchParams.get('productId');
@@ -160,7 +162,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
         }
 
         if (!prod) {
-          alert('Aucun produit disponible pour l\'essayage');
+          alert(t('tryon.alerts.noProduct'));
           navigate('/catalogue');
           return;
         }
@@ -185,7 +187,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
 
       } catch (err) {
         console.error('Erreur chargement produit:', err);
-        alert('Produit introuvable');
+        alert(t('tryon.alerts.productNotFound'));
         navigate('/catalogue');
       } finally {
         setLoadingProduct(false);
@@ -193,7 +195,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
     }
 
     loadProduct();
-  }, [productId, navigate]);
+  }, [productId, navigate, t]);
 
   /* ── 2. Gestion de la photo ── */
   const handleFileUpload = (e) => {
@@ -227,7 +229,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
         initializePoseDetection(stream);
       }
     } catch (err) {
-      alert("Impossible d'accéder à la caméra : " + err.message);
+      alert(t('tryon.alerts.webcamError', { message: err.message }));
     }
   };
 
@@ -362,7 +364,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
     if (!detectedLandmarks) {
       setPageMessage({
         type: 'error',
-        text: "Nous n'avons pas reconnu de personne sur cette photo. Envoyez une photo de vous, de face et en entier, sur un fond dégagé.",
+        text: t('tryon.messages.noPersonDetected'),
       });
       setStep(1);
       return;
@@ -378,7 +380,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
     if (!m) {
       setPageMessage({
         type: 'error',
-        text: "La photo n'est pas assez nette pour l'analyse. Essayez une photo bien éclairée où l'on voit tout votre corps.",
+        text: t('tryon.messages.photoNotClear'),
       });
       setStep(1);
       return;
@@ -401,7 +403,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
     if (!user) {
       setPageMessage({
         type: 'info',
-        text: "Connectez-vous pour enregistrer votre essayage et le retrouver plus tard.",
+        text: t('tryon.messages.loginToSave'),
       });
       return;
     }
@@ -439,7 +441,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
       console.error('Erreur sauvegarde essai:', err);
       setPageMessage({
         type: 'error',
-        text: "Votre essayage n'a pas pu être enregistré. Vérifiez votre connexion et réessayez.",
+        text: t('tryon.messages.saveError'),
       });
     }
   };
@@ -469,10 +471,10 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
     const url = resultFullUrl();
     if (!url) return;
     if (navigator.share) {
-      try { await navigator.share({ title: `Mon essayage — ${product?.name}`, url }); } catch (_) {}
+      try { await navigator.share({ title: t('tryon.shareTitle', { name: product?.name }), url }); } catch (_) {}
     } else {
       navigator.clipboard?.writeText(url);
-      alert('Lien du rendu copié !');
+      alert(t('tryon.alerts.linkCopied'));
     }
   };
 
@@ -488,10 +490,10 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
         color: selectedColor,
         qty: 1,
       });
-      alert('Produit ajouté au panier !');
+      alert(t('tryon.alerts.addedToCart'));
       navigate('/cart');
     } catch (err) {
-      alert('Erreur lors de l\'ajout au panier.');
+      alert(t('tryon.alerts.addToCartError'));
     }
   };
 
@@ -555,7 +557,7 @@ const handleAITryon = async () => {
     const data = await response.json();
 
     if (!response.ok || data.success === false) {
-      throw new Error(data.message || 'Erreur inconnue');
+      throw new Error(data.message || t('tryon.errors.unknown'));
     }
 
     setAiResult(data.data);
@@ -577,15 +579,27 @@ const handleAITryon = async () => {
 
   /* ── Rendu ── */
   if (loadingProduct) {
-    return <LoadingPage message="Chargement de l'essayage..." />;
+    return <LoadingPage message={t('tryon.loading')} />;
   }
 
   if (!product) {
-    return <div style={{ paddingTop: '72px', textAlign: 'center' }}>Produit non disponible</div>;
+    return <div style={{ paddingTop: '72px', textAlign: 'center' }}>{t('tryon.productUnavailable')}</div>;
   }
 
   const sizeOptions = sizes.length ? sizes : ['XS', 'S', 'M', 'L', 'XL'];
   const colorOptions = colors.length ? colors : ['#1a1410'];
+
+  const stepperItems = [
+    { n: 1, label: t('tryon.stepper.step1') },
+    { n: 2, label: t('tryon.stepper.step2') },
+    { n: 3, label: t('tryon.stepper.step3') },
+  ];
+
+  const analysisSteps = [
+    t('tryon.step2.steps.bodyDetection'),
+    t('tryon.step2.steps.morphAnalysis'),
+    t('tryon.step2.steps.measurements'),
+  ];
 
   return (
     <div
@@ -1078,10 +1092,10 @@ const handleAITryon = async () => {
       <div className="tryon-mobile-header">
         <Link to="/" className="tryon-logo">TRY<span>ON</span></Link>
         <div className="tryon-header-actions">
-          <Link to="/notifications" aria-label="Notifications" style={{ position: 'relative' }}>
+          <Link to="/notifications" aria-label={t('tryon.aria.notifications')} style={{ position: 'relative' }}>
             🔔
           </Link>
-          <Link to="/cart" aria-label="Panier" style={{ position: 'relative' }}>
+          <Link to="/cart" aria-label={t('tryon.aria.cart')} style={{ position: 'relative' }}>
             🛒
             {/* Le badge du panier si tu veux l'afficher */}
           </Link>
@@ -1091,7 +1105,7 @@ const handleAITryon = async () => {
       {/* ─── CONTENU EN-DESSOUS (titre, description, stepper) ─── */}
       <div className="tryon-content-header" style={{ padding: '20px 16px', borderBottom: `1px solid ${T.border}`, background: '#fff' }}>
         <span style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '3px', textTransform: 'uppercase', color: T.blueDark }}>
-           Technologie IA
+           {t('tryon.header.tag')}
         </span>
         <h1 style={{
           fontFamily: "'Cormorant Garamond', serif",
@@ -1101,19 +1115,15 @@ const handleAITryon = async () => {
           marginTop: '8px',
           lineHeight: 1.1
         }}>
-          Cabine d'essayage <em style={{ fontStyle: 'italic', color: T.red }}>virtuelle</em>
+          {t('tryon.header.titleStart')}<em style={{ fontStyle: 'italic', color: T.red }}>{t('tryon.header.titleHighlight')}</em>
         </h1>
         <p style={{ color: T.muted, marginTop: '10px', fontSize: '14px', maxWidth: '480px', lineHeight: 1.7 }}>
-          Uploadez votre photo, notre IA analyse votre morphologie et vous propose la taille la plus adaptée.
+          {t('tryon.header.description')}
         </p>
 
         {/* Stepper */}
         <div className="tryon-stepper">
-          {[
-            { n: 1, label: 'Photo & Taille' },
-            { n: 2, label: 'Analyse' },
-            { n: 3, label: 'Résultats' }
-          ].map((s, i) => (
+          {stepperItems.map((s, i) => (
             <React.Fragment key={s.n}>
               <div className="tryon-step" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div className="tryon-step-circle" style={{
@@ -1177,7 +1187,7 @@ const handleAITryon = async () => {
                 background: 'none', border: 'none', cursor: 'pointer',
                 fontSize: '18px', color: T.muted, flexShrink: 0, lineHeight: 1,
               }}
-              aria-label="Fermer le message"
+              aria-label={t('tryon.aria.closeMessage')}
             >
               ×
             </button>
@@ -1189,9 +1199,9 @@ const handleAITryon = async () => {
             {/* Colonne gauche : upload photo/webcam */}
             <div>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', fontWeight: 500, marginBottom: '6px' }}>
-                1. Votre photo
+                {t('tryon.step1.photoTitle')}
               </h2>
-              <p style={{ fontSize: '12px', color: T.muted, marginBottom: '20px' }}>Glissez ou cliquez pour importer</p>
+              <p style={{ fontSize: '12px', color: T.muted, marginBottom: '20px' }}>{t('tryon.step1.photoHint')}</p>
 
               <div
                 className="tryon-dropzone"
@@ -1259,7 +1269,7 @@ const handleAITryon = async () => {
                       fontSize: '11px',
                       fontWeight: 600,
                     }}>
-                     <CameraIcon size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> Caméra active
+                     <CameraIcon size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> {t('tryon.step1.webcamActive')}
                     </div>
                   </div>
                 ) : photoPreview ? (
@@ -1298,7 +1308,7 @@ const handleAITryon = async () => {
                       fontSize: '11px',
                       fontWeight: 600,
                     }}>
-                      ✓ Photo prête
+                      ✓ {t('tryon.step1.photoReady')}
                     </div>
                   </>
                 ) : (
@@ -1319,10 +1329,10 @@ const handleAITryon = async () => {
                         <line x1="12" y1="3" x2="12" y2="15"/>
                       </svg>
                     </div>
-                    <p style={{ fontWeight: 500, color: T.ink, marginBottom: '6px' }}>Glissez votre photo ici</p>
-                    <p style={{ fontSize: '12px', color: T.muted, marginBottom: '16px' }}>ou cliquez pour parcourir</p>
+                    <p style={{ fontWeight: 500, color: T.ink, marginBottom: '6px' }}>{t('tryon.step1.dropzoneTitle')}</p>
+                    <p style={{ fontSize: '12px', color: T.muted, marginBottom: '16px' }}>{t('tryon.step1.dropzoneSubtitle')}</p>
                     <span style={{ fontSize: '11px', color: T.blueDark, background: T.blueLight, padding: '4px 12px', borderRadius: '100px' }}>
-                      JPG, PNG — Max 10 Mo
+                      {t('tryon.step1.fileHint')}
                     </span>
                   </div>
                 )}
@@ -1355,7 +1365,7 @@ const handleAITryon = async () => {
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
                     </svg>
-                    Prendre une photo
+                    {t('tryon.step1.takePhoto')}
                   </button>
                 )}
                 {!useWebcam && !photo && (
@@ -1380,7 +1390,7 @@ const handleAITryon = async () => {
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                     </svg>
-                    Importer une photo
+                    {t('tryon.step1.importPhoto')}
                   </button>
                 )}
                 {(useWebcam || photo) && (
@@ -1398,7 +1408,7 @@ const handleAITryon = async () => {
                       cursor: 'pointer',
                     }}
                   >
-                    Réinitialiser
+                    {t('tryon.step1.reset')}
                   </button>
                 )}
               </div>
@@ -1407,9 +1417,9 @@ const handleAITryon = async () => {
             {/* Colonne centrale : aperçu du rendu */}
             <div>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', fontWeight: 500, marginBottom: '6px' }}>
-                2. Aperçu du rendu
+                {t('tryon.step1.previewTitle')}
               </h2>
-              <p style={{ fontSize: '12px', color: T.muted, marginBottom: '20px' }}>Prévisualisation de l'essayage virtuel</p>
+              <p style={{ fontSize: '12px', color: T.muted, marginBottom: '20px' }}>{t('tryon.step1.previewHint')}</p>
 
               <div className="tryon-preview" style={{
                 borderRadius: '18px',
@@ -1427,7 +1437,7 @@ const handleAITryon = async () => {
                   <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                     <img
                       src={resolveImageUrl(aiResult.resultImageUrl)}
-                      alt="Rendu de l'essayage"
+                      alt={t('tryon.step3.aiRender')}
                       style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#EEF1F5' }}
                       
                     />
@@ -1447,7 +1457,7 @@ const handleAITryon = async () => {
                       <Shirt size={22} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: '12px', fontWeight: 600, color: T.ink }}>{product.name}</div>
-                        <div style={{ fontSize: '11px', color: T.muted }}>Taille {selectedSize} · Rendu IA</div>
+                        <div style={{ fontSize: '11px', color: T.muted }}>{t('tryon.step1.renderInfo', { size: selectedSize })}</div>
                       </div>
                       <div style={{
                         background: `linear-gradient(135deg, ${T.red}, ${T.redDark})`,
@@ -1489,12 +1499,12 @@ const handleAITryon = async () => {
                       </div>
                     )}
                     <p style={{ fontWeight: 500, color: T.ink, fontSize: '14px', marginBottom: '4px' }}>
-                      {product?.name || 'Votre vêtement'}
+                      {product?.name || t('tryon.step1.defaultGarment')}
                     </p>
                     <p style={{ fontSize: '12px', color: 'rgba(106,111,120,0.7)' }}>
                       {photoPreview
-                        ? 'Photo prête — lancez la génération pour voir le rendu'
-                        : 'Ajoutez votre photo pour le voir sur vous'}
+                        ? t('tryon.step1.readyToGenerate')
+                        : t('tryon.step1.addPhotoPrompt')}
                     </p>
                   </div>
                 )}
@@ -1511,7 +1521,7 @@ const handleAITryon = async () => {
             }}>
               <div style={{ padding: '20px', borderBottom: `1px solid ${T.border}` }}>
                 <div style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '12px' }}>
-                  Article sélectionné
+                  {t('tryon.step1.selectedItem')}
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                   <div style={{ minWidth: 0 }}>
@@ -1538,8 +1548,8 @@ const handleAITryon = async () => {
                   display: 'flex',
                   justifyContent: 'space-between',
                 }}>
-                  <span>3. Votre taille</span>
-                  <span style={{ fontSize: '10px', color: T.blueDark, textTransform: 'none', letterSpacing: 0, cursor: 'pointer', fontWeight: 500 }}>Guide →</span>
+                  <span>{t('tryon.step1.sizeTitle')}</span>
+                  <span style={{ fontSize: '10px', color: T.blueDark, textTransform: 'none', letterSpacing: 0, cursor: 'pointer', fontWeight: 500 }}>{t('tryon.step1.sizeGuideLink')}</span>
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                   {sizeOptions.map(s => (
@@ -1566,7 +1576,7 @@ const handleAITryon = async () => {
               {/* Couleur */}
               <div style={{ padding: '20px', borderBottom: `1px solid ${T.border}` }}>
                 <div style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '12px' }}>
-                  4. Votre couleur
+                  {t('tryon.step1.colorTitle')}
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                   {colorOptions.map((color, idx) => (
@@ -1604,10 +1614,10 @@ const handleAITryon = async () => {
               <div style={{ padding: '16px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFBFC' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {[
-                    { label: 'Photo uploadée', done: !!(photoPreview || useWebcam) },
-                    { label: 'Article sélectionné', done: true },
-                    { label: 'Taille choisie', done: !!selectedSize },
-                    { label: 'Couleur choisie', done: !!selectedColor },
+                    { label: t('tryon.step1.checklist.photoUploaded'), done: !!(photoPreview || useWebcam) },
+                    { label: t('tryon.step1.checklist.itemSelected'), done: true },
+                    { label: t('tryon.step1.checklist.sizeChosen'), done: !!selectedSize },
+                    { label: t('tryon.step1.checklist.colorChosen'), done: !!selectedColor },
                   ].map((item, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}>
                       <div style={{
@@ -1663,7 +1673,7 @@ const handleAITryon = async () => {
                     gap: '8px',
                   }}
                 >
-                  {!photoPreview && !useWebcam ? "Uploadez une photo d'abord" : "Lancer l'essayage IA"}
+                  {!photoPreview && !useWebcam ? t('tryon.step1.launchDisabled') : t('tryon.step1.launch')}
                 </button>
               </div>
             </div>
@@ -1689,11 +1699,11 @@ const handleAITryon = async () => {
               </svg>
             </div>
             <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 300, marginBottom: '12px' }}>
-              Analyse en cours…
+              {t('tryon.step2.title')}
             </h2>
-            <p style={{ color: T.muted, marginBottom: '8px' }}>Notre IA analyse votre morphologie</p>
+            <p style={{ color: T.muted, marginBottom: '8px' }}>{t('tryon.step2.subtitle')}</p>
             <p style={{ fontSize: '13px', color: T.blueDark, fontWeight: 500, marginBottom: '36px' }}>
-              {product.name} · Taille {selectedSize}
+              {t('tryon.step2.productSize', { name: product.name, size: selectedSize })}
             </p>
             <div style={{ background: T.blueLight, borderRadius: '100px', height: '8px', marginBottom: '12px', overflow: 'hidden' }}>
               <div style={{
@@ -1706,7 +1716,7 @@ const handleAITryon = async () => {
             </div>
             <div style={{ fontSize: '13px', color: T.red, marginBottom: '40px', fontWeight: 600 }}>{analysisProgress}%</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
-              {['Détection du corps', 'Analyse morphologique', 'Calcul des mensurations'].map((label, i, arr) => (
+              {analysisSteps.map((label, i, arr) => (
                 <div key={i} style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -1757,14 +1767,14 @@ const handleAITryon = async () => {
                   {/* Votre photo */}
                   <div style={{ borderRadius: '18px', overflow: 'hidden', position: 'relative' }}>
                     {photoPreview ? (
-                      <img src={photoPreview} alt="Votre photo" className="tryon-result-media" style={{ width: '100%', objectFit: 'contain', background: '#EEF1F5', display: 'block' }} />
+                      <img src={photoPreview} alt={t('tryon.step3.yourPhoto')} className="tryon-result-media" style={{ width: '100%', objectFit: 'contain', background: '#EEF1F5', display: 'block' }} />
                     ) : (
                       <div className="tryon-result-media" style={{ background: T.blueLight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <User size={64} strokeWidth={1.2} />
                       </div>
                     )}
                     <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(26,26,26,0.7)', color: '#fff', fontSize: '10px', fontWeight: 600, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.5px' }}>
-                      VOTRE PHOTO
+                      {t('tryon.step3.yourPhoto')}
                     </div>
                   </div>
 
@@ -1773,25 +1783,25 @@ const handleAITryon = async () => {
                     {aiGenerating ? (
                       <div className="tryon-result-media" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '16px', textAlign: 'center' }}>
                         <div style={{ width: '44px', height: '44px', borderRadius: '50%', border: `3px solid rgba(53,92,134,0.2)`, borderTopColor: T.blueDark, animation: 'spin 1s linear infinite' }} />
-                        <p style={{ color: T.muted, fontSize: '13px', margin: 0 }}>Génération en cours…<br />(1-2 min)</p>
+                        <p style={{ color: T.muted, fontSize: '13px', margin: 0 }}>{t('tryon.step3.generating')}<br />{t('tryon.step3.generatingTime')}</p>
                       </div>
                     ) : aiResult && aiResult.resultImageUrl ? (
                       <>
                         <img
                           src={resolveImageUrl(aiResult.resultImageUrl)}
-                          alt="Résultat de l'essayage"
+                          alt={t('tryon.step3.aiRender')}
                           className="tryon-result-media"
                           style={{ width: '100%', objectFit: 'contain', background: '#EEF1F5', display: 'block' }}
                           
                         />
                         <div style={{ position: 'absolute', top: '12px', left: '12px', background: T.blueDark, color: '#fff', fontSize: '10px', fontWeight: 600, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.5px' }}>
-                           RENDU IA
+                           {t('tryon.step3.aiRender')}
                         </div>
                         {/* Boutons télécharger + partager (discrets, en haut à droite) */}
                         <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px' }}>
                           <button
                             onClick={handleDownload}
-                            title="Télécharger"
+                            title={t('tryon.step3.download')}
                             style={{ width: '34px', height: '34px', borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
                           >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={T.blueDark} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1800,7 +1810,7 @@ const handleAITryon = async () => {
                           </button>
                           <button
                             onClick={handleShareResult}
-                            title="Partager"
+                            title={t('tryon.step3.share')}
                             style={{ width: '34px', height: '34px', borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
                           >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={T.blueDark} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1811,7 +1821,7 @@ const handleAITryon = async () => {
                       </>
                     ) : (
                       <div className="tryon-result-media" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.muted, fontSize: '13px', textAlign: 'center', padding: '16px' }}>
-                        Le rendu apparaîtra ici
+                        {t('tryon.step3.renderPlaceholder')}
                       </div>
                     )}
                   </div>
@@ -1823,7 +1833,7 @@ const handleAITryon = async () => {
               <div className="tryon-details-card" style={{ background: T.white, borderRadius: '24px', border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 18px 50px rgba(26,26,26,0.08)' }}>
                 <div style={{ padding: '24px', borderBottom: `1px solid ${T.border}` }}>
                   <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>
-                    Article essayé
+                    {t('tryon.step3.itemTried')}
                   </div>
                   <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                     {product?.image ? (
@@ -1867,7 +1877,7 @@ const handleAITryon = async () => {
                 {/* Taille recommandée */}
                 <div style={{ padding: '24px', borderBottom: `1px solid ${T.border}` }}>
                   <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: T.muted, marginBottom: '16px' }}>
-                    Taille recommandée
+                    {t('tryon.step3.recommendedSize')}
                   </div>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     {sizeOptions.map(s => (
@@ -1891,7 +1901,7 @@ const handleAITryon = async () => {
                   </div>
                   {recommendedSize && (
                     <div style={{ marginTop: '10px', fontSize: '12px', color: '#06D6A0', fontWeight: 500 }}>
-                      ✓ Taille {recommendedSize} recommandée par l'IA
+                      ✓ {t('tryon.step3.recommendedByAI', { size: recommendedSize })}
                     </div>
                   )}
                 </div>
@@ -1900,10 +1910,10 @@ const handleAITryon = async () => {
                 {aiError && !aiGenerating && (
                   <div className="tryon-error-box" style={{ padding: '20px 24px', borderBottom: `1px solid ${T.border}` }}>
                     <div style={{ padding: '14px 16px', borderRadius: '10px', background: 'rgba(192,57,43,0.07)', border: `1px solid rgba(192,57,43,0.2)` }}>
-                      <p style={{ color: T.red, fontSize: '13px', margin: '0 0 8px', fontWeight: 500 }}>⚠ Génération échouée</p>
+                      <p style={{ color: T.red, fontSize: '13px', margin: '0 0 8px', fontWeight: 500 }}>⚠ {t('tryon.step3.generationFailed')}</p>
                       <p style={{ color: T.muted, fontSize: '12px', margin: 0 }}>{aiError}</p>
                       <button onClick={handleAITryon} style={{ marginTop: '10px', background: 'transparent', border: `1px solid ${T.red}`, color: T.red, borderRadius: '8px', padding: '6px 14px', fontSize: '12px', cursor: 'pointer' }}>
-                        Réessayer
+                        {t('tryon.step3.retry')}
                       </button>
                     </div>
                   </div>
@@ -1928,7 +1938,7 @@ const handleAITryon = async () => {
                       boxShadow: '0 10px 20px rgba(192,57,43,0.25)',
                     }}
                   >
-                    Ajouter au panier — {parseFloat(product.price).toLocaleString()} FCFA
+                    {t('tryon.step3.addToCart')} — {parseFloat(product.price).toLocaleString()} FCFA
                   </button>
                   <Link
                     to={`/product/${product.id}`}
@@ -1946,7 +1956,7 @@ const handleAITryon = async () => {
                       textDecoration: 'none',
                     }}
                   >
-                    Voir la fiche produit
+                    {t('tryon.step3.viewProduct')}
                   </Link>
                 </div>
 

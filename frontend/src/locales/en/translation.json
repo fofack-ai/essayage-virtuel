@@ -394,6 +394,8 @@
     "closeMessage": "Close message"
   },
   "shareTitle": "My try-on — {{name}}",
+  "takePhoto": "Take a photo",
+  "importPhoto": "Upload a photo",
   "header": {
     "tag": "AI Technology",
     "titleStart": "Virtual fitting ",
