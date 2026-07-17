@@ -176,6 +176,7 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
   const [tryonId, setTryonId] = useState(null);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [measurements, setMeasurements] = useState(null);
+  const [measuring, setMeasuring] = useState(false);
 
 
   // ── Moteur de recommandation de taille ──
@@ -247,6 +248,68 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
   }, [productId, navigate]);
 
   /* ── 2. Gestion de la photo ── */
+  /**
+   * Mesure la morphologie sur une image, indépendamment de l'essayage IA.
+   *
+   * Pourquoi ici et pas dans le flux CatVTON : la carrure se lit en ~1 s avec
+   * MediaPipe, la génération d'image prend ~30 s et peut échouer. Les deux
+   * n'ont aucune raison d'être couplés — le client doit connaître sa taille
+   * même si le rendu IA tombe en panne.
+   */
+  const measurePhoto = useCallback(async (imageSrc) => {
+    setMeasuring(true);
+    try {
+      const img = new Image();
+      img.src = imageSrc;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error('Image illisible'));
+      });
+
+      const pose = new Pose({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+      });
+      pose.setOptions({
+        modelComplexity: 1,
+        smoothLandmarks: false, // photo fixe : rien à lisser d'une frame à l'autre
+        minDetectionConfidence: 0.5,
+      });
+
+      let results = null;
+      pose.onResults((r) => {
+        if (r.poseLandmarks) results = r;
+      });
+      await pose.send({ image: img });
+
+      if (!results) {
+        setMeasurements(null);
+        setPageMessage({
+          type: 'info',
+          text: "Nous n'avons pas reconnu de personne sur cette photo : la taille sera estimée à partir de votre taille et de votre poids.",
+        });
+        return null;
+      }
+
+      const m = getBodyRatios(results);
+      setMeasurements(m);
+      setPoseLandmarks(results.poseLandmarks);
+
+      const hint = photoQualityHint(m);
+      if (hint) setPageMessage({ type: 'info', text: hint });
+
+      // Si taille et poids sont déjà saisis, on rafraîchit la reco sans
+      // que le client ait à recliquer : la photo vient de tout changer.
+      if (m && m.quality !== 'bad' && heightCm && weightKg) await loadFit(m);
+      return m;
+    } catch (err) {
+      setMeasurements(null);
+      return null;
+    } finally {
+      setMeasuring(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [heightCm, weightKg, morphology, product]);
+
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -257,7 +320,9 @@ const [pageMessage, setPageMessage]   = useState(null); // { type: 'error'|'info
     setUseWebcam(false);
     setWebcamActive(false);
     setPoseLandmarks(null);
+    setMeasurements(null);
     setStep(1);
+    measurePhoto(previewUrl);
   };
 
   /* ── 3. Webcam ── */
@@ -1670,14 +1735,18 @@ body: JSON.stringify({
                     <option value="normale">Normale</option>
                     <option value="corpulent">Corpulent</option>
                   </select>
-                  <button onClick={() => loadFit()} disabled={fitLoading}
+                  <button onClick={() => loadFit()} disabled={fitLoading || measuring}
                     style={{ flex: '1 1 100%', padding: '8px', borderRadius: '8px', border: 'none', background: T.blueDark, color: '#fff', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
                     {fitLoading ? 'Calcul…' : 'Trouver ma taille'}
                   </button>
                 </div>
 
                 {/* État de la photo : ce que le client gagne à en ajouter une */}
-                {measurements && measurements.quality !== 'bad' ? (
+                {measuring ? (
+                  <p style={{ fontSize: '11px', color: T.blueDark, margin: '0 0 8px', fontWeight: 500 }}>
+                    ⏳ Lecture de votre morphologie sur la photo…
+                  </p>
+                ) : measurements && measurements.quality !== 'bad' ? (
                   <p style={{ fontSize: '11px', color: '#06D6A0', margin: '0 0 8px', fontWeight: 500 }}>
                     📷 Votre photo est utilisée : carrure mesurée, taille affinée.
                   </p>
