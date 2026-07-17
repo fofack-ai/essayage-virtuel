@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
+import { QUARTIERS_DOUALA, normalizeQuartier } from '../../data/quartiersDouala';
 
 /* Logos officiels — à placer dans src/assets/logos/ */
 import orangeLogo from '../../assets/logos/orange-money.png';
@@ -106,6 +107,151 @@ function CitySelect({ value, onChange, error = '' }) {
       {error && (
         <p style={{ color: '#E53E3E', fontSize: 11, margin: '5px 0 0', fontStyle: 'italic' }}>
           {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Champ quartier : combobox, pas <select>.
+ *
+ * Au clic, la liste complète s'ouvre ; à la frappe, elle se filtre. Mais la
+ * saisie libre reste TOUJOURS acceptée : aucune liste de quartiers de Douala
+ * n'est complète, et un client habitant un lieu-dit non répertorié ne doit
+ * jamais se retrouver bloqué à l'étape adresse d'une commande.
+ */
+function QuartierSelect({ value, onChange, error = '' }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  const boxRef = useRef(null);
+  const listRef = useRef(null);
+
+  // Fermeture au clic extérieur : sans ça la liste flotte au-dessus du reste
+  // du formulaire et masque les moyens de paiement.
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e) => {
+      if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [open]);
+
+  const results = useMemo(() => {
+    const q = normalizeQuartier(value);
+    // Champ vide, ou quartier déjà choisi exactement : on montre TOUT, sinon
+    // le client qui vient de choisir « Akwa » ne verrait plus qu'une ligne
+    // et ne pourrait plus changer d'avis sans effacer sa saisie.
+    if (!q || QUARTIERS_DOUALA.some((x) => normalizeQuartier(x) === q)) {
+      return QUARTIERS_DOUALA;
+    }
+    return QUARTIERS_DOUALA.filter((x) => normalizeQuartier(x).includes(q));
+  }, [value]);
+
+  const choose = (q) => {
+    onChange(q);
+    setOpen(false);
+    setActive(-1);
+  };
+
+  const onKeyDown = (e) => {
+    if (!open && (e.key === 'ArrowDown' || e.key === 'Enter')) {
+      setOpen(true);
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActive((i) => Math.min(i + 1, results.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActive((i) => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter' && active >= 0 && results[active]) {
+      e.preventDefault();
+      choose(results[active]);
+    } else if (e.key === 'Escape') {
+      setOpen(false);
+      setActive(-1);
+    }
+  };
+
+  return (
+    <div style={{ marginBottom: 18, position: 'relative' }} ref={boxRef}>
+      <label style={LABEL_STYLE}>{t('checkout.step1.neighborhoodLabel')}</label>
+      <input
+        type="text"
+        role="combobox"
+        aria-expanded={open}
+        aria-autocomplete="list"
+        autoComplete="off"
+        value={value}
+        placeholder={t('checkout.step1.neighborhoodPlaceholder')}
+        onChange={(e) => { onChange(e.target.value); setOpen(true); setActive(-1); }}
+        onFocus={(e) => { setOpen(true); e.target.style.borderColor = '#355C86'; }}
+        onBlur={(e) => (e.target.style.borderColor = error ? '#E53E3E' : 'rgba(26,26,26,.12)')}
+        onKeyDown={onKeyDown}
+        style={{
+          width: '100%', boxSizing: 'border-box',
+          padding: '13px 16px', paddingRight: 36,
+          border: `1.5px solid ${error ? '#E53E3E' : 'rgba(26,26,26,.12)'}`,
+          borderRadius: 10, fontSize: 14,
+          background: '#fff', outline: 'none', color: '#1A1A1A',
+          transition: 'border-color .15s',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236A6F78' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'right 14px center',
+        }}
+      />
+
+      {open && (
+        <ul
+          ref={listRef}
+          role="listbox"
+          style={{
+            position: 'absolute', zIndex: 30, top: '100%', left: 0, right: 0,
+            margin: '4px 0 0', padding: 4, listStyle: 'none',
+            maxHeight: 240, overflowY: 'auto',
+            background: '#fff', border: '1.5px solid rgba(26,26,26,.12)',
+            borderRadius: 10, boxShadow: '0 12px 28px rgba(26,26,26,.12)',
+          }}
+        >
+          {results.length === 0 ? (
+            <li style={{ padding: '10px 12px', fontSize: 12.5, color: '#6A6F78', lineHeight: 1.5 }}>
+              {t('checkout.neighborhood.noMatch', { value })}
+            </li>
+          ) : (
+            results.map((q, i) => (
+              <li
+                key={q}
+                role="option"
+                aria-selected={normalizeQuartier(q) === normalizeQuartier(value)}
+                // onMouseDown et non onClick : le blur de l'input se déclenche
+                // avant le click et refermerait la liste avant la sélection.
+                onMouseDown={(e) => { e.preventDefault(); choose(q); }}
+                onMouseEnter={() => setActive(i)}
+                ref={(el) => { if (el && i === active) el.scrollIntoView({ block: 'nearest' }); }}
+                style={{
+                  padding: '9px 12px', borderRadius: 7, fontSize: 14, cursor: 'pointer',
+                  background: i === active ? '#EEF2F7' : 'transparent',
+                  color: '#1A1A1A',
+                  fontWeight: normalizeQuartier(q) === normalizeQuartier(value) ? 600 : 400,
+                }}
+              >
+                {q}
+              </li>
+            ))
+          )}
+        </ul>
+      )}
+
+      {error ? (
+        <p style={{ color: '#E53E3E', fontSize: 11, margin: '5px 0 0', fontStyle: 'italic' }}>
+          {error}
+        </p>
+      ) : (
+        <p style={{ fontSize: 11.5, color: '#6A6F78', margin: '5px 0 0' }}>
+          {t('checkout.neighborhood.hint')}
         </p>
       )}
     </div>
@@ -438,7 +584,7 @@ export default function Checkout() {
 
                 <div className="co-row2">
                   <CitySelect value={form.ville} onChange={v => setField('ville', v)} error={errors.ville} />
-                  <Field label={t('checkout.step1.neighborhoodLabel')} value={form.quartier} onChange={v => setField('quartier', v)} placeholder={t('checkout.step1.neighborhoodPlaceholder')} error={errors.quartier} />
+                  <QuartierSelect value={form.quartier} onChange={v => setField('quartier', v)} error={errors.quartier} />
                 </div>
 
                 <Field
