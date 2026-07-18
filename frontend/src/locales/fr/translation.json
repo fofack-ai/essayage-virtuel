@@ -1,426 +1,426 @@
 {
   "navbar": {
-    "home": "Home",
+    "home": "Accueil",
     "catalogue": "Catalogue",
-    "account": "User account",
+    "account": "Mon compte",
     "notifications": "Notifications",
-    "settings": "Settings",
-    "myOrders": "My orders",
-    "logout": "Log out"
+    "settings": "Paramètres",
+    "myOrders": "Mes commandes",
+    "logout": "Déconnexion"
   },
   "footer": {
-    "description": "E-commerce platform with a virtual fitting room in Cameroon. Built under the TryOn brand.",
+    "description": "Plateforme de vente en ligne avec cabine d'essayage virtuelle au Cameroun. Développée sous la marque TryOn.",
     "shop": {
-      "title": "Shop",
-      "new": "New arrivals",
-      "women": "Women",
-      "men": "Men",
-      "accessories": "Accessories",
-      "promotions": "Deals"
+      "title": "Boutique",
+      "new": "Nouveautés",
+      "women": "Femme",
+      "men": "Homme",
+      "accessories": "Accessoires",
+      "promotions": "Promotions"
     },
     "services": {
       "title": "Services",
-      "virtualTryOn": "Virtual Try-On",
-      "sizeGuide": "Size guide",
-      "shipping": "Shipping",
-      "returns": "Returns"
+      "virtualTryOn": "Essayage virtuel",
+      "sizeGuide": "Guide des tailles",
+      "shipping": "Livraison",
+      "returns": "Retours"
     },
     "contact": {
       "title": "Contact",
-      "location": "Douala, Cameroon"
+      "location": "Douala, Cameroun"
     },
-    "copyright": "© 2026 CFPD TryOn — African fashion app and virtual fitting room. All rights reserved.",
-    "privacyPolicy": "Privacy policy",
-    "terms": "Terms & conditions"
+    "copyright": "© 2026 CFPD TryOn — Mode africaine et cabine d'essayage virtuelle. Tous droits réservés.",
+    "privacyPolicy": "Politique de confidentialité",
+    "terms": "Conditions générales"
   },
   "home": {
     "states": {
-      "loading": "Loading...",
-      "error": "Error: {{message}}"
+      "loading": "Chargement…",
+      "error": "Erreur : {{message}}"
     },
     "hero": {
-      "badge": "AI-powered virtual try-on",
-      "titleLine1": "African fashion,",
-      "titleHighlight": "reinvented",
-      "titleLine2": "for you",
-      "description": "Virtually try on wax, bogolan and ankara outfits with our AI fitting room. Order with confidence.",
-      "ctaTryOn": "Try it now",
-      "ctaTryOnAria": "Try the virtual fitting room",
-      "ctaCatalogue": "View catalogue",
-      "ctaCatalogueAria": "View the product catalogue",
-      "statOutfits": "Outfits available",
-      "statSatisfaction": "Customer satisfaction",
-      "statTryOns": "Try-ons completed",
-      "aiScoreLabel": "AI Score",
-      "aiScoreCompat": "Body-fit compatibility",
-      "aiScoreBadgeAria": "Badge showing a 94% AI score for body-fit compatibility"
+      "badge": "Essayage virtuel par IA",
+      "titleLine1": "La mode africaine,",
+      "titleHighlight": "réinventée",
+      "titleLine2": "pour vous",
+      "description": "Essayez virtuellement vos tenues en wax, bogolan et ankara grâce à notre cabine d'essayage par IA. Commandez en toute confiance.",
+      "ctaTryOn": "Essayer maintenant",
+      "ctaTryOnAria": "Essayer la cabine d'essayage virtuelle",
+      "ctaCatalogue": "Voir le catalogue",
+      "ctaCatalogueAria": "Voir le catalogue de produits",
+      "statOutfits": "Tenues disponibles",
+      "statSatisfaction": "Clients satisfaits",
+      "statTryOns": "Essayages réalisés",
+      "aiScoreLabel": "Score IA",
+      "aiScoreCompat": "Compatibilité morphologique",
+      "aiScoreBadgeAria": "Badge indiquant un score IA de 94 % de compatibilité morphologique"
     },
     "categories": {
       "subheader": "Collections",
-      "titleLine": "Explore our",
-      "titleHighlight": "categories",
-      "discoverAria": "Discover the {{name}} category",
-      "discoverFallback": "Discover →",
-      "empty": "No categories available"
+      "titleLine": "Explorez nos",
+      "titleHighlight": "catégories",
+      "discoverAria": "Découvrir la catégorie {{name}}",
+      "discoverFallback": "Découvrir →",
+      "empty": "Aucune catégorie disponible"
     },
     "featured": {
-      "subtitle": "Selection",
-      "titleLine": "Featured",
-      "titleHighlight": "products",
-      "viewAll": "View all →",
-      "viewAllAria": "View all featured products",
-      "empty": "No products available"
+      "subtitle": "Sélection",
+      "titleLine": "Produits",
+      "titleHighlight": "en vedette",
+      "viewAll": "Tout voir →",
+      "viewAllAria": "Voir tous les produits en vedette",
+      "empty": "Aucun produit disponible"
     },
     "iaBanner": {
-      "badge": "AI Technology",
-      "titleLine1": "Your virtual",
-      "titleHighlight": "fitting room",
-      "description": "Upload your photo, our AI analyzes your body shape and suggests the sizes and cuts that fit you best.",
-      "cta": "Try it for free →",
-      "ctaAria": "Start the virtual try-on for free",
-      "step1Title": "Upload your photo",
-      "step1Desc": "A front-facing photo in fitted clothing is enough.",
-      "step2Title": "Body analysis",
-      "step2Desc": "Our AI detects your measurements in seconds.",
-      "step3Title": "Compatibility score",
-      "step3Desc": "Each garment gets a fit-compatibility score.",
-      "step4Title": "Order with confidence",
-      "step4Desc": "Size adjustments included automatically."
+      "badge": "Technologie IA",
+      "titleLine1": "Votre cabine",
+      "titleHighlight": "d'essayage virtuelle",
+      "description": "Ajoutez votre photo : notre IA analyse votre morphologie et vous suggère les tailles et les coupes qui vous vont le mieux.",
+      "cta": "Essayer gratuitement →",
+      "ctaAria": "Démarrer l'essayage virtuel gratuitement",
+      "step1Title": "Ajoutez votre photo",
+      "step1Desc": "Une photo de face, en vêtements ajustés, suffit.",
+      "step2Title": "Analyse morphologique",
+      "step2Desc": "Notre IA détecte vos mesures en quelques secondes.",
+      "step3Title": "Score de compatibilité",
+      "step3Desc": "Chaque vêtement reçoit un score d'adéquation à votre morphologie.",
+      "step4Title": "Commandez en confiance",
+      "step4Desc": "Les ajustements de taille sont pris en compte automatiquement."
     },
     "productCard": {
-      "tryOnButton": "Try it on virtually",
-      "tagNew": "New",
-      "tagOut": "Out of stock"
+      "tryOnButton": "Essayer virtuellement",
+      "tagNew": "Nouveau",
+      "tagOut": "Rupture de stock"
     }
   },
   "shop": {
     "filters": {
-      "all": "All",
-      "women": "Women",
-      "men": "Men",
-      "dresses": "Dresses",
-      "shirts": "Shirts",
-      "pants": "Pants",
-      "jackets": "Jackets"
+      "all": "Tout",
+      "women": "Femme",
+      "men": "Homme",
+      "dresses": "Robes",
+      "shirts": "Chemises",
+      "pants": "Pantalons",
+      "jackets": "Vestes"
     },
-    "loading": "Loading catalogue...",
+    "loading": "Chargement du catalogue…",
     "hero": {
-      "tag": "TryOn Collection",
-      "titleLine": "African",
-      "titleHighlight": "Boutique",
-      "description": "Discover our modern outfits and try them on virtually before you buy."
+      "tag": "Collection TryOn",
+      "titleLine": "Boutique",
+      "titleHighlight": "africaine",
+      "description": "Découvrez nos tenues modernes et essayez-les virtuellement avant d'acheter."
     },
     "header": {
-      "titleLine": "All",
-      "titleHighlight": "clothing"
+      "titleLine": "Tous les",
+      "titleHighlight": "vêtements"
     },
-    "empty": "No products available right now.",
-    "endOfCatalogue": "You've seen it all ✨",
+    "empty": "Aucun produit disponible pour le moment.",
+    "endOfCatalogue": "Vous avez tout vu ✨",
     "search": {
-      "placeholder": "Search for an outfit..."
+      "placeholder": "Rechercher une tenue…"
     },
     "sort": {
-      "popularity": "Popularity",
-      "priceAsc": "Price: low to high",
-      "priceDesc": "Price: high to low"
+      "popularity": "Popularité",
+      "priceAsc": "Prix : croissant",
+      "priceDesc": "Prix : décroissant"
     },
     "productCard": {
-      "view": "View",
-      "tryOn": "Try it on virtually"
+      "view": "Voir",
+      "tryOn": "Essayer virtuellement"
     }
   },
   "auth": {
-    "loading": "Loading...",
+    "loading": "Chargement…",
     "registrationClosed": {
-      "heroTitle": "Registrations",
-      "heroHighlight": "closed",
-      "tag1": "🔒 Secure",
-      "tag2": "📧 Contact support",
-      "tag3": "⏳ Try again later",
-      "title": "Registrations closed",
-      "desc1": "Registrations have been temporarily closed by the administrator.",
-      "desc2": "Please try again later or contact support.",
-      "loginButton": "Log in"
+      "heroTitle": "Inscriptions",
+      "heroHighlight": "fermées",
+      "tag1": "🔒 Sécurisé",
+      "tag2": "📧 Contacter le support",
+      "tag3": "⏳ Réessayer plus tard",
+      "title": "Inscriptions fermées",
+      "desc1": "Les inscriptions ont été temporairement fermées par l'administrateur.",
+      "desc2": "Veuillez réessayer plus tard ou contacter le support.",
+      "loginButton": "Se connecter"
     },
     "errors": {
-      "registrationClosed": "Registrations are temporarily closed.",
-      "passwordMismatch": "Passwords do not match."
+      "registrationClosed": "Les inscriptions sont temporairement fermées.",
+      "passwordMismatch": "Les mots de passe ne correspondent pas."
     },
     "messages": {
-      "otpSentAdmin": "An OTP code has been sent to your admin email.",
-      "otpSent": "An OTP code has been sent.",
-      "resetLinkSent": "A reset link has been sent to your email address.",
-      "passwordResetSuccess": "Password reset successfully."
+      "otpSentAdmin": "Un code OTP a été envoyé à votre adresse e-mail administrateur.",
+      "otpSent": "Un code OTP a été envoyé.",
+      "resetLinkSent": "Un lien de réinitialisation a été envoyé à votre adresse e-mail.",
+      "passwordResetSuccess": "Mot de passe réinitialisé avec succès."
     },
     "hero": {
       "login": {
-        "title": "Sign in to your",
+        "title": "Connectez-vous à votre",
         "highlight": "style",
-        "end": "and try before you buy.",
+        "end": "et essayez avant d'acheter.",
         "tags": [
-          "Customer account",
-          "Orders",
-          "Virtual try-ons",
-          "Favorites"
+          "Compte client",
+          "Commandes",
+          "Essayages virtuels",
+          "Favoris"
         ]
       },
       "register": {
-        "title": "Create your",
-        "highlight": "TryOn space",
-        "end": "and build your wardrobe.",
+        "title": "Créez votre",
+        "highlight": "espace TryOn",
+        "end": "et composez votre garde-robe.",
         "tags": [
-          "Body profile",
-          "Saved sizes",
-          "Private deals",
-          "Order tracking"
+          "Profil morphologique",
+          "Tailles enregistrées",
+          "Offres privées",
+          "Suivi des commandes"
         ]
       },
       "forgot": {
-        "title": "Regain access to your",
-        "highlight": "account",
-        "end": "safely and securely.",
+        "title": "Retrouvez l'accès à votre",
+        "highlight": "compte",
+        "end": "en toute sécurité.",
         "tags": [
-          "Secure email",
-          "New password",
-          "Quick return",
-          "Protected account"
+          "E-mail sécurisé",
+          "Nouveau mot de passe",
+          "Retour rapide",
+          "Compte protégé"
         ]
       },
       "reset": {
-        "title": "Choose a new",
-        "highlight": "password",
-        "end": "to secure your account.",
+        "title": "Choisissez un nouveau",
+        "highlight": "mot de passe",
+        "end": "pour sécuriser votre compte.",
         "tags": [
-          "Secure link",
-          "New password",
-          "Enhanced protection",
-          "Access restored"
+          "Lien sécurisé",
+          "Nouveau mot de passe",
+          "Protection renforcée",
+          "Accès rétabli"
         ]
       },
       "otp": {
-        "line1": "Verify your",
-        "highlight": "identity",
-        "line2": "administrator.",
+        "line1": "Vérifiez votre",
+        "highlight": "identité",
+        "line2": "administrateur.",
         "tags": [
-          "Enhanced security",
-          "OTP code",
-          "Admin access",
-          "Protected account"
+          "Sécurité renforcée",
+          "Code OTP",
+          "Accès administrateur",
+          "Compte protégé"
         ]
       }
     },
     "tabs": {
-      "login": "Sign in",
-      "register": "Create account"
+      "login": "Se connecter",
+      "register": "Créer un compte"
     },
     "login": {
-      "otpTitle": "OTP verification",
-      "title": "Welcome back",
-      "otpDesc": "Enter the verification code you received to access your admin space.",
-      "desc": "Access your personal space and find your try-ons.",
-      "otpLabel": "OTP code",
-      "otpPlaceholder": "E.g.: 123456",
-      "verifyButton": "Verify code",
-      "emailLabel": "Email",
-      "emailPlaceholder": "you@example.cm",
-      "passwordLabel": "Password",
+      "otpTitle": "Vérification OTP",
+      "title": "Bon retour parmi nous",
+      "otpDesc": "Saisissez le code de vérification reçu pour accéder à votre espace administrateur.",
+      "desc": "Accédez à votre espace personnel et retrouvez vos essayages.",
+      "otpLabel": "Code OTP",
+      "otpPlaceholder": "Ex. : 123456",
+      "verifyButton": "Vérifier le code",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "vous@exemple.cm",
+      "passwordLabel": "Mot de passe",
       "passwordPlaceholder": "••••••••",
-      "forgotLink": "Forgot password?",
-      "submitButton": "Sign in",
-      "orContinueWith": "or continue with",
-      "googleButton": "Continue with Google"
+      "forgotLink": "Mot de passe oublié ?",
+      "submitButton": "Se connecter",
+      "orContinueWith": "ou continuer avec",
+      "googleButton": "Continuer avec Google"
     },
     "register": {
-      "title": "Create account",
-      "desc": "Create your profile to save your sizes, favorites and orders.",
-      "firstNameLabel": "First name",
+      "title": "Créer un compte",
+      "desc": "Créez votre profil pour enregistrer vos tailles, vos favoris et vos commandes.",
+      "firstNameLabel": "Prénom",
       "firstNamePlaceholder": "Miranda",
-      "lastNameLabel": "Last name",
+      "lastNameLabel": "Nom",
       "lastNamePlaceholder": "Eko",
-      "emailLabel": "Email",
-      "emailPlaceholder": "you@example.cm",
-      "phoneLabel": "Phone",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "vous@exemple.cm",
+      "phoneLabel": "Téléphone",
       "phonePlaceholder": "+237 6XX XXX XXX",
-      "passwordLabel": "Password",
-      "passwordPlaceholder": "Minimum 6 characters",
-      "confirmLabel": "Confirm",
-      "confirmPlaceholder": "Repeat the password",
-      "submitButton": "Create my account"
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "Au moins 6 caractères",
+      "confirmLabel": "Confirmation",
+      "confirmPlaceholder": "Répétez le mot de passe",
+      "submitButton": "Créer mon compte"
     },
     "forgot": {
-      "title": "Password reset",
-      "desc": "Enter your email to receive instructions and set a new secure password.",
-      "emailLabel": "Email",
-      "emailPlaceholder": "you@example.cm",
-      "submitButton": "Request a new password",
-      "backLink": "← Back to sign in"
+      "title": "Réinitialisation du mot de passe",
+      "desc": "Saisissez votre e-mail pour recevoir les instructions et définir un nouveau mot de passe sécurisé.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "vous@exemple.cm",
+      "submitButton": "Demander un nouveau mot de passe",
+      "backLink": "← Retour à la connexion"
     },
     "reset": {
-      "title": "New password",
-      "desc": "Enter the token received by email, then choose your new password.",
-      "newPasswordLabel": "New password",
+      "title": "Nouveau mot de passe",
+      "desc": "Saisissez le jeton reçu par e-mail, puis choisissez votre nouveau mot de passe.",
+      "newPasswordLabel": "Nouveau mot de passe",
       "passwordPlaceholder": "********",
-      "confirmLabel": "Confirm",
-      "submitButton": "Reset",
-      "backLink": "← Back to sign in"
+      "confirmLabel": "Confirmation",
+      "submitButton": "Réinitialiser",
+      "backLink": "← Retour à la connexion"
     }
   },
   "cart": {
     "hero": {
-      "tag": "CFPD TryOn Cart",
-      "title": "Your selection",
-      "subtitle": "Finalize your items before checking out."
+      "tag": "Panier CFPD TryOn",
+      "title": "Votre sélection",
+      "subtitle": "Vérifiez vos articles avant de passer commande."
     },
     "empty": {
-      "title": "Your cart is empty",
-      "desc": "Add outfits from the catalogue to find them here.",
-      "cta": "Discover the shop"
+      "title": "Votre panier est vide",
+      "desc": "Ajoutez des tenues depuis le catalogue pour les retrouver ici.",
+      "cta": "Découvrir la boutique"
     },
     "item": {
       "categoryFallback": "TryOn",
-      "size": "Size: {{size}}",
-      "sizeFallback": "One size",
-      "color": "Color: {{color}}",
+      "size": "Taille : {{size}}",
+      "sizeFallback": "Taille unique",
+      "color": "Couleur : {{color}}",
       "colorFallback": "Standard",
-      "stock": "Available stock: {{stock}}",
-      "stockFallback": "not specified"
+      "stock": "Stock disponible : {{stock}}",
+      "stockFallback": "non précisé"
     },
-    "stockAlert": "This product in size {{size}} is only available in {{stock}} unit(s) in stock.",
-    "remove": "Remove",
+    "stockAlert": "Ce produit en taille {{size}} n'est disponible qu'en {{stock}} exemplaire(s) en stock.",
+    "remove": "Retirer",
     "summary": {
-      "tag": "Order",
-      "title": "Summary",
-      "items": "Items",
-      "subtotal": "Subtotal",
-      "shipping": "Shipping",
-      "shippingTBD": "To be confirmed",
+      "tag": "Commande",
+      "title": "Récapitulatif",
+      "items": "Articles",
+      "subtotal": "Sous-total",
+      "shipping": "Livraison",
+      "shippingTBD": "À confirmer",
       "total": "Total",
-      "checkout": "Place order",
-      "clear": "Clear cart",
-      "continue": "← Continue shopping"
+      "checkout": "Passer la commande",
+      "clear": "Vider le panier",
+      "continue": "← Continuer mes achats"
     }
   },
   "checkout": {
     "payment": {
       "orange": {
         "label": "Orange Money",
-        "desc": "Payment via your Orange Money account"
+        "desc": "Paiement via votre compte Orange Money"
       },
       "mtn": {
         "label": "MTN Mobile Money",
-        "desc": "Payment via MTN Mobile Money"
+        "desc": "Paiement via MTN Mobile Money"
       },
       "cash": {
-        "label": "Cash on delivery",
-        "desc": "Cash paid upon receiving your package"
+        "label": "Paiement à la livraison",
+        "desc": "Règlement en espèces à la réception du colis"
       }
     },
     "city": {
-      "label": "City *",
-      "onlyDoualaNote": "We currently deliver to Douala only.",
-      "choosePlaceholder": "-- Choose a city --"
+      "label": "Ville *",
+      "onlyDoualaNote": "Nous livrons actuellement uniquement à Douala.",
+      "choosePlaceholder": "-- Choisir une ville --"
+    },
+    "neighborhood": {
+      "hint": "Cliquez pour voir tous les quartiers, ou tapez les premières lettres.",
+      "noMatch": "« {{value}} » n'est pas dans notre liste — pas de souci, votre saisie est conservée."
     },
     "validation": {
-      "nameRequired": "Last name is required",
-      "firstNameRequired": "First name is required",
-      "emailRequired": "Email is required",
-      "emailInvalid": "Invalid email",
-      "phoneRequired": "Phone number is required",
-      "phoneFormat": "Required format: 6XXXXXXXX (9 digits, e.g. 671207375)",
-      "addressRequired": "Address is required",
-      "cityRequired": "City is required",
-      "neighborhoodRequired": "Neighborhood is required so the courier can find you"
+      "nameRequired": "Le nom est obligatoire",
+      "firstNameRequired": "Le prénom est obligatoire",
+      "emailRequired": "L'e-mail est obligatoire",
+      "emailInvalid": "E-mail invalide",
+      "phoneRequired": "Le numéro de téléphone est obligatoire",
+      "phoneFormat": "Format requis : 6XXXXXXXX (9 chiffres, ex. 671207375)",
+      "addressRequired": "L'adresse est obligatoire",
+      "cityRequired": "La ville est obligatoire",
+      "neighborhoodRequired": "Le quartier est obligatoire pour que le livreur vous trouve"
     },
     "errors": {
-      "onlinePaymentUnavailable": "Online payment is not available right now. Please choose cash on delivery.",
-      "generic": "An error occurred. Please try again."
+      "onlinePaymentUnavailable": "Le paiement en ligne est indisponible pour le moment. Veuillez choisir le paiement à la livraison.",
+      "generic": "Une erreur est survenue. Veuillez réessayer."
     },
     "success": {
-      "titleLine": "Order",
-      "titleHighlight": "confirmed!",
-      "orderNumberLabel": "Order number",
-      "confirmedMessage": "Order successfully placed. We'll contact you at {{phone}} to confirm.",
-      "viewOrders": "View my orders",
-      "backHome": "Back to home"
+      "titleLine": "Commande",
+      "titleHighlight": "confirmée !",
+      "orderNumberLabel": "Numéro de commande",
+      "confirmedMessage": "Commande passée avec succès. Nous vous contacterons au {{phone}} pour confirmation.",
+      "viewOrders": "Voir mes commandes",
+      "backHome": "Retour à l'accueil"
     },
     "orderSuccess": {
-      "checking": "Checking your payment…",
-      "pendingTitle": "Confirming your payment…",
-      "paidTitleLine": "Payment",
-      "paidTitleHighlight": "confirmed!",
-      "orderNumberLabel": "Order number",
-      "paidMessage": "Your payment was received. We'll prepare your order shortly.",
-      "pendingMessage": "We're still confirming your payment with the operator. This page will update automatically.",
-      "stillProcessingMessage": "This is taking longer than usual. Your payment may still be processing — check \"My orders\" in a few minutes, or contact us if you're unsure.",
-      "errorTitle": "Something went wrong",
-      "genericError": "Unable to check your order right now.",
-      "missingOrder": "No order reference was found in this link.",
-      "viewOrders": "View my orders",
-      "backHome": "Back to home"
+      "checking": "Vérification de votre paiement…",
+      "pendingTitle": "Confirmation du paiement en cours…",
+      "paidTitleLine": "Paiement",
+      "paidTitleHighlight": "confirmé !",
+      "orderNumberLabel": "Numéro de commande",
+      "paidMessage": "Votre paiement a bien été reçu. Nous préparons votre commande.",
+      "pendingMessage": "Nous confirmons votre paiement auprès de l'opérateur. Cette page se mettra à jour automatiquement.",
+      "stillProcessingMessage": "C'est plus long que prévu. Votre paiement est peut-être encore en cours de traitement — vérifiez « Mes commandes » dans quelques minutes, ou contactez-nous en cas de doute.",
+      "errorTitle": "Un problème est survenu",
+      "genericError": "Impossible de vérifier votre commande pour le moment.",
+      "missingOrder": "Aucune référence de commande trouvée dans ce lien.",
+      "viewOrders": "Voir mes commandes",
+      "backHome": "Retour à l'accueil"
     },
-    "loading": "Loading…",
+    "loading": "Chargement…",
     "breadcrumb": {
-      "home": "Home",
-      "cart": "Cart",
-      "payment": "Payment"
+      "home": "Accueil",
+      "cart": "Panier",
+      "payment": "Paiement"
     },
     "steps": {
-      "delivery": "Delivery",
-      "payment": "Payment",
+      "delivery": "Livraison",
+      "payment": "Paiement",
       "confirmation": "Confirmation"
     },
     "step1": {
-      "title": "Delivery address",
-      "desc": "Where should we deliver your order?",
-      "lastNameLabel": "Last name *",
-      "lastNamePlaceholder": "Your last name",
-      "firstNameLabel": "First name *",
-      "firstNamePlaceholder": "Your first name",
-      "emailLabel": "Email *",
-      "emailPlaceholder": "you@example.cm",
-      "phoneLabel": "Phone * — format: 671207375",
-      "phonePlaceholder": "E.g.: 671207375",
-      "addressLabel": "Address *",
-      "addressPlaceholder": "Street number and name",
-      "neighborhoodLabel": "Neighborhood / Area *",
-      "neighborhoodPlaceholder": "E.g.: Bastos, Bonapriso",
-      "referenceLabel": "Landmark (optional)",
-      "referencePlaceholder": "E.g.: near the town hall, Casino supermarket…",
-      "deliveryNote": "Delivery to Douala: {{fee}} FCFA (3-5 business days).",
-      "continueButton": "Continue →"
+      "title": "Adresse de livraison",
+      "desc": "Où devons-nous livrer votre commande ?",
+      "lastNameLabel": "Nom *",
+      "lastNamePlaceholder": "Votre nom",
+      "firstNameLabel": "Prénom *",
+      "firstNamePlaceholder": "Votre prénom",
+      "emailLabel": "E-mail *",
+      "emailPlaceholder": "vous@exemple.cm",
+      "phoneLabel": "Téléphone * — format : 671207375",
+      "phonePlaceholder": "Ex. : 671207375",
+      "addressLabel": "Adresse *",
+      "addressPlaceholder": "Numéro et nom de rue",
+      "neighborhoodLabel": "Quartier / Secteur *",
+      "neighborhoodPlaceholder": "Ex. : Akwa, Bonamoussadi, Ndogpassi",
+      "referenceLabel": "Point de repère (facultatif)",
+      "referencePlaceholder": "Ex. : près de la mairie, supermarché Casino…",
+      "deliveryNote": "Livraison à Douala : {{fee}} FCFA (3 à 5 jours ouvrés).",
+      "continueButton": "Continuer →"
     },
     "step2": {
-      "title": "Payment method",
-      "desc": "Choose your payment method.",
-      "backButton": "← Back",
-      "confirmButton": "Confirm →"
+      "title": "Mode de paiement",
+      "desc": "Choisissez votre mode de paiement.",
+      "backButton": "← Retour",
+      "confirmButton": "Confirmer →"
     },
     "step3": {
-      "title": "Final review",
-      "desc": "Review your information before confirming.",
-      "deliveryLabel": "Delivery",
-      "paymentLabel": "Payment",
-      "itemsLabel": "Ordered items",
-      "sizeLabel": "Size {{size}}",
-      "colorLabel": "Color {{color}}",
-      "qtyLabel": "Qty {{qty}}",
-      "backButton": "← Back",
-      "submitting": "Processing…",
-      "submitButton": "Place order"
+      "title": "Vérification finale",
+      "desc": "Vérifiez vos informations avant de confirmer.",
+      "deliveryLabel": "Livraison",
+      "paymentLabel": "Paiement",
+      "itemsLabel": "Articles commandés",
+      "sizeLabel": "Taille {{size}}",
+      "colorLabel": "Couleur {{color}}",
+      "qtyLabel": "Qté {{qty}}",
+      "backButton": "← Retour",
+      "submitting": "Traitement…",
+      "submitButton": "Passer la commande"
     },
     "sidebar": {
-      "title": "Summary",
-      "subtotal": "Subtotal",
-      "delivery": "Delivery (Douala)",
+      "title": "Récapitulatif",
+      "subtotal": "Sous-total",
+      "delivery": "Livraison (Douala)",
       "total": "Total"
     },
     "legal": {
-      "withdrawal": "In accordance with Cameroonian law n° 2011/012, you have a 7-day withdrawal period from the date of receipt.",
-      "pricesInfo": "Prices shown in FCFA, all taxes included."
-    },
-    "neighborhood": {
-      "hint": "Click to see every neighborhood, or type the first few letters.",
-      "noMatch": "“{{value}}” isn't in our list — no problem, we'll keep what you typed."
+      "withdrawal": "Conformément à la loi camerounaise n° 2011/012, vous disposez d'un délai de rétractation de 7 jours à compter de la date de réception.",
+      "pricesInfo": "Prix affichés en FCFA, toutes taxes comprises."
     }
   },
   "orderSuccess": {
@@ -555,565 +555,565 @@
   },
   "maintenance": {
     "eyebrow": "Maintenance",
-    "title": "Site temporarily unavailable",
-    "description": "Our teams are running a scheduled update. Service will be restored shortly.",
-    "statusBadge": "Maintenance in progress",
+    "title": "Site temporairement indisponible",
+    "description": "Nos équipes effectuent une mise à jour planifiée. Le service sera rétabli sous peu.",
+    "statusBadge": "Maintenance en cours",
     "info": {
-      "duration": "Estimated duration: less than 30 minutes",
-      "dataSafe": "Your data and orders are safe",
-      "adminOnly": "Only administrators can sign in"
+      "duration": "Durée estimée : moins de 30 minutes",
+      "dataSafe": "Vos données et vos commandes sont en sécurité",
+      "adminOnly": "Seuls les administrateurs peuvent se connecter"
     },
-    "backHome": "Back to home"
+    "backHome": "Retour à l'accueil"
   },
   "terms": {
-    "badge": "Terms",
-    "heroTitle": "Terms & Conditions",
-    "heroSubtitle": "By making a purchase on CFPD TryOn, you unreservedly accept these Terms & Conditions.",
-    "ctaTitle": "Shop with confidence",
-    "ctaSubtitle": "Our terms are clear, fair, and designed to protect your rights.",
-    "ctaButton": "Back to home",
+    "badge": "Conditions",
+    "heroTitle": "Conditions générales de vente",
+    "heroSubtitle": "En effectuant un achat sur CFPD TryOn, vous acceptez sans réserve les présentes conditions générales.",
+    "ctaTitle": "Achetez en toute confiance",
+    "ctaSubtitle": "Nos conditions sont claires, équitables et conçues pour protéger vos droits.",
+    "ctaButton": "Retour à l'accueil",
     "sections": {
       "acceptance": {
-        "title": "1. Acceptance of Terms",
-        "p1": "By accessing the CFPD TryOn website and making a purchase, you unreservedly accept these Terms & Conditions. If you do not accept these terms, please do not use our site.",
-        "note": "We reserve the right to modify these terms at any time. Changes take effect as soon as they are published."
+        "title": "1. Acceptation des conditions",
+        "p1": "En accédant au site CFPD TryOn et en effectuant un achat, vous acceptez sans réserve les présentes conditions générales. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre site.",
+        "note": "Nous nous réservons le droit de modifier ces conditions à tout moment. Les modifications prennent effet dès leur publication."
       },
       "products": {
-        "title": "2. Products and Prices",
-        "item1": "Product characteristics are described as accurately as possible.",
-        "item2": "All prices are shown in FCFA and reflect those in effect at the time of order.",
-        "item3": "Products remain the property of CFPD TryOn until full payment has been received."
+        "title": "2. Produits et prix",
+        "item1": "Les caractéristiques des produits sont décrites avec la plus grande précision possible.",
+        "item2": "Tous les prix sont affichés en FCFA et correspondent à ceux en vigueur au moment de la commande.",
+        "item3": "Les produits restent la propriété de CFPD TryOn jusqu'au paiement intégral."
       },
       "order": {
-        "title": "3. Order",
-        "step1": "Select the products you want and add them to your cart.",
-        "step2": "Sign in or create an account after confirming your cart.",
-        "step3": "Choose your delivery address and payment method.",
-        "step4": "Review your order details and total price before finalizing.",
-        "step5": "Confirming the order constitutes acceptance of these Terms and forms the sales contract."
+        "title": "3. Commande",
+        "step1": "Sélectionnez les produits souhaités et ajoutez-les à votre panier.",
+        "step2": "Connectez-vous ou créez un compte après avoir validé votre panier.",
+        "step3": "Choisissez votre adresse de livraison et votre mode de paiement.",
+        "step4": "Vérifiez le détail de votre commande et le prix total avant de finaliser.",
+        "step5": "La confirmation de la commande vaut acceptation des présentes conditions et forme le contrat de vente."
       },
       "payment": {
-        "title": "4. Payment",
-        "item1": "We accept payment by credit card, mobile money, and bank transfer.",
-        "item2": "Payment is due immediately upon ordering.",
-        "item3": "All transactions are secure and encrypted using SSL technology."
+        "title": "4. Paiement",
+        "item1": "Nous acceptons le paiement par Mobile Money et à la livraison.",
+        "item2": "Le paiement est exigible immédiatement à la commande.",
+        "item3": "Toutes les transactions sont sécurisées et chiffrées."
       },
       "shipping": {
-        "title": "5. Shipping",
-        "item1": "Products are delivered to the address provided at checkout.",
-        "item2": "Delivery times are estimates and may vary based on availability.",
-        "item3": "If a delay exceeds 7 business days, you may cancel your order."
+        "title": "5. Livraison",
+        "item1": "Les produits sont livrés à l'adresse indiquée lors de la commande.",
+        "item2": "Les délais de livraison sont donnés à titre indicatif et peuvent varier selon la disponibilité.",
+        "item3": "Si un retard dépasse 7 jours ouvrés, vous pouvez annuler votre commande."
       },
       "returns": {
-        "title": "6. Right of Withdrawal and Returns",
-        "p1": "In accordance with our returns policy, you have 15 calendar days from receipt to return a product that doesn't suit you.",
-        "noteBefore": "Detailed terms are available on our",
-        "noteLinkText": "Returns Policy"
+        "title": "6. Droit de rétractation et retours",
+        "p1": "Conformément à notre politique de retour, vous disposez de 15 jours calendaires à compter de la réception pour retourner un produit qui ne vous convient pas.",
+        "noteBefore": "Les modalités détaillées sont disponibles sur notre",
+        "noteLinkText": "politique de retour"
       },
       "warranty": {
-        "title": "7. Warranty",
-        "item1": "Products are covered by the legal warranty of conformity.",
-        "item2": "Keep your purchase receipt to make use of the warranty."
+        "title": "7. Garantie",
+        "item1": "Les produits sont couverts par la garantie légale de conformité.",
+        "item2": "Conservez votre reçu d'achat pour faire valoir la garantie."
       },
       "contact": {
         "title": "8. Contact",
-        "emailLabel": "Email:",
-        "addressLabel": "Address:",
-        "addressValue": "CFPD TryOn, Douala, Cameroon",
-        "phoneLabel": "Phone:"
+        "emailLabel": "E-mail :",
+        "addressLabel": "Adresse :",
+        "addressValue": "CFPD TryOn, Douala, Cameroun",
+        "phoneLabel": "Téléphone :"
       }
     }
   },
   "sizeGuide": {
-    "badge": "Size Guide",
-    "heroTitle": "Find your perfect size",
-    "heroSubtitle": "For a flawless fit with our virtual fitting room, follow these simple steps to take your measurements.",
+    "badge": "Guide des tailles",
+    "heroTitle": "Trouvez votre taille idéale",
+    "heroSubtitle": "Pour un ajustement impeccable avec notre cabine d'essayage virtuelle, suivez ces étapes simples pour prendre vos mesures.",
     "measuring": {
-      "title": "How to take your measurements",
-      "intro": "To ensure a perfect fit with our virtual fitting room, please follow these simple steps:",
-      "tip": "Tip: for more accuracy, ask someone to help you take your measurements."
+      "title": "Comment prendre vos mesures",
+      "intro": "Pour garantir un ajustement parfait avec notre cabine d'essayage virtuelle, suivez ces étapes simples :",
+      "tip": "Conseil : pour plus de précision, demandez à quelqu'un de vous aider à prendre vos mesures."
     },
     "measures": {
       "chest": {
-        "title": "Chest",
-        "desc": "Measure around the fullest part of your chest, keeping the tape horizontal."
+        "title": "Poitrine",
+        "desc": "Mesurez autour de la partie la plus forte de votre poitrine, en gardant le mètre horizontal."
       },
       "waist": {
-        "title": "Waist",
-        "desc": "Measure around the narrowest part of your waist, usually at navel level."
+        "title": "Tour de taille",
+        "desc": "Mesurez autour de la partie la plus étroite de votre taille, généralement au niveau du nombril."
       },
       "hip": {
-        "title": "Hips",
-        "desc": "Measure around the fullest part of your hips and seat."
+        "title": "Hanches",
+        "desc": "Mesurez autour de la partie la plus forte de vos hanches."
       },
       "legLength": {
-        "title": "Leg length",
-        "desc": "Measure from the crotch to the floor, barefoot."
+        "title": "Longueur de jambe",
+        "desc": "Mesurez de l'entrejambe jusqu'au sol, pieds nus."
       }
     },
     "table": {
-      "title": "Size chart",
-      "subtitle": "All measurements are in centimeters (cm).",
+      "title": "Tableau des tailles",
+      "subtitle": "Toutes les mesures sont en centimètres (cm).",
       "headers": {
-        "size": "Size",
-        "chest": "Chest (cm)",
-        "waist": "Waist (cm)",
-        "hip": "Hips (cm)"
+        "size": "Taille",
+        "chest": "Poitrine (cm)",
+        "waist": "Tour de taille (cm)",
+        "hip": "Hanches (cm)"
       },
-      "note": "These measurements are indicative. For the best fit, use our virtual try-on feature."
+      "note": "Ces mesures sont indicatives. Pour un ajustement optimal, utilisez notre essayage virtuel."
     },
     "between": {
-      "title": "Between two sizes?",
-      "intro": "If your measurements fall between two sizes, here are our recommendations:",
-      "item1": "For tops and dresses: choose the larger size if your chest is bigger.",
-      "item2": "For pants and skirts: choose the larger size if your hips are bigger.",
-      "item3": "If in doubt, feel free to contact us for personalized advice."
+      "title": "Entre deux tailles ?",
+      "intro": "Si vos mesures se situent entre deux tailles, voici nos recommandations :",
+      "item1": "Pour les hauts et les robes : choisissez la taille supérieure si votre poitrine est plus forte.",
+      "item2": "Pour les pantalons et les jupes : choisissez la taille supérieure si vos hanches sont plus fortes.",
+      "item3": "En cas de doute, n'hésitez pas à nous contacter pour un conseil personnalisé."
     },
     "international": {
-      "title": "International size conversion",
+      "title": "Conversion des tailles internationales",
       "headers": {
         "tryon": "TryOn",
         "fr": "France (FR)",
-        "uk": "UK",
-        "us": "US",
-        "it": "Italy (IT)"
+        "uk": "Royaume-Uni (UK)",
+        "us": "États-Unis (US)",
+        "it": "Italie (IT)"
       }
     },
-    "ctaTitle": "Ready for a perfect try-on?",
-    "ctaSubtitle": "Use your measurements to find your ideal size in our virtual fitting room.",
-    "ctaButton": "Start the try-on"
+    "ctaTitle": "Prêt pour un essayage parfait ?",
+    "ctaSubtitle": "Utilisez vos mesures pour trouver votre taille idéale dans notre cabine d'essayage virtuelle.",
+    "ctaButton": "Démarrer l'essayage"
   },
   "shipping": {
-    "badge": "Shipping",
-    "heroTitle": "Shipping Policy",
-    "heroSubtitle": "Everything you need to know about delivery of your orders from CFPD TryOn.",
+    "badge": "Livraison",
+    "heroTitle": "Politique de livraison",
+    "heroSubtitle": "Tout ce qu'il faut savoir sur la livraison de vos commandes CFPD TryOn.",
     "zones": {
-      "title": "Delivery Zones",
+      "title": "Zones de livraison",
       "list": {
-        "douala": "Douala and surrounding areas",
-        "yaounde": "Yaoundé and surrounding areas",
+        "douala": "Douala et ses environs",
+        "yaounde": "Yaoundé et ses environs",
         "bafoussam": "Bafoussam",
         "garoua": "Garoua",
         "maroua": "Maroua",
         "bamenda": "Bamenda",
-        "other": "All other regions of Cameroon"
+        "other": "Toutes les autres régions du Cameroun"
       },
-      "note": "For international deliveries, please contact us directly."
+      "note": "Pour les livraisons internationales, veuillez nous contacter directement."
     },
     "delays": {
-      "title": "Delivery Times",
+      "title": "Délais de livraison",
       "standard": {
-        "title": "Standard Delivery",
-        "main": "3–5 business days for major cities",
-        "remote": "5–7 business days for remote areas"
+        "title": "Livraison standard",
+        "main": "3 à 5 jours ouvrés pour les grandes villes",
+        "remote": "5 à 7 jours ouvrés pour les zones reculées"
       },
       "express": {
-        "title": "Express Delivery",
-        "main": "1–2 business days for Douala and Yaoundé",
-        "other": "2–3 business days for other major cities"
+        "title": "Livraison express",
+        "main": "1 à 2 jours ouvrés pour Douala et Yaoundé",
+        "other": "2 à 3 jours ouvrés pour les autres grandes villes"
       }
     },
     "fees": {
-      "title": "Delivery Fees",
+      "title": "Frais de livraison",
       "standard": {
         "title": "Standard",
-        "free": "Free for orders over 50,000 FCFA",
-        "paid": "500 FCFA for smaller orders"
+        "free": "Gratuite pour les commandes de plus de 50 000 FCFA",
+        "paid": "500 FCFA pour les commandes inférieures"
       },
       "express": {
         "title": "Express",
-        "paid": "1,500 FCFA for all orders",
-        "free": "Free for orders over 100,000 FCFA"
+        "paid": "1 500 FCFA pour toute commande",
+        "free": "Gratuite pour les commandes de plus de 100 000 FCFA"
       }
     },
     "tracking": {
-      "title": "Order Tracking",
-      "desc": "Once your order has shipped, you'll receive an email with your tracking number. You can track your package in real time on our site or directly on the carrier's website."
+      "title": "Suivi de commande",
+      "desc": "Une fois votre commande expédiée, vous recevrez un e-mail avec votre numéro de suivi. Vous pouvez suivre votre colis en temps réel sur notre site ou directement sur le site du transporteur."
     },
     "issues": {
-      "title": "Delays and Delivery Issues",
-      "phoneLabel": "By phone:",
-      "emailLabel": "By email:"
+      "title": "Retards et problèmes de livraison",
+      "phoneLabel": "Par téléphone :",
+      "emailLabel": "Par e-mail :"
     },
-    "ctaTitle": "Ready to place your order?",
-    "ctaSubtitle": "Enjoy our fast and reliable delivery service throughout Cameroon.",
-    "ctaButton": "View catalogue"
+    "ctaTitle": "Prêt à passer votre commande ?",
+    "ctaSubtitle": "Profitez de notre service de livraison rapide et fiable dans tout le Cameroun.",
+    "ctaButton": "Voir le catalogue"
   },
   "returns": {
-    "badge": "Returns",
-    "heroTitle": "Returns Policy",
-    "heroSubtitle": "Everything you need to know about returning or exchanging items from CFPD TryOn.",
+    "badge": "Retours",
+    "heroTitle": "Politique de retour",
+    "heroSubtitle": "Tout ce qu'il faut savoir pour retourner ou échanger un article CFPD TryOn.",
     "delay": {
-      "title": "Return Window",
-      "textBefore": "You have",
-      "textBold": "15 calendar days",
-      "textAfter": "from the date you receive your order to return an item that doesn't suit you.",
-      "note": "This window is extended during holiday periods (Christmas, New Year, etc.)."
+      "title": "Délai de retour",
+      "textBefore": "Vous disposez de",
+      "textBold": "15 jours calendaires",
+      "textAfter": "à compter de la réception de votre commande pour retourner un article qui ne vous convient pas.",
+      "note": "Ce délai est prolongé pendant les périodes de fêtes (Noël, Nouvel An, etc.)."
     },
     "conditions": {
-      "title": "Return Conditions",
-      "item1": "The item must be in its original condition, unworn, unwashed, and with all tags attached.",
-      "item2": "The item must be in its original packaging.",
-      "item3": "Personalized or custom-made items cannot be returned."
+      "title": "Conditions de retour",
+      "item1": "L'article doit être dans son état d'origine, non porté, non lavé, et avec toutes ses étiquettes.",
+      "item2": "L'article doit être dans son emballage d'origine.",
+      "item3": "Les articles personnalisés ou sur mesure ne peuvent pas être retournés."
     },
     "process": {
-      "title": "Return Process",
-      "step1": "Sign in to your account on our site.",
-      "step2": "Go to the \"My Orders\" section.",
-      "step3": "Select the order containing the item to return.",
-      "step4": "Click \"Return an item\" and follow the instructions.",
-      "step5": "Print the return label and attach it to your package.",
-      "step6": "Drop off your package at the nearest pickup point.",
-      "note": "Return shipping costs are the customer's responsibility, unless the error is on our part."
+      "title": "Procédure de retour",
+      "step1": "Connectez-vous à votre compte sur notre site.",
+      "step2": "Rendez-vous dans la rubrique « Mes commandes ».",
+      "step3": "Sélectionnez la commande contenant l'article à retourner.",
+      "step4": "Cliquez sur « Retourner un article » et suivez les instructions.",
+      "step5": "Imprimez l'étiquette de retour et collez-la sur votre colis.",
+      "step6": "Déposez votre colis au point de collecte le plus proche.",
+      "note": "Les frais de retour sont à la charge du client, sauf en cas d'erreur de notre part."
     },
     "refund": {
-      "title": "Refund",
+      "title": "Remboursement",
       "card": {
-        "mode": "Credit card",
-        "delay": "3–5 business days"
+        "mode": "Carte bancaire",
+        "delay": "3 à 5 jours ouvrés"
       },
       "mobileMoney": {
         "mode": "Mobile Money",
-        "delay": "24–48 hours"
+        "delay": "24 à 48 heures"
       },
       "transfer": {
-        "mode": "Bank transfer",
-        "delay": "3–5 business days"
+        "mode": "Virement bancaire",
+        "delay": "3 à 5 jours ouvrés"
       }
     },
     "contact": {
-      "title": "Contact Us",
-      "emailLabel": "Email:",
-      "phoneLabel": "Phone:",
-      "chatLabel": "Live chat:",
-      "chatHours": "available 9am–6pm, Monday to Friday"
+      "title": "Nous contacter",
+      "emailLabel": "E-mail :",
+      "phoneLabel": "Téléphone :",
+      "chatLabel": "Chat en direct :",
+      "chatHours": "disponible de 9h à 18h, du lundi au vendredi"
     },
-    "ctaTitle": "Shop with confidence",
-    "ctaSubtitle": "With our clear and fair returns policy, shop risk-free.",
-    "ctaButton": "Back to home"
+    "ctaTitle": "Achetez en toute confiance",
+    "ctaSubtitle": "Avec notre politique de retour claire et équitable, achetez sans risque.",
+    "ctaButton": "Retour à l'accueil"
   },
   "product": {
-    "loading": "Loading product...",
+    "loading": "Chargement du produit…",
     "notFound": {
-      "title": "Product not found",
-      "desc": "This product doesn't exist or is no longer available.",
-      "backToCatalogue": "Back to catalogue"
+      "title": "Produit introuvable",
+      "desc": "Ce produit n'existe pas ou n'est plus disponible.",
+      "backToCatalogue": "Retour au catalogue"
     },
     "fallback": {
       "category": "Catalogue",
-      "condition": "New",
-      "description": "No description provided for this item."
+      "condition": "Neuf",
+      "description": "Aucune description fournie pour cet article."
     },
     "messages": {
-      "selectSize": "Please choose an available size.",
-      "addedToCart": "Added to cart in size {{size}} ✓",
-      "addToCartError": "Unable to add to cart",
-      "limitedStock": "Only {{count}} item(s) left in this size in your cart.",
-      "linkCopied": "Link copied!"
+      "selectSize": "Veuillez choisir une taille disponible.",
+      "addedToCart": "Ajouté au panier en taille {{size}} ✓",
+      "addToCartError": "Impossible d'ajouter au panier",
+      "limitedStock": "Il ne reste que {{count}} article(s) dans cette taille dans votre panier.",
+      "linkCopied": "Lien copié !"
     },
-    "whatsappMessage": "Hi, I'm interested in \"{{name}}\" ({{price}} FCFA) on TryOn.",
+    "whatsappMessage": "Bonjour, je suis intéressé(e) par « {{name}} » ({{price}} FCFA) sur TryOn.",
     "breadcrumb": {
-      "home": "Home",
+      "home": "Accueil",
       "catalogue": "Catalogue"
     },
     "aria": {
-      "addToFavorites": "Add to favorites",
-      "share": "Share",
-      "close": "Close"
+      "addToFavorites": "Ajouter aux favoris",
+      "share": "Partager",
+      "close": "Fermer"
     },
-    "detailsToggle": "Item details",
+    "detailsToggle": "Détails de l'article",
     "detailLabels": {
-      "brand": "Brand",
-      "size": "Size",
-      "material": "Material"
+      "brand": "Marque",
+      "size": "Taille",
+      "material": "Matière"
     },
     "sizeSection": {
-      "label": "Size",
-      "guideLink": "Size guide →"
+      "label": "Taille",
+      "guideLink": "Guide des tailles →"
     },
     "stock": {
-      "outOfStock": "sold out",
-      "lowStock": "only {{count}} left",
-      "available": "{{count}} in stock"
+      "outOfStock": "épuisé",
+      "lowStock": "plus que {{count}}",
+      "available": "{{count}} en stock"
     },
-    "tryOnButton": "Try on virtually",
+    "tryOnButton": "Essayer virtuellement",
     "addToCart": {
-      "outOfStock": "Sold out",
-      "added": "Added to cart",
-      "default": "Add to cart"
+      "outOfStock": "Épuisé",
+      "added": "Ajouté au panier",
+      "default": "Ajouter au panier"
     },
-    "whatsappButton": "Contact on WhatsApp",
-    "reassurance": "Secure cash-on-delivery or Mobile Money payment",
+    "whatsappButton": "Contacter sur WhatsApp",
+    "reassurance": "Paiement sécurisé à la livraison ou par Mobile Money",
     "descriptionTitle": "Description"
   },
   "privacyPolicy": {
-    "badge": "Privacy",
-    "heroTitle": "Privacy Policy",
-    "heroSubtitle": "How we collect, use, and protect your personal information when you use our services.",
+    "badge": "Confidentialité",
+    "heroTitle": "Politique de confidentialité",
+    "heroSubtitle": "Comment nous collectons, utilisons et protégeons vos informations personnelles lorsque vous utilisez nos services.",
     "sections": {
       "introduction": {
         "title": "Introduction",
-        "p1": "At CFPD TryOn, we are committed to protecting your privacy. This policy describes how we collect, use, disclose, and secure your information when you visit our site or use our services.",
-        "consentNote": "By using our site, you consent to the practices described in this policy."
+        "p1": "Chez CFPD TryOn, nous nous engageons à protéger votre vie privée. Cette politique décrit comment nous collectons, utilisons, divulguons et sécurisons vos informations lorsque vous visitez notre site ou utilisez nos services.",
+        "consentNote": "En utilisant notre site, vous consentez aux pratiques décrites dans cette politique."
       },
       "collectedInfo": {
-        "title": "Information We Collect",
+        "title": "Informations que nous collectons",
         "personal": {
-          "title": "Personal information",
-          "item1": "Full name, email address, phone number",
-          "item2": "Billing and shipping address",
-          "item3": "Payment details (processed by our secure partners, not stored by us)",
-          "item4": "Purchase history and preferences",
-          "item5": "Virtual try-on data (uploaded photos, body measurements)"
+          "title": "Informations personnelles",
+          "item1": "Nom complet, adresse e-mail, numéro de téléphone",
+          "item2": "Adresse de facturation et de livraison",
+          "item3": "Informations de paiement (traitées par nos partenaires sécurisés, non conservées par nous)",
+          "item4": "Historique d'achat et préférences",
+          "item5": "Données d'essayage virtuel (photos téléchargées, mesures corporelles)"
         },
         "technical": {
-          "title": "Technical information",
-          "item1": "IP address, browser type, operating system",
-          "item2": "Pages visited, visit duration, navigation paths",
-          "item3": "Cookies and similar tracking technologies"
+          "title": "Informations techniques",
+          "item1": "Adresse IP, type de navigateur, système d'exploitation",
+          "item2": "Pages visitées, durée de visite, parcours de navigation",
+          "item3": "Cookies et technologies de suivi similaires"
         }
       },
       "usage": {
-        "title": "How We Use Your Information",
-        "item1": "To process your orders and provide our services",
-        "item2": "To personalize your shopping experience",
-        "item3": "To improve our website and features",
-        "item4": "To send you communications related to your account",
-        "item5": "To prevent fraud and ensure security"
+        "title": "Comment nous utilisons vos informations",
+        "item1": "Pour traiter vos commandes et fournir nos services",
+        "item2": "Pour personnaliser votre expérience d'achat",
+        "item3": "Pour améliorer notre site et ses fonctionnalités",
+        "item4": "Pour vous envoyer des communications liées à votre compte",
+        "item5": "Pour prévenir la fraude et garantir la sécurité"
       },
       "security": {
-        "title": "Data Security",
+        "title": "Sécurité des données",
         "card1": {
-          "title": "SSL/TLS Encryption",
-          "desc": "For all data transmissions"
+          "title": "Chiffrement SSL/TLS",
+          "desc": "Pour toutes les transmissions de données"
         },
         "card2": {
-          "title": "Strict access controls",
-          "desc": "Secure storage with limited access"
+          "title": "Contrôles d'accès stricts",
+          "desc": "Stockage sécurisé à accès limité"
         },
         "card3": {
-          "title": "Regular audits",
-          "desc": "Periodic security review of our systems"
+          "title": "Audits réguliers",
+          "desc": "Contrôle de sécurité périodique de nos systèmes"
         },
         "card4": {
-          "title": "Staff training",
-          "desc": "Continuous data protection awareness"
+          "title": "Formation du personnel",
+          "desc": "Sensibilisation continue à la protection des données"
         }
       },
       "rights": {
-        "title": "Your Rights",
-        "item1": "Right of access to your personal data",
-        "item2": "Right to rectify inaccurate data",
-        "item3": "Right to erasure (\"right to be forgotten\")"
+        "title": "Vos droits",
+        "item1": "Droit d'accès à vos données personnelles",
+        "item2": "Droit de rectification des données inexactes",
+        "item3": "Droit à l'effacement (« droit à l'oubli »)"
       },
       "cookies": {
         "title": "Cookies",
-        "item1": "Essential — necessary for the site to function",
-        "item2": "Performance — to analyze site usage",
-        "item3": "Functionality — to remember your preferences"
+        "item1": "Essentiels — nécessaires au fonctionnement du site",
+        "item2": "Performance — pour analyser l'utilisation du site",
+        "item3": "Fonctionnalité — pour mémoriser vos préférences"
       },
       "contact": {
         "title": "Contact",
-        "emailLabel": "Email:",
-        "addressLabel": "Address:",
-        "addressValue": "CFPD TryOn, Douala, Cameroon",
-        "phoneLabel": "Phone:"
+        "emailLabel": "E-mail :",
+        "addressLabel": "Adresse :",
+        "addressValue": "CFPD TryOn, Douala, Cameroun",
+        "phoneLabel": "Téléphone :"
       }
     },
     "cta": {
-      "title": "Your data is safe",
-      "subtitle": "We protect your information with the highest standards of privacy.",
-      "backHome": "Back to home"
+      "title": "Vos données sont en sécurité",
+      "subtitle": "Nous protégeons vos informations avec les plus hauts standards de confidentialité.",
+      "backHome": "Retour à l'accueil"
     }
   },
   "helpCenter": {
-    "title": "Help Center",
-    "subtitle": "Find answers to frequently asked questions on CFPD TryOn.",
-    "heroTitle": "How can we help you?",
-    "searchPlaceholder": "Search for an answer...",
+    "title": "Centre d'aide",
+    "subtitle": "Trouvez des réponses aux questions fréquentes sur CFPD TryOn.",
+    "heroTitle": "Comment pouvons-nous vous aider ?",
+    "searchPlaceholder": "Rechercher une réponse…",
     "categories": {
       "commandes": {
-        "label": "Orders",
-        "desc": "Tracking, changes and history"
+        "label": "Commandes",
+        "desc": "Suivi, modifications et historique"
       },
       "livraison": {
-        "label": "Shipping",
-        "desc": "Delivery times, address and package tracking"
+        "label": "Livraison",
+        "desc": "Délais, adresse et suivi de colis"
       },
       "paiement": {
-        "label": "Payment",
-        "desc": "Methods, security and verification"
+        "label": "Paiement",
+        "desc": "Modes, sécurité et vérification"
       },
       "essayage": {
-        "label": "Virtual Try-On",
-        "desc": "Photo, AI rendering and tips"
+        "label": "Essayage virtuel",
+        "desc": "Photo, rendu IA et conseils"
       },
       "retours": {
-        "label": "Returns",
-        "desc": "Exchanges and refunds"
+        "label": "Retours",
+        "desc": "Échanges et remboursements"
       },
       "compte": {
-        "label": "Account",
-        "desc": "Profile, password and security"
+        "label": "Compte",
+        "desc": "Profil, mot de passe et sécurité"
       }
     },
     "faqs": {
       "q1": {
-        "category": "Virtual Try-On",
-        "question": "How do I use the virtual try-on?",
-        "answer": "Choose a product, click on Virtual Try-On, upload your image and launch the simulation. The result allows you to visualize how the garment looks before buying."
+        "category": "Essayage virtuel",
+        "question": "Comment utiliser l'essayage virtuel ?",
+        "answer": "Choisissez un produit, cliquez sur Essayage virtuel, ajoutez votre photo et lancez la simulation. Le résultat vous permet de visualiser le rendu du vêtement avant d'acheter."
       },
       "q2": {
-        "category": "Orders",
-        "question": "How do I track my order?",
-        "answer": "From your account, open the Orders section. You will be able to check the status and history of each order."
+        "category": "Commandes",
+        "question": "Comment suivre ma commande ?",
+        "answer": "Depuis votre compte, ouvrez la rubrique Commandes. Vous pourrez consulter le statut et l'historique de chaque commande."
       },
       "q3": {
-        "category": "Payment",
-        "question": "Are my payments secure?",
-        "answer": "Yes. Transactions are processed through a secure gateway and sensitive information is not stored in plain text in the application."
+        "category": "Paiement",
+        "question": "Mes paiements sont-ils sécurisés ?",
+        "answer": "Oui. Les transactions passent par une passerelle sécurisée et les informations sensibles ne sont pas stockées en clair dans l'application."
       },
       "q4": {
-        "category": "Returns",
-        "question": "Can I return a product?",
-        "answer": "Returns are possible according to our general terms of sale. We recommend checking the return policy before making a request."
+        "category": "Retours",
+        "question": "Puis-je retourner un produit ?",
+        "answer": "Les retours sont possibles selon nos conditions générales de vente. Nous vous recommandons de consulter la politique de retour avant toute demande."
       },
       "q5": {
-        "category": "Account",
-        "question": "How do I change my personal information?",
-        "answer": "Go to your profile, then click on Edit Profile. You can update your name, email, and phone number."
+        "category": "Compte",
+        "question": "Comment modifier mes informations personnelles ?",
+        "answer": "Rendez-vous dans votre profil, puis cliquez sur Modifier le profil. Vous pouvez mettre à jour votre nom, votre e-mail et votre numéro de téléphone."
       },
       "q6": {
-        "category": "Technical",
-        "question": "What should I do if the try-on doesn't start?",
-        "answer": "Check your internet connection, reload the page, and try again. If the issue persists, contact support using the help center form."
+        "category": "Technique",
+        "question": "Que faire si l'essayage ne démarre pas ?",
+        "answer": "Vérifiez votre connexion internet, rechargez la page et réessayez. Si le problème persiste, contactez le support via le formulaire du centre d'aide."
       }
     },
     "alerts": {
-      "success": "Your request has been sent to support.",
-      "error": "Unable to send your request at the moment."
+      "success": "Votre demande a été envoyée au support.",
+      "error": "Impossible d'envoyer votre demande pour le moment."
     },
-    "sectionCategories": "Categories",
-    "sectionFaqs": "Frequently Asked Questions",
+    "sectionCategories": "Catégories",
+    "sectionFaqs": "Questions fréquentes",
     "noResults": {
-      "title": "No answers found",
-      "desc": "Try another keyword or contact support."
+      "title": "Aucune réponse trouvée",
+      "desc": "Essayez un autre mot-clé ou contactez le support."
     },
     "contact": {
-      "title": "Still need help?",
-      "desc": "Send a request to CFPD TryOn support. We will get back to you as soon as possible.",
-      "button": "Contact Support"
+      "title": "Besoin d'aide supplémentaire ?",
+      "desc": "Envoyez une demande au support CFPD TryOn. Nous vous répondrons dans les meilleurs délais.",
+      "button": "Contacter le support"
     },
     "modal": {
-      "title": "Contact Support",
-      "subject": "Subject",
-      "subjectPlaceholder": "e.g., Issue with my order",
-      "priority": "Priority",
-      "priorityLow": "Low",
-      "priorityMedium": "Medium",
-      "priorityHigh": "High",
+      "title": "Contacter le support",
+      "subject": "Objet",
+      "subjectPlaceholder": "Ex. : problème avec ma commande",
+      "priority": "Priorité",
+      "priorityLow": "Basse",
+      "priorityMedium": "Moyenne",
+      "priorityHigh": "Haute",
       "message": "Message",
-      "messagePlaceholder": "Describe your issue...",
-      "send": "Send Request",
-      "sending": "Sending..."
+      "messagePlaceholder": "Décrivez votre problème…",
+      "send": "Envoyer la demande",
+      "sending": "Envoi…"
     }
   },
   "orders": {
-    "myAccount": "My Account",
-    "title": "My Orders",
-    "loading": "Loading…",
-    "errorLoad": "Unable to load your orders.",
-    "orderId": "Order",
-    "loadingDetails": "Loading items…",
-    "unnamedItem": "Unnamed item",
-    "itemSpec": "Size",
-    "itemQty": "Qty",
-    "subtotal": "Subtotal",
-    "deliveryFee": "Shipping",
-    "free": "Free",
-    "shippingAddress": "Shipping Address",
-    "continueShopping": "Continue shopping",
+    "myAccount": "Mon compte",
+    "title": "Mes commandes",
+    "loading": "Chargement…",
+    "errorLoad": "Impossible de charger vos commandes.",
+    "orderId": "Commande",
+    "loadingDetails": "Chargement des articles…",
+    "unnamedItem": "Article sans nom",
+    "itemSpec": "Taille",
+    "itemQty": "Qté",
+    "subtotal": "Sous-total",
+    "deliveryFee": "Livraison",
+    "free": "Gratuite",
+    "shippingAddress": "Adresse de livraison",
+    "continueShopping": "Continuer mes achats",
     "empty": {
-      "title": "No orders yet",
-      "desc": "Your orders will appear here as soon as they have been placed.",
-      "btn": "Discover the collection"
+      "title": "Aucune commande pour l'instant",
+      "desc": "Vos commandes apparaîtront ici dès qu'elles auront été passées.",
+      "btn": "Découvrir la collection"
     },
     "status": {
-      "pending": "Pending",
-      "processing": "Processing",
-      "shipped": "Shipped",
-      "delivered": "Delivered",
-      "cancelled": "Cancelled"
+      "pending": "En attente",
+      "processing": "En préparation",
+      "shipped": "Expédiée",
+      "delivered": "Livrée",
+      "cancelled": "Annulée"
     },
     "payment": {
       "orange_money": "Orange Money",
       "mtn_mobile_money": "MTN Mobile Money",
-      "cash_on_delivery": "Cash on Delivery"
+      "cash_on_delivery": "Paiement à la livraison"
     }
   },
   "notifications": {
     "title": "Notifications",
-    "unreadCount": "{{count}} unread notification(s)",
-    "upToDate": "Everything is up to date",
-    "loading": "Loading your notifications…",
-    "errorLoad": "Unable to load notifications.",
+    "unreadCount": "{{count}} notification(s) non lue(s)",
+    "upToDate": "Tout est à jour",
+    "loading": "Chargement de vos notifications…",
+    "errorLoad": "Impossible de charger les notifications.",
     "filter": {
-      "all": "All",
-      "unread": "Unread"
+      "all": "Toutes",
+      "unread": "Non lues"
     },
     "action": {
-      "markAllRead": "Mark all read",
-      "delete": "Delete"
+      "markAllRead": "Tout marquer comme lu",
+      "delete": "Supprimer"
     },
     "empty": {
-      "title": "No notifications",
-      "allDesc": "Your notifications will show up here.",
-      "unreadDesc": "You don't have any unread notifications."
+      "title": "Aucune notification",
+      "allDesc": "Vos notifications s'afficheront ici.",
+      "unreadDesc": "Vous n'avez aucune notification non lue."
     },
     "date": {
-      "today": "Today",
-      "yesterday": "Yesterday"
+      "today": "Aujourd'hui",
+      "yesterday": "Hier"
     }
   },
   "profile": {
-    "defaultUser": "User",
-    "roleAdmin": "Administrator",
+    "defaultUser": "Utilisateur",
+    "roleAdmin": "Administrateur",
     "roleClient": "Client",
-    "updateSuccess": "Profile updated successfully!",
-    "updateError": "Error during update",
-    "notSpecified": "Not specified",
-    "footer": "TryOn v1.0 — Fashion platform with virtual try-on",
+    "updateSuccess": "Profil mis à jour avec succès !",
+    "updateError": "Erreur lors de la mise à jour",
+    "notSpecified": "Non renseigné",
+    "footer": "TryOn v1.0 — Plateforme de mode avec essayage virtuel",
     "actions": {
-      "orders": "Orders",
-      "tryon": "Try-on",
-      "cart": "Cart",
+      "orders": "Commandes",
+      "tryon": "Essayage",
+      "cart": "Panier",
       "admin": "Admin",
-      "edit": "Edit",
-      "editProfile": "Edit Profile",
-      "save": "Save Changes",
-      "saving": "Saving...",
-      "cancel": "Cancel",
-      "logout": "Log Out"
+      "edit": "Modifier",
+      "editProfile": "Modifier le profil",
+      "save": "Enregistrer les modifications",
+      "saving": "Enregistrement…",
+      "cancel": "Annuler",
+      "logout": "Se déconnecter"
     },
     "fields": {
-      "firstName": "First Name",
-      "lastName": "Last Name",
-      "email": "Email",
-      "phone": "Phone Number",
-      "phoneHelp": "Used for delivery tracking and order notifications."
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "E-mail",
+      "phone": "Numéro de téléphone",
+      "phoneHelp": "Utilisé pour le suivi de livraison et les notifications de commande."
     },
     "groups": {
-      "account": "Account",
-      "preferences": "Preferences",
+      "account": "Compte",
+      "preferences": "Préférences",
       "support": "Support"
     },
     "links": {
       "notifications": "Notifications",
-      "helpCenter": "Help Center",
-      "privacyPolicy": "Privacy Policy",
-      "terms": "Terms & Conditions",
-      "shipping": "Shipping Info",
-      "returns": "Returns & Refunds"
+      "helpCenter": "Centre d'aide",
+      "privacyPolicy": "Politique de confidentialité",
+      "terms": "Conditions générales",
+      "shipping": "Informations de livraison",
+      "returns": "Retours et remboursements"
     }
   }
 }
