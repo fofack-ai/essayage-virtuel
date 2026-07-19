@@ -837,7 +837,7 @@ export default function Home() {
               boxShadow: '0 18px 50px rgba(26,26,26,0.13)',
             }}
             role="img"
-            aria-label="Badge indiquant un score IA de 94% pour la compatibilité morphologique"
+            aria-label="Badge indiquant un score de 94% pour la compatibilité morphologique"
           >
             <div
               style={{
@@ -856,7 +856,7 @@ export default function Home() {
             </div>
             <div>
               <div style={{ fontSize: '11px', color: T.muted, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
-                Score IA
+                Score
               </div>
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: T.red, lineHeight: 1 }}>
                 94%
