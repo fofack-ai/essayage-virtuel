@@ -735,7 +735,7 @@ export default function Home() {
           </p>
 
           <div style={HERO_BUTTONS_STYLE} className="hero-buttons-wrap">
-            <Link to="/tryon" className="btn-primary" aria-label={t('home.hero.ctaTryOnAria')}>
+            <Link to="/catalogue" className="btn-primary" aria-label={t('home.hero.ctaTryOnAria')}>
               {t('home.hero.ctaTryOn')}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14M12 5l7 7-7 7" />

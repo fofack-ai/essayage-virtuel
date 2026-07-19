@@ -61,7 +61,10 @@ export function SettingsProvider({ children }) {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://localhost:5000/api/v1/settings/public');
+      // Même base d'URL que le reste de l'application (services/api.js).
+      // Sans elle, le site déployé appelait le localhost du VISITEUR, jamais joignable.
+      const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1';
+      const response = await fetch(`${baseUrl}/settings/public`);
       const data = await response.json();
       
       if (data.success) {

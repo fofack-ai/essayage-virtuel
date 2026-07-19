@@ -7,6 +7,7 @@ import { adminService } from '../../services/adminService';
 
 // ─── ICÔNES LUCIDE ───
 import { ShoppingCart, Bell, User, Home, LogIn } from 'lucide-react';
+import LanguageSwitcher from '../LanguageSwitcher';
 
 export default function MobileHeader() {
   const { isAuthenticated } = useAuth();
@@ -36,6 +37,7 @@ export default function MobileHeader() {
     <div className="mobile-header">
       <Link to="/" className="mobile-logo">CFPD TRY<span>ON</span></Link>
       <div className="mobile-header-actions">
+        <LanguageSwitcher />
         {isAuthenticated ? (
           <Link to="/notifications" className="mobile-header-icon" aria-label="Notifications">
             <Bell size={20} strokeWidth={2} />
