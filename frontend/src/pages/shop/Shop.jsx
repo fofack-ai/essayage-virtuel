@@ -8,7 +8,6 @@ import SearchBar from "../../components/shop/SearchBar";
 import { useAuth } from '../../context/AuthContext';
 import { adminService } from '../../services/adminService';
 import { useCart } from '../../context/CartContext';
-import MobileHeader from '../../components/layout/MobileHeader';
 import LoadingPage from '../../components/common/LoadingPage';
 
 const FILTER_VALUES = ['all', 'femme', 'homme', 'robes', 'chemises', 'pantalons', 'vestes'];
@@ -197,7 +196,6 @@ export default function Shop() {
 
   return (
     <div className="shop-page">
-      <MobileHeader />
       <style>{`
         .product-card { cursor: pointer; }
         .product-info-below { cursor: pointer; }

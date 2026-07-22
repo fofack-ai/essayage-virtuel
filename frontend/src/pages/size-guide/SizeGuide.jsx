@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import MobileHeader from '../../components/layout/MobileHeader';
 
 // ─── ICÔNES LUCIDE ───
 import {
@@ -37,7 +36,6 @@ export default function SizeGuide() {
 
   return (
     <div className="static-page" style={{ paddingTop: '72px', minHeight: '100vh', background: '#F9F9F9' }}>
-      <MobileHeader />
       <style>{`
         /* ============================================================
            SIZE GUIDE — RESPONSIVE

@@ -5,7 +5,6 @@ import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
 import { useSettings } from '../../context/SettingsContext';
 import BottomNav from '../../components/layout/BottomNav';
-import MobileHeader from '../../components/layout/MobileHeader';
 import { User, Mail, Phone, Lock, KeyRound, Hash, Eye, EyeOff } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
 
@@ -239,7 +238,6 @@ export default function Auth() {
   if (screen === "register" && !registrationEnabled) {
     return (
       <div style={pageStyle} className="auth-page">
-        <MobileHeader />
         <section
           style={{
             ...leftStyle,
@@ -291,7 +289,6 @@ export default function Auth() {
   // ... LE RESTE DU RENDU (inchangé)
   return (
     <div style={pageStyle} className="auth-page">
-      <MobileHeader />
       <style>{`
         /* ═══════════════════════════════════════
           RESPONSIVE — AUTH

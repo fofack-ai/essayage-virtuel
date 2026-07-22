@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
-
+import MobileHeader from "./components/layout/MobileHeader";
 import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
@@ -8,6 +8,7 @@ import BottomNav from "./components/layout/BottomNav";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import useMobile from "./hooks/useMobile";
 import LoadingPage from './components/common/LoadingPage';
+
 
 import Home from "./pages/Home";
 import ProductDetail from "./pages/product/ProductDetail";
@@ -59,7 +60,7 @@ function AppLayout() {
 
       {/* Navbar — Desktop uniquement, hors admin */}
       {!isAdminPage && !isMobile && <Navbar />}
-
+{isMobile && !isAdminPage && !isAuthPage && <MobileHeader />}
       <main className="flex-grow">
         <Routes location={location} key={pathname}>
           {/* ── Pages publiques ── */}
@@ -101,6 +102,8 @@ function AppLayout() {
 
       {/* Bottom Nav — Mobile uniquement, hors admin et auth */}
       {isMobile && !isAdminPage && !isAuthPage && <BottomNav />}
+      {isMobile && !isAdminPage && !isAuthPage && <MobileHeader />}
+{isMobile && !isAdminPage && !isAuthPage && <BottomNav />}
     </div>
   );
 }
