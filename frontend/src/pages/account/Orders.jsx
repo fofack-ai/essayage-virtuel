@@ -344,7 +344,7 @@ export default function Orders() {
           <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: 4, textTransform: 'uppercase', color: '#c9a96e', margin: '0 0 12px' }}>
             {t('orders.myAccount', 'Mon compte')}
           </p>
-          <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 'clamp(36px,6vw,68px)', fontWeight: 300, margin: 0 }}>
+          <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 'clamp(36px,6vw,68px)', color: '#fff', fontWeight: 300, margin: 0 }}>
             {t('orders.title', 'Mes commandes')}
           </h1>
         </div>

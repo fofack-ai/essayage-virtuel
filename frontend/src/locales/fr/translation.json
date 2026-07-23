@@ -43,7 +43,7 @@
       "titleLine1": "La mode africaine,",
       "titleHighlight": "réinventée",
       "titleLine2": "pour vous",
-      "description": "Essayez virtuellement vos tenues en wax, bogolan et ankara grâce à notre cabine d'essayage par IA. Commandez en toute confiance.",
+      "description": "Essayez virtuellement vos tenues en wax, bogolan et ankara grâce à notre cabine d'essayage virtuel. Commandez en toute confiance.",
       "ctaTryOn": "Essayer maintenant",
       "ctaTryOnAria": "Essayer la cabine d'essayage virtuelle",
       "ctaCatalogue": "Voir le catalogue",
@@ -81,7 +81,7 @@
       "step1Title": "Ajoutez votre photo",
       "step1Desc": "Une photo de face, en vêtements ajustés, suffit.",
       "step2Title": "Analyse morphologique",
-      "step2Desc": "Notre IA détecte vos mesures en quelques secondes.",
+      "step2Desc": "Notre système en lieu et place de notre IA détecte vos mesures en quelques secondes.",
       "step3Title": "Score de compatibilité",
       "step3Desc": "Chaque vêtement reçoit un score d'adéquation à votre morphologie.",
       "step4Title": "Commandez en confiance",
@@ -144,7 +144,9 @@
     },
     "errors": {
       "registrationClosed": "Les inscriptions sont temporairement fermées.",
-      "passwordMismatch": "Les mots de passe ne correspondent pas."
+      "passwordMismatch": "Les mots de passe ne correspondent pas.",
+      "emailDomainInvalid": "Seules les adresses Gmail ou Yahoo (yahoo.com / yahoo.fr) sont acceptées.",
+      "phoneInvalid": "Le numéro de téléphone doit être à 9 chiffres (ex : 671207375)."
     },
     "messages": {
       "otpSentAdmin": "Un code OTP a été envoyé à votre adresse e-mail administrateur.",

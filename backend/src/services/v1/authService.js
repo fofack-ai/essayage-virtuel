@@ -2,6 +2,7 @@ const passport = require("passport");
 const userModel = require("../../models/v1/userModel");
 const { hashPassword, comparePassword } = require("../../utils/crypto");
 const { generateToken } = require("../../utils/jwt");
+const { isValidCameroonPhone, isValidAllowedEmail } = require("../../utils/validators");
 const { sendOtpEmail, sendResetPasswordEmail } = require("./emailService");
 const crypto = require("crypto");
 const notificationService = require("./notificationService");
@@ -24,6 +25,14 @@ function cleanUser(user) {
 async function register(data) {
   if (!data.firstName || !data.lastName || !data.email || !data.password) {
     throw new Error("Tous les champs obligatoires doivent être remplis");
+  }
+
+  if (!isValidAllowedEmail(data.email)) {
+    throw new Error("Seules les adresses Gmail ou Yahoo (yahoo.com / yahoo.fr) sont acceptées.");
+  }
+
+  if (!data.phone || !isValidCameroonPhone(data.phone)) {
+    throw new Error("Le numéro de téléphone doit être à 9 chiffres (ex : 671207375).");
   }
 
   const existingUser = await userModel.findByEmail(data.email);

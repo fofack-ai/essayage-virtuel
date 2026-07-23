@@ -43,7 +43,7 @@
       "titleLine1": "African fashion,",
       "titleHighlight": "reinvented",
       "titleLine2": "for you",
-      "description": "Virtually try on wax, bogolan and ankara outfits with our AI fitting room. Order with confidence.",
+      "description": "Virtually try on your wax, bogolan, and ankara outfits with our virtual fitting room. Order with confidence.",
       "ctaTryOn": "Try it now",
       "ctaTryOnAria": "Try the virtual fitting room",
       "ctaCatalogue": "View catalogue",
@@ -81,7 +81,7 @@
       "step1Title": "Upload your photo",
       "step1Desc": "A front-facing photo in fitted clothing is enough.",
       "step2Title": "Body analysis",
-      "step2Desc": "Our AI detects your measurements in seconds.",
+      "step2Desc": "Our system, powered by AI, detects your measurements in just a few seconds.",
       "step3Title": "Compatibility score",
       "step3Desc": "Each garment gets a fit-compatibility score.",
       "step4Title": "Order with confidence",
@@ -144,7 +144,9 @@
     },
     "errors": {
       "registrationClosed": "Registrations are temporarily closed.",
-      "passwordMismatch": "Passwords do not match."
+      "passwordMismatch": "Passwords do not match.",
+      "emailDomainInvalid": "Only Gmail or Yahoo addresses (yahoo.com / yahoo.fr) are accepted.",
+      "phoneInvalid": "Phone number must be a 9-digit number (e.g. 671207375)."
     },
     "messages": {
       "otpSentAdmin": "An OTP code has been sent to your admin email.",
@@ -348,19 +350,19 @@
       "backHome": "Back to home"
     },
     "orderSuccess": {
-      "checking": "Vérification de votre paiement…",
-      "pendingTitle": "Confirmation du paiement en cours…",
-      "paidTitleLine": "Paiement",
-      "paidTitleHighlight": "confirmé !",
-      "orderNumberLabel": "Numéro de commande",
-      "paidMessage": "Votre paiement a bien été reçu. Nous préparons votre commande.",
-      "pendingMessage": "Nous confirmons votre paiement auprès de l'opérateur. Cette page se mettra à jour automatiquement.",
-      "stillProcessingMessage": "C'est plus long que prévu. Votre paiement est peut-être encore en cours de traitement — vérifiez \"Mes commandes\" dans quelques minutes, ou contactez-nous en cas de doute.",
-      "errorTitle": "Un problème est survenu",
-      "genericError": "Impossible de vérifier votre commande pour le moment.",
-      "missingOrder": "Aucune référence de commande trouvée dans ce lien.",
-      "viewOrders": "Voir mes commandes",
-      "backHome": "Retour à l'accueil"
+      "checking": "Checking your payment…",
+      "pendingTitle": "Confirming your payment…",
+      "paidTitleLine": "Payment",
+      "paidTitleHighlight": "confirmed!",
+      "orderNumberLabel": "Order number",
+      "paidMessage": "Your payment has been received. We're preparing your order.",
+      "pendingMessage": "We're confirming your payment with the payment provider. This page will update automatically.",
+      "stillProcessingMessage": "This is taking longer than expected. Your payment may still be processing — check \"My Orders\" in a few minutes, or contact us if you're unsure.",
+      "errorTitle": "Something went wrong",
+      "genericError": "We can't check your order right now.",
+      "missingOrder": "No order reference found in this link.",
+      "viewOrders": "View my orders",
+      "backHome": "Back to home"
     },
     "loading": "Loading…",
     "breadcrumb": {

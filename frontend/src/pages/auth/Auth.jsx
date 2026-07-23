@@ -7,6 +7,7 @@ import { useSettings } from '../../context/SettingsContext';
 import BottomNav from '../../components/layout/BottomNav';
 import { User, Mail, Phone, Lock, KeyRound, Hash, Eye, EyeOff } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
+import { isValidCameroonPhone, isValidAllowedEmail } from '../../utils/validators';
 
 const IMAGES = {
   login: "/auth-login.jpg",
@@ -160,30 +161,39 @@ export default function Auth() {
   };
 
   const handleRegister = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      setError("");
-      setMessage("");
+  try {
+    setError("");
+    setMessage("");
 
-      // 👇 VÉRIFICATION SUPPLÉMENTAIRE AVANT L'INSCRIPTION
-      if (!registrationEnabled) {
-        setError(t('auth.errors.registrationClosed'));
-        return;
-      }
-
-      if (registerForm.password !== registerForm.confirmPassword) {
-        setError(t('auth.errors.passwordMismatch'));
-        return;
-      }
-
-      await register(registerForm);
-
-      window.location.href = "/";
-    } catch (err) {
-      setError(err.message);
+    if (!registrationEnabled) {
+      setError(t('auth.errors.registrationClosed'));
+      return;
     }
-  };
+
+    if (!isValidAllowedEmail(registerForm.email)) {
+      setError(t('auth.errors.emailDomainInvalid'));
+      return;
+    }
+
+    if (!isValidCameroonPhone(registerForm.phone)) {
+      setError(t('auth.errors.phoneInvalid'));
+      return;
+    }
+
+    if (registerForm.password !== registerForm.confirmPassword) {
+      setError(t('auth.errors.passwordMismatch'));
+      return;
+    }
+
+    await register(registerForm);
+
+    window.location.href = "/";
+  } catch (err) {
+    setError(err.message);
+  }
+};
 
   const handleForgot = async (e) => {
     e.preventDefault();
@@ -710,7 +720,7 @@ export default function Auth() {
                 <Input
                   icon={<Phone size={18} />}
                   label={t('auth.register.phoneLabel')}
-                  placeholder={t('auth.register.phonePlaceholder')}
+                  placeholder="671207375"
                   value={registerForm.phone}
                   onChange={(v) =>
                     setRegisterForm({
