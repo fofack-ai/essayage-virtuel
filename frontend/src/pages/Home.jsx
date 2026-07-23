@@ -297,6 +297,22 @@ const IA_STEP_DESCRIPTION_STYLE = {
 const DEFAULT_HERO_IMAGE = '/hero-default.jpg';
 const DEFAULT_CATEGORY_IMAGE = '/category-placeholder.jpg';
 
+// Une image par catégorie — la clé doit correspondre au slug ou au nom en minuscule
+// renvoyé par ton API pour chaque catégorie (cat.slug ou cat.name).
+const CATEGORY_IMAGES = {
+  chemises: '/categories/chemise.jfif',
+  femme: '/categories/femme.jpg',
+  homme: '/categories/homme.jpg',
+  pantalons: '/categories/pantalons.webp',
+  robes: '/categories/robes.png',
+  vestes: '/categories/vestes.png'
+};
+
+function getCategoryImage(cat) {
+  const key = (cat.slug || cat.name || '').toString().toLowerCase();
+  return CATEGORY_IMAGES[key] || DEFAULT_CATEGORY_IMAGE;
+}
+
 function ImageWithFallback({ src, alt = '', label = 'TryOn', style = {} }) {
   const [error, setError] = useState(false);
   const fallback = `data:image/svg+xml;utf8,${encodeURIComponent(
@@ -906,15 +922,10 @@ export default function Home() {
                       e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
-                    <div 
-                      style={{ 
-                        position: 'absolute', 
-                        inset: 0, 
-                        backgroundImage: `url(${DEFAULT_CATEGORY_IMAGE})`, 
-                        backgroundSize: 'cover', 
-                        backgroundPosition: 'center' 
-                      }} 
-                      aria-hidden="true" 
+                    <ImageWithFallback
+                      src={getCategoryImage(cat)}
+                      alt=""
+                      label={cat.name}
                     />
                     <div
                       style={{
