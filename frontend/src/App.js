@@ -84,7 +84,7 @@ function AppLayout() {
 {/* ── Routes protégées client ── */}
 <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
 <Route path="/order-success" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
-          <Route path="/cart"          element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+          <Route path="/cart" element={<Cart />} />
           <Route path="/orders"        element={<ProtectedRoute><Orders /></ProtectedRoute>} />
           <Route path="/profile"       element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
