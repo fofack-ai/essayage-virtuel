@@ -1,91 +1,68 @@
-const paymentService = require("../../services/v1/paymentService");
-const paydunyaService = require("../../services/v1/paydunyaService");
-const paymentModel = require("../../models/v1/paymentModel");
-const orderModel = require("../../models/v1/orderModel");
+const campayService = require("../../services/v1/campayService");
 
-async function getOrderPayment(req, res) {
+// ── Campay : déclencher la demande de code PIN ──
+async function initCampay(req, res) {
   try {
-    const { orderId } = req.params;
-    const payment = await paymentService.getOrderPayment(orderId);
-    return res.status(200).json({ success: true, data: payment });
-  } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
-  }
-}
+    const { orderId, phone } = req.body;
+    if (!orderId || !phone) {
+      return res.status(400).json({ success: false, message: "Commande et numéro requis" });
+    }
 
-async function markPaymentAsPaid(req, res) {
-  try {
-    const { paymentId } = req.params;
-    const result = await paymentService.markPaymentAsPaid(paymentId);
-    return res.status(200).json({ success: true, message: result.message });
-  } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
-  }
-}
-
-// ── Paydunya : lancer le paiement en ligne ──
-async function initPaydunya(req, res) {
-  try {
-    const { orderId } = req.body;
-
-    const order = await orderModel.getOrderById(orderId, req.user.id);
+    const order = await orderModel.findById(orderId);
     if (!order) {
       return res.status(404).json({ success: false, message: "Commande introuvable" });
     }
-    if (order.paymentStatus === "paid") {
-      return res.status(400).json({ success: false, message: "Cette commande est déjà payée" });
-    }
 
-    const { token, paymentUrl } = await paydunyaService.createInvoice({
+    const result = await campayService.initiateCollect({
       orderId: order.id,
       orderNumber: order.orderNumber,
       amount: order.total,
-      customer: {
-        name: req.user.firstName
-          ? `${req.user.firstName} ${req.user.lastName || ""}`.trim()
-          : "Client TryOn",
-        email: req.user.email,
-        phone: order.deliveryPhone,
-      },
+      phone,
     });
 
-    const payment = await paymentModel.findByOrderId(order.id);
-    if (payment) {
-      await paymentModel.updatePaymentUrl(payment.id, paymentUrl, token);
-    }
+    // On enregistre la référence pour pouvoir suivre la transaction ensuite
+    await paymentModel.create({
+      orderId: order.id,
+      amount: order.total,
+      provider: "campay",
+      transactionId: result.reference,
+      status: "pending",
+    });
 
-    return res.status(200).json({ success: true, data: { paymentUrl } });
+    return res.json({
+      success: true,
+      reference: result.reference,
+      operator: result.operator,
+    });
   } catch (error) {
-    console.error("[initPaydunya]", error.message);
-    return res.status(400).json({ success: false, message: error.message });
+    console.error("[initCampay]", error.response?.data || error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Impossible de déclencher le paiement. Vérifiez votre numéro.",
+    });
   }
 }
 
-// ── Paydunya : callback (appelé par Paydunya, pas par le client) ──
-async function paydunyaCallback(req, res) {
+// ── Campay : consulter le statut (appelé en boucle par le frontend) ──
+async function campayStatus(req, res) {
   try {
-    const token =
-      req.body?.data?.invoice?.token || req.body?.token || req.query.token;
-    if (!token) {
-      return res.status(400).json({ success: false, message: "Token manquant" });
+    const { reference } = req.params;
+    const result = await campayService.checkStatus(reference);
+
+    if (result.status === "SUCCESSFUL") {
+      const payment = await paymentModel.findByTransactionId(reference);
+      if (payment) await paymentModel.updateStatus(payment.id, "paid");
+      if (result.orderId) await orderModel.updatePaymentStatus(result.orderId, "paid");
+} else if (result.status === "FAILED") {
+      console.warn("[campayStatus] Paiement échoué :", result.reason);
+      const payment = await paymentModel.findByTransactionId(reference);
+      if (payment) await paymentModel.updateStatus(payment.id, "failed");
     }
 
-    const result = await paydunyaService.confirmInvoice(token);
-
-    if (result.status === "completed" && result.orderId) {
-      const payment = await paymentModel.findByTransactionId(token);
-      if (payment) {
-        // "paid" (et non "completed") pour rester cohérent avec le paiement
-        // à la livraison et l'affichage du statut côté dashboard admin.
-        await paymentModel.updateStatus(payment.id, "paid");
-      }
-      await orderModel.updatePaymentStatus(result.orderId, "paid");
-    }
-
-    return res.status(200).json({ success: true });
+    return res.json({ success: true, status: result.status });
   } catch (error) {
-    console.error("[paydunyaCallback]", error.message);
-    return res.status(200).json({ success: true });
+    console.error("[campayStatus]", error.response?.data || error.message);
+    return res.status(500).json({ success: false, message: "Vérification impossible" });
   }
 }
 
@@ -94,4 +71,6 @@ module.exports = {
   markPaymentAsPaid,
   initPaydunya,
   paydunyaCallback,
+  initCampay,
+  campayStatus,
 };
