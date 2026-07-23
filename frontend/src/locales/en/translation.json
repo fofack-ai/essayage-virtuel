@@ -144,7 +144,9 @@
     },
     "errors": {
       "registrationClosed": "Registrations are temporarily closed.",
-      "passwordMismatch": "Passwords do not match."
+      "passwordMismatch": "Passwords do not match.",
+      "emailDomainInvalid": "Only Gmail or Yahoo addresses (yahoo.com / yahoo.fr) are accepted.",
+      "phoneInvalid": "Phone number must be a 9-digit number (e.g. 671207375)."
     },
     "messages": {
       "otpSentAdmin": "An OTP code has been sent to your admin email.",

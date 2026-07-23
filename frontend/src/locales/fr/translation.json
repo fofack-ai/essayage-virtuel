@@ -144,7 +144,9 @@
     },
     "errors": {
       "registrationClosed": "Les inscriptions sont temporairement fermées.",
-      "passwordMismatch": "Les mots de passe ne correspondent pas."
+      "passwordMismatch": "Les mots de passe ne correspondent pas.",
+      "emailDomainInvalid": "Seules les adresses Gmail ou Yahoo (yahoo.com / yahoo.fr) sont acceptées.",
+      "phoneInvalid": "Le numéro de téléphone doit être à 9 chiffres (ex : 671207375)."
     },
     "messages": {
       "otpSentAdmin": "Un code OTP a été envoyé à votre adresse e-mail administrateur.",
