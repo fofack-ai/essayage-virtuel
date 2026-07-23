@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import MobileHeader from '../../components/layout/MobileHeader';
+
 
 // ─── ICÔNES LUCIDE ───
 import {
@@ -46,7 +46,6 @@ export default function Returns() {
 
   return (
     <div className="static-page" style={{ paddingTop: '72px', minHeight: '100vh', background: '#F9F9F9' }}>
-      <MobileHeader />
       <style>{`
         @media (max-width: 900px) {
           .static-hero { padding: 3rem 1.5rem 2.5rem !important; }

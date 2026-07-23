@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { adminService } from '../services/adminService';
 import { useCart } from '../context/CartContext';
-import MobileHeader from '../components/layout/MobileHeader';
+
 
 import { ShoppingCart, Sparkles } from 'lucide-react';
 
@@ -419,8 +419,8 @@ export default function Home() {
           })
           .catch(() => {});
 
-      } catch (err) {
-        setError(err.message);
+} catch (err) {
+        // On n'affiche pas d'erreur brute : la page se montre, sections vides.
         console.error('Erreur chargement home :', err);
         setLoading(false);
       }
@@ -435,9 +435,9 @@ export default function Home() {
     return <div style={{ paddingTop: '72px', textAlign: 'center', color: '#6A6F78' }}>{t('home.states.loading')}</div>;
   }
 
-  if (error) {
-    return <div style={{ paddingTop: '72px', textAlign: 'center', color: T.red }}>{t('home.states.error', { message: error })}</div>;
-  }
+  // if (error) {
+  //   return <div style={{ paddingTop: '72px', textAlign: 'center', color: T.red }}>{t('home.states.error', { message: error })}</div>;
+  // }
 
   const mobileStyles = `
   @media (max-width: 768px) {
@@ -623,7 +623,6 @@ export default function Home() {
 
   return (
     <div style={{ paddingTop: '72px' }}>
-      <MobileHeader />
       <style>{`
         /* ─── EN-TÊTE MOBILE ─── */
         .mobile-home-header {
