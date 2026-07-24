@@ -3,6 +3,7 @@ const paymentModel = require("../../models/v1/paymentModel");
 const orderModel = require("../../models/v1/orderModel");
 const paydunyaService = require("../../services/v1/paydunyaService");
 const campayService = require("../../services/v1/campayService");
+const notificationService = require("../../services/v1/notificationService");
 
 // ── Consulter le paiement d'une commande ──
 async function getOrderPayment(req, res) {
@@ -136,23 +137,29 @@ async function initCampay(req, res) {
       phone,
     });
 
-    await paymentModel.createPayment(db, {
-      orderId: order.id,
-      paymentMethod: order.paymentMethod,
-      provider: "campay",
-      transactionId: result.reference,
-      amount: order.total,
-      currency: "XAF",
-      status: "processing",
-      paymentUrl: null,
-    });
+    // La transaction est LANCÉE chez Campay : à partir d'ici, on ne renvoie
+    // plus d'erreur au client, sinon il croit à un échec alors qu'il paie.
+    try {
+      await paymentModel.createPayment(db, {
+        orderId: order.id,
+        paymentMethod: order.paymentMethod,
+        provider: "campay",
+        transactionId: result.reference,
+        amount: order.total,
+        currency: "XAF",
+        status: "processing",
+        paymentUrl: null,
+      });
+    } catch (dbError) {
+      console.error("[initCampay] enregistrement échoué :", dbError.message);
+    }
 
     return res.json({
       success: true,
       reference: result.reference,
       operator: result.operator,
     });
-} catch (error) {
+  } catch (error) {
     const detail = error.response?.data;
     console.error("[initCampay]", detail || error.message);
 
@@ -182,7 +189,27 @@ async function campayStatus(req, res) {
 
     if (result.status === "SUCCESSFUL") {
       if (payment) await paymentModel.updateStatus(payment.id, "paid");
-      if (result.orderId) await orderModel.updatePaymentStatus(result.orderId, "paid");
+
+      if (result.orderId) {
+        await orderModel.updatePaymentStatus(result.orderId, "paid");
+
+        // Notifier le client que son paiement est bien confirmé.
+        // Une notification qui échoue ne doit pas remettre en cause le paiement.
+        try {
+          const order = await orderModel.getOrderById(result.orderId, req.user.id);
+          if (order) {
+            await notificationService.createUserNotification({
+              userId: req.user.id,
+              type: "payment",
+              title: "Paiement confirmé",
+              message: `Votre paiement pour la commande ${order.orderNumber} a bien été reçu.`,
+              isRead: false,
+            });
+          }
+        } catch (e) {
+          console.error("[campayStatus] notification :", e.message);
+        }
+      }
     } else if (result.status === "FAILED") {
       console.warn("[campayStatus] Paiement échoué :", result.reason);
       if (payment) await paymentModel.updateStatus(payment.id, "failed");

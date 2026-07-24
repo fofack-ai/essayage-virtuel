@@ -112,8 +112,8 @@ async function createOrderFromCart(userId, data, guestId = null) {
       await notificationService.createUserNotification({
         userId: userId,
         type: "order",
-        title: "Commande confirmée",
-        message: `Votre commande ${orderNumber} a été validée avec succès. Montant : ${total.toLocaleString()} FCFA.`,
+title: "Commande enregistrée",
+        message: `Votre commande ${orderNumber} a bien été enregistrée. Montant : ${total.toLocaleString()} FCFA.`,
         isRead: false,
       });
     } catch (err) {
