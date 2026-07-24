@@ -3,19 +3,12 @@ const express = require("express");
 const router = express.Router();
 
 const auth = require("../../middleware/auth");
-const orderController = require("../../controllers/v1/orderController");
-
 const guest = require("../../middleware/guest");
+const orderController = require("../../controllers/v1/orderController");
 
 router.post(
   "/",
   guest,
-  auth,
-  orderController.createOrder
-);
-
-router.post(
-  "/",
   auth,
   orderController.createOrder
 );

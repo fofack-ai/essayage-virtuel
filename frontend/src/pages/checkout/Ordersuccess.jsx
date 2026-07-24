@@ -5,15 +5,13 @@ import { Check, Loader2, AlertTriangle } from 'lucide-react';
 import { api } from '../../services/api';
 
 /*
- * Page de retour PayDunya : c'est ici que le client atterrit après avoir
- * payé (ou annulé) sur la page hébergée PayDunya — voir return_url dans
- * paydunyaService.js côté backend.
+ * Page de retour après paiement mobile : c'est ici que le client atterrit
+ * après avoir payé (ou annulé).
  *
- * Le webhook de callback (serveur à serveur) est la source de vérité pour
- * marquer la commande payée, mais il arrive parfois quelques secondes après
- * que le client soit revenu sur le site. On poll donc brièvement le statut
- * du paiement le temps que le callback arrive, plutôt que de se fier
- * uniquement à ce que PayDunya met dans l'URL de retour.
+ * Le callback serveur à serveur est la source de vérité pour marquer la
+ * commande payée, mais il arrive parfois quelques secondes après le retour
+ * du client. On interroge donc brièvement le statut du paiement le temps
+ * que le callback arrive.
  */
 
 const POLL_INTERVAL_MS = 3000;
@@ -26,7 +24,7 @@ export default function OrderSuccess() {
   const orderId = searchParams.get('order');
 
   const [order, setOrder] = useState(null);
-  const [paymentStatus, setPaymentStatus] = useState(null); // 'paid' | 'processing' | 'failed' | null
+  const [paymentStatus, setPaymentStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const attemptsRef = useRef(0);
@@ -54,7 +52,6 @@ export default function OrderSuccess() {
         setPaymentStatus(status);
         setLoading(false);
 
-        // Le webhook n'est peut-être pas encore arrivé : on retente un peu.
         if (status !== 'paid' && attemptsRef.current < POLL_MAX_ATTEMPTS) {
           attemptsRef.current += 1;
           timerRef.current = setTimeout(check, POLL_INTERVAL_MS);
@@ -75,7 +72,7 @@ export default function OrderSuccess() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId]);
 
-const wrapStyle = {
+  const wrapStyle = {
     paddingTop: 64, minHeight: '100vh', background: '#FFFFFF',
     display: 'flex', flexDirection: 'column', alignItems: 'center',
     justifyContent: 'center', color: '#1A1A1A', textAlign: 'center',
@@ -159,90 +156,6 @@ const wrapStyle = {
         <Link
           to="/"
           style={{ padding: '13px 26px', background: '#fff', color: '#1A1A1A', border: '1px solid #DDD', borderRadius: 8, fontWeight: 600, cursor: 'pointer', fontSize: 14, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
-        >
-          {t('orderSuccess.backHome')}
-        </Link>
-      </div>
-    </div>
-  );
-
-  if (loading) {
-    return (
-      <div style={wrapStyle}>
-        <Loader2 size={48} color="#c9a96e" style={{ marginBottom: 20, animation: 'spin 1s linear infinite' }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-        <p style={{ color: 'rgba(255,255,255,.6)' }}>{t('orderSuccess.checking')}</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={wrapStyle}>
-        <AlertTriangle size={56} color="#B83228" style={{ marginBottom: 20 }} />
-        <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 'clamp(24px,4vw,38px)', fontWeight: 300, marginBottom: 16 }}>
-          {t('orderSuccess.errorTitle')}
-        </h1>
-        <p style={{ color: 'rgba(255,255,255,.55)', maxWidth: 400, marginBottom: 28 }}>{error}</p>
-        <button
-          onClick={() => navigate('/orders')}
-          style={{ padding: '13px 26px', background: '#c9a96e', color: '#1A1A1A', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 14 }}
-        >
-          {t('orderSuccess.viewOrders')}
-        </button>
-      </div>
-    );
-  }
-
-  const isPaid = paymentStatus === 'paid';
-  const isStillProcessing = !isPaid && attemptsRef.current >= POLL_MAX_ATTEMPTS;
-
-  return (
-    <div style={wrapStyle}>
-      {isPaid ? (
-        <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(46,160,67,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-          <Check size={36} color="#2EA043" />
-        </div>
-      ) : (
-        <Loader2 size={48} color="#c9a96e" style={{ marginBottom: 20, animation: 'spin 1s linear infinite' }} />
-      )}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-
-      <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 'clamp(28px,5vw,50px)', fontWeight: 300, margin: '0 0 20px' }}>
-        {isPaid
-          ? <>{t('orderSuccess.paidTitleLine')} <em style={{ color: '#c9a96e' }}>{t('orderSuccess.paidTitleHighlight')}</em></>
-          : t('orderSuccess.pendingTitle')}
-      </h1>
-
-      {order && (
-        <div style={{ background: 'rgba(255,255,255,.08)', borderRadius: 12, padding: '16px 32px', marginBottom: 24, display: 'inline-block' }}>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,.4)', letterSpacing: 2, textTransform: 'uppercase', margin: '0 0 6px' }}>
-            {t('orderSuccess.orderNumberLabel')}
-          </p>
-          <p style={{ fontSize: 22, fontWeight: 700, color: '#c9a96e', margin: 0 }}>
-            {order.orderNumber}
-          </p>
-        </div>
-      )}
-
-      <p style={{ color: 'rgba(255,255,255,.55)', maxWidth: 420, lineHeight: 1.7, marginBottom: 32, fontSize: 15 }}>
-        {isPaid
-          ? t('orderSuccess.paidMessage')
-          : isStillProcessing
-            ? t('orderSuccess.stillProcessingMessage')
-            : t('orderSuccess.pendingMessage')}
-      </p>
-
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <button
-          onClick={() => navigate('/orders')}
-          style={{ padding: '13px 26px', background: '#c9a96e', color: '#1A1A1A', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 14 }}
-        >
-          {t('orderSuccess.viewOrders')}
-        </button>
-        <Link
-          to="/"
-          style={{ padding: '13px 26px', background: 'rgba(255,255,255,.1)', color: '#fff', border: '1px solid rgba(255,255,255,.2)', borderRadius: 8, fontWeight: 600, cursor: 'pointer', fontSize: 14, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
         >
           {t('orderSuccess.backHome')}
         </Link>
