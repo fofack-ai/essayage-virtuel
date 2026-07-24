@@ -732,10 +732,19 @@ const handleAITryon = async () => {
     }
 
     setAiResult(data.data);
-  } catch (err) {
-    console.error('[handleAITryon]', err);
-    setAiError(err.message);
-  } finally {
+} catch (err) {
+  const estReseau =
+    err.message === 'Failed to fetch' ||
+    err.message?.includes('NetworkError') ||
+    err.message?.includes('fetch');
+
+  setAiError(
+    estReseau
+      ? "Connexion au service d'essayage impossible. Vérifiez votre connexion internet et réessayez dans un instant."
+      : "L'essayage n'a pas pu être généré. Réessayez avec une photo de face, en pied et bien éclairée."
+  );
+  console.error('[TryOn]', err);
+} finally {
     setAiGenerating(false);
   }
 };
