@@ -383,14 +383,16 @@ export default function Checkout() {
         setSubmitError("Le paiement n'a pas été confirmé à temps.");
         return;
       }
-      try {
+try {
         const r = await api.get(`/payments/campay/status/${reference}`);
-        if (r.data.status === 'SUCCESSFUL') {
+        const statut = r?.status || r?.data?.status;
+
+        if (statut === 'SUCCESSFUL') {
           clearInterval(timer);
           setCampayStatut(null);
           setOrderResult(order);
           await loadCart();
-        } else if (r.data.status === 'FAILED') {
+        } else if (statut === 'FAILED') {
           clearInterval(timer);
           setCampayStatut('echec');
           setSubmitError("Le paiement a été refusé ou annulé.");
@@ -427,15 +429,17 @@ export default function Checkout() {
       if (paymentMethod === 'orange_money' || paymentMethod === 'mtn_mobile_money') {
         const initRes = await api.post('/payments/campay/init', {
           orderId: order.id,
-          phone: form.tel,        // numéro déjà saisi à l'étape livraison
+          phone: form.tel,
         });
 
-        if (!initRes.data?.reference) {
+        // api renvoie directement le corps : la référence est à la racine
+        const reference = initRes?.reference || initRes?.data?.reference;
+        if (!reference) {
           throw new Error(t('checkout.errors.onlinePaymentUnavailable'));
         }
 
         setCampayStatut('attente');
-        suivrePaiement(initRes.data.reference, order);
+        suivrePaiement(reference, order);
         return;
       }
       // 3. Paiement à la livraison : écran de succès classique
