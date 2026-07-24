@@ -464,38 +464,51 @@ export default function Checkout() {
   }
 
   /* ── Écran de succès ── */
+/* ── Écran de succès ── */
+/* ── Écran de succès ── */
   if (orderResult) return (
     <div style={{
-      paddingTop: 64, minHeight: '100vh', background: '#1A1A1A',
+      paddingTop: 64, minHeight: '100vh', background: '#FFFFFF',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
-      justifyContent: 'center', color: '#fff', textAlign: 'center',
+      justifyContent: 'center', color: '#1A1A1A', textAlign: 'center',
       padding: '64px 24px',
     }}>
-      <div style={{ fontSize: 72, marginBottom: 20 }}>✅</div>
+      <div style={{
+        width: 72, height: 72, borderRadius: '50%',
+        background: 'rgba(46,160,67,.12)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        marginBottom: 24,
+      }}>
+        <Check size={36} strokeWidth={2.5} color="#2EA043" />
+      </div>
+
       <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 'clamp(28px,5vw,50px)', fontWeight: 300, margin: '0 0 20px' }}>
-        {t('checkout.success.titleLine')} <em style={{ color: '#c9a96e' }}>{t('checkout.success.titleHighlight')}</em>
+        {t('checkout.success.titleLine')} <em style={{ color: '#E30613' }}>{t('checkout.success.titleHighlight')}</em>
       </h1>
-      <div style={{ background: 'rgba(255,255,255,.08)', borderRadius: 12, padding: '16px 32px', marginBottom: 24, display: 'inline-block' }}>
-        <p style={{ fontSize: 11, color: 'rgba(255,255,255,.4)', letterSpacing: 2, textTransform: 'uppercase', margin: '0 0 6px' }}>
+
+      <div style={{ background: '#F5F5F5', borderRadius: 12, padding: '16px 32px', marginBottom: 24, display: 'inline-block' }}>
+        <p style={{ fontSize: 11, color: '#8A8A8A', letterSpacing: 2, textTransform: 'uppercase', margin: '0 0 6px' }}>
           {t('checkout.success.orderNumberLabel')}
         </p>
-        <p style={{ fontSize: 22, fontWeight: 700, color: '#c9a96e', margin: 0 }}>
+        <p style={{ fontSize: 22, fontWeight: 700, color: '#E30613', margin: 0 }}>
           {orderResult.orderNumber}
         </p>
       </div>
-      <p style={{ color: 'rgba(255,255,255,.55)', maxWidth: 400, lineHeight: 1.7, marginBottom: 32, fontSize: 15 }}>
+
+      <p style={{ color: '#5A5A5A', maxWidth: 400, lineHeight: 1.7, marginBottom: 32, fontSize: 15 }}>
         {t('checkout.success.confirmedMessage', { phone: form.tel })}
       </p>
+
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
         <button
           onClick={() => navigate('/orders')}
-          style={{ padding: '13px 26px', background: '#c9a96e', color: '#1A1A1A', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 14 }}
+          style={{ padding: '13px 26px', background: '#E30613', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 14 }}
         >
           {t('checkout.success.viewOrders')}
         </button>
         <button
           onClick={() => navigate('/')}
-          style={{ padding: '13px 26px', background: 'rgba(255,255,255,.1)', color: '#fff', border: '1px solid rgba(255,255,255,.2)', borderRadius: 8, fontWeight: 600, cursor: 'pointer', fontSize: 14 }}
+          style={{ padding: '13px 26px', background: '#fff', color: '#1A1A1A', border: '1px solid #DDD', borderRadius: 8, fontWeight: 600, cursor: 'pointer', fontSize: 14 }}
         >
           {t('checkout.success.backHome')}
         </button>

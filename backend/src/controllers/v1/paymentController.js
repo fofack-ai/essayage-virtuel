@@ -152,11 +152,23 @@ async function initCampay(req, res) {
       reference: result.reference,
       operator: result.operator,
     });
-  } catch (error) {
-    console.error("[initCampay]", error.response?.data || error.message);
+} catch (error) {
+    const detail = error.response?.data;
+    console.error("[initCampay]", detail || error.message);
+
+    // Campay renvoie un code explicite : on le traduit pour le client
+    const messages = {
+      ER101: "Numéro de téléphone invalide.",
+      ER102: "Ce numéro n'est ni MTN ni Orange Money.",
+      ER201: "Montant invalide pour ce paiement.",
+      ER301: "Solde insuffisant sur ce compte.",
+    };
+    const code = detail?.error_code || detail?.code;
+
     return res.status(500).json({
       success: false,
-      message: "Impossible de déclencher le paiement. Vérifiez votre numéro.",
+      message: messages[code] ||
+        "Impossible de déclencher le paiement. Réessayez dans un instant.",
     });
   }
 }
