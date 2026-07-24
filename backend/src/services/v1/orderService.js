@@ -17,7 +17,7 @@ const notificationService = require("./notificationService");
  * c'est cette constante qui devient une table — et l'idéal sera alors que le
  * frontend lise le montant renvoyé par le serveur au lieu de le recopier.
  */
-const DELIVERY_FEE_DOUALA = 2000;
+const DELIVERY_FEE_DOUALA = 0;
 const DELIVERY_FEES = { std: DELIVERY_FEE_DOUALA, exp: DELIVERY_FEE_DOUALA };
 
 function generateOrderNumber() {

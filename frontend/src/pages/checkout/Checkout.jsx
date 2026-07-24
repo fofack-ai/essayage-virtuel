@@ -32,7 +32,7 @@ const CITIES = ['Douala'];
 const DEFAULT_CITY = 'Douala';
 
 /* Frais de livraison — Douala uniquement */
-const DELIVERY_FEE = 2000; // FCFA
+const DELIVERY_FEE = 0; // FCFA
 
 const LABEL_STYLE = {
   fontSize: 11, fontWeight: 700, letterSpacing: 1.2,
